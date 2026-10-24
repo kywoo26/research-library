@@ -166,8 +166,8 @@ function render(run, slug, round) {
 // ─── 프롬프트 ────────────────────────────────────────────────────────────────
 const asked = (run) => [run.question && `The question the document has to settle: ${run.question}`, run.angle && `Required angle: ${run.angle}`].filter(Boolean).join('\n');
 
-const DRAFT_SCHEMA = { type: 'object', required: ['summary', 'corpusEnumerated', 'notRead', 'commitSubject', 'commitBody'], properties: {
-  summary: { type: 'string' }, checkoutPath: { type: 'string' }, repo: { type: 'string' },
+const DRAFT_SCHEMA = { type: 'object', required: ['summary', 'question', 'corpusEnumerated', 'notRead', 'commitSubject', 'commitBody'], properties: {
+  summary: { type: 'string' }, question: { type: 'string' }, checkoutPath: { type: 'string' }, repo: { type: 'string' },
   corpusEnumerated: { type: 'array', items: { type: 'string' } }, notRead: { type: 'array', items: { type: 'string' } },
   openQuestions: { type: 'array', items: { type: 'string' } },
   commitSubject: { type: 'string' }, commitBody: { type: 'string' } } };
@@ -180,8 +180,8 @@ ${asked(run)}
 
 Follow .claude/skills/research-source/SKILL.md, then, in this same context, .claude/skills/research-doc/SKILL.md, and write research/${run.slug}/index.html. Enumerate what the corpus contains before writing; the setup chapter and notRead are built from it. Run check-doc.mjs and check-prose.mjs until they pass, run build-index.mjs, and stop. A script re-runs the gates after you.
 
-Output: JSON matching the schema. checkoutPath is where you cloned a repository (outside this repository), repo its owner/name. commitSubject and commitBody follow the Commits section of AGENTS.md: one line saying what was added, and a body naming the document's topic and the sources it rests on.
-Boundaries: do not commit, do not create a branch, do not touch claims.jsonl, and do not start research-verify; separate contexts verify after you.`;
+Output: JSON matching the schema. question is the question the document settles, as you framed it. summary carries the production records the skills would put in run.json; this script owns run.json. openQuestions are what you would have asked the owner. checkoutPath is where you cloned a repository (outside this repository), repo its owner/name. commitSubject and commitBody follow the Commits section of AGENTS.md: one line saying what was added, and a body naming the document's topic and the sources it rests on.
+Boundaries: do not commit, do not create a branch, do not touch claims.jsonl or run.json, and do not start research-verify; separate contexts verify after you.`;
 
 const NOT_THE_AUTHOR = (run) => `Document: research/${run.slug}/index.html
 ${asked(run)}
@@ -242,7 +242,8 @@ async function stageDraft(run) {
   if (opt['dry-run']) return true;
   if (!d) return fail(run, 'draft', '작성 에이전트가 결과를 내지 못했다');
   run.authorSession = run.calls[run.calls.length - 1].session;
-  Object.assign(run, { checkoutPath: d.checkoutPath || null, repo: d.repo || null, commitSubject: d.commitSubject, commitBody: d.commitBody,
+  Object.assign(run, { question: run.question || d.question, draftSummary: d.summary, checkoutPath: d.checkoutPath || null, repo: d.repo || null,
+                       commitSubject: d.commitSubject, commitBody: d.commitBody,
                        notRead: d.notRead, corpusEnumerated: d.corpusEnumerated, openQuestions: d.openQuestions || [] });
   run.repoArgs = d.repo && d.checkoutPath ? ['--repo', `${d.repo}=${d.checkoutPath}`] : [];
   let g = gates(run, run.slug, false);
@@ -279,7 +280,7 @@ async function stageVerify(run) {
 }
 
 async function stageFix(run) {
-  const acc = { fixed: [], rejected: [], needsJudgment: [], unverified: [], wording: [], openFindings: [], afterLastRecheck: [] };
+  const acc = { fixed: [], rejected: [], needsJudgment: [], unverified: [], wording: [], openFindings: [], after_last_recheck: [] };
   const rounds = [];
   let findings = run.stages.verify?.findings || '(no findings)';
   let stopped = 'cap';
@@ -311,7 +312,7 @@ async function stageFix(run) {
       // 마지막 재검증이 찾은 정답 하나짜리 항목은 한 번 더 고치되, 다시 읽히지 않았다고 기록한다.
       if (hard.length) {
         const last = await authorTurn(run, 'fix:after-last-recheck', fixPrompt(run, 'after the last re-check', hard.map((x) => `- ${x}`).join('\n'), null, acc) + '\nNo re-check follows; change nothing else.', FIX_SCHEMA);
-        if (last) { acc.afterLastRecheck.push(...(last.fixed || [])); acc.openFindings.push(...(last.rejected || [])); acc.needsJudgment = last.needsJudgment || acc.needsJudgment; acc.unverified = last.unverified || acc.unverified; }
+        if (last) { acc.after_last_recheck.push(...(last.fixed || [])); acc.openFindings.push(...(last.rejected || [])); acc.needsJudgment = last.needsJudgment || acc.needsJudgment; acc.unverified = last.unverified || acc.unverified; }
         const g2 = gates(run, run.slug, true);
         if (!gatesPass(g2)) { stopped = 'gates'; r.gatesAfterLast = g2; }
       }
@@ -341,10 +342,22 @@ function stageShip(run) {
   run.costUsd = Math.round(cost * 100) / 100;
   run.isDraft = isDraft;
   run.stages.ship = { done: true, branch };
+  const step = (c, a) => { const r = sh(c, a); return r.status === 0 ? null : `${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`; };
+  // --from=ship 로 다시 들어오면 브랜치와 커밋이 이미 있을 수 있다. 그때는 그 커밋을 고쳐 쓴다.
+  const onBranch = sh('git', ['branch', '--show-current']).stdout.trim() === branch;
+  const amend = onBranch && sh('git', ['log', '-1', '--format=%s']).stdout.trim() === run.commitSubject;
+  // README.md 와 index.html 은 생성물이다. HEAD 에서 만든 것을 버리고 origin/main 위에서 다시 만든다.
+  // 그대로 두면 HEAD 와 origin/main 의 문서 목록이 다를 때 switch 가 멈춘다.
+  const before = onBranch ? [] : [['git', ['fetch', '-q', 'origin', 'main']], ['git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']],
+    ['git', ['switch', '-c', branch, 'origin/main']]];
+  for (const [c, a] of before) { const e = step(c, a); if (e) return fail(run, 'ship', e); }
+  const seq = renumberSeq(run.slug);
+  if (seq) run.stages.ship.seq = seq;
   save(run);
-  const steps = [['git', ['fetch', '-q', 'origin', 'main']], ['git', ['switch', '-c', branch, 'origin/main']], ['git', ['add', ...paths]],
-    ['git', ['commit', '-q', '-m', run.commitSubject, '-m', `${run.commitBody}\n\nCo-Authored-By: Claude <noreply@anthropic.com>`]], ['git', ['push', '-q', '-u', 'origin', branch]]];
-  for (const [c, a] of steps) { const r = sh(c, a); if (r.status !== 0) return fail(run, 'ship', `${c} ${a.join(' ')}: ${tail(r.stderr, 3)}`); }
+  const steps = [['node', ['scripts/build-index.mjs']], ['node', ['scripts/check-doc.mjs', `research/${run.slug}`]], ['git', ['add', ...paths]],
+    ['git', amend ? ['commit', '-q', '--amend', '--no-edit'] : ['commit', '-q', '-m', run.commitSubject, '-m', `${run.commitBody}\n\nCo-Authored-By: Claude <noreply@anthropic.com>`]],
+    ['git', ['push', '-q', ...(amend ? ['--force-with-lease'] : []), '-u', 'origin', branch]]];
+  for (const [c, a] of steps) { const e = step(c, a); if (e) return fail(run, 'ship', e); }
   const sha = sh('git', ['rev-parse', 'HEAD']).stdout.trim();
   const remote = sh('git', ['remote', 'get-url', 'origin']).stdout.trim().replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/');
   const owner = remote.split('/').slice(-2).join('/');
@@ -356,7 +369,7 @@ merge 뒤 주소: ${ogUrl}
 ${run.commitBody}
 
 ## 사람이 정할 것
-${list(f.needsJudgment)}
+${list([...(run.openQuestions || []), ...(f.needsJudgment || [])])}
 
 ## 검증하지 못한 것
 ${list([...(v.unverified || []), ...(f.unverified || [])])}
@@ -366,7 +379,7 @@ ${list(f.wording)}
 
 ## 확인했지만 고치지 못한 것
 ${list(defects)}
-${f.afterLastRecheck?.length ? `\n마지막 재검증 뒤에 고친 정답 하나짜리 항목 ${f.afterLastRecheck.length}건은 다시 읽히지 않았다(run.json 의 afterLastRecheck).\n` : ''}
+${f.after_last_recheck?.length ? `\n마지막 재검증 뒤에 고친 정답 하나짜리 항목 ${f.after_last_recheck.length}건은 다시 읽히지 않았다(run.json 의 after_last_recheck).\n` : ''}
 ## 실행 기록
 - 수정 ${(f.rounds || []).length}회, 멈춘 이유 ${f.stoppedBecause || '-'}, 렌즈 B 고쳐야 ${v.lenses?.B?.mustFix ?? '-'} · 판단 ${v.lenses?.B?.judgment ?? '-'}, 렌즈 A 고쳐야 ${v.lenses?.A?.mustFix ?? '-'} · 판단 ${v.lenses?.A?.judgment ?? '-'}
 - 게이트는 스크립트가 돌렸다. 렌더링: ${lastView.opened ? `headless Chrome 으로 모든 장을 찍었다${lastView.overflowX ? ', 페이지가 가로로 넘친다' : ''}${lastView.wideChapters?.length ? `, 가로 스크롤이 있는 장 ${lastView.wideChapters.join(', ')}` : ''}` : '하지 못했다'}
@@ -378,6 +391,21 @@ ${isDraft ? '\n알려진 결함이 있어 draft 로 열었다.\n' : ''}
   // run.json 은 이미 커밋에 들어갔다. PR 주소를 남기려고 커밋을 하나 더 만들지 않는다(문서 하나에 커밋 하나).
   console.log(`PR: ${pr.stdout.trim().split('\n').pop()}${isDraft ? ' (draft)' : ''}`);
   return true;
+}
+
+// seq 는 저장소에 넣은 순서다. 쓰는 동안 다른 문서가 main 에 들어왔으면 그 뒤로 옮긴다.
+function renumberSeq(slug) {
+  const path = join(ROOT, 'research', slug, 'meta.json');
+  const text = readFileSync(path, 'utf8');
+  const own = JSON.parse(text).seq;
+  let max = 0;
+  for (const n of readdirSync(join(ROOT, 'research'))) {
+    if (n === slug) continue;
+    try { const s = JSON.parse(readFileSync(join(ROOT, 'research', n, 'meta.json'), 'utf8')).seq; if (Number.isInteger(s) && s > max) max = s; } catch {}
+  }
+  if (Number.isInteger(own) && own > max) return null;
+  writeFileSync(path, text.replace(/"seq":\s*\d+/, `"seq": ${max + 1}`));
+  return max + 1;
 }
 
 function fail(run, stage, reason) {
@@ -393,7 +421,7 @@ function fail(run, stage, reason) {
 const run = loadRun();
 if (cmd === 'status') {
   for (const s of STAGES) console.log(`${s.padEnd(7)} ${run.stages[s]?.done ? 'done' : run.stoppedAt === s ? `멈춤: ${run.stoppedReason}` : '-'}`);
-  console.log(`호출 ${run.calls.length}회, $${run.calls.reduce((a, c) => a + (c.costUsd || 0), 0).toFixed(2)}${run.pr ? `, PR ${run.pr}` : ''}`);
+  console.log(`호출 ${run.calls.length}회, $${run.calls.reduce((a, c) => a + (c.costUsd || 0), 0).toFixed(2)}`);
   process.exit(0);
 }
 if (cmd !== 'run') { console.log(HELP); process.exit(1); }
