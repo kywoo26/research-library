@@ -66,13 +66,23 @@ Write `.research/<slug>/sources.jsonl`, one source per line, before opening file
 
 ```json
 {"id":"r1","kind":"repo","repo":"owner/name","commit":"<full 40-char sha>",
+ "by":{"who":"Acme 의 storage 팀","from":"https://github.com/owner/name#readme"},
  "shallow":true,"history_available":false,"scope_excluded":["assets"]}
 {"id":"p1","kind":"paper","arxiv_id":"2605.25480","version":"v1",
+ "by":{"who":"Foo University 와 Bar Labs 연구진","from":"https://arxiv.org/abs/2605.25480v1"},
  "text_sha256":"<64-char sha of the pinned text>",
  "sections_read":["1-7","A","B"],"retrieved_at":"2026-08-07T09:12:00Z"}
 {"id":"w1","kind":"web","url":"https://platform.claude.com/docs/en/…","retrieved_at":"2026-09-29T06:56:48Z",
+ "by":{"who":"Anthropic 의 공식 문서","from":"https://platform.claude.com/docs/en/…"},
  "archive_url":"http://web.archive.org/web/2026…","text_sha256":"<sha256 of notes/web/w1.txt>"}
 ```
+
+**Every source carries `by`: who produced it, as the source's own pages say.** The
+organization and team, or the author and their role, taken from the organization or profile
+page, the README, the author list or the byline, with the page it came from. The cover names
+it, and a reader weighs a vendor's report of its own model differently from an outside
+benchmark. When those pages name no one, write that down; a personal account with no name is
+information too.
 
 **A web source carries `url`, `retrieved_at`, an `archive_url` when the archive has one,
 and `text_sha256` of the text you read, saved as `notes/web/<id>.txt`.** `check-claims.mjs`

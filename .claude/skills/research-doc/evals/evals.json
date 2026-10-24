@@ -48,6 +48,34 @@
         "Says to confirm the five numbers against the pinned Table 1 before publishing",
         "No title or h2 it proposes is a label with a colon or period, a comma list, or a count (prose-ko.md §Forms)"
       ]
+    },
+    {
+      "id": 3,
+      "name": "cover-rewrite-oss",
+      "prompt": "research/2026-09-15-open-code-review 문서의 제목과 표지(답 문단 p.dek, 출처 줄 p.src)를 첫 화면 규칙에 맞춰 다시 써 줘. 본문은 그대로 둔다.",
+      "expected_output": "제목은 대상과 그것이 무엇을 하는지를 말한다. 답 문단은 대상이 무엇인지 한 문장, 독자에게 하는 메시지와 그 판단의 주인, 원리 한 문장과 가장 큰 제약 하나로 이루어진다. 출처 줄은 누가 낸 어떤 자료인지와 고정한 판을 말한다.",
+      "files": [],
+      "expectations": [
+        "The cover paragraph's first sentence says what the subject is, so a reader who has never heard of it can follow the next sentence",
+        "The message says what the research means for the reader's work, and a recommendation is attributed to whoever makes it (the authors, or this document's reading, marked briefly)",
+        "The first sentence carries no number unless one number is the message",
+        "p.src names who produced each source (organization and team, or author and role) and the kind of material, with the version pin, and no reading scope",
+        "The paragraph is within about 280 characters without spaces and states nothing absent from claims.jsonl"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "cover-rewrite-paper",
+      "prompt": "research/2026-09-14-rag-safety-bench 문서의 제목과 표지(답 문단 p.dek, 출처 줄 p.src)를 첫 화면 규칙에 맞춰 다시 써 줘. 본문은 그대로 둔다.",
+      "expected_output": "제목은 대상과 그것이 무엇을 하는지를 말한다. 답 문단은 대상이 무엇인지 한 문장, 독자에게 하는 메시지와 그 판단의 주인, 원리 한 문장과 가장 큰 제약 하나로 이루어진다. 출처 줄은 누가 낸 어떤 자료인지와 고정한 판을 말한다.",
+      "files": [],
+      "expectations": [
+        "The cover paragraph's first sentence says what the subject is, so a reader who has never heard of it can follow the next sentence",
+        "The message says what the research means for the reader's work, and a recommendation is attributed to whoever makes it (the authors, or this document's reading, marked briefly)",
+        "The first sentence carries no number unless one number is the message",
+        "p.src names who produced each source (organization and team, or author and role) and the kind of material, with the version pin, and no reading scope",
+        "The paragraph is within about 280 characters without spaces and states nothing absent from claims.jsonl"
+      ]
     }
   ]
 }

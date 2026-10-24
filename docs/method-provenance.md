@@ -1050,3 +1050,34 @@ counts characters without spaces (280; English terms count too) instead of sente
 subject, the one thing to understand, the one difference that matters, with the steps left to
 the points.
 
+
+## Why the cover leads with what the subject is and who made the source (2026-10-25)
+
+The owner read the five documents written after `121f868` from their first screens and could
+state the answer for one of them. The sentences read well; what was missing was the message.
+Covers described the source fact by fact, and the "so what" was left for the reader to infer.
+Agent readers inferred it without trouble and reported a clear message for all five, so this
+gap does not show up in an agent reading test and is judged by the owner.
+
+The owner also asked for the source's standing: which organization and team produced it, and
+what kind of material it is. One of the five said so on its cover.
+
+Two rule versions were tried on the same five ledgers, rewriting only the title and the cover,
+and shown to the owner side by side with the original, sides shuffled, without saying which was
+new. A conclusion-first cover won 3 of 5. It lost where it opened with advice about a tool the
+reader had not met yet, where the first sentence packed five numbers, and where "the author
+does X" became "you should do X", which the owner read as the model's own opinion. The second
+version said what the subject is first, attributed each judgment, kept numbers out of the first
+sentence and moved reading scope out of the source line. It won 4 of 5 on message, standing and
+preference. The owner disliked the "X는 …인데, …" joint the second version produced, so the
+skill puts what the subject is in a sentence of its own.
+
+Through `skill-creator`, the revised `research-doc` and its pre-change snapshot then rewrote two
+covers outside the experiment (one repository, one paper). The revised skill won both. The owner
+preferred the snapshot's title on one, which descriptively named what the tool does, so the
+title rule stayed as it was.
+
+The team or author behind a source is often absent from the ledger, and a cover cannot name what
+the research did not record. `research-source` now records `by` from the source's own pages when
+pinning, and `check-doc` requires a `p.src` line on covers dated from 2026-10-25. Measurement
+material is in the git-ignored `_scratch/` of the machine that ran it.

@@ -53,14 +53,39 @@ compression subagent is the exception.
 
 ## The first screen and the length
 
-The first screen decides whether the document gets read. The cover's title says what the
-whole document is about. One short paragraph under it answers the question: what the subject
-is, the one thing to understand about it, and the one difference or consequence that matters
-most, in about 280 characters without spaces (`cover-length`). The steps of the mechanism are not the
-answer; they go to the `tl-dr` chapter right after, whose points each take a sentence or two
-and do not restate the cover. A long answer packed into fewer, longer sentences is still long.
-How the document was made has no place there: no source-to-chapter mapping table, no reading
-method.
+The first screen decides whether the document gets read. A reader leaves it knowing what the
+subject is, what this research tells them, and whose material it rests on. Under the title,
+one short paragraph, about 280 characters without spaces (`cover-length`):
+
+- what the subject is, in a sentence of its own, so a reader who has never heard of it can
+  follow the next one;
+- the message: what the research means for the reader's work. Say whose judgment it is. A
+  recommendation from the source carries its author ("저자는 …를 권한다"); a reading this
+  document drew from the source says so in a few words. A practice the author describes does
+  not become advice from the document;
+- the one mechanism sentence the message needs, and the one condition that most limits it.
+
+Numbers wait for those later sentences unless one number is the message, and side facts such as
+popularity or dates stay off the cover.
+
+```
+✗ Qux 는 큐 깊이에 따라 worker 를 늘린다. 그래서 짧은 부하에는 늦게 반응하고 긴 부하에는 과하게 늘어난다.
+  (description only; the reader never learns what to take from it)
+✗ 배포 직후에는 Qux 의 autoscale 을 꺼 두는 편이 낫다.
+  (the reader does not know what Qux is yet, and the authors' practice now speaks as the document)
+✓ Qux 는 큐 깊이를 보고 worker 수를 정하는 scheduler 다. 저자들은 배포 직후 몇 분은 autoscale 을
+  꺼 두라고 권한다. 새 worker 가 캐시를 채우는 동안 큐가 실제보다 길어 보이기 때문이다.
+```
+
+Under the paragraph, `p.src` says in a sentence or two who produced the source (the organization
+and team, or the author and their role) and what kind of material it is, with the version
+pinned. A repository slug alone does not tell the reader who is behind it. How much was read
+goes to the `setup` chapter.
+
+The steps of the mechanism go to the `tl-dr` chapter right after, whose points each take a
+sentence or two and do not restate the cover. A long answer packed into fewer, longer sentences
+is still long. How the document was made has no place on the first screen: no source-to-chapter
+mapping table, no reading method.
 
 A chapter's body takes its form from its content: sentences for a chain of causes, a list for
 parallel items, a table for a comparison, a figure for a flow (`references/prose-ko.md`
