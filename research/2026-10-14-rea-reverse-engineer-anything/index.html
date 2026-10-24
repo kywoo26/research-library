@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점</title>
+<title>rea MCP 서버가 에이전트의 reverse engineering에 더하는 것</title>
 <meta name="description" content="rea는 Hopper, Ghidra, IDA 같은 분석 엔진을 provider로 감싸 MCP tool로 내놓고, 결과마다 출처와 한계를 붙인 Evidence로 돌려준다. 요청 하나의 경로, 에이전트 지침, DX-Ball 사례, 22만 star의 추이를 코드와 공개 자료로 따라간다.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점">
+<meta property="og:title" content="rea MCP 서버가 에이전트의 reverse engineering에 더하는 것">
 <meta property="og:description" content="rea는 Hopper, Ghidra, IDA 같은 분석 엔진을 provider로 감싸 MCP tool로 내놓고, 결과마다 출처와 한계를 붙인 Evidence로 돌려준다. 요청 하나의 경로, 에이전트 지침, DX-Ball 사례, 22만 star의 추이를 코드와 공개 자료로 따라간다.">
 <meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-14-rea-reverse-engineer-anything/">
 <meta name="twitter:card" content="summary">
@@ -388,9 +388,9 @@ figcaption a { color: var(--link); text-underline-offset: 2px; }
   <section class="slide" data-active="true" data-label="표지">
     <div class="slide-inner">
       <p class="eyebrow">index</p>
-      <h1>rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점</h1>
-      <p class="dek">rea는 Hopper, Ghidra, IDA 같은 기존 분석 엔진을 provider로 감싸 MCP tool로 내놓는 로컬 서버다. 분석은 엔진이 하고, rea는 결과마다 어느 엔진이 무엇을 관찰했고 무엇을 모르는지 적은 Evidence 기록을 붙이며 그 기록을 다루는 지침을 에이전트에 설치한다. 함수 dossier가 pseudocode와 assembly를 한 결과에 담으므로, DX-Ball 사례에서는 decompiler가 빠뜨린 입력이 같은 결과의 assembly에서 드러났다. 약 22만 star는 10월 3일부터 14일 사이에 몰렸고, 계정 단위로는 확인할 수 없다.</p>
-      <p class="src">morluto/rea commit f75b1a4 (6.4.0, 2026-10-14 커밋) · 설치하거나 실행하지 않고 코드와 문서만 읽었다</p>
+      <h1>rea MCP 서버가 에이전트의 reverse engineering에 더하는 것</h1>
+      <p class="dek">rea는 Ghidra, Hopper, IDA 같은 분석 엔진을 MCP tool로 감싸 에이전트에게 내주는 로컬 서버다. 코드를 보면 분석은 엔진이 하고 rea는 결과의 형식과 에이전트의 작업 규칙을 보태므로, 쓸지는 이 형식이 틀린 결론을 얼마나 막아 주는지로 판단할 일이다. 함수 하나를 물으면 pseudocode와 assembly, 엔진의 한계 문장을 한 결과에 담아 주므로, DX-Ball 사례에서는 decompiler가 빠뜨린 함수 입력을 같은 결과의 assembly가 보여 주었다. 다만 rea가 분석 정확도를 얼마나 올리는지 잰 수치는 저장소 문서에 없으니, 익숙한 바이너리 하나로 결과를 먼저 대조해 보는 편이 안전하다.</p>
+      <p class="src">morluto라는 개인 GitHub 계정이 MIT 라이선스로 공개한 오픈소스 프로젝트이고, 실명과 소속은 프로필에 적혀 있지 않다. 기준 버전은 npm 패키지 rea-agents 6.4.0에 해당하는 commit f75b1a4다.</p>
     </div>
   </section>
 
