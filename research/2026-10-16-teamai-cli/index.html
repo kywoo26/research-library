@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>teamai-cli가 팀의 agent 설정을 PR 리뷰 하나로 묶는 방식과 그에 맞춘 팀 workflow</title>
+<title>teamai-cli로 팀 agent 설정을 공유할 때 팀이 정할 리뷰 규칙</title>
 <meta name="description" content="teamai-cli는 팀 agent 설정을 git 저장소에서 PR로 바꾸고 세션 시작 hook으로 나눠 준다. learnings는 리뷰 없이 올라가고 hook 안전 설정은 기본값이 꺼져 있어, 팀은 리뷰어와 검토 기준부터 정한다.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="teamai-cli가 팀의 agent 설정을 PR 리뷰 하나로 묶는 방식과 그에 맞춘 팀 workflow">
+<meta property="og:title" content="teamai-cli로 팀 agent 설정을 공유할 때 팀이 정할 리뷰 규칙">
 <meta property="og:description" content="teamai-cli는 팀 agent 설정을 git 저장소에서 PR로 바꾸고 세션 시작 hook으로 나눠 준다. learnings는 리뷰 없이 올라가고 hook 안전 설정은 기본값이 꺼져 있어, 팀은 리뷰어와 검토 기준부터 정한다.">
 <meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-16-teamai-cli/">
 <meta name="twitter:card" content="summary">
@@ -387,8 +387,9 @@ figcaption a { color: var(--link); text-underline-offset: 2px; }
   <section class="slide" data-active="true" data-label="표지">
     <div class="slide-inner">
       <p class="eyebrow">index</p>
-      <h1>teamai-cli가 팀의 agent 설정을 PR 리뷰 하나로 묶는 방식과 그에 맞춘 팀 workflow</h1>
-      <p class="dek">teamai-cli는 팀의 skill, rule, hook, MCP 설정을 git 저장소 하나에 두고 각자의 AI coding 도구에 도구별 형식으로 써 넣는 CLI다. 바꾸는 사람은 branch와 PR로 올리고 리뷰어가 merge하면, 다른 팀원은 다음 세션을 열 때 hook이 받아 온다. 그래서 팀 저장소의 PR 리뷰가 모든 팀원 agent의 동작을 바꾸는 관문이 된다. 세션에서 배운 learnings는 이 관문을 거치지 않고 별도 branch로 바로 올라가므로, 프로덕션 팀은 두 경로마다 검토할 사람을 따로 정해야 한다. merge된 hook과 MCP도 기본값에서는 확인 없이 설치되므로 꺼진 안전 설정을 켠다.</p>
+      <h1>teamai-cli로 팀 agent 설정을 공유할 때 팀이 정할 리뷰 규칙</h1>
+      <p class="dek">teamai-cli는 팀의 skill, rule, hook, MCP 설정을 git 저장소 하나에 두고 팀원마다 쓰는 AI coding 도구의 형식으로 써 넣는 CLI다. 코드를 읽어 보면 이 저장소의 PR 리뷰가 모든 팀원 agent의 동작을 바꾸는 관문이 되므로, 들이는 팀은 누가 어떤 기준으로 merge할지부터 정해야 한다. 바꾸는 사람이 teamai push로 PR을 열고 리뷰어가 merge하면, 다른 팀원의 도구는 다음 세션을 열 때 hook으로 그 변경을 받아 온다. 다만 세션에서 배운 learnings는 PR 없이 별도 branch로 바로 올라가므로, 이 경로를 검토할 사람과 정리 주기는 팀이 따로 정해야 한다.</p>
+      <p class="src">Tencent가 GitHub의 Tencent 조직에 MIT license로 공개한 open-source 프로젝트이며, 기준 버전은 커밋 db0cb20이다. 저장소에 만든 팀의 이름은 없고, package.json에는 Tencent 메일 주소를 쓰는 jeffyxu가 author로 적혀 있다.</p>
     </div>
   </section>
   <!-- 02 -->
