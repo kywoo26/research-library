@@ -1081,3 +1081,22 @@ The team or author behind a source is often absent from the ledger, and a cover 
 the research did not record. `research-source` now records `by` from the source's own pages when
 pinning, and `check-doc` requires a `p.src` line on covers dated from 2026-10-25. Measurement
 material is in the git-ignored `_scratch/` of the machine that ran it.
+
+## Why the chain is a script and not a workflow (2026-10-25)
+
+The chain ran as a Claude Code workflow. A workflow script cannot run a command, so every
+"gates passed", "rendered" and evidence count reached it as a boolean an agent reported; it
+cannot resume a finished agent's context, so the fixer was a third context rather than the
+author the verify skill assumes; and its resume works within one session, while research here
+moves between machines. The official comparison places workflows at dozens to hundreds of
+agents per run; the chain ran five to eight, almost in a line.
+
+`scripts/chain.mjs` holds the same sequence over `claude -p`. The script runs check-doc,
+check-prose, check-claims, build-index and the renderer itself and records their results; the
+author's session is forked for each fix round; lenses run with editing and delegation tools
+removed and are handed the required angle; claims are extracted while the lenses run; each call's
+cost and session land in `run.json`, which is written on failure too; and the PR opens as a draft
+only for a known defect (a confirmed finding left unfixed, a lens that returned nothing), because
+under the workflow's rule every run opened as a draft and the owner flipped it to ready seconds
+before merging. The workflow script and `docs/workflow-authoring.md` were removed so the sequence
+lives in one place.
