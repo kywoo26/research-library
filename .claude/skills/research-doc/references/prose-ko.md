@@ -1,268 +1,149 @@
 # Writing the Korean output
 
-Everything the reader sees is Korean: the research documents and the review reports.
-The instructions are English, the product is Korean. This file covers how to write that
-Korean well. `check-doc.mjs` blocks em dashes and process narration, and
-`../../research-verify/references/lens-prose.md` carries the ban on metaphors and inflated
-headings; this file is about the failure modes those rules do not name.
-
-`check-prose.mjs` counts the rules below that carry a number. It runs on the visible text
-and skips quotes, so what it blocks is the document's own prose.
-
-Keep technical terms in English. This list is the one the other files point at, so it is
-the only place it should be written out: RAG, embedding, chunk, corpus, baseline, ablation,
-agent, tool call, F1, multi-hop, commit, locator. Translating them produces coinages
-that are harder to read than the English. Quotes, identifiers, and file paths also stay
-verbatim.
-
-## Cut the slop
-
-The reader wants findings. Anything that narrates the act of producing findings is
-noise, and it is the single most common way this output goes bad.
-
-**Five whose commonest forms a script holds.** The class is open — a reaction word can be
-흥미롭게도 or 인상적인 것은 or a phrasing nobody has written yet — so the script holds the
-handful that recur and nothing more. Passing it is not evidence the family is absent. Progress narration
-(이제 ~보자, 먼저 ~부터), reaction words (흥미롭게도, 놀랍게도, 주목할 점은), monologue
-(여기서 잠깐, 다시 말해), vague attribution (업계에서는, 전문가들은), promotional adjectives
-(강력한, 획기적인, 정교한, 탄탄한). Each one stands where the thing itself should be: the
-reader is told how to feel, or who agrees, or that a property is impressive, instead of being
-given the property and left to size it. That move is what to look for; the words are only how
-it showed up last time.
-
-**Listing what passed.** In a review report, "나머지 수치는 모두 일치한다" is filler.
-Give a count if the scale matters, then move on. Silence means fine.
-
-- ✗ 슬라이드 3, 5, 7, 9 의 수치는 원문과 일치한다. 슬라이드 11 은 방향이 반대다.
-- ✓ 수치 42개를 대조해 1건이 어긋난다. 슬라이드 11: 격차가 좁아지는데 넓어진다고 썼다.
-
-**Empty summary sentences.** 요컨대 ~중요하다, 종합하면 장단점이 있다. A summary that
-would survive deleting the section above it is not a summary; put the finding the section
-established in it, with its numbers. `check-prose.mjs` blocks the openers.
-
-**Hedging without a reason.** ~일 수도 있어 보인다, ~라고 볼 여지가 있다. If the
-evidence is weak, name what is missing. That is useful; vagueness is not.
-
-- ✗ 성능이 더 나을 수도 있어 보인다.
-- ✓ 성능이 앞서지만 신뢰구간이 없어 차이가 유의한지는 알 수 없다.
-
-**Forced symmetry.** Three upsides do not obligate three downsides. Write what the
-evidence supports and stop.
-
-## Residue of the work
-
-A separate family, and the one that survives longest, because every sentence in it is
-true. It is in the document because of how the document was made, not because a reader
-needs it. Chapter ⑦ is the one place these belong; anywhere else they break the reader's
-attention and hand back nothing.
-
-**Incidental findings.** Something you learned while looking for something else. Real to
-you, weightless to a reader deciding anything.
-
-- ✗ SWEET 논문이 인용한 탐지기 목록에 GPTZero 도 들어 있다.
-- ✓ (자르거나 그 사실이 실제로 바꾸는 주장 옆으로 옮긴다)
-
-**Sourcing narration outside ⑦.** Which tool fetched it, which route failed, how many
-tries it took.
-
-- ✗ 이 문서는 그 도구를 실행해 보지 않았고 규격 본문까지 확인하지도 않았다.
-- ✓ (⑦로. 그 자리에는 그림이 무엇을 보여주는지만 남긴다)
-
-**Where the line falls: what the sentence bounds.** A sentence about how the document was
-made goes to ⑦. A sentence about what the evidence cannot support stays beside the claim it
-weakens, because that is the only position from which it stops a reader over-reading. The
-two look alike and do opposite jobs, so decide by what the sentence is about, not by
-whether it contains a negation.
-
-- ⑦ 로: 이 문서는 그 도구를 실행해 보지 않았다
-- 주장 옆에: 이 경로의 테스트는 찾지 못했다 (`grep -rn 'reconnect' **/*.test.ts` → 0건)
-
-**Asides.** A parenthesis that interrupts the sentence to add something the sentence did
-not need. If it matters it is a sentence; if it does not it is gone.
-
-- ✗ 탐지는 z 검정으로 한다(참고로 이 검정은 단측이다).
-- ✓ 탐지는 단측 z 검정으로 한다.
-
-**Visible self-correction.** 앞에서 A 라고 했는데 정확히는 B 다. Fix A and write B.
-
-## Borrowed emphasis
-
-These arrive already assembled and they read as decoration because they are. A claim
-carried by an adjective is a claim with no evidence behind it.
-
-**Manufactured significance.** 중요한 전환점, ~을 시사한다, ~의 상징적인 사례,
-~을 보여주는 방증. Say what changed and let the reader size it.
-
-- ✗ 이 결정은 AI 투명성 논의의 중요한 전환점을 시사한다.
-- ✓ 이 결정으로 Claude 출력 전부에 마크가 붙는다. 전환점인지는 탐지기가 나와야 안다.
-
-**The challenges-and-prospects close.** 여러 한계에도 불구하고 가능성은 열려 있다.
-A paragraph that would be true of anything is about nothing. This is not the rule that ⑨
-should not end on a purely negative note: that one asks for a **named** result that
-survives the limits and transfers somewhere. Vague optimism is the slop; the named result
-is the requirement, and the two are told apart by whether a reader could act on it.
-
-**Elegant variation.** Swapping in a synonym to avoid repeating a term. In a document
-full of technical terms this reads as two different things. Repeat the term.
-
-**`~가 아니라 ~다` as a default frame.** Doubles a sentence whose second half carries all
-the information, and the discarded half often smuggles in a claim nobody made.
-
-- ✗ 성능 문제가 아니라 정확도 문제다.
-- ✓ 정확도 문제다. 처리량은 두 방식이 같다.
-
-Keep it where the reader actually holds the wrong answer and the document is correcting it
-(`압축이 아니라 재작성이다. 원문 토큰을 하나도 재사용하지 않는다`), where the correction is
-about attribution (`원문이 아니라 그 글을 인용한 쪽의 읽기다`), and inside a quote, which is
-never edited.
-
-There is no count that separates those from the decorative kind, so `check-prose.mjs` only
-reports the rate. What tells them apart is whether deleting the first half loses anything: if
-the sentence still says the same thing without it, the frame was decoration.
-
-## Write Korean, not translated English
-
-The most common tell is that the sentence parses as English with Korean particles
-attached. Some patterns to watch:
-
-**`~하는 것은 ~이다` as a default frame.** Korean can predicate directly.
-
-- ✗ 이 구조를 채택하는 것은 검색 비용을 줄이는 것을 가능하게 한다.
-- ✓ 이 구조를 쓰면 검색 비용이 줄어든다.
-
-**Passive stacking.** 확인되어진다, ~라고 말해질 수 있다, ~에 의해 수행된다. Korean has
-one passive already; the second is English word order looking for a place to land. Write the
-actor as the subject. `check-prose.mjs` blocks the doubled forms and the `~에 의해` one.
-
-**Pronouns that Korean would drop.** 그것은, 이것은, 그들은 repeated across sentences
-reads as machine output. Korean omits the subject when context carries it.
-
-- ✗ 이 게이트는 문서를 검사한다. 그것은 세 규칙을 적용한다. 그것들은 서로 독립적이다.
-- ✓ 이 게이트는 문서를 세 규칙으로 검사한다. 규칙끼리는 서로의 결과를 모른다.
-
-**Nested relative clauses in English order.** Korean puts modifiers before the noun, so
-stacking them the way English stacks them after produces sentences nobody can parse.
-Break into two sentences instead.
-
-- ✗ 커밋에 고정된 원문에서 인용을 대조하는 것을 요구하는 검사를 통과하지 못한 주장
-- ✓ 인용을 고정 커밋과 대조하는 검사가 있다. 이걸 통과하지 못한 주장은
-
-**`~들` where the plural is already carried.** `들` is not noise: it can mark that the
-reference is definite or that the members are various, so deleting it on sight changes what
-the sentence says. Drop it where a number or the context already did the work.
-
-- ✗ 파일들 12개를 읽었고, 결과들이 모두 일치했다.
-- ✓ 파일 12개를 읽었고 결과가 모두 일치했다.
-- ✓ 남은 스킬들은 서로 다른 harness 를 겨냥한다.  (여럿이 제각각이라는 뜻이 살아 있다)
-
-**`~에 대한`, `~에 있어서` as connective filler.** Stacked, they push the verb out of a
-sentence that could have used one.
-
-- ✗ 검증에 있어서 가장 중요한 것은 근거에 대한 확인을 통해 이루어진다.
-- ✓ 검증에서 제일 중요한 건 근거를 직접 확인하는 것이다.
-
-`~를 통해` is not on this list. Korean written without translation uses it about twice as
-often as translated Korean does, so cutting it on sight moves the prose away from Korean
-rather than toward it. Cut it in the example above because the sentence has a verb standing
-right there, not because the phrase is foreign.
-
-**Connectives on every paragraph.** 또한, 그러나, 따라서 opening one paragraph after
-another. Korean prose links by content more than by connective. Use them when the
-logical turn is real.
-
-**A comma after a connective ending.** `~하고,` `~지만,` `~는데,` `~어서,`. This is the
-strongest measured difference between Korean a person wrote and Korean a model wrote, and
-it is the one this repo's own documents break worst. The connective already joined the two
-clauses; the comma is a second joint on top of it.
-
-- ✗ 캐시는 커밋 단위로 잡히고, 같은 버전은 다시 받아도 sha256 이 같다.
-- ✓ 캐시는 커밋 단위로 잡히고 같은 버전은 다시 받아도 sha256 이 같다.
-
-The failure on the other side is a document with no commas at all. Korean written by a
-person carries about one per ninety characters; the repair is to move the comma, not to
-stop using it.
-
-- ✓ 8 토큰을 넘는 질의는 embed 경로로 가고 캐시를 지나지 않는다.
-- ✓ 경계는 토큰 8개다. 그 아래는 keyword, 위는 embed 경로로 간다.
-
-The first joins two clauses with a connective and needs nothing after it. The second's comma
-sits between two parallel items, which is not a connective ending at all — that is the
-position where a Korean comma is doing work.
-`check-prose.mjs --counts` prints both rates.
-
-## Do not lose the content while trimming
-
-Cutting slop and cutting substance look similar from the outside. They are not the same
-thing, and over-compression is the failure mode on the other side.
-
-**It is not random about what it takes.** Simplification deletes the mechanism and keeps
-the conclusion, in that order, and it does it to human editors as well as to models. So a
-compressed document keeps reading like a finished argument while the part a reader would
-have used to check it is gone. The conclusion surviving is not evidence the chapter did.
-
-**Connective tissue is not padding for this reader.** The idea that an expert does better
-with the gaps left open holds for readers who are strong on the subject and weak at reading.
-A reader who is strong at both does better when the text joins its own steps. So the
-sentence that says how the previous claim reaches this one earns its place; what does not is
-the connective that announces a turn the content is not making.
-
-Keep these even when they make a sentence longer:
-
-- **Numbers with their comparison base.** 62.6 alone is unreadable. 62.6 (LLM-Wiki base
-  56.3) can be judged.
-- **Conditions on a claim.** "문서 2개 이상이 필요한 질문에서" is not padding. Drop it
-  and the claim becomes false.
-- **Counterexamples and limits.** If the summary says the method wins and the body says
-  it loses on single-document questions, the summary is wrong. Put the exception in the
-  summary.
-- **Where a number came from.** 표 1(논문), `validators.py:79`. The reader has to be
-  able to check.
-- **Calculations the source did not make.** Say so in the caption. The reader will look
-  for it in the original and not find it.
-- **What was not checked.** A report that only lists findings reads as "everything else
-  is verified". Say what you could not verify and why.
-
-## Paragraph shape
-
-Lead with the conclusion, then the evidence, then the qualifier. Korean often defers the
-main clause to the end of a paragraph; these documents do the opposite, because readers
-scan them.
-
-```
-주장 한 문장.
-근거 한두 문장 (수치, 인용, 위치).
-단서가 있으면 마지막에.
-```
-
-One paragraph, one claim. If a paragraph has two claims, it will get skimmed and one of
-them will be missed.
-
-## Sentence ending
-
-Research documents use the plain declarative (`~한다`, `~이다`), matching the existing
-documents in `research/`. This is the register for anything published, and
-`check-prose.mjs` blocks the polite register at zero. An instruction written in `~습니다`
-primes the register it is written in, so the drift arrives without a decision behind it.
-
-Review reports and other conversational output addressed to the user are conversational
-rather than plain declarative, and hold that register whatever register the user writes in.
-A report is a work product — it carries findings, numbers and locations — and mirroring the
-conversation's tone drags its quality along with the tone.
-
-## A worked example
-
-Same finding, written three ways.
-
-**Slop:**
-> 이제 수치 검증 결과를 살펴보겠습니다. 흥미롭게도, 문서에 기재된 여러 수치들 중에서
-> 일부에 대한 확인이 이루어진 결과, 표 9 와 관련된 부분에 있어서 문제가 발견되어졌다고
-> 말할 수 있을 것 같습니다. 나머지 수치들은 대체로 문제가 없어 보입니다.
-
-**Over-compressed:**
-> 표 9 틀림.
-
-**Right:**
-> 수치 42개를 원문과 대조해 1건이 어긋난다. 슬라이드 11 에서 표 9 의 격차가
-> 7.5/12.8/9.6 에서 5.1/10.5/16.9 로 **좁아지는데** 문서는 넓어진다고 썼다. 거기에
-> "약한 모델이 구조에서 더 이득을 본다"는 해석까지 얹혀 있어서 방향을 고치면 그
-> 문단 전체를 다시 써야 한다.
+The document is Korean, in plain declarative (`~한다`, `~이다`). Technical terms a developer
+would search for stay English: RAG, embedding, chunk, baseline, ablation, agent, tool call,
+F1, commit, locator, and the like. Quotes, identifiers and paths stay verbatim. Where a plain
+Korean phrase says the same thing, use it; a coined Korean rendering of an English term
+(착지 for land, 곁 루프 for outer loop) reads as a second, unfamiliar concept.
+`check-prose.mjs --help` lists the few forms the gate blocks.
+
+## What it should read like
+
+These passages are the target. They are illustrative: the topic and length come from your
+document, the way the sentences move comes from here.
+
+A first screen. The title says what the whole document is about, one paragraph answers the
+question, a line under it says whose material it is, and a few points say what to do or
+remember.
+
+> **Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳**
+>
+> Sonnet 5로 돌던 Messages API 코드는 모델 ID만 바꾸면 바로 400을 받는 곳이 있다. thinking을
+> 끄는 설정, 강제 tool_choice, 예전 computer use tool이 대표적인데, 첫 요청에서 바로 드러나니
+> 찾기는 어렵지 않다. 더 조심할 쪽은 요청이 성공한 채로 달라지는 변화다. tool call 사이에 오던
+> 메모가 빈 thinking 블록으로 바뀌고 effort는 이름이 같아도 쓰는 양이 달라져서, 테스트를 통과한
+> 뒤에야 화면이 조용해지거나 청구액이 늘어난 것을 알게 된다.
+>
+> Anthropic 공식 문서의 Sonnet 5.5 migration guide와 What's new 페이지다.
+>
+> - thinking을 끄던 코드는 `between_tools`로 바꾸고 effort를 high 이하로 둔다.
+> - tool_choice의 any와 tool은 auto와 `strict: true`로 옮긴다.
+> - tool call 사이 메모를 화면에 보여 주던 코드는 beta 헤더와 `display: "updates"`를 켜야 메모가 다시 보인다.
+> - effort는 작업 종류별 시작값에서 다시 잰다.
+
+An explanatory paragraph. It starts from what the reader already knows, says what changed and
+why it matters, and links each step to the next.
+
+> Sonnet 5에서는 tool call 사이에 모델이 남기는 메모가 text 블록으로 왔다. 그래서 이 메모를
+> 화면에 흘려 보여 주며 agent가 무엇을 하는지 알리던 코드가 많았다. Sonnet 5.5는 한두 문장보다
+> 긴 메모를 thinking 블록에 담아 보내는데, 기본 display 설정에서는 이 블록이 비어서 온다. 요청은
+> 여전히 성공하니 화면만 조용해진다. 메모를 다시 보이게 하려면 beta 헤더와 함께
+> `display: "updates"`를 켜면 된다. 이때 청구액이 늘지 않을까 걱정할 수 있는데, Anthropic 문서는
+> display 설정과 상관없이 청구액이 같고 보이는 것만 달라진다고 설명한다.
+
+A limit, stated once and tied to what the reader can do about it.
+
+> 400과 200의 구분은 migration guide와 What's new의 설명을 옮긴 것이라 실제 요청으로 확인하기
+> 전이다. 옮기기 전에 스테이징에서 대표 요청을 한 번씩 보내 보면 이 목록이 실제 응답과
+> 맞는지 바로 확인할 수 있다.
+
+Chapter titles. Short, naming what the chapter holds.
+
+> 모델 ID만 바꾸면 생기는 일 / thinking을 끄던 코드 / tool_choice를 강제하던 코드 / computer use
+> tool 교체 / 조용해지는 tool call 사이 메모 / 늘어난 거절 부류 / effort 다시 재기 / 옮기는 순서
+
+## Principles
+
+**Start from the reader's situation, then the point, then an example.** A reader handed bare
+facts has to build the chain of cause alone.
+
+**Link causes with connectives** (그래서, ~인데, ~므로, 예를 들어). A run of short declaratives
+leaves the reader assembling the logic; one sentence packing several facts between commas
+leaves them parsing. One idea per sentence, joined to the next by its reason.
+
+**Keep one caveat where it changes what the reader does, and tie it to that action.**
+Everything else unknown, unread or self-reported goes once into the limits chapter. A caveat
+repeated wherever a claim recurs buries the claim it protects.
+
+**End on what follows for the reader.** A sentence that ends on an absence (`공개하지 않는다`,
+`정할 수 없다`) leaves them nothing to do; say what the gap means for their use.
+
+**A number carries its base, and a claim carries its condition.** 62.6 alone is unreadable
+and 62.6 (baseline 56.3) can be judged; "문서 2개 이상이 필요한 질문에서" is part of the
+claim, and without it the claim is false. This survives every rewrite.
+
+**Unpack noun chains and English-order modifiers into clauses, and say it literally.** Korean
+puts modifiers before the noun, so a stacked modifier cannot be parsed; a chain joined by `·`
+or `의` hands the reader the particles to fill in. Metaphor and emphasis words (`중요한
+전환점`, `~을 시사한다`) tell the reader how to feel instead of what changed. Repeat a term
+rather than varying it.
+
+## Choose the form by the shape of the content
+
+The passages above are prose, and prose is one form among several. Pick the form from what
+the content is:
+
+- A chain where each step leads to the next: sentences joined by their reasons, as in the
+  explanatory passage above.
+- Three or more items of the same kind side by side (differences, conditions, settings,
+  things to do): a list, one short sentence per item. Strung into a paragraph they read as an
+  enumeration the reader has to count and hold.
+- Several things compared on the same attributes: a table.
+- A flow, a loop, or two requirements that cannot both be met: a figure, or numbered steps
+  when the reader follows them in order (`visual.md`).
+
+Say a thing once in a chapter. When a table holds the cases, the paragraphs around it explain
+what the table cannot show; they do not walk through the same cases again.
+
+- ✓ 두 CI 설정이 갈라지는 곳
+  - 실패를 잡는 쪽: A 는 사람이 리뷰에서, B 는 매 PR 의 자동 검사가 잡는다.
+  - 실패를 설정에 옮기는 규칙: A 는 같은 실패가 두 번 나와야, B 는 한 번이면 옮긴다.
+  - 마지막 판정: A 는 테스트 통과, B 는 담당자 승인이다.
+  ✗ 두 설정은 실패를 사람이 잡는지 자동 검사가 잡는지가 다르고, 옮기는 규칙도 두 번과 한 번으로 다르며, 마지막 판정도 테스트와 승인으로 갈린다.
+  Three parallel differences in one sentence make the reader count them; a list shows them.
+
+## Pairs
+
+The ✗ side is short on purpose; write toward the ✓ side.
+
+- ✓ 이 설계는 캐시 키에 commit SHA를 넣는다. 커밋이 바뀌면 키도 함께 바뀌므로, 예전 항목은 따로 지우지 않아도 버려진다.
+  ✗ 이 설계가 기존 방식과 다른 점은 둘이다.
+  Counting announces structure instead of content, and the count goes stale when the items change.
+- ✓ GPU를 늘리면 빨라질 거라고 예상하기 쉬운데, 프로파일을 열어 보면 요청 시간의 대부분이 토크나이저에서 쓰인다. 그래서 먼저 손댈 곳은 토크나이저다.
+  ✗ 병목은 GPU가 아니라 토크나이저다.
+  The contrast frame denies a claim nobody made; start from what the reader expects instead.
+- ✓ 요약 방식으로 압축하면 정확한 이름과 관계가 빠진다. 그래프로 옮기면 그 정보는 남지만 트리플 형태라 사람이 다시 읽기 어렵다. 그래서 어느 쪽을 골라도 결국 원문 페이지를 다시 열게 된다.
+  ✗ 요약 방식은 이름을 버리고, 그래프 방식은 읽기 어렵게 만든다.
+  Two symmetric halves make the reader do the comparison; say what follows from it.
+- ✓ 학습 데이터 구성이 논문에 나와 있지 않아서, 같은 결과를 내 보려면 데이터부터 직접 맞춰야 한다.
+  ✗ 논문은 학습 데이터 구성을 공개하지 않는다.
+  End on what the absence means for the reader.
+- ✓ 이 동작은 코드에서 읽은 것이라, 운영에 넣기 전에 npm test로 한 번 확인하는 편이 안전하다.
+  ✗ 이 문서는 테스트를 실행하지 않았다.
+  Korean drops the subject; tie the limit to what the reader should do.
+- ✓ 저자가 A100 한 장에서 잰 값이라, 소비자용 GPU에서 돌릴 계획이라면 모델이 24GB 메모리에 들어가는지부터 확인해야 한다.
+  ✗ 저자 환경의 값이다. 재현은 확인되지 않았다. 유의성도 없다.
+  Keep the caveat that changes the next step; the rest go to the limits chapter.
+- ✓ RAG에서 chunk 크기를 줄이면 recall이 오른다. 대신 chunk 하나에 담기는 문맥이 짧아져서 답을 만들 때 이웃 chunk를 함께 넘겨야 한다.
+  ✗ 검색 증강 생성에서 덩어리 크기를 줄이면 재현율이 오른다.
+  Developers search for and say the English term.
+- ✓ 외부 API가 가끔 503을 돌려주면 바로 다시 부르기보다 간격을 두고 재시도하는 편이 낫다. 재시도 자체는 흔한 기능인데, 핵심은 실패한 클라이언트들이 같은 순간에 다시 몰리지 않게 하는 것이다.
+  ✗ Retry 정책: 지수 backoff. 최대 5회. jitter.
+  Fragments leave the reader to rebuild the causes. A list suits parallel items; a chain of causes needs sentences.
+
+## Forms readers take as machine-written
+
+Each of these shows the shape of the writing in place of its content, and each has
+neighbours it turns into when one form is avoided:
+
+- counting openers (`~은 셋이다`, `다른 점은 둘이다`, `세 가지로 나뉜다`)
+- the contrast family (`A가 아니라 B`, `A라기보다 B`, `X도 Y도 아니다`, a trailing `~지 ~는 아니다`)
+- paired parallel clauses (`X는 …하고, Y는 …한다`), in headings above all
+- a label and a colon or period before a heading or sentence (`문제: …`, `결과 2. …`, `사례 1: …`)
+- comma-list headings (`네 층: 지식, 추론, 평가, 개선`)
+- a run of sentences ending in absence or negation
+- the document talking about itself (`이 문서는`, `이 장에서는`, `이 대응은 이 문서가 만든 것이고`)
+
+`check-doc.mjs` blocks the heading forms in titles, `h2` and `.key`. In the body they are
+review findings, read in context: a contrast that corrects what the reader actually believes
+stays.

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fable22 research library</title>
-<meta name="description" content="fable22 리서치 문서 모음. 논문 분석, 주제 리서치, 기술 평가.">
+<title>kywoo26 research library</title>
+<meta name="description" content="kywoo26 리서치 문서 모음. 논문 분석, 주제 리서치, 기술 평가.">
 <link rel="stylesheet" href="assets/index.css">
 </head>
 <body>
@@ -12,12 +12,53 @@
   <header>
     <p class="eyebrow">index</p>
     <h1>research library</h1>
-    <p class="lede">fable22 에서 정리한 리서치 문서 모음입니다. 각 문서는 파일 하나로 완결되어 있어서 내려받아 오프라인에서도 그대로 열립니다.</p>
+    <p class="lede">kywoo26 이 정리한 리서치 문서 모음입니다. 각 문서는 파일 하나로 완결되어 있어서 내려받아 오프라인에서도 그대로 열립니다.</p>
   </header>
 
   <main>
     <p class="year">2026</p>
     <ul class="list">
+      <li class="item">
+        <a class="title-link" href="research/2026-10-19-claude-code-effort/">
+          <p class="meta"><span class="cat">메모</span><span>2026-10-19</span><span>article</span></p>
+          <h2>Claude Code effort가 바꾸는 것과 단계를 고르는 기준</h2>
+          <p class="summary">Claude Code의 effort는 Claude가 스스로 들이는 검증과 판단의 양을 정한다. claude.dev 블로그 글의 Terminal-Bench 3.0 곡선, 실패 종류, 분야별 통과율과 세 빌드 실험의 단계별 화면을 따라가면, effort는 edge case 실패를 절반 넘게 줄이지만 모호한 지시를 다르게 읽는 실패는 늘린다. 그래서 저자는 interview와 low로 만들고 high로 검증한다.</p>
+        </a>
+        <p class="tags"><span>claude code</span><span>effort</span><span>terminal-bench</span><span>opus 5.5</span><span>fable 5.1</span><span>agent</span><span>verification</span><span>explainer</span></p>
+        <p class="src">원문 <a href="https://claude.dev/blog/spending-your-effort">claude.dev/blog/spending-your-effort</a></p>
+      </li>
+      <li class="item">
+        <a class="title-link" href="research/2026-10-14-rea-reverse-engineer-anything/">
+          <p class="meta"><span class="cat">오픈소스 분석</span><span>2026-10-14</span><span>article</span></p>
+          <h2>rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점</h2>
+          <p class="summary">rea는 Hopper, Ghidra, IDA 같은 분석 엔진을 provider로 감싸 MCP tool로 내놓고, 결과마다 출처와 한계를 붙인 Evidence로 돌려준다. 요청 하나의 경로, 에이전트 지침, DX-Ball 사례, 22만 star의 추이를 코드와 공개 자료로 따라간다.</p>
+        </a>
+      </li>
+      <li class="item">
+        <a class="title-link" href="research/2026-10-07-meta-organizational-second-brain/">
+          <p class="meta"><span class="cat">메모</span><span>2026-10-07</span><span>article</span></p>
+          <h2>Meta의 organizational second brain이 전문가 교정을 지식 파일 편집으로 바꾸는 방식과 AI-native SDLC와 다른 점</h2>
+          <p class="summary">Meta는 한 compliance 분야의 agent에 조직의 입장과 분석 절차를 텍스트 파일로 나눠 담고, 전문가가 고친 답을 모델 재학습 없이 그 파일의 작은 편집으로 반영한다. Claude의 AI-native SDLC playbook도 지시를 버전 관리되는 텍스트 파일로 두고 eval로 회귀를 막는다. 거기서는 pass rate를 떨어뜨린 skill 변경이 merge 전에 검토를 받으니, Meta에서도 회귀한 편집은 사람이 먼저 보리라고 예상하기 쉽다. 그런데 Meta에서 회귀 시험에 떨어진 편집은 사람이 보기 전에 다시 컴파일된다. 그래서 입장이 바뀌면 예전 정답을 지키는 회귀 시험이 올바른 편집을 예전 입장 쪽으로 밀 수 있다.</p>
+        </a>
+        <p class="tags"><span>meta</span><span>organizational second brain</span><span>knowledge base</span><span>self-improvement</span><span>regression eval</span><span>llm judge</span><span>knowledge lifecycle</span><span>ai-native sdlc</span><span>explainer</span></p>
+        <p class="src">원문 <a href="https://engineering.fb.com/2026/09/02/ml-applications/organizational-second-brain-ai-learns-from-experts/">engineering.fb.com/2026/09/02/…/organizational-second-brain</a></p>
+      </li>
+      <li class="item">
+        <a class="title-link" href="research/2026-09-30-claude-sonnet-5-5-migration/">
+          <p class="meta"><span class="cat">메모</span><span>2026-09-30</span><span>article</span></p>
+          <h2>Claude Sonnet 5.5 이전 안내: Sonnet 5 코드에서 바꿀 곳</h2>
+          <p class="summary">Sonnet 5 요청 코드에서 모델 ID 만 바꾸면 400 을 받는 다섯 곳, 조용히 달라지는 thinking 표시와 effort 비용, 그리고 다시 재야 할 것</p>
+        </a>
+      </li>
+      <li class="item">
+        <a class="title-link" href="research/2026-09-30-claude-opus-5-5-introduction/">
+          <p class="meta"><span class="cat">메모</span><span>2026-09-30</span><span>article</span></p>
+          <h2>Claude Opus 5.5 소개 글: 절마다 내 코드와 비용에서 달라지는 것</h2>
+          <p class="summary">Anthropic 의 Claude Opus 5.5 소개 글을 절 순서대로 빠짐없이 읽고, 링크된 시스템 카드와 플랫폼 문서로 각 주장의 조건을 붙였다. 원문의 40% 절감은 단가 인하(요청 구성에 따라 20~60%)와 기본 effort 가 high 에서 medium 으로 내려간 효과가 겹친 값이라, 같은 effort 끼리 비교하면 max 에서 여섯 벤치마크 중 셋이 Opus 5 보다 비싸다. 안전장치에 걸린 요청은 Opus 4.8 이나 Opus 5 로 넘어가며, 시스템 카드의 coding 공격 평가에서 뚫린 요청은 거의 전부 그 fallback 쪽이었다. 원문 차트 여섯 개의 점 130개를 다시 그렸고 HN, X, Reddit 반응을 원문 주장과 대조했다.</p>
+        </a>
+        <p class="tags"><span>claude opus 5.5</span><span>anthropic</span><span>pricing</span><span>effort</span><span>fallback</span><span>preserved thinking</span><span>prompt injection</span><span>benchmark</span><span>explainer</span></p>
+        <p class="src">원문 <a href="https://www.anthropic.com/claude-opus-5-5">anthropic.com/claude-opus-5-5</a></p>
+      </li>
       <li class="item">
         <a class="title-link" href="research/2026-09-23-jev-open-source-ecosystem/">
           <p class="meta"><span class="cat">주제 리서치</span><span>2026-09-23</span></p>
@@ -83,7 +124,7 @@
       <li class="item">
         <a class="title-link" href="research/2026-08-30-oversight-degradation-vs-auto-approval/">
           <p class="meta"><span class="cat">논문 분석</span><span>2026-08-30</span><span>deck</span></p>
-          <h2>AI Agents Push Humans Out of the Loop: 승인 자동화와 사람의 검토</h2>
+          <h2>AI Agents Push Humans Out of the Loop: 승인 자동화(auto-approval)와 사람의 검토</h2>
           <p class="summary">사람이 매번 승인한다고 검토가 제대로 이뤄지는 것은 아니다. 이 논문의 설계 제안과 Claude Code auto mode를 비교해, 승인 없이 허용할 작업·사람이 먼저 확인할 행동·검토 품질을 점검할 방법을 정리한다.</p>
         </a>
         <p class="tags"><span>human oversight</span><span>agent harness</span><span>approval</span><span>HITL</span><span>position paper</span></p>
@@ -259,7 +300,7 @@
   </main>
 
   <footer>
-    문서를 추가하려면 <code>research/&lt;YYYY-MM-DD-slug&gt;/</code> 에 <code>index.html</code> 과 <code>meta.json</code> 을 넣고 <code>node scripts/build-index.mjs</code> 를 실행하세요. 자세한 규칙은 <a href="https://github.com/fable22/research-library#readme">README</a> 에 있습니다.
+    문서를 추가하려면 <code>research/&lt;YYYY-MM-DD-slug&gt;/</code> 에 <code>index.html</code> 과 <code>meta.json</code> 을 넣고 <code>node scripts/build-index.mjs</code> 를 실행하세요. 자세한 규칙은 <a href="https://github.com/kywoo26/research-library#readme">README</a> 에 있습니다.
   </footer>
 </div>
 </body>
