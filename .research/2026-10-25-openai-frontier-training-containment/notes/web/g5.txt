@@ -1,0 +1,8 @@
+https://github.com/moby/profiles/pull/39
+title: seccomp: Use an allow-list for socket domains
+state: MERGED mergedAt 2026-09-16T17:06:59Z createdAt 2026-08-21T19:25:37Z
+author: vvoland
+mergeCommit: 245180c51918481c0525424b3ee025d2b435d46c
+files: seccomp/default.json, seccomp/default_linux.go, seccomp/default_linux_test.go
+
+Replace the open-ended range checks with the Linux address families the default profile supports. AF_ALG and AF_VSOCK remain blocked, and unknown or future domains now receive the profile's default EPERM response.

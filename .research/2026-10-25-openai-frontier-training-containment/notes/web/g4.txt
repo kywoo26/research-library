@@ -1,0 +1,8 @@
+https://github.com/google/gvisor/pull/13816
+title: UDS: Transfer `SCM_RIGHTS` into enqueued messages.
+state: MERGED mergedAt 2026-07-30T03:51:02Z createdAt 2026-07-23T01:40:04Z
+author: EtiennePerot
+mergeCommit: b61df723a87bfd09af2dad6719746208ae94d877
+files: pkg/sentry/socket/control/control.go, pkg/sentry/socket/unix/transport/BUILD, pkg/sentry/socket/unix/transport/host.go, pkg/sentry/socket/unix/transport/queue.go, pkg/sentry/socket/unix/transport/queue_test.go, pkg/sentry/socket/unix/transport/unix.go
+
+Avoids accidentally decref'ing the queued-in FDs by the callers of `queue.Enqueue`.

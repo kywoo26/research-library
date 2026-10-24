@@ -1,0 +1,26 @@
+https://github.com/kata-containers/kata-containers/pull/13587
+title: agent: reject cwd outside the container root
+state: MERGED mergedAt 2026-08-12T09:43:34Z createdAt 2026-08-10T21:25:12Z
+author: cayoub-oai
+mergeCommit: c3a4ab27f0660fd45df2eab404693a08b636247d
+files: src/agent/rustjail/src/container.rs
+
+## Summary
+
+Prevent an exec process from retaining a working directory outside its container root.
+
+After resolving the OCI-requested cwd, call `getcwd()` and reject process startup when it returns `ENOENT`. Linux reports this when the cwd is unreachable from the process root, including when `chdir()` followed a procfs magic link into the guest root.
+
+This is a minimal, runc-style post-`chdir()` verification and requires no dependency changes.
+
+## Security impact
+
+Without this check, one container exec helper can be stopped and referenced through `/proc/<pid>/root` by another exec. The second process can then retain the Kata guest root as its cwd after dropping capabilities, exposing files outside the container root filesystem through relative paths.
+
+## Validation
+
+- `rustfmt` passed.
+- `cargo check --manifest-path src/agent/rustjail/Cargo.toml --lib` passed.
+- An end-to-end cross-helper `/proc/<pid>/root` reproducer was blocked by `rustjail::container::verify_cwd`.
+- A normal exec control continued to succeed.
+- The observed rejection was: `current working directory is outside the container mount namespace root`.

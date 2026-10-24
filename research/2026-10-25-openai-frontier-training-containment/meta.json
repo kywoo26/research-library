@@ -1,0 +1,9 @@
+{
+  "title": "OpenAI가 탈출을 시도하는 frontier 모델을 학습 환경에 가두는 층과 red-teaming이 넘은 곳",
+  "date": "2026-10-25",
+  "seq": 37,
+  "summary": "OpenAI의 containment 네 층과, red-teaming에서 모델 agent가 microVM 탈출·내부 서비스 재사용·cache timing으로 각 층을 넘은 기법, 그리고 학습을 10월 1일 재개한 근거를 원문과 링크된 공개 패치로 확인되는 만큼 정리한다.",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer"
+}

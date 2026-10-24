@@ -1,0 +1,31 @@
+https://github.com/kata-containers/kata-containers/pull/13615
+title: agent: harden capability and namespace handling
+state: MERGED mergedAt 2026-08-17T06:28:46Z createdAt 2026-08-12T17:56:31Z
+author: cayoub-oai
+mergeCommit: 247b87b2750362e5c34c4cd175e1c66d6162719a
+files: src/agent/rustjail/src/capabilities.rs, src/agent/rustjail/src/container.rs
+
+## Summary
+
+- enumerate supported capabilities with the kernel `PR_CAPBSET_READ` interface instead of workload-visible procfs
+- fail when capability discovery returns no capabilities and verify that the post-drop bounding set contains only OCI-allowed capabilities
+- pin namespaces created for the container init process with agent-owned file descriptors
+- store agent proc-fd paths in the OCI spec so later execs join the pinned namespaces rather than resolving `/proc/<init-pid>/ns/*` again
+- add a regression test that verifies the stored proc-fd path resolves to the original namespace
+
+## Security impact
+
+This addresses both trust-boundary failures involved in the `cap_last_cap` exec escalation:
+
+1. capability discovery no longer trusts `/proc/sys/kernel/cap_last_cap` after entering a workload-controlled mount namespace; and
+2. later execs resolve agent-owned namespace descriptors, so an exited init process or reused PID cannot redirect namespace selection.
+
+## Validation
+
+- `cargo check -p rustjail --all-features`
+- `rustfmt --check --edition 2021 src/agent/rustjail/src/capabilities.rs src/agent/rustjail/src/container.rs`
+- `git diff --check`
+- `container::tests::test_update_namespaces_pins_namespace_fds` with the separate test-only `OwnedFd` compatibility fixes from kata-containers/kata-containers#13614
+- reproduced the advisory PoC with guest seccomp disabled through runtime configuration: the unpatched agent expanded `CapBnd`, `CapEff`, and `CapPrm` from `00000000a80425fb` to `000001ffffffffff`, including `CAP_SYS_ADMIN` and `CAP_SYS_PTRACE`
+- with the patched agent, the same exec stayed in the pinned mount namespace, observed the real `cap_last_cap`, and retained `00000000a80425fb` without `CAP_SYS_ADMIN` or `CAP_SYS_PTRACE`
+- a separate ordinary exec against the patched agent completed successfully

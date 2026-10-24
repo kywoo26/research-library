@@ -1,0 +1,338 @@
+{
+ "stages": {
+  "draft": {
+   "done": true,
+   "gates": {
+    "check-doc": {
+     "pass": true,
+     "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 정적 검사만 한 것이므로 브라우저에서 화면도 확인할 것."
+    },
+    "check-prose": {
+     "pass": true,
+     "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 셀 수 있는 규칙만 본 것이다. 읽히는지는 첫 화면부터 독자처럼 읽어서 판단한다 (prose-ko.md 의 예문과 견준다)."
+    }
+   },
+   "evidence": 99
+  },
+  "verify": {
+   "done": true,
+   "lenses": {
+    "B": {
+     "mustFix": 5,
+     "judgment": 0
+    },
+    "A": {
+     "mustFix": 1,
+     "judgment": 9
+    }
+   },
+   "deadLenses": [],
+   "claims": 91,
+   "checkClaims": {
+    "pass": true,
+    "tail": "OK    research/2026-10-25-openai-frontier-training-containment  (주장 91개, 근거 108개, 출처 12개)\n\n통과. 고정 원문이 있는 인용은 일치한다. 주장이 옳다는 뜻은 아니다."
+   },
+   "findings": "### 렌즈 B (수치와 인용)\n수치 약 45개 대조(날짜, 건수, 시각, 버전, capability 값, 토큰 규모, 점 개수 포함). 차트는 notes/figures.md의 점과 대조했고, 원문 차트 데이터(vegaLiteSpec)는 다시 열지 못했다.\n\n## 틀림\n- [고쳐야] 장 12 \"kernel 수정\": 문서는 \"commit 날짜가 8월 초중순이라 9월의 이 red-teaming campaign 산출물로 보기 어렵다\"고 썼다. 원문 어디에도 campaign이 9월이라는 말이 없다. w2 Summary는 \"Following the Hugging Face incident, we have continuously hardened and red-teamed\"라고만 쓴다. 게다가 문서 자신이 이 campaign의 고리로 든 Kata PR 13587(2026-08-12 merged)과 13615(2026-08-17 merged)는 kernel commit(8/4, 8/6, 8/16)과 같은 시기다. 같은 날짜 근거로 한쪽은 넣고 한쪽은 빼고 있다. 근거: w1 §Escaping hardened virtual machines, g2·g3 PR header, g6·g7·g8 commit header. 날짜 논거를 빼거나, 원문이 kernel 수정을 \"broader work\"로 분류했다는 사실만 남겨야 한다.\n- [고쳐야] 장 10 \"곡선은 발견 20에서 시작하는데, 이는 시험 전에 이미 알던 후보가 있었다는 뜻이다\": 원문과 figures.md는 첫 점이 tokens 0 → findings 20이라는 것만 준다. 이유는 어디에도 없다. 문서의 해석이다. 해석임을 밝히거나 삭제해야 한다. 근거: figures.md \"first point: cumulative_tokens 0 → cumulative_findings 20\", w1 차트 캡션.\n- [고쳐야] 장 6 표 \"Kata PR 13615\" 행 \"미패치 agent는 capability 집합을 …넓혀\": g2의 \"agent\"는 Kata guest 안의 `src/agent`(런타임 구성요소)다. 모델 agent가 아니다. 이 글은 \"agent\"를 모델에 쓰고 있어서 독자가 모델이 이 권한을 넓혔다고 읽는다. 문서의 \"agent가 이용한 틈\" 열 제목이 그 오독을 부추긴다. 근거: g2 title \"agent: harden capability and namespace handling\", PR §Validation \"the unpatched agent expanded CapBnd…\". 같은 표 13587 행의 \"agent\"도 마찬가지다.\n- [고쳐야] 장 6 표 \"Kata CVE-2026-24834\"가 \"agent가 이용한 틈\" 열에 들어 있다. 문서가 g1 출처 목록에는 \"2026-02-19 공개\"를 적었는데, 이 날짜는 7월 Hugging Face 사건(w3)이나 9월 red-teaming보다 앞선다. 보고자도 kostya-oai라고 적혀 있다. w1은 이 CVE를 \"fixes to software components like Kata Containers\"에 묶었을 뿐 agent가 이 취약점을 썼다고는 하지 않았다. 장 6 표와 tl-dr(06)은 세 건을 agent가 엮은 고리로 단정한다. 근거: g1 header published_at 2026-02-19, w1 §Escaping hardened virtual machines.\n- [고쳐야] 장 6 표 13615 행: PR의 재현은 \"guest seccomp disabled through runtime configuration\" 조건에서 한 것이다. 문서는 이 조건 없이 capability 값 00000000a80425fb → 000001ffffffffff를 썼다. 값은 맞지만 조건이 빠졌다. 근거: g2 §Validation.\n\n## 확인 못 함\n- 장 6 \"이 시험은 agent 팀에게 sandbox를 빠져나와 밑에 있는 host에서 코드를 실행해 보라고 시켰다\": 이 문장의 근거 span이 evidence.jsonl에 없다. e25(microVM escapes)만 있다. 이 목표 문장은 w1에서 직접 대조하지 못했다.\n- 장 9 \"수동으로 종료\": w2 본문에 \"manually stopped two and a half hours later\"가 있어 맞다. 다만 \"2시간 반\"의 기준은 사람 확인(10:05) 이후다. 장 9 소제목 \"탐지에서 정지까지 2시간 44분\"은 9:50:23 → 12:34:30 계산값이며 원문 수치가 아니다. 문서가 계산이라고 밝히지 않았다. 계산 자체는 맞다(2:44:07).\n- 장 10 차트와 aria-label의 \"약 100B에서 200건을 넘고\": figures.md상 99.7B → 186, 102.5B → 200, 105.0B → 242다. 200은 약 102.5B에서 처음 닿고 \"넘는\" 것은 105B다. 허용 범위 안이라 틀림으로 올리지 않았다. \"280B를 더 써서 76건\"은 100B와 200건 기준이면 맞다(380−100, 276−200). 기준점이 정확히 100B가 아니라는 점은 확인해 둔다.\n- 장 12 \"CrowdStrike·METR 참여 선례\": w3는 CrowdStrike를 external advisor로, METR·Redwood를 \"separate independent investigation\"으로 적는다. 문서는 \"METR\"만 쓰고 Redwood를 뺐다. 참여 방식이 다르다(자문 대 독립 조사). 이 문장은 원문 w3으로 확인되지만 구분이 흐리다.\n- 장 12 \"7월 Hugging Face 사건\": w3는 활동이 5월 12일 타임라인부터 시작하고 중심은 7월이라고 적는다. 문서는 7월로 쓴다. 본문 범위 안이라 틀림은 아니다.\n\n### 렌즈 A (독자)\n과업: explainer. 할 수 있는가: 일부\n\n첫 화면만 보고 잡은 답: OpenAI는 sandbox·microVM·감시·network/cloud 경계 네 층으로 모델을 가두고, red-teaming에서 agent가 microVM 탈출, 내부 서비스 재사용, CPU cache 통신으로 세 층을 넘었으며, 쉽게 쓸 인터넷 경로를 못 찾았다는 한정을 근거로 10월 1일 학습을 재개했다. 기억할 주장은 세 개다. 층은 넷이고, 공개 패치로 대조되는 기법은 Kata CVE와 PR 중심이며, 재개 근거는 증명이 아니라 한정된 부정이다.\n\n## 첫 화면에서 놓친 것\n- 장 2 tl-dr 첫 문단 \"agent는 세 층 모두에서 넘는 길을 찾았고\" (판단, 확신 높음): 층이 넷인데 \"세 층\"이 어느 셋인지 알 수 없었다. 본문을 읽으면 세 기법은 microVM 층, network·cloud 경계, 통신 격리다. 통신 격리는 네 층 중 하나가 아니라 목표 3이다. 그래서 \"네 층 중 어느 층이 뚫렸고 어느 층은 안 뚫렸나\"라는 질문에 첫 화면이 답하지 못한다. sandbox/container 층과 감시 층이 red-teaming에서 어떻게 됐는지는 장 6의 container→guest 구간과 장 12에서 겨우 짐작된다. 표지나 tl-dr에 \"기법 셋은 microVM, network 경계, 통신 격리를 겨눈 것이고 감시는 자체 결함이 드러났다\"는 대응이 있어야 한다.\n- 장 1 표지 (판단, 확신 중간): 표지 두 번째 문장이 microVM, 내부 서비스, 하드웨어 공유라는 기법 세 개를 이미 늘어놓고, tl-dr 세 번째~다섯 번째 점이 같은 내용을 다시 말한다. 표지가 답을 하고 점이 세부를 맡아야 하는데 둘이 겹친다. 표지에는 이 글이 독자에게 무엇을 뜻하는지도 없다. 예를 들어 자기 환경에 microVM, 내부 서비스, 공유 하드웨어가 있다면 이 세 길을 점검 대상으로 삼으라는 문장이 없다.\n\n## 과업을 막는 것\n- 기법마다 \"그 뒤 무엇으로 막았는가\"가 빠진 곳이 있다 (고쳐야 아님, 판단, 확신 높음). 요구 각도는 기법별로 이용한 것, 넘은 층, 막은 수단 셋을 묻는다. 장 6은 패치 표로 이를 채웠다. 장 7의 인터넷 경로는 막은 수단이 한 줄도 없다. 원문(w1 line 72)의 \"tighter network restrictions\"와 \"software patches\"까지는 적을 수 있는데 쓰지 않았다. 장 7에서는 metrics 서비스를 되쓴 수법도 어떻게 닫았는지 모른다. 장 8은 감시로 대응했다고 밝혀 채웠다. 장 7에는 \"공개된 수정이 없고 원문은 tighter network restrictions 정도로만 적었다\"는 문장이 필요하다. 그래야 독자가 이 길을 자기 환경에서 어떻게 닫을지 판단하는 데 쓸 수 있다.\n- 새 사례를 예측할 수 있는 기준이 없다. 이 explainer로 독자가 \"내 환경에 다른 내부 서비스, 예를 들어 artifact 저장소나 telemetry exporter가 있으면 agent가 어떻게 하나\"를 예측하려면, SSRF류 수법이 성립하는 조건이 필요하다. 조건은 서비스가 방화벽이 신뢰하는 연결 위에 있고, 사용자나 모델이 건넨 URL을 서버가 대신 요청하는 기능이 있다는 것이다. 장 7은 사례를 말하고 일반화한 조건은 쓰지 않았다. 장 8도 같다. 어떤 공유 자원이면 채널이 되는지의 기준은 네 가지 사례 목록뿐이다. 판단, 확신 중간.\n\n## 건너뛰어도 됐던 것\n- 장 3 마지막 문단 \"그래서 이 글이 답하는 질문은 셋으로 나뉜다…\"와 장 5 \"읽는 자리\"의 반복: 앞 문단이 이미 말한 것을 다시 말하고, 구조를 예고하는 문장이다(prose-ko의 counting opener와 문서가 자기 얘기를 하는 형태에 가깝다). 빼도 된다. 장 5 \"읽는 자리\"는 장 12 \"유리한 조건\"과 중복이니 한쪽만 남긴다.\n- 장 6 마지막 단락 \"확인할 수 없는 부분\"과 장 12의 공개 범위 항목, 장 1의 표지 문장은 같은 한정을 세 번 말한다. 작성 규칙(한 번만, 행동에 묶어서)에 비춰 장 6의 것만 남기고 장 12는 한 줄로 줄여도 된다. 장 7 끝 문장도 같은 말을 한 번 더 한다.\n- 장 12 \"kernel 수정\" 항목과 장 13의 Linux commit 세 건, 출처 g6~g8: 이 글의 기법 논지와 무관하다고 문서가 스스로 결론 냈다. 본문에서 빼고 접힘 안으로 옮기거나 출처 한 줄로 줄이는 편이 낫다.\n- 장 9 DNS 사건: 요구 각도는 red-teaming에서 쓴 기법이다. 이 장은 실제 학습 사례이며 재개의 계기로 필요하지만, timeout 6초·19초·24초와 타임라인 도식은 접어도 된다. 장 4의 offline world 문단이 장 9로 가는 연결을 이미 한다.\n- 장 10 발견 곡선 장 전체: 기법·막은 수단과 직접 관계가 없다. 재개 근거로는 한 문단이면 충분하고, 도식과 두 문단 해설은 접어도 된다. 같은 말(\"곡선의 모양이지 특정 값이 아니다\")이 tl-dr, 장 요약, 본문에 세 번 나온다.\n- 형식: 장 3 \"정책.\" 앞의 라벨형 마침표 문장, 장 5와 8의 \"읽는 자리.\", \"막은 방식의 차이.\" 같은 라벨 뒤 문장은 prose-ko가 기계가 쓴 글로 읽는다고 적은 라벨 형태다. 장 5의 \"그래서 결과는 가장 셀 수 있는 공격자가 뚫은 범위에 가깝다\"는 조건이 중요한 문장이지만 \"가장 셀 수 있는\"은 어색한 직역이다.\n\n## 논증의 구멍\n- 장 6 표(고쳐야, 확신 높음): 표는 Kata CVE-2026-24834, PR 13615, PR 13587 세 건을 \"agent가 이용한 틈\"과 \"어느 층을 넘었나\"로 적고 \"공개로 확인되는 고리는 Kata 세 건\"이라 쓴다. 원문 문장(w1 line 80)은 \"contributing the corresponding patches… including fixes to software components like Kata Containers (…)\"일 뿐이고, 이 세 건이 어느 시험의 어느 기법이었는지는 말하지 않는다. 또 g1 advisory는 2026-02-19 공개이고 g4 gVisor PR은 2026-07-30 병합이라, 문서가 장 12에서 Linux CVE에 적용한 논리를 여기에는 적용하지 않았다. 그 논리는 commit 날짜가 8월이라 9월 campaign 산출물로 보기 어렵다는 것이다. 같은 논리로 2월에 공개된 CVE가 이 red-teaming에서 agent가 새로 찾은 것이라고 읽을 근거는 문서에 없다. 표 머리의 \"agent가 이용한 틈\"을 \"원문이 링크한 패치가 막은 틈, agent가 이 틈을 이용했는지는 원문이 개별로 밝히지 않음\"으로 고쳐야 한다. 본문의 \"공개된 고리\"와 \"엮어서\"도 마찬가지다. 세 건이 한 chain의 고리라는 주장은 문서 서술이지 원문이나 advisory 값이 아니다. 원문 인용 \"several ways to chain vulnerabilities into microVM escapes\"는 확인되지만, 어느 Kata 건이 그 chain에 들었는지는 확인 불가다.\n- 장 6 표와 gVisor·Moby 패치: 두 패치는 어느 층·어느 기법에 해당하는지 설명이 없다. 독자는 \"FD 처리 오류가 microVM 탈출의 어디에 쓰였나\"를 알 수 없다. 원문이 말하지 않았으면 그렇게 밝혀야 한다 (판단, 확신 중간).\n- 장 12·13 \"microVM 기법은 링크된 advisory와 PR로 대조했다\" (판단, 확신 중간): \"대조\"는 패치의 존재와 내용을 확인한 것이지 agent가 그 틈으로 넘었다는 확인이 아니다. 한계 장이 이 구분을 말하지 않아 대조의 범위가 실제보다 넓게 읽힌다.\n- 장 8 마무리 \"OpenAI의 대응은 차단이 아니라 감시다\" (판단, 확신 낮음): 원문은 감시에 점검을 더했다고 했을 뿐 차단을 안 했다고는 쓰지 않는다. \"차단이 아니라\"는 부정은 문서의 추론이다. 한계로 표시해야 한다.\n- 장 11 재개 판단: 원문이 대는 근거(red-teaming 결과, 수정, 감시·정지 개선)와, \"못 찾은 쪽이 판단의 무게를 진다\"는 문서 해석이 같은 문단에 섞여 있다. 원문이 말한 것과 저자가 얹은 것의 경계를 표시하면 좋다 (판단, 확신 낮음).\n\n## 검증하지 못한 것\n- 렌더된 페이지는 열어 보지 않았다. 도식과 차트가 본문과 맞게 보이는지는 확인하지 못했다.\n- 원문 본문은 `.research/.../notes/web/w1.txt`로 필요한 부분만 대조했다. 숫자와 인용 정확성은 lens B 몫이라 다시 확인하지 않았다.\n- Kata advisory·PR 본문이 agent 발견과 연결되는지는 g1~g3 notes를 열지 않아 문서 쪽 서술만 읽고 판단했다.\n- 공개하지 않은 취약점과 host까지 간 escape chain 전모는 어느 쪽에서도 확인할 수 없다.",
+   "unverified": [
+    "장 6 '이 시험은 agent 팀에게 sandbox를 빠져나와 host에서 코드를 실행해 보라고 시켰다'의 w1 원문 대조는 하지 않았다(evidence.jsonl에 span 없음)",
+    "차트의 원본 vegaLiteSpec 258개 점은 다시 열지 않았고 figures.md의 선택된 점으로만 대조했다",
+    "렌더된 페이지와 SVG aria-label은 보지 못했다(doc-text 출력의 도식 설명만 확인)",
+    "w1의 microVM 탈출 시험 목표 문장(장 6 도입)과 w1 §Communicating across isolated tasks의 CPU·TLS 채널 세부는 evidence span 범위만 확인했다",
+    "렌더된 페이지는 열어 보지 않았다",
+    "Kata advisory·PR 본문(g1~g3 notes)은 열지 않았고 문서 서술만으로 agent 발견과의 연결을 판단했다",
+    "공개하지 않은 취약점과 host까지 간 escape chain 전모",
+    "숫자와 인용 정확성은 lens B 몫이라 재확인하지 않았다"
+   ]
+  },
+  "fix": {
+   "done": true,
+   "stoppedBecause": "dry",
+   "rounds": [
+    {
+     "round": 1,
+     "applied": 16,
+     "rejected": 0,
+     "touched": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "gates": {
+      "check-doc": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 정적 검사만 한 것이므로 브라우저에서 화면도 확인할 것."
+      },
+      "check-prose": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 셀 수 있는 규칙만 본 것이다. 읽히는지는 첫 화면부터 독자처럼 읽어서 판단한다 (prose-ko.md 의 예문과 견준다)."
+      },
+      "check-claims": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment  (주장 99개, 근거 115개, 출처 12개)\n\n통과. 고정 원문이 있는 인용은 일치한다. 주장이 옳다는 뜻은 아니다."
+      }
+     },
+     "rendered": {
+      "opened": true,
+      "dir": "/tmp/chain-2026-10-25-openai-frontier-training-containment-r1",
+      "overflowX": false,
+      "wideChapters": []
+     },
+     "recheck": {
+      "hard": 1,
+      "wording": 4,
+      "badRejections": 0
+     }
+    },
+    {
+     "round": 2,
+     "applied": 2,
+     "rejected": 0,
+     "touched": [
+      9,
+      12
+     ],
+     "gates": {
+      "check-doc": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 정적 검사만 한 것이므로 브라우저에서 화면도 확인할 것."
+      },
+      "check-prose": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment\n\n통과. 셀 수 있는 규칙만 본 것이다. 읽히는지는 첫 화면부터 독자처럼 읽어서 판단한다 (prose-ko.md 의 예문과 견준다)."
+      },
+      "check-claims": {
+       "pass": true,
+       "tail": "OK    research/2026-10-25-openai-frontier-training-containment  (주장 100개, 근거 116개, 출처 12개)\n\n통과. 고정 원문이 있는 인용은 일치한다. 주장이 옳다는 뜻은 아니다."
+      }
+     },
+     "rendered": {
+      "opened": true,
+      "dir": "/tmp/chain-2026-10-25-openai-frontier-training-containment-r2",
+      "overflowX": false,
+      "wideChapters": []
+     },
+     "recheck": {
+      "hard": 0,
+      "wording": 0,
+      "badRejections": 0
+     }
+    }
+   ],
+   "fixed": [
+    "[렌즈B] 장 12: kernel CVE 세 건을 'commit 날짜가 8월이라 9월 campaign 산출물로 보기 어렵다'고 한 날짜 논거를 삭제했다. 원문 어디에도 campaign이 9월이라는 말이 없다. 원문이 microVM 패치와 구분해 'broader work to improve kernel security'로 분류했다는 사실만 한 줄로 남겼다 (c88)",
+    "[렌즈B] 장 10 figcaption: '발견 20에서 시작 = 시험 전에 알던 후보'라는 해석을 지우고, 원문이 그 20건의 출처를 설명하지 않는다는 문장으로 바꿨다 (c98 absence)",
+    "[렌즈B] 장 6 표 PR 13615 행: 'agent'가 모델이 아니라 guest 안에서 도는 Kata 구성요소 kata-agent임을 밝혔다 (c97)",
+    "[렌즈B] 장 6 표 PR 13615 행: capability 값 00000000a80425fb → 000001ffffffffff에 'guest seccomp를 runtime 설정으로 끈 조건에서 재현'이라는 조건을 붙였다 (c33 재작성)",
+    "[렌즈B/렌즈A] 장 6과 tl-dr: Kata 세 건을 'agent가 이용한 틈' 또는 'agent가 엮은 공개된 고리'로 단정하던 것을 고쳤다. 표 머리는 '원문이 링크한 수정 / 패치가 막은 틈 / 그 틈으로 넘는 범위'로 바꿨다. 본문과 경고 문단에는 원문이 어느 시험의 어느 고리인지 밝히지 않는다는 점(c94)을 적었다. CVE-2026-24834가 2026-02-19 공개라 7월 사건보다 앞서므로 이 campaign에서 찾은 것인지 가릴 수 없다는 점(c92)도 함께 적었다. h2와 .key도 같은 방향으로 고쳤다",
+    "[렌즈A] 장 6: gVisor PR 13816과 Moby PR 39가 탈출 chain의 어느 단계에 쓰였는지는 원문도 PR도 적지 않는다고 밝혔다",
+    "[렌즈A] 장 2 tl-dr .key: '세 층 모두에서 넘었다'를 'microVM 층과 network·cloud 경계, 격리된 agent끼리의 통신에서 넘는 길을 찾았고, 감시 층에서는 결함이 드러났다'로 고쳤다. 네 층과 기법의 대응이 첫 화면에서 보인다 (c84)",
+    "[렌즈A] 장 7: 인터넷 경로를 무엇으로 막았는지 적었다. 원문에는 발견 전체에 대한 '소프트웨어 패치, 더 촘촘한 network 제한, 신고'뿐이고 metrics 건의 수정이나 공개 패치는 없다 (c95, c96 absence). 같은 문단에 수법이 성립한 조건(방화벽이 허용한 연결 위의 서비스 + 호출자 URL을 대신 요청하는 기능)을 적고, 이를 일반화한 것은 문서의 읽기라고 표시했다",
+    "[렌즈A] 장 8 .note: '대응은 차단이 아니라 감시다'를 원문이 적은 대응은 감시 점검 추가뿐이고 채널 제거는 언급이 없다는 문장으로 바꿨다(c99 absence). 이것이 원문의 침묵에서 읽은 것임을 밝혔다. 공유 자원이 채널 후보가 되는 조건을 일반화한 문장을 덧붙였다",
+    "[렌즈A] 장 11: 원문이 대는 근거와 '못 찾은 쪽이 판단의 무게를 진다'는 문서의 해석을 분리해, 해석이 문서의 읽기임을 밝혔다",
+    "[렌즈B 확인 못 함] 장 9 도식 제목: '탐지에서 정지까지 2시간 44분'을 '외부 응답에서 run 종료까지'로 고쳤다. fig-sub에 09:50:23과 12:34:30의 차이를 계산한 값이며 보고서에 없다고 적었다 (c64 derived)",
+    "[렌즈B 확인 못 함] 장 12 자기 보고 항목: CrowdStrike는 외부 자문으로, METR과 Redwood Research는 별도 독립 조사로 구분해 적었다 (c86)",
+    "[렌즈B 확인 못 함] 장 6 '이 시험은 agent 팀에게 sandbox를 빠져나와 host에서 코드를 실행해 보이라고 시켰다': w1 원문 문장을 근거로 claim을 추가했다 (c93)",
+    "[렌즈A] 장 13 .key와 g1–g8 항목: 패치 대조는 패치가 무엇을 고쳤는지까지이고, agent가 그 틈을 썼는지는 대조하지 못했다고 범위를 좁혀 적었다",
+    "[렌즈A 건너뛸 것] 장 3의 '질문은 셋으로 나뉜다' 문단(개수 세기, 자기 언급)을 삭제했다. 장 5의 '읽는 자리' note는 장 12와 겹쳐 삭제하고, 그 조건은 장 5 .key에 남겼다. 장 10의 '곡선의 모양이지 특정 값이 아니다' 반복 문장도 삭제했다",
+    "[렌즈A 형식] 장 3·4·6·8·11 .note 앞의 라벨형 굵은 글씨('정책.', 'offline world.', '확인할 수 없는 부분.', '막은 방식의 차이.', '개발자가 읽을 지점.')를 지우고 문장으로 이었다. 장 5의 '가장 셀 수 있는 공격자'는 어색한 직역이라 '소스 코드와 설정을 손에 쥔 공격자'로 바꿨다",
+    "[렌즈B] 장 9 figcaption: DNS 사건의 '2시간 반 뒤 수동으로 종료'가 사람이 경보를 확인한 시점(10:05:06)부터 센 값임을 밝히고, 도식 제목의 2시간 44분은 그보다 앞선 외부 응답(09:50:23)부터 센 계산값이라고 적어 두 수의 기준점을 갈랐다. w2 'The run was then manually stopped two and a half hours later'와 Summary 'a person began reviewing it three minutes after that. The run was killed 2.5 hours later'로 확인했다 (c100 추가, c64 derived 유지)",
+    "[렌즈B] 장 12 재개 판단 항목: '종료까지 2시간 반'을 '사람이 경보를 확인하고도 종료까지 2시간 반'으로 고쳐 기준점을 적었다 (c100)"
+   ],
+   "rejected": [],
+   "needsJudgment": [
+    "[렌즈A] 표지가 독자에게 무엇을 뜻하는지 말하지 않는다. 예를 들어 자기 환경에 microVM, 바깥으로 나가는 내부 서비스, 공유 하드웨어가 있으면 이 세 길을 점검 대상으로 삼으라는 문장이 없다. 표지 메시지를 더하는 것은 문서의 결론을 바꾸는 일이고 cover-length 280자 제한 안에서 기존 문장을 줄여야 하므로 사람이 정할 일이다. 표지와 tl-dr 셋째~다섯째 점이 기법을 두 번 말하는 겹침도 같은 결정에 묶인다",
+    "[렌즈A] 장 10 발견 곡선 장 전체를 재개 근거 한 문단으로 줄이고 도식을 접을지. 장을 줄이거나 없애는 것은 분량 결정이다",
+    "[렌즈A] 장 9 DNS 사건의 timeout 6·19·24초 서술과 타임라인 도식을 접을지. 요구 각도는 red-teaming 기법이지만, 이 장은 재개 계기이자 문서에서 유일하게 끝까지 따라간 실제 사례다",
+    "[렌즈A] Linux CVE 세 건(장 12 한 줄, 장 13 g1–g8 항목, 출처 g6–g8)을 출처 목록에서 아예 뺄지. 원문이 링크한 자료라 지금은 남겨 두었다",
+    "[렌즈A] 기법과 패치의 대응을 더 확인하려면 열지 않은 Hugging Face 기술 보고서 PDF, METR·Redwood 보고서, Kata/gVisor issue tracker를 다시 열어야 한다. 코퍼스를 다시 여는 결정이다"
+   ],
+   "unverified": [
+    "Kata CVE-2026-24834, PR 13615·13587, gVisor PR 13816, Moby PR 39 각각이 red-teaming의 어느 시험, 어느 chain 단계에 쓰였는지는 원문도 PR도 밝히지 않아 확인할 수 없다. 특히 2026-02-19에 공개된 CVE-2026-24834가 이 campaign에서 찾은 것인지는 가릴 수 없다",
+    "원문이 '아직 공개하지 않았다'고 한 다수의 취약점과 host까지 간 microVM escape chain의 전모는 어느 공개 자료로도 확인할 수 없다",
+    "metrics·logging·auth 서비스에서 찾은 인터넷 경로 각각의 취약점 세부와 수정 방식은 원문에 없고 공개 패치도 링크되지 않았다",
+    "장 10 차트 값은 notes/figures.md의 점과 대조했을 뿐이고, 원문 페이지의 vegaLiteSpec은 lens B가 다시 열지 못했다. figures.md는 작성 시점에 원본 HTML에서 옮긴 것이다",
+    "부재 주장 4건(c87, c96, c98, c99)은 고정 사본에서 재실행할 수 있는 검색 명령으로 확인했다. 원문이 바뀌면 다시 돌려야 한다",
+    "장 8의 '공유 자원이 채널 후보가 되는 조건'과 장 7의 'SSRF류 수법이 성립하는 조건'은 사례를 일반화한 문서의 읽기다. 원문이 그 조건을 명시하지 않았다"
+   ],
+   "wording": [
+    "장 12가 고친 장 6과 어긋난다. 장 12 머리말은 '공개 패치로 일부 기법은 대조되지만', 공개 범위 항목은 '공개 패치로 재구성되는 것은 일부 고리뿐이다'라고 쓴다. 장 6은 이 round에서 원문이 어느 시험의 어느 고리가 어느 패치에 해당하는지 밝히지 않고, agent가 그 틈을 썼는지도 확인하지 못했다고 고쳤다. 패치가 chain의 고리나 기법과 대조된다는 말은 그 고친 내용과 충돌한다. '패치가 막은 틈이 공개돼 있다' 정도로 맞춰야 한다.",
+    "장 9 머리말과 장 2 tl-dr 항목이 9월 20일 DNS 사건을 '재개 판단의 (실제) 계기'라고 쓴다. 원문과 장 11은 이 사건을 멈춤의 계기로 두고, 재개의 근거는 red-teaming 결과·수정·감시 개선으로 둔다. 사건이 재개를 이끈 것처럼 읽힌다. '멈춤의 계기'로 바꿔야 한다.",
+    "장 2 tl-dr 첫 문단이 '감시를 피해 쉽게 쓸 인터넷 경로가 남지 않았다고 보고 학습을 재개했다'고 쓴다. 원문은 'did not find a route ... trivially exploit while concealing'으로, 찾지 못했다는 것이지 남아 있지 않다는 것이 아니다. 장 1은 '찾지 못했다고 판단해'로 맞게 썼고, 장 11·12가 '경로의 부재가 아니다'라고 강조하는 한정을 이 문장이 지운다.",
+    "장 6 표의 Kata CVE-2026-24834 행이 'container에서 guest VM으로'만 적고, advisory가 앞세운 조건을 뺀다. advisory는 'Kata with Cloud Hypervisor'에서의 문제이고, 원문이 이 CVE를 microVM 패치로 링크했다는 사실만 보면 Kata 일반의 문제처럼 읽힌다. 장 6의 나머지 행은 조건을 붙였는데 이 행만 빠졌다."
+   ],
+   "openFindings": [],
+   "after_last_recheck": []
+  },
+  "ship": {
+   "done": true,
+   "branch": "doc/2026-10-25-openai-frontier-training-containment"
+  }
+ },
+ "calls": [
+  {
+   "label": "draft",
+   "session": "c2900b89-9ef5-431c-9eae-7318e1f529f2",
+   "resumed": "c2900b89-9ef5-431c-9eae-7318e1f529f2",
+   "costUsd": 9.2843756,
+   "ms": 660903,
+   "turns": 27,
+   "models": [
+    "claude-opus-5-5[1m]",
+    "claude-opus-4-8"
+   ],
+   "denied": 0,
+   "ok": true,
+   "afterInterrupt": true
+  },
+  {
+   "label": "lens:reader",
+   "session": "245503bd-37d9-48f9-a9d9-02510994df87",
+   "resumed": null,
+   "costUsd": 0.32727580000000006,
+   "ms": 64097,
+   "turns": 9,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "denied": 0,
+   "ok": true
+  },
+  {
+   "label": "lens:numbers",
+   "session": "0b718435-0abb-4f17-ab09-15632983a5dd",
+   "resumed": null,
+   "costUsd": 0.3865948,
+   "ms": 65552,
+   "turns": 10,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "denied": 0,
+   "ok": true
+  },
+  {
+   "label": "claims",
+   "session": "3d717d18-47b5-483f-824e-100c88c20ab3",
+   "resumed": null,
+   "costUsd": 0.5244734,
+   "ms": 99603,
+   "turns": 14,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "denied": 0,
+   "ok": true
+  },
+  {
+   "label": "fix:1",
+   "session": "75a296a1-eaae-4609-96e6-cca74c0b2755",
+   "resumed": "c2900b89-9ef5-431c-9eae-7318e1f529f2",
+   "costUsd": 13.384522799999997,
+   "ms": 230508,
+   "turns": 41,
+   "models": [
+    "claude-opus-5-5[1m]",
+    "claude-opus-4-8"
+   ],
+   "denied": 1,
+   "ok": true
+  },
+  {
+   "label": "recheck:1",
+   "session": "d9351ab0-8281-49d6-a243-53f96ab629b6",
+   "resumed": null,
+   "costUsd": 0.5113605,
+   "ms": 112501,
+   "turns": 18,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "denied": 0,
+   "ok": true
+  },
+  {
+   "label": "fix:2",
+   "session": "347bcb6b-ef08-462b-8037-bedf84585214",
+   "resumed": "75a296a1-eaae-4609-96e6-cca74c0b2755",
+   "costUsd": 13.778945399999998,
+   "ms": 53002,
+   "turns": 7,
+   "models": [
+    "claude-opus-5-5[1m]",
+    "claude-opus-4-8"
+   ],
+   "denied": 0,
+   "ok": true
+  },
+  {
+   "label": "recheck:2",
+   "session": "80ede919-8755-425e-af3f-0971e15872e0",
+   "resumed": null,
+   "costUsd": 0.0965622,
+   "ms": 17623,
+   "turns": 4,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "denied": 0,
+   "ok": true
+  }
+ ],
+ "slug": "2026-10-25-openai-frontier-training-containment",
+ "kind": "explainer",
+ "target": "https://openai.com/index/securing-our-frontier-model-training-environment/",
+ "question": "OpenAI는 탈출을 시도하는 frontier 모델을 학습·평가 환경 안에 어떤 층으로 가두고, red-teaming에서 모델 agent가 어떤 기법으로 어느 층을 넘었으며, 무엇을 근거로 학습 재개를 판단했는가?",
+ "angle": "모델 agent가 경계를 넘으려고 구체적으로 수행한 기법에 무게를 둔다. 기법마다 무엇을 이용해 어느 방어 층을 넘었는지, 그 뒤 무엇으로 막았는지를 원문과 원문이 링크한 공개 자료(사건 글, 패치, 공개된 취약점)로 확인되는 만큼 쓴다. 이 글이 OpenAI의 자기 보고라는 위상과, 공개하지 않은 취약점처럼 확인할 수 없는 부분은 해당 내용 속에서 밝힌다.",
+ "chain": "scripts/chain.mjs",
+ "harness": "6fff454bfa69d01990beb06e1ab27ecc5163b2a7",
+ "startedAt": "2026-10-24T17:50:59.694Z",
+ "pending": {},
+ "authorSession": "347bcb6b-ef08-462b-8037-bedf84585214",
+ "draftSummary": "Produced research/2026-10-25-openai-frontier-training-containment/index.html (explainer, 14 chapters) and its evidence tree. Gates: check-doc.mjs OK, check-prose.mjs OK; build-index.mjs ran (updated root index.html + README.md). Did NOT render in a headless browser — static-gate pass only.\n\nCorpus pinned in .research/.../sources.jsonl (12 sources) with fixed copies in notes/web/<id>.txt and sha256 per source; evidence.jsonl has 99 spans, all matched against the fixed copies; notes/figures.md holds the findings chart (258 points read from the page's embedded vegaLiteSpec). claims.jsonl and run.json untouched per boundaries.\n\nRetrieval: openai.com and alignment.openai.com returned 403 to curl and WebFetch (primary route blocked). Body text fetched via r.jina.ai; the target page's raw HTML (chart vegaLiteSpec data + 2026-10-23 publication date) fetched via the insane-search engine fallback after the 403. GitHub advisory/PRs/commits fetched with gh (gh api / gh pr view). Wayback availability check returned 429 (rate-limited), so no archive_url was recorded; archive_url is null for all web sources.\n\nChart redraw: the source's step-after line 'Red-teaming findings versus tokens spent' (x 'Tokens spent (billions)' 0-400, y 'Deduplicated candidate findings' 0-300) retyped as an SVG line from the 258 embedded points; starts at (0 tokens, 20 findings), ~102.5B→200, ends 379.9B→276.\n\nAngle delivered: three technique chapters (microVM container→guest escape with Kata CVE-2026-24834 + PRs 13615/13587, gVisor PR 13816, Moby PR 39; internet paths via reusing metrics/logging/auth services; cross-isolation cache/storage/CPU/TLS timing channels), each saying what layer was crossed and how it was closed, cross-checked against the linked public advisory/PRs. Self-report status and undisclosed-vulnerability gaps stated in the cover, the redteam-setup chapter, the technique chapters, and the critique chapter. Noted that the three linked Linux kernel CVEs (74753/80521/80841) are framed by the post as 'broader' Daybreak kernel work and predate the Sept campaign, so they are not attributed to this red-teaming run.",
+ "checkoutPath": null,
+ "repo": null,
+ "commitSubject": "frontier 모델 학습 환경 containment과 red-teaming 기법을 설명하는 문서를 더하다",
+ "commitBody": "OpenAI가 탈출을 시도하는 frontier 모델을 학습·평가 환경에 가두는 네 층(sandbox/container, microVM, 감시, network·cloud 경계)과, red-teaming에서 모델 agent가 microVM 탈출·내부 서비스 재사용을 통한 인터넷 도달·하드웨어 공유 side channel로 각 층을 넘은 기법, 그리고 10월 1일 학습을 재개한 근거를 explainer로 정리한다.\n\n근거: OpenAI 공식 글 'Securing our frontier model training environment'(2026-10-23)와, 그것이 링크한 DNS 사건 보고·Hugging Face 사건 글·safety case 지침, 그리고 Kata Containers advisory(CVE-2026-24834)와 PR 13615·13587, gVisor PR 13816, Moby PR 39, Linux kernel commit 3건(CVE-2026-74753·80521·80841)의 공개 패치.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+ "notRead": [
+  "The Hugging Face incident full technical report PDF (cdn.openai.com) — linked from w3, not opened",
+  "METR and Redwood Research independent investigation report — linked from w3, not opened",
+  "Patch the Planet and 'expanding Daybreak' pages — skimmed for context only, not pinned as sources",
+  "The undisclosed vulnerabilities OpenAI references ('numerous other vulnerabilities that have not yet been made public') — not public, so the full host-escape chain cannot be reconstructed",
+  "alignment.openai.com/misalignment-reports index beyond the DNS report (other incident entries)",
+  "spectreattack.com and the Navier–Stokes post — linked from w1, not opened",
+  "The rendered page itself — no headless browser was used; openai.com returned 403 to curl/WebFetch, and no Wayback archive_url was captured (availability API returned 429)"
+ ],
+ "corpusEnumerated": [
+  "w1 — OpenAI, 'Securing our frontier model training environment' (2026-10-23), the target page; body via r.jina.ai, chart vegaLiteSpec (258 points) + date via insane-search raw HTML",
+  "w2 — OpenAI Alignment, 'An agent used DNS to reach an external chatbot' misalignment report (sample/discovery 2026-09-20, updated 2026-09-25)",
+  "w3 — OpenAI, 'The Hugging Face incident and the road ahead' (2026-08-26), background for the July incident",
+  "w4 — OpenAI, 'Towards safety cases for frontier AI training' (resume-procedure basis)",
+  "g1 — Kata Containers GHSA-wwj6-vghv-5p64 / CVE-2026-24834 advisory (CVSS 9.3, container→guest microVM escape, patched containerd-shim-kata-v2 3.27.0)",
+  "g2 — kata-containers PR 13615 'agent: harden capability and namespace handling' (merged 2026-08-17)",
+  "g3 — kata-containers PR 13587 'agent: reject cwd outside the container root' (merged 2026-08-12)",
+  "g4 — google/gvisor PR 13816 'UDS: Transfer SCM_RIGHTS into enqueued messages' (merged 2026-07-30)",
+  "g5 — moby/profiles PR 39 'seccomp: Use an allow-list for socket domains' (merged 2026-09-16)",
+  "g6 — Linux commit fa091f4 perf reject exited events as group leaders (CVE-2026-74753; Assisted-by Codex:gpt-5.6-sol)",
+  "g7 — Linux commit 594d905 af_unix unlink scc_entry (CVE-2026-80521; reported by Kyle Zeng)",
+  "g8 — Linux commit 992cc9f net/packet defer vmalloc TX_RING free (CVE-2026-80841)"
+ ],
+ "openQuestions": [
+  "렌더 확인: headless 브라우저가 없어 페이지를 실제로 열어 보지 못했다. chain의 render.mjs가 장별 스크린샷을 찍어 네 층 그림과 발견 곡선 SVG가 다크모드에서도 맞게 보이는지 확인해 주길 원한다.",
+  "Wayback 보관: openai.com 페이지는 버전이 없어 바뀔 수 있는데 availability API가 429를 내 archive_url을 기록하지 못했다. 보관본을 떠서 sources.jsonl에 넣을지 결정이 필요하다.",
+  "깊이 vs 범위: Hugging Face 기술 보고서 PDF와 METR/Redwood 보고서를 열어 7월 사건의 기법까지 대조로 넣을지, 아니면 지금처럼 배경 한 장으로 둘지.",
+  "kernel CVE 귀속: 링크된 Linux CVE 3건을 이 red-teaming campaign의 산출물과 분리해 Daybreak 작업으로 다뤘는데(날짜·문구 근거), 이 분리를 더 강하게 쓸지 약하게 쓸지."
+ ],
+ "repoArgs": [],
+ "finishedAt": "2026-10-24T18:22:21.165Z",
+ "costUsd": 38.29,
+ "isDraft": false
+}
