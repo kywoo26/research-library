@@ -1,8 +1,8 @@
 # research library
 
-fable22 에서 정리한 리서치 문서 모음입니다. 논문 분석, 주제 리서치, 기술 평가를 HTML 한 파일로 만들어 GitHub Pages 로 공개합니다.
+kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 리서치, 기술 평가를 HTML 한 파일로 만들어 GitHub Pages 로 공개합니다.
 
-**https://fable22.github.io/research-library/**
+**https://kywoo26.github.io/research-library/**
 
 각 문서는 외부 리소스를 전혀 불러오지 않습니다. 파일 하나만 내려받으면 인터넷 없이도 그대로 열립니다.
 
@@ -12,39 +12,40 @@ fable22 에서 정리한 리서치 문서 모음입니다. 논문 분석, 주제
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
-| 2026-10-19 | [Harness²의 recursive harnessing이 모델을 고정한 채 agent 성능을 올리는 방식과 입증된 범위](https://fable22.github.io/research-library/research/2026-10-19-harness2-recursive-harnessing/) | 오픈소스 분석 |
-| 2026-10-14 | [rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점](https://fable22.github.io/research-library/research/2026-10-14-rea-reverse-engineer-anything/) | 오픈소스 분석 |
-| 2026-10-07 | [Meta의 organizational second brain이 전문가 교정을 지식 파일 편집으로 바꾸는 방식과 AI-native SDLC와 다른 점](https://fable22.github.io/research-library/research/2026-10-07-meta-organizational-second-brain/) | 메모 |
-| 2026-09-30 | [Claude Sonnet 5.5 이전 안내: Sonnet 5 코드에서 바꿀 곳](https://fable22.github.io/research-library/research/2026-09-30-claude-sonnet-5-5-migration/) | 메모 |
-| 2026-09-30 | [Claude Opus 5.5 소개 글: 절마다 내 코드와 비용에서 달라지는 것](https://fable22.github.io/research-library/research/2026-09-30-claude-opus-5-5-introduction/) | 메모 |
-| 2026-09-21 | [Jev System One: 문장 대신 판단과 확률을 반환하는 모델](https://fable22.github.io/research-library/research/2026-09-21-jev-system-one/) | 주제 리서치 |
-| 2026-09-15 | [OpenCodeReview: agent의 코드 리뷰를 조직하는 실행 harness](https://fable22.github.io/research-library/research/2026-09-15-open-code-review/) | 오픈소스 분석 |
-| 2026-09-14 | [RAG-Safety-Bench: 검색 품질과 응답 안전을 따로 평가해야 하는 이유](https://fable22.github.io/research-library/research/2026-09-14-rag-safety-bench/) | 논문 분석 |
-| 2026-09-11 | [SkillAdam: 수정 이력과 평가 변동성으로 agent skill을 개선하는 문서 최적화](https://fable22.github.io/research-library/research/2026-09-11-skilladam/) | 논문 분석 |
-| 2026-09-09 | [Claude Platform 비용·성능: prompt cache, instructions, effort 세 축을 /claude-api 명령 셋이 돌린다](https://fable22.github.io/research-library/research/2026-09-09-claude-platform-cost-performance/) | 메모 |
-| 2026-09-07 | [HarnessDev: LLM이 실행 하네스를 만들고 고치는 능력을 재는 벤치마크](https://fable22.github.io/research-library/research/2026-09-07-harnessdev-model-harness-transfer/) | 논문 분석 |
-| 2026-09-02 | [anydoc: 픽셀 대신 Office 원본 구조와 PDF text layer를 읽는다](https://fable22.github.io/research-library/research/2026-09-02-anydoc-enterprise-ingestion/) | 오픈소스 분석 |
-| 2026-08-30 | [AI Agents Push Humans Out of the Loop: 승인 자동화(auto-approval)와 사람의 검토](https://fable22.github.io/research-library/research/2026-08-30-oversight-degradation-vs-auto-approval/) | 논문 분석 |
-| 2026-08-28 | [OpsHarness: 자가진화 제안을 이중 게이트로만 들여보내는 RCA 외부 하네스](https://fable22.github.io/research-library/research/2026-08-28-opsharness-self-evolving-rca/) | 논문 분석 |
-| 2026-08-28 | [JIT-Agent: 하네스를 태스크마다 모델이 새로 조립하게 만든 27B 메타 모델](https://fable22.github.io/research-library/research/2026-08-28-jit-agent-harness-intelligence/) | 논문 분석 |
-| 2026-08-20 | [Cerebras Knowledge 아키텍처: 원천별 수집부터 근거를 돌려주는 검색까지](https://fable22.github.io/research-library/research/2026-08-20-cerebras-kb-architecture/) | 주제 리서치 |
-| 2026-08-19 | [Claude Code 세션 비용 모델: 토큰 하나의 가격과 세션이 보내는 토큰의 개수](https://fable22.github.io/research-library/research/2026-08-19-claude-code-session-cost-model/) | 메모 |
-| 2026-08-18 | [J-Space Cognition Suite V3.6: 프롬프트 계층에서 상태를 다시 주입하는 추론시 통제 프로토콜](https://fable22.github.io/research-library/research/2026-08-18-j-space-cognition-suite/) | 오픈소스 분석 |
-| 2026-08-14 | [deepseek-harness: 에이전트 루프도 모델 어댑터도 설정 한 행인 하네스](https://fable22.github.io/research-library/research/2026-08-14-deepseek-harness-plugin-architecture/) | 오픈소스 분석 |
-| 2026-08-14 | [semantica: vector 검색 옆에 그래프 갈래를 하나 더 두는 컨텍스트 인프라](https://fable22.github.io/research-library/research/2026-08-14-semantica-graph-native-context/) | 오픈소스 분석 |
-| 2026-08-13 | [A2E Agent Auditing Engine: 정답률은 0.11 폭에 몰리고 토큰은 최소 3.5배 벌어진다](https://fable22.github.io/research-library/research/2026-08-13-a2e-agent-auditing-engine/) | 논문 분석 |
-| 2026-08-12 | [omo 5.0 native: opencode 플러그인을 떠나 자기 호스트를 갖는다](https://fable22.github.io/research-library/research/2026-08-12-omo-native-vs-opencode-plugin/) | 주제 리서치 |
-| 2026-08-12 | [Cerebras Knowledge: 여러 업무 도구의 지식을 함께 검색하는 사내 KB](https://fable22.github.io/research-library/research/2026-08-12-cerebras-knowledge-base/) | 주제 리서치 |
-| 2026-08-12 | [Claude 텍스트 워터마크: 마크는 Claude 를 거쳤다는 신호까지만 증명한다](https://fable22.github.io/research-library/research/2026-08-12-claude-text-watermark/) | 주제 리서치 |
-| 2026-08-11 | [addyosmani/agent-skills: 강제는 산문에 맡기고, CI 는 스킬 자체에 건다](https://fable22.github.io/research-library/research/2026-08-11-addyosmani-agent-skills/) | 주제 리서치 |
-| 2026-08-07 | [EviGraph: 리서치 에이전트의 작업 상태를 파이프라인 대신 근거 그래프로 둔다](https://fable22.github.io/research-library/research/2026-08-07-evigraph-evidence-graph-agent/) | 논문 분석 |
-| 2026-08-07 | [Cloudflare computer: 에이전트에게 준 것은 컨테이너가 아니라 파일시스템이다](https://fable22.github.io/research-library/research/2026-08-07-cloudflare-computer-filesystem-not-container/) | 주제 리서치 |
-| 2026-08-07 | [TencentDB Agent Memory: 기억을 자산으로 등록하고 agent 에게 장착시키는 층](https://fable22.github.io/research-library/research/2026-08-07-tencentdb-agent-memory-asset-layer/) | 오픈소스 분석 |
-| 2026-08-07 | [LoopX: 에이전트 루프가 할 일을 잊지 않게 만드는 결정론적 제어 평면](https://fable22.github.io/research-library/research/2026-08-07-loopx-deterministic-loop-harness/) | 주제 리서치 |
-| 2026-08-07 | [insane-search: 실패를 종료 상태로 인정하지 않는 웹 접근 엔진](https://fable22.github.io/research-library/research/2026-08-07-insane-search-nonterminal-failure/) | 주제 리서치 |
-| 2026-08-05 | [WikiLoop: 위키 구축과 순회를 함께 학습시키는 논문 분석](https://fable22.github.io/research-library/research/2026-08-05-wikiloop-feedback-coupled-wiki/) | 논문 분석 |
-| 2026-08-05 | [WikiKV: 계층형 지식베이스 저장 계층 논문 분석](https://fable22.github.io/research-library/research/2026-08-05-wikikv-hierarchical-kb-storage/) | 논문 분석 |
-| 2026-08-05 | [Retrieval as Reasoning: LLM-Wiki 논문 분석](https://fable22.github.io/research-library/research/2026-08-05-llm-wiki-retrieval-as-reasoning/) | 논문 분석 |
+| 2026-10-19 | [Harness²의 recursive harnessing이 모델을 고정한 채 agent 성능을 올리는 방식과 입증된 범위](https://kywoo26.github.io/research-library/research/2026-10-19-harness2-recursive-harnessing/) | 오픈소스 분석 |
+| 2026-10-19 | [Claude Code effort가 바꾸는 것과 단계를 고르는 기준](https://kywoo26.github.io/research-library/research/2026-10-19-claude-code-effort/) | 메모 |
+| 2026-10-14 | [rea가 에이전트에게 reverse engineering을 맡기는 방식과 기존 RE 도구와 다른 점](https://kywoo26.github.io/research-library/research/2026-10-14-rea-reverse-engineer-anything/) | 오픈소스 분석 |
+| 2026-10-07 | [Meta의 organizational second brain이 전문가 교정을 지식 파일 편집으로 바꾸는 방식과 AI-native SDLC와 다른 점](https://kywoo26.github.io/research-library/research/2026-10-07-meta-organizational-second-brain/) | 메모 |
+| 2026-09-30 | [Claude Sonnet 5.5 이전 안내: Sonnet 5 코드에서 바꿀 곳](https://kywoo26.github.io/research-library/research/2026-09-30-claude-sonnet-5-5-migration/) | 메모 |
+| 2026-09-30 | [Claude Opus 5.5 소개 글: 절마다 내 코드와 비용에서 달라지는 것](https://kywoo26.github.io/research-library/research/2026-09-30-claude-opus-5-5-introduction/) | 메모 |
+| 2026-09-21 | [Jev System One: 문장 대신 판단과 확률을 반환하는 모델](https://kywoo26.github.io/research-library/research/2026-09-21-jev-system-one/) | 주제 리서치 |
+| 2026-09-15 | [OpenCodeReview: agent의 코드 리뷰를 조직하는 실행 harness](https://kywoo26.github.io/research-library/research/2026-09-15-open-code-review/) | 오픈소스 분석 |
+| 2026-09-14 | [RAG-Safety-Bench: 검색 품질과 응답 안전을 따로 평가해야 하는 이유](https://kywoo26.github.io/research-library/research/2026-09-14-rag-safety-bench/) | 논문 분석 |
+| 2026-09-11 | [SkillAdam: 수정 이력과 평가 변동성으로 agent skill을 개선하는 문서 최적화](https://kywoo26.github.io/research-library/research/2026-09-11-skilladam/) | 논문 분석 |
+| 2026-09-09 | [Claude Platform 비용·성능: prompt cache, instructions, effort 세 축을 /claude-api 명령 셋이 돌린다](https://kywoo26.github.io/research-library/research/2026-09-09-claude-platform-cost-performance/) | 메모 |
+| 2026-09-07 | [HarnessDev: LLM이 실행 하네스를 만들고 고치는 능력을 재는 벤치마크](https://kywoo26.github.io/research-library/research/2026-09-07-harnessdev-model-harness-transfer/) | 논문 분석 |
+| 2026-09-02 | [anydoc: 픽셀 대신 Office 원본 구조와 PDF text layer를 읽는다](https://kywoo26.github.io/research-library/research/2026-09-02-anydoc-enterprise-ingestion/) | 오픈소스 분석 |
+| 2026-08-30 | [AI Agents Push Humans Out of the Loop: 승인 자동화(auto-approval)와 사람의 검토](https://kywoo26.github.io/research-library/research/2026-08-30-oversight-degradation-vs-auto-approval/) | 논문 분석 |
+| 2026-08-28 | [OpsHarness: 자가진화 제안을 이중 게이트로만 들여보내는 RCA 외부 하네스](https://kywoo26.github.io/research-library/research/2026-08-28-opsharness-self-evolving-rca/) | 논문 분석 |
+| 2026-08-28 | [JIT-Agent: 하네스를 태스크마다 모델이 새로 조립하게 만든 27B 메타 모델](https://kywoo26.github.io/research-library/research/2026-08-28-jit-agent-harness-intelligence/) | 논문 분석 |
+| 2026-08-20 | [Cerebras Knowledge 아키텍처: 원천별 수집부터 근거를 돌려주는 검색까지](https://kywoo26.github.io/research-library/research/2026-08-20-cerebras-kb-architecture/) | 주제 리서치 |
+| 2026-08-19 | [Claude Code 세션 비용 모델: 토큰 하나의 가격과 세션이 보내는 토큰의 개수](https://kywoo26.github.io/research-library/research/2026-08-19-claude-code-session-cost-model/) | 메모 |
+| 2026-08-18 | [J-Space Cognition Suite V3.6: 프롬프트 계층에서 상태를 다시 주입하는 추론시 통제 프로토콜](https://kywoo26.github.io/research-library/research/2026-08-18-j-space-cognition-suite/) | 오픈소스 분석 |
+| 2026-08-14 | [deepseek-harness: 에이전트 루프도 모델 어댑터도 설정 한 행인 하네스](https://kywoo26.github.io/research-library/research/2026-08-14-deepseek-harness-plugin-architecture/) | 오픈소스 분석 |
+| 2026-08-14 | [semantica: vector 검색 옆에 그래프 갈래를 하나 더 두는 컨텍스트 인프라](https://kywoo26.github.io/research-library/research/2026-08-14-semantica-graph-native-context/) | 오픈소스 분석 |
+| 2026-08-13 | [A2E Agent Auditing Engine: 정답률은 0.11 폭에 몰리고 토큰은 최소 3.5배 벌어진다](https://kywoo26.github.io/research-library/research/2026-08-13-a2e-agent-auditing-engine/) | 논문 분석 |
+| 2026-08-12 | [omo 5.0 native: opencode 플러그인을 떠나 자기 호스트를 갖는다](https://kywoo26.github.io/research-library/research/2026-08-12-omo-native-vs-opencode-plugin/) | 주제 리서치 |
+| 2026-08-12 | [Cerebras Knowledge: 여러 업무 도구의 지식을 함께 검색하는 사내 KB](https://kywoo26.github.io/research-library/research/2026-08-12-cerebras-knowledge-base/) | 주제 리서치 |
+| 2026-08-12 | [Claude 텍스트 워터마크: 마크는 Claude 를 거쳤다는 신호까지만 증명한다](https://kywoo26.github.io/research-library/research/2026-08-12-claude-text-watermark/) | 주제 리서치 |
+| 2026-08-11 | [addyosmani/agent-skills: 강제는 산문에 맡기고, CI 는 스킬 자체에 건다](https://kywoo26.github.io/research-library/research/2026-08-11-addyosmani-agent-skills/) | 주제 리서치 |
+| 2026-08-07 | [EviGraph: 리서치 에이전트의 작업 상태를 파이프라인 대신 근거 그래프로 둔다](https://kywoo26.github.io/research-library/research/2026-08-07-evigraph-evidence-graph-agent/) | 논문 분석 |
+| 2026-08-07 | [Cloudflare computer: 에이전트에게 준 것은 컨테이너가 아니라 파일시스템이다](https://kywoo26.github.io/research-library/research/2026-08-07-cloudflare-computer-filesystem-not-container/) | 주제 리서치 |
+| 2026-08-07 | [TencentDB Agent Memory: 기억을 자산으로 등록하고 agent 에게 장착시키는 층](https://kywoo26.github.io/research-library/research/2026-08-07-tencentdb-agent-memory-asset-layer/) | 오픈소스 분석 |
+| 2026-08-07 | [LoopX: 에이전트 루프가 할 일을 잊지 않게 만드는 결정론적 제어 평면](https://kywoo26.github.io/research-library/research/2026-08-07-loopx-deterministic-loop-harness/) | 주제 리서치 |
+| 2026-08-07 | [insane-search: 실패를 종료 상태로 인정하지 않는 웹 접근 엔진](https://kywoo26.github.io/research-library/research/2026-08-07-insane-search-nonterminal-failure/) | 주제 리서치 |
+| 2026-08-05 | [WikiLoop: 위키 구축과 순회를 함께 학습시키는 논문 분석](https://kywoo26.github.io/research-library/research/2026-08-05-wikiloop-feedback-coupled-wiki/) | 논문 분석 |
+| 2026-08-05 | [WikiKV: 계층형 지식베이스 저장 계층 논문 분석](https://kywoo26.github.io/research-library/research/2026-08-05-wikikv-hierarchical-kb-storage/) | 논문 분석 |
+| 2026-08-05 | [Retrieval as Reasoning: LLM-Wiki 논문 분석](https://kywoo26.github.io/research-library/research/2026-08-05-llm-wiki-retrieval-as-reasoning/) | 논문 분석 |
 
 <!-- docs:end -->
 

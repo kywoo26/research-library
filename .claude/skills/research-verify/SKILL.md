@@ -45,13 +45,8 @@ off. A document never verified looks exactly like one that passed.
 
 ### 1. Establish the target
 
-Run from the repo root:
-
-```bash
-ls research/<slug>/index.html          # the draft
-ls .research/<slug>/sources.jsonl      # corpus identity (may be absent)
-cat research/<slug>/meta.json          # `purpose` says what the document was meant to do
-```
+Open the draft `research/<slug>/index.html`, its `meta.json`, whose `purpose` says what the
+document was meant to do, and `.research/<slug>/sources.jsonl`, which may be absent.
 
 `sources.jsonl` fixes what the numbers are checked against: `repo` + `commit` for code,
 `arxiv_id` + `version` for papers, and no local paths. `../research-source/SKILL.md` owns
@@ -124,13 +119,8 @@ verifier's confidence peaks.
 
 ### 4. Machine checks
 
-```bash
-node .claude/skills/research-verify/scripts/check-claims.mjs research/<slug> \
-  --repo <owner/name>=<path>
-node scripts/check-doc.mjs research/<slug>
-```
-
-`check-claims.mjs` confirms each quote appears at its locator in the pinned commit, which is
+Run `check-claims.mjs` (with `--repo <owner/name>=<path>` for a repository) and
+`check-doc.mjs`. `check-claims.mjs` confirms each quote appears at its locator in the pinned commit, which is
 stricter than confirming the file exists and the line is in range. Both scripts are pass or
 fail, and `--help` lists their rules.
 
@@ -152,11 +142,10 @@ Merge the lens reports and the script output into one Korean report:
 - 행동 주장 5건: 코드만 읽었고 실행하지 않았다.
 - callee 를 열지 않은 채 쓴 주장 2건.
 - references/ 12개 파일 미확인 (setup 장).
-- 주장 추출과 인용 대조는 산문 fact-checking 에서 온 방법이고 file:line 코드 검증에 검증된 방법이 아니다.
 ```
 
-The last section is never empty. It always carries the first three counts (or 해당 없음)
-and the last line, because a report listing only findings reads as "everything else
+The last section is never empty. It always carries the first three counts (or 해당 없음),
+because a report listing only findings reads as "everything else
 checked out". Leave out what passed and give a count if the scale matters.
 
 One finding, three ways:

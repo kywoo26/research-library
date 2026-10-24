@@ -118,7 +118,7 @@ function buildSlides(chapters, { title, summary }) {
     // h2 는 짧은 제목, 주장은 .key 한 곳. .note 는 선택이라 골격에 넣지 않는다.
     // sources 장은 주장이 없어 .key 도 없다 (check-doc 의 section-grammar 가 예외로 둔다).
     const head = i === 0
-      ? `      <h1>${esc(title)}</h1>\n      <p class="dek">${esc(summary)}</p>`
+      ? `      <h1>${esc(title)}</h1>\n      <p class="dek">${esc(summary)}</p>\n      <p class="src">TODO 누가 낸 어떤 자료인가 (조직과 팀, 또는 저자와 역할)와 고정한 판</p>`
       : eyebrow === 'sources'
         ? `      <h2>${esc(label)}</h2>`
         : `      <h2>TODO ${esc(label)} 장이 담은 것을 가리키는 짧은 제목</h2>\n      <p class="key">TODO 훑는 독자가 가져갈 주장 한두 문장. ${esc(hint || '')}</p>`;
