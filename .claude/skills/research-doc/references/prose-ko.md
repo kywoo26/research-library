@@ -9,11 +9,12 @@ Korean phrase says the same thing, use it; a coined Korean rendering of an Engli
 
 ## What it should read like
 
-The owner chose these as the target. They are illustrative: the topic and length come from
-your document, the way the sentences move comes from here.
+These passages are the target. They are illustrative: the topic and length come from your
+document, the way the sentences move comes from here.
 
 A first screen. The title says what the whole document is about, one paragraph answers the
-question, and a few points say what to do or remember.
+question, a line under it says whose material it is, and a few points say what to do or
+remember.
 
 > **Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳**
 >
@@ -22,6 +23,8 @@ question, and a few points say what to do or remember.
 > 찾기는 어렵지 않다. 더 조심할 쪽은 요청이 성공한 채로 달라지는 변화다. tool call 사이에 오던
 > 메모가 빈 thinking 블록으로 바뀌고 effort는 이름이 같아도 쓰는 양이 달라져서, 테스트를 통과한
 > 뒤에야 화면이 조용해지거나 청구액이 늘어난 것을 알게 된다.
+>
+> Anthropic 공식 문서의 Sonnet 5.5 migration guide와 What's new 페이지다.
 >
 > - thinking을 끄던 코드는 `between_tools`로 바꾸고 effort를 high 이하로 둔다.
 > - tool_choice의 any와 tool은 auto와 `strict: true`로 옮긴다.
@@ -127,17 +130,11 @@ The ✗ side is short on purpose; write toward the ✓ side.
 - ✓ 외부 API가 가끔 503을 돌려주면 바로 다시 부르기보다 간격을 두고 재시도하는 편이 낫다. 재시도 자체는 흔한 기능인데, 핵심은 실패한 클라이언트들이 같은 순간에 다시 몰리지 않게 하는 것이다.
   ✗ Retry 정책: 지수 backoff. 최대 5회. jitter.
   Fragments leave the reader to rebuild the causes. A list suits parallel items; a chain of causes needs sentences.
-- ✓ (chapter title) Navigator가 비용을 계산하는 시점
-  ✗ Navigator: 증거를 다 모으기 전에는 비용을 묻지 않는다
-  A heading is for finding a chapter; the claim goes in `.key`.
-- ✓ (document title) 사내 문서 검색에 쓸 embedding 모델 고르기
-  ✗ 속도, 비용, 정확도: embedding 모델 세 개 비교
-  The title says what the document helps the reader do, and a comma list names topics without the point.
 
 ## Forms readers take as machine-written
 
-The owner flagged these in the published documents. Each shows the shape of the writing in
-place of its content, and each has neighbours it turns into when one form is avoided:
+Each of these shows the shape of the writing in place of its content, and each has
+neighbours it turns into when one form is avoided:
 
 - counting openers (`~은 셋이다`, `다른 점은 둘이다`, `세 가지로 나뉜다`)
 - the contrast family (`A가 아니라 B`, `A라기보다 B`, `X도 Y도 아니다`, a trailing `~지 ~는 아니다`)

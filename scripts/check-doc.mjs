@@ -72,6 +72,7 @@ const RULES = {
   'title-copies': 'meta.json title, <title>, og:title, 표지 h1 이 같은 문자열인가 (2026-10-14 이후 문서)',
   'chapter-count': '장이 20개 이하인가 (2026-10-14 이후 문서)',
   'cover-length': '표지의 답이 공백을 뺀 280자 이하인가. 메커니즘의 단계는 tl-dr 포인트로 간다 (2026-10-14 이후 문서)',
+  'cover-source': '표지에 출처 줄(p.src)이 있고 비어 있지 않은가. 누가 낸 어떤 자료인지가 첫 화면에 있어야 한다 (2026-10-25 이후 문서)',
 };
 
 // 장 문법과 purpose 는 2026-09-30 부터 쓴 문서에만 요구한다. 그 전 28편은 .dek 와 무목적으로
@@ -84,6 +85,8 @@ const MAX_CHAPTERS = 20;
 // 문장 수로 세면 문장이 길어져 피해 간다(2026-10-14 Meta 재작성). 한글만 세면 영어 기술 용어가 빠진다.
 // 그래서 공백을 뺀 글자로 센다. prose-ko.md 의 모범 표지가 226자다.
 const MAX_COVER_CHARS = 280;
+// 출처 줄은 2026-10-25 표지 실험에서 정한 것이라 그 뒤 문서에만 요구한다.
+const COVER_SOURCE_FROM = '2026-10-25';
 
 // 제목 자리에서 독자가 기계가 쓴 글로 읽는 형태. 본문은 막지 않고 검토자가 본다.
 const decode = (t) => t.replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
@@ -353,6 +356,13 @@ function checkDoc(doc, byslug) {
     const coverChars = coverProse.replace(/\s/g, '').length;
     if (coverChars > MAX_COVER_CHARS) {
       add('cover-length', `표지의 답이 공백을 뺀 ${coverChars}자다 (상한 ${MAX_COVER_CHARS}). 무엇인지, 핵심 하나, 가장 중요한 차이 하나만 두고 단계는 tl-dr 로 보낸다`);
+    }
+    if (meta.date >= COVER_SOURCE_FROM) {
+      const src = /<p class="src"[^>]*>([\s\S]*?)<\/p>/.exec(cover.split(/<\/section>/)[0]);
+      const srcText = src ? textOf(src[1]).trim() : '';
+      if (!srcText || /^TODO\b/.test(srcText)) {
+        add('cover-source', '표지에 출처 줄(p.src)이 없거나 비었다. 누가 낸 어떤 자료인지(조직과 팀, 또는 저자와 역할)와 고정한 판을 한두 문장으로 쓴다');
+      }
     }
     if (doc.slideCount > MAX_CHAPTERS) {
       add('chapter-count', `장이 ${doc.slideCount}개다 (상한 ${MAX_CHAPTERS}). 독자가 한 장으로 읽을 장은 합친다`);

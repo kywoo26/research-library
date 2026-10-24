@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fable22 research library</title>
-<meta name="description" content="fable22 리서치 문서 모음. 논문 분석, 주제 리서치, 기술 평가.">
+<title>kywoo26 research library</title>
+<meta name="description" content="kywoo26 리서치 문서 모음. 논문 분석, 주제 리서치, 기술 평가.">
 <link rel="stylesheet" href="assets/index.css">
 </head>
 <body>
@@ -12,12 +12,21 @@
   <header>
     <p class="eyebrow">index</p>
     <h1>research library</h1>
-    <p class="lede">fable22 에서 정리한 리서치 문서 모음입니다. 각 문서는 파일 하나로 완결되어 있어서 내려받아 오프라인에서도 그대로 열립니다.</p>
+    <p class="lede">kywoo26 이 정리한 리서치 문서 모음입니다. 각 문서는 파일 하나로 완결되어 있어서 내려받아 오프라인에서도 그대로 열립니다.</p>
   </header>
 
   <main>
     <p class="year">2026</p>
     <ul class="list">
+      <li class="item">
+        <a class="title-link" href="research/2026-10-19-claude-code-effort/">
+          <p class="meta"><span class="cat">메모</span><span>2026-10-19</span><span>article</span></p>
+          <h2>Claude Code effort가 바꾸는 것과 단계를 고르는 기준</h2>
+          <p class="summary">Claude Code의 effort는 Claude가 스스로 들이는 검증과 판단의 양을 정한다. claude.dev 블로그 글의 Terminal-Bench 3.0 곡선, 실패 종류, 분야별 통과율과 세 빌드 실험의 단계별 화면을 따라가면, effort는 edge case 실패를 절반 넘게 줄이지만 모호한 지시를 다르게 읽는 실패는 늘린다. 그래서 저자는 interview와 low로 만들고 high로 검증한다.</p>
+        </a>
+        <p class="tags"><span>claude code</span><span>effort</span><span>terminal-bench</span><span>opus 5.5</span><span>fable 5.1</span><span>agent</span><span>verification</span><span>explainer</span></p>
+        <p class="src">원문 <a href="https://claude.dev/blog/spending-your-effort">claude.dev/blog/spending-your-effort</a></p>
+      </li>
       <li class="item">
         <a class="title-link" href="research/2026-10-16-teamai-cli/">
           <p class="meta"><span class="cat">오픈소스 분석</span><span>2026-10-16</span><span>article</span></p>
@@ -291,7 +300,7 @@
   </main>
 
   <footer>
-    문서를 추가하려면 <code>research/&lt;YYYY-MM-DD-slug&gt;/</code> 에 <code>index.html</code> 과 <code>meta.json</code> 을 넣고 <code>node scripts/build-index.mjs</code> 를 실행하세요. 자세한 규칙은 <a href="https://github.com/fable22/research-library#readme">README</a> 에 있습니다.
+    문서를 추가하려면 <code>research/&lt;YYYY-MM-DD-slug&gt;/</code> 에 <code>index.html</code> 과 <code>meta.json</code> 을 넣고 <code>node scripts/build-index.mjs</code> 를 실행하세요. 자세한 규칙은 <a href="https://github.com/kywoo26/research-library#readme">README</a> 에 있습니다.
   </footer>
 </div>
 </body>

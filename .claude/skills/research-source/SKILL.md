@@ -66,13 +66,20 @@ Write `.research/<slug>/sources.jsonl`, one source per line, before opening file
 
 ```json
 {"id":"r1","kind":"repo","repo":"owner/name","commit":"<full 40-char sha>",
+ "by":{"who":"Acme 의 storage 팀","from":"https://github.com/owner/name#readme"},
  "shallow":true,"history_available":false,"scope_excluded":["assets"]}
 {"id":"p1","kind":"paper","arxiv_id":"2605.25480","version":"v1",
+ "by":{"who":"Foo University 와 Bar Labs 연구진","from":"https://arxiv.org/abs/2605.25480v1"},
  "text_sha256":"<64-char sha of the pinned text>",
  "sections_read":["1-7","A","B"],"retrieved_at":"2026-08-07T09:12:00Z"}
 {"id":"w1","kind":"web","url":"https://platform.claude.com/docs/en/…","retrieved_at":"2026-09-29T06:56:48Z",
+ "by":{"who":"Anthropic 의 공식 문서","from":"https://platform.claude.com/docs/en/…"},
  "archive_url":"http://web.archive.org/web/2026…","text_sha256":"<sha256 of notes/web/w1.txt>"}
 ```
+
+**Every source carries `by`: who produced it, and the page that says so** (the organization
+and team, or the author and their role, from the organization page, README, author list or
+byline). The cover names it; when those pages name no one, record that too.
 
 **A web source carries `url`, `retrieved_at`, an `archive_url` when the archive has one,
 and `text_sha256` of the text you read, saved as `notes/web/<id>.txt`.** `check-claims.mjs`
@@ -106,16 +113,8 @@ frequency, contributor spread, release cadence or bus factor, because the data i
 the checkout. Set `history_available: false` and `check-claims.mjs` blocks those claims,
 filed as `kind:"history"`, instead of letting them through as plausible filler.
 
-A shallow checkout looks like a young project. Check for the mismatch:
-
-```bash
-ls .git/shallow            # exists → truncated
-git rev-list --count HEAD  # 1 on a shallow clone
-git tag | wc -l            # 0 tells you nothing either way
-git log -1 --format=%s     # a message referencing a high PR number contradicts the count
-```
-
-A commit message can also say the upstream reset its history; that is a different fact and
+A shallow checkout looks like a young project (one commit, no tags), so check `.git/shallow`
+before writing anything about its age. A commit message can also say the upstream reset its history; that is a different fact and
 belongs in the document.
 
 If the document needs velocity claims, run `git fetch --unshallow` first and flip the flag.
@@ -229,9 +228,7 @@ The short `setup` chapter near the end then states the commit, roughly how much 
 and **which directories you left unopened and what that costs the document**, in the form
 `../research-doc/references/oss.md` shows. A long unread list is fine: reading 12 of 65
 files and writing an accurate document beats reading 200 and writing a vague one, so leave
-unneeded files closed. Before writing that line, check that files read plus files in the
-unopened directories add up to the total, so no directory goes unnamed; the arithmetic
-itself stays out of the document.
+unneeded files closed.
 
 ## Hand off
 
@@ -242,6 +239,4 @@ gets shaky, and a fresh context loses that. Start prose only after `evidence.jso
 spans, since a chapter written before then comes from what you remember reading.
 
 Leave the source tree out of `.research/`, because one repository can run to tens of
-megabytes and the pinned identity is how you get it back. Write `sources.jsonl` before
-reading, so the commit you cite is the commit you read, and treat a failed retrieval as
-something to record.
+megabytes and the pinned identity is how you get it back.
