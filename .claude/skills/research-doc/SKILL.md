@@ -198,7 +198,7 @@ document once from the first screen down, as the reader would, against the passa
 
 ## Hand off
 
-- **Started by the `research-chain` workflow** (its prompt says so): stop once the gates
-  pass and report. Phase 2 runs the lenses in contexts you cannot reach.
+- **Started by `scripts/chain.mjs`** (its prompt says so): stop once the gates pass and
+  report. Separate contexts run the lenses after you.
 - **Started directly**: continue with `../research-verify/SKILL.md` without asking, and
   **break the context there**; verify opens with why.

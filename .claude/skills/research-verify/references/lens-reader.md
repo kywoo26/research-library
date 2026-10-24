@@ -1,6 +1,6 @@
 # Lens A — the reader
 
-The text below the rule is the lens prompt. In `research-chain` the lens reads this file and
+The text below the rule is the lens prompt. In `scripts/chain.mjs` the lens reads this file and
 the prompt supplies the `{...}` values; run by hand, give it to a subagent with them filled.
 
 ---

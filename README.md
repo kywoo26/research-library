@@ -66,12 +66,13 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 │   ├── check-doc.mjs               # 문서가 형식과 규약을 지키는지 검사
 │   ├── check-prose.mjs             # 한국어 산문 규칙 중 셀 수 있는 것을 검사
 │   ├── new-doc.mjs                 # 문서 골격과 작업 공간을 함께 생성·이동
+│   ├── chain.mjs                   # 세 skill 을 이어 PR 까지 가는 단계형 실행기
+│   ├── render.mjs                  # headless Chrome 으로 장마다 스크린샷
+│   ├── doc-text.mjs                # 읽는 순서대로 뽑은 문서 텍스트
 │   └── test/                       # 게이트 자신의 시험
 ├── docs/
 │   ├── method-provenance.md        # 규칙이 어디서 왔는가 (skill 은 읽지 않는다)
-│   └── workflow-authoring.md       # workflow 스크립트를 고칠 때 읽는 규칙
-├── .claude/workflows/
-│   └── research-chain.js           # 세 skill 을 이어 PR 까지 가는 workflow
+│   └── reader-test.md              # 하네스 변경 전후의 독자 시험 절차
 ├── .claude/skills/                 # 조사와 문서화 skill
 │   ├── AUTHORING.md                # skill 을 고칠 때 읽는 규칙
 │   ├── research-source/            # 코퍼스를 이식 가능한 신원으로 고정

@@ -4,8 +4,8 @@ description: Adversarially reviews a finished research document draft. Two lense
   it in separate contexts and in parallel (the number and quote checker, and a reader who
   tests whether the document answers its question), claims are extracted from the
   sentences that shipped, check-claims.mjs verifies them against the pinned corpus, and
-  check-doc.mjs carries the structural checks. Usually a phase of the /research-chain
-  workflow; invoke it directly when a draft already exists.
+  check-doc.mjs carries the structural checks. Usually a stage of scripts/chain.mjs;
+  invoke it directly when a draft already exists.
 when_to_use: After finishing or editing a draft under research/<slug>/, before committing
   or publishing, and when asked to review, fact-check, or confirm a document is correct.
 ---
@@ -33,11 +33,12 @@ or leave them out.
 
 ## Where this runs
 
-`.claude/workflows/research-chain.js` holds this procedure as phase 2, so usually the
-workflow has already launched the lenses and you are reading this because one of them is
-you. Follow the lens file you were handed and ignore the orchestration below.
+`scripts/chain.mjs` runs this procedure as its verify and fix stages, so usually the
+lenses are already launched and you are reading this because you are one of them or the
+author fixing their findings. A lens follows the lens file it was handed and ignores the
+orchestration below; the author follows §6.
 
-Run the steps below yourself when a draft already exists and no workflow is going: a
+Run the steps below yourself when a draft already exists and no chain is going: a
 document edited by hand, a review asked for after the fact, or a build with workflows turned
 off. A document never verified looks exactly like one that passed.
 
@@ -172,8 +173,7 @@ direction, a truncated quote and a dead cross-reference each have one correct an
 concludes or how much of it exists.** Retitling, cutting a chapter, adding one and reopening
 the corpus are the user's; collect them and ask once. A fix that needs a chapter that is
 not there stays a needs-judgment item even when it would fit in one line, because a line
-with no chapter behind it is what the next round finds. Do not wait for every lens before
-fixing, since a lens that returns first has must-fix items that are already actionable.
+with no chapter behind it is what the next round finds.
 
 Re-run the machine checks after fixing, and have a context that did not make the edits
 re-read the chapters they touched; in the chain that is a re-check agent, not a lens. Stop

@@ -44,6 +44,7 @@ const PORT = 9300 + (process.pid % 500);
 const chrome = spawn(shell, ['--no-sandbox', '--hide-scrollbars', `--remote-debugging-port=${PORT}`, 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const done = (code) => { chrome.kill(); process.exit(code); };
+process.on('exit', () => chrome.kill()); // DevTools 호출이 throw 해도 브라우저를 남기지 않는다
 
 let page;
 for (let i = 0; i < 50 && !page; i++) {
