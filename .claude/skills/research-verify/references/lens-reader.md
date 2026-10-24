@@ -37,7 +37,9 @@ Now read the document end to end, as the reader would, and compare with what you
 place where the first pass got the point wrong or missed it is a finding, located at the
 title, `h2` or `.key` that misled you. A cover that walks through the mechanism's steps, or
 says what the `tl-dr` points say again, is a finding too: the cover answers, the points
-detail.
+detail. So is a cover whose paragraph never says what the research means for the reader,
+one that gives a source's recommendation in the document's own voice, and a source line
+that leaves you unable to say who produced the material.
 
 ## 3. Can you do the task from this?
 

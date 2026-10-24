@@ -53,14 +53,39 @@ compression subagent is the exception.
 
 ## The first screen and the length
 
-The first screen decides whether the document gets read. The cover's title says what the
-whole document is about. One short paragraph under it answers the question: what the subject
-is, the one thing to understand about it, and the one difference or consequence that matters
-most, in about 280 characters without spaces (`cover-length`). The steps of the mechanism are not the
-answer; they go to the `tl-dr` chapter right after, whose points each take a sentence or two
-and do not restate the cover. A long answer packed into fewer, longer sentences is still long.
-How the document was made has no place there: no source-to-chapter mapping table, no reading
-method.
+The first screen decides whether the document gets read. A reader leaves it knowing what the
+subject is, what this research tells them, and whose material it rests on. Under the title,
+one short paragraph, about 280 characters without spaces (`cover-length`):
+
+- what the subject is, in a sentence of its own, so a reader who has never heard of it can
+  follow the next one;
+- the message: what the research means for the reader's work. Say whose judgment it is. A
+  recommendation from the source carries its author ("저자는 …를 권한다"); a reading this
+  document drew from the source says so in a few words. A practice the author describes does
+  not become advice from the document;
+- the one mechanism sentence the message needs, and the one condition that most limits it.
+
+Numbers wait for those later sentences unless one number is the message, and side facts such as
+popularity or dates stay off the cover.
+
+```
+✗ Qux 는 큐 깊이에 따라 worker 를 늘린다. 그래서 짧은 부하에는 늦게 반응하고 긴 부하에는 과하게 늘어난다.
+  (description only; the reader never learns what to take from it)
+✗ 배포 직후에는 Qux 의 autoscale 을 꺼 두는 편이 낫다.
+  (the reader does not know what Qux is yet, and the authors' practice now speaks as the document)
+✓ Qux 는 큐 깊이를 보고 worker 수를 정하는 scheduler 다. 저자들은 배포 직후 몇 분은 autoscale 을
+  꺼 두라고 권한다. 새 worker 가 캐시를 채우는 동안 큐가 실제보다 길어 보이기 때문이다.
+```
+
+Under the paragraph, `p.src` says in a sentence or two who produced the source (the organization
+and team, or the author and their role) and what kind of material it is, with the version
+pinned. A repository slug alone does not tell the reader who is behind it. How much was read
+goes to the `setup` chapter.
+
+The steps of the mechanism go to the `tl-dr` chapter right after, whose points each take a
+sentence or two and do not restate the cover. A long answer packed into fewer, longer sentences
+is still long. How the document was made has no place on the first screen: no source-to-chapter
+mapping table, no reading method.
 
 A chapter's body takes its form from its content: sentences for a chain of causes, a list for
 parallel items, a table for a comparison, a figure for a flow (`references/prose-ko.md`
@@ -72,8 +97,7 @@ link to the chapters that answer the reader's main questions.
 
 ## The spine
 
-The gate requires `index`, `tl-dr`, `critique` and `sources`; `check-doc.mjs --help` lists the
-rest of what it enforces. `new-doc.mjs` lays out a starting set of middle chapters for the
+`new-doc.mjs` lays out a starting set of middle chapters for the
 kind; rename them after their content (`nav-reward`, `result-cost`), merge or drop them.
 
 | Chapter (eyebrow) | Holds |
@@ -90,16 +114,12 @@ Production records stay out of the document: retrieval times, archive attempts, 
 rendering checks and file-count arithmetic go to `sources.jsonl`, `run.json` and the PR body.
 
 **Split a chapter that carries two claims**; neither gets checked while they share one.
-**Fold trend into the comparison chapter**; it goes stale fastest. Chain lineage arrows
-only along a `series`, because an arrow claims succession.
 
 ## The title
 
-Name the subject and what it is or does, in a phrase a reader would search for; the
-`title-subject` gate wants a word from the slug in it. The same string goes in `meta.json`
-`title`, `<title>`, `og:title` and the cover `h1`, and `title-copies` compares them.
+Name the subject and what it is or does, in a phrase a reader would search for, and use the
+same string in `meta.json` `title`, `<title>`, `og:title` and the cover `h1`.
 
-- ✓ Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳
 - ✓ Bar 가 vector 검색 옆에 그래프 경로를 더하는 방식
 - ✗ Bar: 그래프 갈래를 하나 더 두는 컨텍스트 인프라 (a label and a colon; `prose-ko.md` §Forms)
 - ✗ 그래프는 RAG 위에 얹히고, 벤치마크는 저장소에 없다 (a finding with paired clauses; it goes to `summary`)
@@ -130,9 +150,9 @@ no claim the visible text has not already made.** What each kind keeps visible d
 
 | Kind | Visible before the fold | Specimen |
 |---|---|---|
-| walkthrough | the diff, the result codes, one paragraph of what to check with it | `specimens/walkthrough-chapter.html` |
-| explainer | how the principle works, a figure, one case in numbers, where it stops holding | `specimens/explainer-chapter.html` |
-| comparison | the call with its condition, a table of situations, the numbers that move the call, how to back out | `specimens/comparison-chapter.html` |
+| walkthrough | the diff, the result codes, one paragraph of what to check with it | `references/specimens/walkthrough-chapter.html` |
+| explainer | how the principle works, a figure, one case in numbers, where it stops holding | `references/specimens/explainer-chapter.html` |
+| comparison | the call with its condition, a table of situations, the numbers that move the call, how to back out | `references/specimens/comparison-chapter.html` |
 
 An explainer chapter keeps its mechanism visible, because the reader cannot predict from a
 summary. A walkthrough chapter puts the diff first. Older documents call the `.key` slot
@@ -162,27 +182,17 @@ so a reader who looks for it in the original does not come up empty.
 
 ## Producing the file
 
-`new-doc.mjs` stamps the shell from `assets/deck-shell.html`; assembling one by hand,
-confirm the shell script appears once, since a duplicate breaks navigation silently. The
-contents rail is built by the shell from the chapters (`data-label` on a section names
-it), so adding or renaming a chapter needs no rail edit. A document stamped before that
-shell carries its own hand-written `.rail-item` list and a script that cannot build one;
-there, add and renumber the items with the chapters (`rail-count`), and do not delete them,
-or the rail goes empty. Write chapter by chapter. Define colors as CSS custom properties that
-components reference, or dark mode becomes a second copy of every component, and give
-anything wide `overflow-x: auto`. Draw rather than embed, except where redrawing would invent
-what the source shows; `check-doc.mjs --help` lists the rest, including the ban on external
-resources.
+`new-doc.mjs` stamps the shell from `assets/deck-shell.html`, and the shell builds the contents
+rail from the chapters (`data-label` on a section names it). A document stamped before that
+shell carries its own hand-written `.rail-item` list; there, add and renumber the items with
+the chapters, and do not delete them, or the rail goes empty. Define colors as CSS custom
+properties that components reference, so dark mode is not a second copy of every component,
+and give anything wide `overflow-x: auto`. Draw rather than embed, except where redrawing
+would invent what the source shows.
 
-## Gates, then the read pass
+## The read pass
 
-```bash
-node scripts/check-doc.mjs research/<slug>
-node scripts/check-prose.mjs research/<slug>
-node scripts/build-index.mjs
-```
-
-Both checks are pass or fail and `--allow=<rule-id>` is the only escape. Then read the
+Once `check-doc.mjs` and `check-prose.mjs` pass and `build-index.mjs` has run, read the
 document once from the first screen down, as the reader would, against the passages in
 `prose-ko.md`. This read is the one place prose is judged for its own sake.
 
@@ -192,8 +202,3 @@ document once from the first screen down, as the reader would, against the passa
   pass and report. Phase 2 runs the lenses in contexts you cannot reach.
 - **Started directly**: continue with `../research-verify/SKILL.md` without asking, and
   **break the context there**; verify opens with why.
-
-## Do not
-
-- Force shared components across documents beyond the shell `new-doc.mjs` stamps; tables,
-  charts and diagrams differ enough that a common component set becomes a constraint.
