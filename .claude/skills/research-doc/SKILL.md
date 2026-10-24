@@ -155,9 +155,9 @@ no claim the visible text has not already made.** What each kind keeps visible d
 
 | Kind | Visible before the fold | Specimen |
 |---|---|---|
-| walkthrough | the diff, the result codes, one paragraph of what to check with it | `specimens/walkthrough-chapter.html` |
-| explainer | how the principle works, a figure, one case in numbers, where it stops holding | `specimens/explainer-chapter.html` |
-| comparison | the call with its condition, a table of situations, the numbers that move the call, how to back out | `specimens/comparison-chapter.html` |
+| walkthrough | the diff, the result codes, one paragraph of what to check with it | `references/specimens/walkthrough-chapter.html` |
+| explainer | how the principle works, a figure, one case in numbers, where it stops holding | `references/specimens/explainer-chapter.html` |
+| comparison | the call with its condition, a table of situations, the numbers that move the call, how to back out | `references/specimens/comparison-chapter.html` |
 
 An explainer chapter keeps its mechanism visible, because the reader cannot predict from a
 summary. A walkthrough chapter puts the diff first. Older documents call the `.key` slot
