@@ -73,6 +73,8 @@ node scripts/new-doc.mjs rename <old> <new>      # move both trees together
 node scripts/check-doc.mjs research/<slug>       # gate on the publication
 node scripts/check-prose.mjs research/<slug>     # gate on the Korean prose
 node scripts/build-index.mjs                     # regenerate the listing
+node scripts/render.mjs research/<slug>          # chapter screenshots in headless Chrome
+node scripts/doc-text.mjs research/<slug>        # the document as reading-order text
 
 node .claude/skills/research-verify/scripts/check-claims.mjs research/<slug>
 ```
