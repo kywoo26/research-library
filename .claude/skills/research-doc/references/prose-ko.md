@@ -130,12 +130,6 @@ The ✗ side is short on purpose; write toward the ✓ side.
 - ✓ 외부 API가 가끔 503을 돌려주면 바로 다시 부르기보다 간격을 두고 재시도하는 편이 낫다. 재시도 자체는 흔한 기능인데, 핵심은 실패한 클라이언트들이 같은 순간에 다시 몰리지 않게 하는 것이다.
   ✗ Retry 정책: 지수 backoff. 최대 5회. jitter.
   Fragments leave the reader to rebuild the causes. A list suits parallel items; a chain of causes needs sentences.
-- ✓ (chapter title) Navigator가 비용을 계산하는 시점
-  ✗ Navigator: 증거를 다 모으기 전에는 비용을 묻지 않는다
-  A heading is for finding a chapter; the claim goes in `.key`.
-- ✓ (document title) 사내 문서 검색에서 embedding 모델마다 속도와 정확도가 갈리는 지점
-  ✗ 속도, 비용, 정확도: embedding 모델 세 개 비교
-  The title names the subject and what it does or where it differs; a comma list names topics without the point.
 
 ## Forms readers take as machine-written
 

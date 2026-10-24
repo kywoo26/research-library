@@ -126,5 +126,4 @@ shallow clone 이라 커밋 이력은 보지 않고 코드만 읽었다.
 ```
 
 The clause naming the chapter carries the information; an unread directory named without
-its cost to the document is filler. `../../research-source/SKILL.md` §8 has the rules
-for what the numbers must add up to.
+its cost to the document is filler.

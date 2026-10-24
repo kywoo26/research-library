@@ -97,8 +97,7 @@ link to the chapters that answer the reader's main questions.
 
 ## The spine
 
-The gate requires `index`, `tl-dr`, `critique` and `sources`; `check-doc.mjs --help` lists the
-rest of what it enforces. `new-doc.mjs` lays out a starting set of middle chapters for the
+`new-doc.mjs` lays out a starting set of middle chapters for the
 kind; rename them after their content (`nav-reward`, `result-cost`), merge or drop them.
 
 | Chapter (eyebrow) | Holds |
@@ -115,16 +114,12 @@ Production records stay out of the document: retrieval times, archive attempts, 
 rendering checks and file-count arithmetic go to `sources.jsonl`, `run.json` and the PR body.
 
 **Split a chapter that carries two claims**; neither gets checked while they share one.
-**Fold trend into the comparison chapter**; it goes stale fastest. Chain lineage arrows
-only along a `series`, because an arrow claims succession.
 
 ## The title
 
-Name the subject and what it is or does, in a phrase a reader would search for; the
-`title-subject` gate wants a word from the slug in it. The same string goes in `meta.json`
-`title`, `<title>`, `og:title` and the cover `h1`, and `title-copies` compares them.
+Name the subject and what it is or does, in a phrase a reader would search for, and use the
+same string in `meta.json` `title`, `<title>`, `og:title` and the cover `h1`.
 
-- ✓ Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳
 - ✓ Bar 가 vector 검색 옆에 그래프 경로를 더하는 방식
 - ✗ Bar: 그래프 갈래를 하나 더 두는 컨텍스트 인프라 (a label and a colon; `prose-ko.md` §Forms)
 - ✗ 그래프는 RAG 위에 얹히고, 벤치마크는 저장소에 없다 (a finding with paired clauses; it goes to `summary`)
@@ -187,27 +182,17 @@ so a reader who looks for it in the original does not come up empty.
 
 ## Producing the file
 
-`new-doc.mjs` stamps the shell from `assets/deck-shell.html`; assembling one by hand,
-confirm the shell script appears once, since a duplicate breaks navigation silently. The
-contents rail is built by the shell from the chapters (`data-label` on a section names
-it), so adding or renaming a chapter needs no rail edit. A document stamped before that
-shell carries its own hand-written `.rail-item` list and a script that cannot build one;
-there, add and renumber the items with the chapters (`rail-count`), and do not delete them,
-or the rail goes empty. Write chapter by chapter. Define colors as CSS custom properties that
-components reference, or dark mode becomes a second copy of every component, and give
-anything wide `overflow-x: auto`. Draw rather than embed, except where redrawing would invent
-what the source shows; `check-doc.mjs --help` lists the rest, including the ban on external
-resources.
+`new-doc.mjs` stamps the shell from `assets/deck-shell.html`, and the shell builds the contents
+rail from the chapters (`data-label` on a section names it). A document stamped before that
+shell carries its own hand-written `.rail-item` list; there, add and renumber the items with
+the chapters, and do not delete them, or the rail goes empty. Define colors as CSS custom
+properties that components reference, so dark mode is not a second copy of every component,
+and give anything wide `overflow-x: auto`. Draw rather than embed, except where redrawing
+would invent what the source shows.
 
-## Gates, then the read pass
+## The read pass
 
-```bash
-node scripts/check-doc.mjs research/<slug>
-node scripts/check-prose.mjs research/<slug>
-node scripts/build-index.mjs
-```
-
-Both checks are pass or fail and `--allow=<rule-id>` is the only escape. Then read the
+Once `check-doc.mjs` and `check-prose.mjs` pass and `build-index.mjs` has run, read the
 document once from the first screen down, as the reader would, against the passages in
 `prose-ko.md`. This read is the one place prose is judged for its own sake.
 
@@ -217,8 +202,3 @@ document once from the first screen down, as the reader would, against the passa
   pass and report. Phase 2 runs the lenses in contexts you cannot reach.
 - **Started directly**: continue with `../research-verify/SKILL.md` without asking, and
   **break the context there**; verify opens with why.
-
-## Do not
-
-- Force shared components across documents beyond the shell `new-doc.mjs` stamps; tables,
-  charts and diagrams differ enough that a common component set becomes a constraint.
