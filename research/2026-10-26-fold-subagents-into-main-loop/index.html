@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="ko" data-format="board">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것</title>
+<meta name="description" content="Anthropic 은 router, planner, 팀별 subagent 를 main agent loop 하나에 합치라고 권한다. agent 를 나누던 이유를 skill 과 tool search 가 맡고, subagent 는 context 로 나뉘는 일에만 남으며, 합칠 때마다 eval 로 잰다">
+<meta property="og:type" content="article">
+<meta property="og:title" content="subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것">
+<meta property="og:description" content="Anthropic 은 router, planner, 팀별 subagent 를 main agent loop 하나에 합치라고 권한다. agent 를 나누던 이유를 skill 과 tool search 가 맡고, subagent 는 context 로 나뉘는 일에만 남으며, 합칠 때마다 eval 로 잰다">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-26-fold-subagents-into-main-loop/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ═══ board 셸 ═══════════════════════════════════════════════
+   장은 주장(h2) 하나와 그 주장을 담은 판(board) 하나다. 작성자는 상자가 어느 줄(lane)
+   어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
+   html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
+
+/* ── tokens. tone 의 뜻은 모든 문서에서 같다 ── */
+:root {
+  color-scheme: light;
+  --paper:#f6f6f3; --card:#ffffff; --ink:#1f2328; --ink-2:#424a53; --muted:#6e7781; --rule:#d8dee4; --wire:#6e7781;
+  --s1:#0969da; --s2:#cf4a22; --dim:#afb8c1;
+  --n-bg:#ffffff; --n-bd:#c9d1d9; --n-ink:#1f2328;   /* 기본: 대상 하나 */
+  --k-bg:#eef4ff; --k-bd:#0969da; --k-ink:#0550ae;   /* t-key: 판에서 장이 주장하는 상자 하나 (판마다 하나까지) */
+  --g-bg:#effbf2; --g-bd:#1a7f37; --g-ink:#116329;   /* t-good: 좋아진다, 권한다 */
+  --w-bg:#fff8c5; --w-bd:#9a6700; --w-ink:#7d4e00;   /* t-warn: 조건, 주의 */
+  --b-bg:#ffebe9; --b-bd:#cf222e; --b-ink:#a40e26;   /* t-bad: 실패, 나빠진다 */
+  --p-bg:#fff0f6; --p-bd:#bf3989; --p-ink:#99286e;   /* t-person: 사람이 하는 일 */
+  --q-bg:#f6f8fa; --q-bd:#afb8c1; --q-ink:#424a53;   /* t-quiet: 배경, 재지 않은 것 */
+  --r-bg:#f8f5ff; --r-bd:#8250df; --r-ink:#6639ba;   /* react: 원문 밖의 반응 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper:#0d1117; --card:#161b22; --ink:#e6edf3; --ink-2:#b1bac4; --muted:#8b949e; --rule:#30363d; --wire:#8b949e;
+    --s1:#4493f8; --s2:#f0883e; --dim:#545d68;
+    --n-bg:#161b22; --n-bd:#3d444d; --n-ink:#e6edf3;
+    --k-bg:#0c2240; --k-bd:#4493f8; --k-ink:#79b8ff;
+    --g-bg:#0f2a19; --g-bd:#3fb950; --g-ink:#7ee787;
+    --w-bg:#2a2110; --w-bd:#d29922; --w-ink:#e3b341;
+    --b-bg:#3a1418; --b-bd:#f85149; --b-ink:#ff8e86;
+    --p-bg:#33152a; --p-bd:#db61a2; --p-ink:#f2a3cf;
+    --q-bg:#1b2029; --q-bd:#545d68; --q-ink:#b1bac4;
+    --r-bg:#1f1733; --r-bd:#a371f7; --r-ink:#d2a8ff;
+  }
+}
+
+/* ── page ── */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
+h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
+.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px; padding:8px 28px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--rule); }
+.topbar a { color:var(--s1); text-decoration:none; font-weight:600; }
+.topbar .now { color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:40px; }
+section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
+.chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
+h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
+h2 { font-size:clamp(22px,2.5vw,29px); line-height:1.28; letter-spacing:-.015em; margin:0 0 10px; max-width:30em; text-wrap:balance; }
+h3 { font-size:15px; margin:0 0 6px; }
+.answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
+p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
+.lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
+.block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
+ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
+ul.notes li::before { content:"· "; }
+ul.points { list-style:none; margin:0; padding:0; display:grid; gap:10px; max-width:64em; }
+ul.points li { background:var(--card); border:1px solid var(--rule); border-radius:9px; padding:10px 14px; font-size:14.5px; }
+ul.points li > b:first-child { display:block; margin-bottom:2px; }
+ul.sources { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; }
+ul.sources a { color:var(--s1); overflow-wrap:anywhere; }
+ul.sources .t { color:var(--ink-2); }
+details.orig { margin:18px 0 0; font-size:13.5px; color:var(--ink-2); }
+details.orig summary { cursor:pointer; color:var(--muted); font-size:13px; font-weight:600; }
+details.orig p { margin:8px 0; max-width:70em; }
+span.q { color:var(--ink-2); }
+a.xref, .lead a, .so a, ul.notes a, ul.points a { color:var(--s1); text-underline-offset:2px; }
+code { font:12.5px var(--mono); background:var(--q-bg); padding:1px 4px; border-radius:4px; }
+pre { font:12px/1.62 var(--mono); background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; overflow-x:auto; margin:0 0 14px; color:var(--ink-2); }
+pre b { color:var(--ink); } pre code { background:none; padding:0; }
+pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--b-ink); }
+.good { color:var(--g-ink); font-weight:700; } .bad { color:var(--b-ink); font-weight:700; }
+.plate { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:10px; }
+.plate img { display:block; width:100%; height:auto; }
+.tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--rule); border-radius:10px; margin:0 0 14px; }
+table { border-collapse:collapse; font-size:13px; width:100%; }
+td,th { padding:7px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--rule); line-height:1.5; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr:last-child td { border-bottom:0; }
+:focus-visible { outline:2px solid var(--s1); outline-offset:2px; border-radius:3px; }
+
+/* ── board ── */
+.board { position:relative; display:grid; column-gap:40px; row-gap:20px; align-items:stretch;
+  background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:22px 24px; margin:0; }
+.board.dense { column-gap:18px; }
+.board > .edge { position:absolute; z-index:3; font-size:11.5px; line-height:1.3; color:var(--ink-2); background:var(--card);
+  padding:1px 5px; border-radius:4px; white-space:nowrap; }
+.board > .edge:empty { display:none; }
+svg.wires { position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+svg.wires path { stroke:var(--wire); stroke-width:1.6; fill:none; }
+svg.wires path.head { fill:var(--wire); stroke:none; }
+svg.wires path.tether { stroke:var(--r-bd); stroke-dasharray:3 3; stroke-width:1.4; }
+.lane-label { font-size:13px; font-weight:700; color:var(--ink-2); align-self:center; }
+.lane-rule { align-self:start; height:0; border-top:1px dashed var(--rule); margin-top:-10px; }
+.axis-h { font:700 12.5px var(--mono); color:var(--ink-2); text-align:center; padding:0 0 6px; border-bottom:2px solid var(--rule); align-self:end; }
+.board[data-axis-arrow] .axis-h { border-bottom-color:transparent; }
+.axis-arrow { height:0; border-top:2px solid var(--muted); align-self:end; position:relative; margin-bottom:-1px; }
+.axis-arrow::after { content:""; position:absolute; right:-2px; top:-6px; border:5px solid transparent; border-left:8px solid var(--muted); }
+.axis-cap { font-size:11.5px; line-height:1.35; color:var(--muted); align-self:end; padding-bottom:4px; }
+
+/* ── card ── */
+.card { position:relative; z-index:1; display:block; background:var(--n-bg); border:1px solid var(--n-bd); border-radius:9px;
+  padding:11px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); text-decoration:none; }
+.card > b { display:block; font-size:14.5px; line-height:1.4; color:var(--n-ink); margin:0 0 3px; }
+.card p { margin:0 0 2px; }
+.card .ev { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:6px; }
+.card .big { display:block; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--n-ink); margin-top:2px; }
+.card .big small { font-size:14px; font-weight:600; color:var(--ink-2); }
+.card ul { margin:2px 0 0; padding-left:16px; } .card li { margin:1px 0; }
+.card a { color:var(--s1); }
+.chip { display:inline-block; font:600 11.5px/1.5 var(--mono); padding:0 6px; border-radius:5px; border:1px solid var(--n-bd); color:var(--ink-2); margin:0 4px 4px 0; background:var(--card); }
+.card .colchip, .card .to { display:none; }
+.card.slim { padding:7px 12px; }
+.card.slim > b { font-size:15px; margin:0; }
+.card.slim .ev { margin-top:0; }
+.t-key { --n-bg:var(--k-bg); --n-bd:var(--k-bd); --n-ink:var(--k-ink); }
+.t-good { --n-bg:var(--g-bg); --n-bd:var(--g-bd); --n-ink:var(--g-ink); }
+.t-warn { --n-bg:var(--w-bg); --n-bd:var(--w-bd); --n-ink:var(--w-ink); }
+.t-bad { --n-bg:var(--b-bg); --n-bd:var(--b-bd); --n-ink:var(--b-ink); }
+.t-person { --n-bg:var(--p-bg); --n-bd:var(--p-bd); --n-ink:var(--p-ink); }
+.t-quiet { --n-bg:var(--q-bg); --n-bd:var(--q-bd); --n-ink:var(--q-ink); }
+a.card[href]:hover { outline:2px solid var(--n-bd); outline-offset:1px; }
+a.inert { cursor:default; }
+/* 원문 밖의 반응. 바꾸는 주장(data-on) 바로 아래에 붙고 혼자 서지 않는다 */
+.card.react { --n-bg:var(--r-bg); --n-bd:var(--r-bd); --n-ink:var(--r-ink); border-style:dashed; border-width:1.5px; font-size:13px; }
+.card.react .who { display:block; font:600 11.5px/1.5 var(--mono); color:var(--r-ink); margin:0 0 4px; }
+.card.react .who::before { content:"외부 반응 · "; }
+.card.react .check { margin-top:6px; color:var(--ink-2); }
+.card.react .check::before { content:"원문 대조: "; font-weight:700; color:var(--ink); }
+.verdict { display:inline-block; font:700 11px/1.5 var(--mono); padding:0 6px; border-radius:5px; margin-right:4px; }
+.verdict.holds { background:var(--g-bg); color:var(--g-ink); border:1px solid var(--g-bd); }
+.verdict.contra { background:var(--b-bg); color:var(--b-ink); border:1px solid var(--b-bd); }
+.verdict.open { background:var(--q-bg); color:var(--q-ink); border:1px solid var(--q-bd); }
+
+/* ── split, panel, ladder ── */
+.split { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:18px; align-items:start; }
+.split.even { grid-template-columns:1fr 1fr; }
+.panel { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:18px 20px; }
+.panel > .block-title:first-child { margin-top:0; }
+.panel > .ev { font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+.ladder { display:grid; gap:16px; }
+.ladder > .card:not(:first-child)::before { content:""; position:absolute; left:22px; top:-16px; height:15px; border-left:1.6px solid var(--wire); }
+.meter { display:block; height:6px; border-radius:3px; background:var(--rule); margin:6px 0 2px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--n-bd); }
+
+/* ── plot: 표가 데이터이고 그림은 셸이 그린다 ── */
+figure.plot { margin:0; }
+.fig-title { font-size:14.5px; font-weight:700; margin:0 0 2px; }
+.fig-sub { font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+.plot-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-2); margin:0 0 4px; }
+.plot-legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.plot-canvas svg { display:block; }
+.plot-canvas .grid { stroke:var(--rule); stroke-width:1; }
+.plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
+.plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
+.plot-canvas .dot { stroke:var(--card); stroke-width:2; }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
+.plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
+.plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
+.plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
+ol.plot-marks { margin:4px 0 0; padding-left:0; list-style:none; font-size:12px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; }
+ol.plot-marks b { font-family:var(--mono); }
+.bars { display:grid; gap:9px; }
+.bar-row { display:grid; grid-template-columns:minmax(80px,140px) 1fr; gap:10px; align-items:center; }
+.bar-name { font-size:12.5px; color:var(--ink-2); text-align:right; }
+.bar-row.is-em .bar-name, .bar-row.is-em .bar-val { color:var(--ink); font-weight:700; }
+.bar-set { display:grid; gap:2px; }
+.bar-line { display:grid; grid-template-columns:1fr minmax(3.6em, max-content); gap:8px; align-items:center; }
+.bar-track { height:11px; background:repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%); border-radius:2px; }
+.bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
+.bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
+figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+details.vals { margin-top:6px; font-size:12.5px; }
+details.vals summary { cursor:pointer; color:var(--muted); }
+details.vals table { width:auto; font-size:12.5px; }
+details.vals td, details.vals th { padding:3px 10px 3px 0; }
+
+/* ── cover: 논증 흐름과 나머지 장의 짧은 목록 ── */
+.board .card[data-center] { align-self:center; }
+.toc { margin:18px 0 0; }
+.toc-h { font-size:13px; font-weight:700; color:var(--ink-2); margin:0 0 6px; }
+.toc ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+.toc li { display:grid; grid-template-columns:64px auto 1fr; gap:10px; align-items:baseline; font-size:13.5px; padding:5px 0; border-bottom:1px solid var(--rule); }
+.toc .g { font-size:12px; color:var(--muted); }
+.toc a { color:var(--ink); text-decoration:none; font-weight:600; white-space:nowrap; }
+.toc a[href]:hover { color:var(--s1); text-decoration:underline; }
+.toc .f { color:var(--muted); font-size:12.5px; }
+
+/* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
+@media (max-width: 760px) {
+  .topbar { padding:8px 16px; }
+  main { padding:0 14px 80px; }
+  section.slide { padding:36px 0 26px; }
+  .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
+  .board .lane-rule, .board .axis-h, .board .axis-arrow, .board .axis-cap, .board > .edge, .board > svg.wires { display:none; }
+  .board .lane-label { margin:10px 0 0; font-size:12.5px; color:var(--muted); }
+  .card .colchip { display:inline-block; }
+  .card .to { display:block; font-size:12.5px; color:var(--ink-2); margin-top:6px; }
+  .split, .split.even { grid-template-columns:1fr; }
+  .toc ul { grid-template-columns:1fr; grid-template-rows:none !important; grid-auto-flow:row; }
+  .toc li { grid-template-columns:1fr; gap:0; }
+  .toc .g:empty { display:none; }
+  .toc a { white-space:normal; }
+  .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
+}
+@media print { .topbar { display:none; } section.slide { break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="#p1">지도</a><span class="now"></span></div>
+<main>
+
+  <section class="slide" data-role="cover" data-label="표지">
+  <h1>subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것</h1>
+  <p class="answer">Anthropic 의 「When to fold subagents into your main agent loop」는 router, planner, 팀별 subagent 를 main agent 하나의 loop 에 합치라고(fold) 권한다. 글을 쓴 팀은 agent 를 나누던 주된 이유를 skill 과 tool search 가 덜어 준다고 보고, 이미 있는 subagent 는 합친 쪽이 eval 에서 더 나쁠 때만 남기라고 한다. 2026-04 글이 대부분의 경우 orchestrator-subagent 로 시작하라고 한 것과 견주면, 이제 남을 근거를 대야 하는 쪽은 subagent 다.</p>
+  <p class="src">Anthropic 의 Diane Sarkis 가 claude.com 에 쓴 글(2026-10-22 게시)이고, Anthropic Applied AI 팀이 기업 배포에서 본 패턴을 정리했다. 한국어판 URL 이지만 본문은 영어다. 2026-10-25 사본 기준이며, 맞대어 보려고 같은 주제의 Anthropic 이전 글 일곱 편, Cognition 의 글 한 편, 글에 딸린 migration kit 저장소를 함께 읽었다.</p>
+  <div class="board flow" data-cols="문제|예전 근거|남는 자리|설계|이행|판정" data-lanes="1|2" aria-label="팀마다 subagent 를 두는 구조가 문제의 출발이다. agent 를 나누던 전문화 이유는 skill 과 tool search 로, 하네스가 하던 판단은 모델로 옮겨 가고, subagent 는 context 로 나뉘는 일에만 남는다. 그 결과가 단일 loop 설계이고, eval 을 먼저 만들어 하나씩 합치며 재는 이행으로 이어진다. 사례 하나에서는 지연이 줄면서 task 하나가 깨졌고, 독자는 따로 둘 context 가 있는지로 자기 subagent 를 판정한다">
+    <a class="card" id="f-org" href="#p2" data-col="문제" data-lane="1..2" data-center><b>팀마다 subagent 를 두면 agent 구조가 조직도를 닮는다</b><p>context 손실, subagent 난립, 부딪치는 prompt, 쪼개진 eval, 지연</p></a>
+    <a class="card t-key" id="f-spec" href="#p4" data-col="예전 근거" data-lane="1"><b>agent 를 나누던 전문화 이유를 skill 과 tool search 가 맡는다</b><p>긴 domain 지식, 많은 tool, persona, 팀 경계</p></a>
+    <a class="card" id="f-harn" href="#p5" data-col="예전 근거" data-lane="2"><b>하네스가 정해 두던 판단을 모델이 내린다</b><p>계획을 쓴 모델이 실행도 한다</p></a>
+    <a class="card" id="f-stay" href="#p6" data-col="남는 자리" data-lane="1..2" data-center><b>subagent 는 context 로 나뉘는 일에만 남는다</b><p>context 초과, 새 context 의 병렬 작업, 검증</p></a>
+    <a class="card" id="f-loop" href="#p7" data-col="설계" data-lane="1..2" data-center><b>한 모델, 한 context, 하네스의 예산과 write gate</b><p>tool call 묶음을 병렬로 돌린다</p></a>
+    <a class="card" id="f-mig" href="#p8" data-col="이행" data-lane="1"><b>eval 을 먼저 만들고 subagent 를 하나씩 합친다</b><p>합친 쪽이 나쁠 때만 subagent 로 남긴다</p></a>
+    <a class="card t-warn" id="f-case" href="#p9" data-col="이행" data-lane="2"><b>returns 를 합치자 평균 지연 27.31 → 19.36초</b><p>12개 task 가운데 배송일 task 하나가 2회 중 1회 깨졌다. kit 의 실행 기록에서 다시 셌다</p></a>
+    <a class="card t-person" id="f-judge" href="#p10" data-col="판정" data-lane="1..2" data-center><b>내 subagent 는 따로 둘 context 가 있는지로 판정한다</b><p>fold, merge, as-tool, keep</p></a>
+    <span class="edge" data-from="f-org" data-to="f-spec"></span>
+    <span class="edge" data-from="f-org" data-to="f-harn"></span>
+    <span class="edge" data-from="f-spec" data-to="f-stay"></span>
+    <span class="edge" data-from="f-harn" data-to="f-stay"></span>
+    <span class="edge" data-from="f-stay" data-to="f-loop"></span>
+    <span class="edge" data-from="f-loop" data-to="f-mig"></span>
+    <span class="edge" data-from="f-mig" data-to="f-case"></span>
+    <span class="edge" data-from="f-mig" data-to="f-judge"></span>
+  </div>
+  <div class="toc">
+    <p class="toc-h">논증 밖에서 더 보는 장</p>
+    <ul>
+      <li><span class="g">배경</span><a href="#p3">3 · 흐름</a><span class="f">2026-04 글은 multi-agent 를 고르면 대부분의 경우 orchestrator-subagent 부터 하라고 했다</span></li>
+      <li><span class="g">조직</span><a href="#p11">11 · 팀의 몫</a><span class="f">팀은 agent 대신 skill, tool, eval 을 내보낸다</span></li>
+      <li><span class="g">정리</span><a href="#p12">12 · 새로운 것</a><span class="f">원칙은 2024-12 부터 이어지고, 바뀐 것은 subagent 를 남기는 입증 책임이다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">핵심 비교에는 배포 수도 점수도 없다</span></li>
+      <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">kit 의 코드는 돌리지 않았다</span></li>
+      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">웹 글 아홉 편과 저장소 하나</span></li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="slide" data-role="problem" data-label="조직도">
+  <h2>팀마다 subagent 를 두면 agent 구조가 조직도를 그대로 닮는다</h2>
+  <p class="lead">Applied AI 팀은 여러 제품을 한 고객 창구로 묶으려는 큰 조직에서 이 구조를 자주 본다. 각 기능을 맡은 팀이 자기 agent 를 만들고, 중앙 플랫폼 팀이 그 위에 orchestrator 를 얹는 순서다.</p>
+  <div class="board" data-cols="출발|생기는 실패" data-lanes="1|2|3|4|5" aria-label="팀별 agent 위에 중앙 orchestrator 를 얹는 출발점에서 다섯 가지 실패가 갈라져 나온다. Conway 의 법칙이 작동한 결과다">
+    <div class="card t-key" id="c2-start" data-col="출발" data-lane="1..5" data-center><b>팀별 agent 위에 중앙 orchestrator</b><p>agent 구조가 조직도의 복사본이 된다. Conway 의 법칙이 작동한 결과다</p><p class="ev">머리말, §Agent building failure modes for large organizations</p></div>
+    <div class="card" id="c2-ctx" data-col="생기는 실패" data-lane="1"><b>context 관리</b><p>agent 사이에 무엇을 넘길지 정해야 하고, 주고받는 동안 세부가 빠진다</p></div>
+    <div class="card" id="c2-sprawl" data-col="생기는 실패" data-lane="2"><b>subagent 난립</b><p>겹치는 subagent 가 수백 개로 늘고, 강제되는 표준도 정해진 주인도 없다</p></div>
+    <div class="card" id="c2-frank" data-col="생기는 실패" data-lane="3"><b>Frankenprompt</b><p>팀마다 system prompt 에 한 문장씩 보태서 규칙이 부딪치고 목소리가 하나로 모이지 않는다</p></div>
+    <div class="card" id="c2-eval" data-col="생기는 실패" data-lane="4"><b>검토 없이 쪼개진 eval</b><p>팀마다 자기 하위 작업에 맞춘 eval 을 더하고, 전체 세트는 아무도 관리하지 않는다</p></div>
+    <div class="card t-bad" id="c2-lat" data-col="생기는 실패" data-lane="5"><b>지연</b><p>고객 한 곳은 같은 일을 단일 agent loop 로 돌리자 실행 시간이 약 2배 빨라졌다</p><p class="ev">글에 실린 지연 측정은 이 한 건이다</p></div>
+    <span class="edge" data-from="c2-start" data-to="c2-ctx"></span>
+    <span class="edge" data-from="c2-start" data-to="c2-sprawl"></span>
+    <span class="edge" data-from="c2-start" data-to="c2-frank"></span>
+    <span class="edge" data-from="c2-start" data-to="c2-eval"></span>
+    <span class="edge" data-from="c2-start" data-to="c2-lat"></span>
+  </div>
+  <ul class="notes">
+    <li>사례가 하나 더 있다. 전문 subagent 12개를 둔 고객 응대 agent 에서, 그 회사는 브랜드에 맞는 일관된 응대를 유지하기 어려웠고 늘어난 지연이 사용자 경험을 해쳤다.</li>
+    <li>이 구조는 orchestrator 와 subagent 형태일 수도, 단일 agent 가 다른 팀의 agent 를 MCP tool 로 부르는 형태일 수도 있다.</li>
+  </ul>
+  <p class="so">그래서 이 글이 겨누는 것은 팀 경계를 그대로 agent 경계로 옮기는 설계 습관이다. subagent 자체는 검증, 병렬 작업, 권한 분리에 쓸모 있다는 점을 글머리에서 먼저 인정한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>머리말: <span class="q">“But too often we see enterprises give each team or problem type its own subagent, with the agent architecture becoming a copy of their org chart (Conway’s law at work).”</span></p>
+    <p>§Agent building failure modes for large organizations: <span class="q">“Typically, each capability is owned by a separate team, so companies start by letting each individual team build their own agent, then a central platform team builds an orchestrator on top.”</span></p>
+    <p>같은 절: <span class="q">“The Frankenprompt: Every team adds a sentence to the system prompt, resulting in conflicting rules and no consistent voice.”</span></p>
+    <p>같은 절: <span class="q">“One customer that evaluated their multi-agent harness against a single agent loop saw a roughly 2x faster runtime with the latter.”</span></p>
+    <p>머리말: <span class="q">“Subagents – agents with their own context window, tools, and instructions, orchestrated by a coordinator – are a core component of agent design. They are effective at verification, parallel work, and modular permissioning.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="history" data-label="흐름">
+  <h2>Anthropic 은 2024년 말부터 multi-agent 를 쓸 조건을 차츰 좁혀 왔다</h2>
+  <p class="lead">같은 주제로 Anthropic 이 낸 글을 날짜순으로 놓았다. Cognition 의 글은 Anthropic 밖에서 같은 방향을 먼저 주장한 예로 함께 넣었다.</p>
+  <table>
+    <thead><tr><th>게시</th><th>글</th><th>multi-agent 에 대해 한 말</th></tr></thead>
+    <tbody>
+      <tr><td>2024-12</td><td><b>Building effective agents</b> (Anthropic)</td><td>routing, orchestrator-workers 같은 workflow 를 소개하면서 가장 단순한 해법부터 쓰고 효과가 보일 때만 복잡성을 더하라고 권한다</td></tr>
+      <tr><td>2025-06</td><td><b>How we built our multi-agent research system</b> (Anthropic)</td><td>lead agent 와 subagent 구성이 단일 Claude Opus 4 보다 내부 research eval 에서 90.2% 높았다. 토큰은 chat 의 약 15배를 쓴다</td></tr>
+      <tr><td>2025-06</td><td><b>Don’t Build Multi-Agents</b> (Cognition)</td><td>OpenAI 의 swarm 과 Microsoft 의 autogen 같은 라이브러리가 multi-agent 구조를 밀고 있다고 비판한다. context 와 agent trace 전체를 공유하라고 하고, 2025년의 multi-agent 협업은 깨지기 쉽다고 본다</td></tr>
+      <tr><td>2026-01</td><td><b>Building multi-agent systems</b> (Anthropic)</td><td>multi-agent 가 이기는 상황을 context 오염, 병렬화, 전문화로 꼽고, 그 밖에서는 조정 비용이 이득보다 크다고 쓴다. 토큰은 단일 agent 의 3-10배다</td></tr>
+      <tr><td>2026-04</td><td><b>Multi-agent coordination patterns</b> (Anthropic)</td><td>multi-agent 를 고른 팀에게 대부분의 경우 orchestrator-subagent 로 시작하라고 권한다</td></tr>
+      <tr><td>2026-07</td><td><b>The new rules of context engineering for Claude 5 generation models</b> (Anthropic)</td><td>Claude Code system prompt 를 80% 넘게 지웠는데 코딩 eval 에서 잴 만한 손실이 없었다고 적는다</td></tr>
+      <tr><td>2026-09</td><td><b>A guide to the anatomy of effective commerce agents</b> (Anthropic)</td><td>앞에 intent router 도, 뒤에 domain agent 도 없는 한 loop 에 skill 을 붙인 구조를 권한다</td></tr>
+      <tr><td>2026-10</td><td><b>When to fold subagents into your main agent loop</b> (Anthropic Applied AI 팀)</td><td>router, planner, domain subagent 를 main loop 로 합치는 절차와 migration kit 을 내놓는다</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>2025-06 글의 90.2% 는 Claude Opus 4 가 lead 이고 Claude Sonnet 4 가 subagent 인 구성과 단일 Claude Opus 4 의 비교다. 같은 글은 그 이득의 바탕을 토큰으로 설명한다. BrowseComp 에서 성능 분산의 80% 를 토큰 사용량 하나가 설명했다.</li>
+  </ul>
+  <p class="so">그래서 2026-10 글의 결론은 앞선 글들이 달아 둔 단서에서 이어진다. 2026-01 글은 모델이 나아지면 이 기준도 움직인다고 이미 적었다. Applied AI 팀은 Opus 4.5 부터 모델이 한 loop 에서 훨씬 많은 일을 다룬다고 보고, 이미 있는 subagent 를 하나씩 합쳐 보라고 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>2026-01 글 §What is a multi-agent system?: <span class="q">“Today, multi-agent systems are often applied in situations where a single agent would perform better, though this calculus continues to evolve as models improve.”</span></p>
+    <p>같은 글: <span class="q">“These thresholds will shift as models improve. Current limits represent practical guidelines, not fundamental constraints.”</span></p>
+    <p>2026-04 글 §Getting started: <span class="q">“For most use cases, we recommend starting with orchestrator-subagent. It handles the widest range of problems with the least coordination overhead.”</span></p>
+    <p>2025-06 글 §Benefits of a multi-agent system: <span class="q">“We found that a multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents outperformed single-agent Claude Opus 4 by 90.2% on our internal research eval.”</span></p>
+    <p>Cognition 글: <span class="q">“In some cases, libraries such as https://github.com/openai/swarm by OpenAI and https://github.com/microsoft/autogen by Microsoft actively push concepts which I believe to be the wrong way of building agents.”</span></p>
+    <p>같은 글: <span class="q">“it is evident that in 2025, running multiple agents in collaboration only results in fragile systems. The decision-making ends up being too dispersed and context isn’t able to be shared thoroughly enough between the agents.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="contrast" data-label="나누던 이유">
+  <h2>agent 를 나누던 전문화 이유는 skill 과 tool search 로 옮겨 간다</h2>
+  <p class="lead">Anthropic 은 2026-01 글에서 tool 이 많을 때, 행동 방식이 부딪칠 때, domain 지식이 클 때 agent 를 나누라고 했다. 2026-10 글과 migration kit 은 그 이유마다 main agent 안의 다른 자리를 준다.</p>
+  <table>
+    <thead><tr><th>나누던 이유</th><th>예전 권고</th><th>새 자리</th></tr></thead>
+    <tbody>
+      <tr><td><b>domain 지식이 크다</b></td><td>domain context 를 한 agent 에 다 싣기보다 전문 agent 가 나눠 든다 (2026-01)</td><td>skill 로 옮긴다. 평소에는 짧은 설명만 context 에 있고, 필요할 때 본문을 읽는다. Skills 글은 metadata 를 약 50 토큰, SKILL.md 본문을 약 500 토큰으로 잡는다</td></tr>
+      <tr><td><b>tool 이 많다</b></td><td>tool 이 흔히 20개 이상이면 고르기 어렵다. 40개 이상의 tool 을 가진 예에서는 전문 agent 로 나눠 선택 오류를 풀었다 (2026-01)</td><td>tool search 와 deferred loading 으로 정의를 필요할 때 불러온다. tool 은 API 마다 하나씩 두지 말고 사용자 의도별로 묶는다. system prompt 에 실린 정의가 30-50개를 넘으면 선택이 나빠진다</td></tr>
+      <tr><td><b>행동 방식이 부딪친다</b></td><td>공감하는 상담과 엄격한 코드 리뷰처럼 모드가 부딪치면 prompt 를 따로 둔 agent 로 나눈다 (2026-01)</td><td>목소리는 main system prompt 하나가 맡고, 작은 중앙 팀이 그 prompt 를 소유한다. kit 은 agent 하나에 목소리 하나라고 적는다. skill 로도 풀리지 않는 지시 충돌만 6장의 조건으로 남는다</td></tr>
+      <tr><td><b>맡은 팀이 다르다</b></td><td>전문가끼리 협업하는 조직처럼 agent 를 나눈다 (2026-01). message bus 에서는 팀이 agent 를 따로 배포할 수 있다는 점을 장점으로 든다 (2026-04)</td><td>팀은 agent 대신 skill, tool, eval 을 소유한다. kit 은 다른 팀이 맡았다는 사실을 따로 context 를 둘 이유로 치지 않는다</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>tool 수 기준은 2026-01 글에서 흔히 20개 이상, 다른 절에서는 15-20개 이상이었고, 2026-10 글은 30-50개를 적는다. 두 글이 세는 것이 조금 다르다. 앞의 것은 한 agent 가 가진 tool 수이고, 뒤의 것은 system prompt 에 실린 tool 정의 수다. 그래서 이 차이를 기준이 올라간 정도로 읽지 않는다. 두 숫자를 나란히 놓은 비교는 어느 글에도 없다.</li>
+    <li>tool search 는 2026-01 글도 multi-agent 로 가기 전에 먼저 써 보라고 권했고, 토큰을 최대 85% 줄인다고 적었다.</li>
+    <li>Claude Code 의 system prompt 를 80% 넘게 줄인 일에는 skill 과 tool 을 progressive disclosure 로 바꾼 몫이 들어 있다.</li>
+  </ul>
+  <p class="so">그래서 agent 를 나눌 근거가 이 넷 가운데 하나뿐이라면, 2026-10 글의 기준으로는 나눌 근거가 되지 못한다. 남는 근거는 6장의 조건이다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>2026-01 글 §Domain expertise specialization: <span class="q">“Rather than loading all domain context into a single agent, specialized agents can carry focused expertise relevant to their specific responsibilities.”</span></p>
+    <p>2026-01 글 §Tool set specialization: <span class="q">“Quantity. An agent with too many tools (often 20+) struggles to select the appropriate one.”</span></p>
+    <p>2026-01 글 §System prompt specialization: <span class="q">“When a single agent must switch between conflicting behavioral modes, separating into specialized agents with tailored system prompts produces more consistent results.”</span></p>
+    <p>2026-01 글: <span class="q">“This pattern mirrors effective professional collaboration, where specialists with tools matched to their roles collaborate more effectively than generalists attempting to maintain expertise across all domains.”</span></p>
+    <p>2026-10 글 §Using an agent loop with progressive disclosure: <span class="q">“This removes the main reason teams previously split work across subagents. In fact, we reduced Claude Code’s system prompt for more advanced models by over 80% which included cuts related to progressively disclosing skills and tools.”</span></p>
+    <p>2026-10 글 §MCP tools: <span class="q">“We recommend tools grouped by user intent (not one tool per API) because once you exceed 30-50 tool definitions in the system prompt, tool choice tends to degrade.”</span></p>
+    <p>kit skill/steps/00-audit.md: <span class="q">“A different team inside the company owns it. Ownership moves to the skill and its eval. It has its own persona or voice. One agent should have one voice. Its prompt is long. A skill's body is only loaded when it is needed. It has many tools. Tool search loads tool definitions on demand.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="contrast" data-label="하네스의 판단">
+  <h2>하네스가 코드로 정해 두던 판단은 매 턴 모델이 내린다</h2>
+  <p class="lead">Anthropic 의 2024-12 글이 소개한 workflow 는 미리 정한 코드 경로로 모델과 tool 을 엮는다. Applied AI 팀은 그 경로가 하던 판단을 매 턴 모델에게 넘기고, 코드에는 기계적인 일과 강한 제한만 남긴다.</p>
+  <div class="board" data-cols="예전 하네스 구성|옮겨 가는 곳" data-lanes="1|2|3|4" aria-label="왼쪽의 예전 하네스 구성 넷이 각각 오른쪽의 새 자리로 옮겨 간다. routing 은 모델의 매 턴 선택으로, 고정 pipeline 은 skill 과 tool 안의 코드로, 따로 둔 planner 는 계획을 쓰고 실행하는 같은 모델로, prompt 의 규칙은 tool 과 하네스의 제한으로 간다. 가장 큰 변화는 planner 줄이다">
+    <div class="card" id="c5-route" data-col="예전 하네스 구성" data-lane="1"><b>routing 과 intent classifier</b><p>입력을 분류해 전문 prompt 와 tool 로 보낸다. 2024-12 글의 예는 고객 지원 질의다</p></div>
+    <div class="card" id="c5-route2" data-col="옮겨 가는 곳" data-lane="1"><b>모델이 매 턴 다음 걸음을 고른다</b><p>tool 묶음, 사용자에게 질문, 답 가운데 하나다. 2026-09 commerce 글의 agent 앞에는 intent router 가 없다</p></div>
+    <div class="card" id="c5-pipe" data-col="예전 하네스 구성" data-lane="2"><b>고정된 여러 단계 pipeline</b><p>단계를 코드로 정해 두고 앞 단계의 출력을 다음 단계에 넘긴다</p></div>
+    <div class="card" id="c5-pipe2" data-col="옮겨 가는 곳" data-lane="2"><b>순서와 절차는 skill 로, 기계적인 부분은 tool 안의 코드로</b><p>payload 만들기, stream 파싱, 확인 질문 뒤 재개 같은 일이다</p></div>
+    <div class="card" id="c5-plan" data-col="예전 하네스 구성" data-lane="3"><b>planner 와 worker</b><p>중앙 LLM 이 일을 쪼개 worker 에게 맡기고 결과를 합친다</p></div>
+    <div class="card t-key" id="c5-plan2" data-col="옮겨 가는 곳" data-lane="3"><b>계획을 쓴 모델이 실행도 한다</b><p>첫 턴에 계획을 context 에 쓰고, 결과가 올 때마다 턴 중간에도 고친다</p><p class="ev">orchestrator 구성과 가장 크게 다른 점이다</p></div>
+    <div class="card" id="c5-rule" data-col="예전 하네스 구성" data-lane="4"><b>prompt 에 적은 강한 규칙</b><p>Claude Code 도 처음에는 파일 삭제 같은 최악을 피하려 강한 규칙을 prompt 에 넣었다 (2026-07)</p></div>
+    <div class="card" id="c5-rule2" data-col="옮겨 가는 곳" data-lane="4"><b>검증과 승인은 tool 안에, 예산과 write gate 는 하네스에</b><p>tool 이 사용자별 권한을 확인하고 모델이 읽을 거절을 돌려준다</p></div>
+    <span class="edge" data-from="c5-route" data-to="c5-route2"></span>
+    <span class="edge" data-from="c5-pipe" data-to="c5-pipe2"></span>
+    <span class="edge" data-from="c5-plan" data-to="c5-plan2"></span>
+    <span class="edge" data-from="c5-rule" data-to="c5-rule2"></span>
+  </div>
+  <ul class="notes">
+    <li>모델이 매 걸음을 정하므로 규칙 목록으로 계획을 다시 쓰는 코드 단계는 필요 없다. 값싸고 거의 늘 필요한 load(예: entity resolution)는 코드로 남겨도 된다.</li>
+    <li>권한을 tool 이 확인하므로 권한 수준마다 agent 를 따로 두지 않아도 한 loop 가 접근 범위가 다른 사용자를 받는다.</li>
+  </ul>
+  <p class="so">그래서 하네스가 맡는 일은 모델이 할 판단을 미리 정해 두는 일에서, 모델이 넘으면 안 되는 선을 강제하는 일로 좁아진다. 새 모델이 나올 때마다 판단을 더 옮길 수 있고, Anthropic 이 도운 고객 이행에서는 경직된 multi-agent 구조가 새 모델이 일을 더 맡는 것을 자주 막았다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>2024-12 글 §Workflow: Routing: <span class="q">“Routing classifies an input and directs it to a specialized followup task. This workflow allows for separation of concerns, and building more specialized prompts.”</span></p>
+    <p>2024-12 글 §Workflow: Orchestrator-workers: <span class="q">“In the orchestrator-workers workflow, a central LLM dynamically breaks down tasks, delegates them to worker LLMs, and synthesizes their results.”</span></p>
+    <p>2026-10 글 §How to fold subagents into the main agent loop: <span class="q">“This is the main change from the orchestrator and specialist agents setup: the model that writes the plan is also the one carrying it out, so it can change the plan mid-turn.”</span></p>
+    <p>같은 절: <span class="q">“A code step that rewrites the plan from a catalog of rules is no longer needed, since the model decides each step.”</span> <span class="q">“Hard limits (validation, approval gates) and anything else that comes up mid-conversation (e.g. memory lookup) move into the tools.”</span></p>
+    <p>2026-10 글 §Using an agent loop with progressive disclosure: <span class="q">“Each new model lets you move more of the decision-making out of the harness and into the model itself.”</span> <span class="q">“A simpler loop is also easier to move to the next model; in migrations we have helped customers with, rigid multi-agent structures were often what stopped the new model from doing more of the work.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="남는 subagent">
+  <h2>subagent 는 context 를 떼어 낼 수 있는 일에만 남는다</h2>
+  <p class="lead">2026-10 글이 꼽는 subagent 의 조건은 2026-01 글의 세 상황과 거의 같다. 그때 전문화라고 부르던 셋째 상황은 tool 선택이 실제로 무너지거나 지시가 정말 부딪치는 경우로 좁아졌다.</p>
+  <table>
+    <thead><tr><th>2026-10 글의 조건</th><th>2026-01 글의 상황</th><th>kit 이 판정 근거로 요구하는 것</th></tr></thead>
+    <tbody>
+      <tr><td><b>context bloat 로 잴 만한 성능 저하가 난다</b></td><td>context 오염</td><td>호출마다 main agent 가 나중에 쓰는 것보다 훨씬 많이 읽는다. 호출당 수만 토큰이면 해당하고 수천 토큰이면 해당하지 않는다. tool 이 덜 돌려주게 할 수 있으면 fold 를 먼저 묻는다</td></tr>
+      <tr><td><b>일을 끝내면 버릴 새 context 로 여러 작업을 병렬로 한다</b></td><td>병렬화</td><td>여러 새 context 가 따로 탐색하거나, 한 agent 가 다른 agent 의 작업을 그 과정을 보지 않고 검증한다</td></tr>
+      <tr><td><b>tool 을 잘 고르지 못하거나 system prompt 의 지시가 부딪친다</b></td><td>전문화</td><td>모든 것을 실은 main agent 가 tool 을 잘못 고르는 것이 측정되거나, skill 로도 풀리지 않는 지시 충돌이 있다</td></tr>
+    </tbody>
+  </table>
+  <figure class="plate"><img src="data:image/webp;base64,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" alt="위 줄은 문제 유형으로 나눈 예다. Agent 1 이 기능을 쓰고, handoff 로 Agent 2 가 테스트를 쓰고, 다시 handoff 로 Agent 3 이 코드를 리뷰한다. handoff 마다 context 가 빠져 테스트를 쓰는 agent 는 구현 결정의 이유를 모른다. 아래 줄은 context 로 나눈 예다. 한 agent 가 이미 context 를 가졌으므로 기능과 테스트를 함께 쓰고, 테스트만 돌리는 verifier 에게 넘긴다. verifier 는 구현 context 가 필요 없다"><figcaption>2026-10 글의 그림 2 (alt “subagents split by problem”). 위는 문제 유형으로 나눈 경우, 아래는 context 로 나눈 경우다.</figcaption></figure>
+  <ul class="notes">
+    <li>문제 유형 대신 context 로 나누라는 원칙은 2026-01 글에 먼저 있었다. 그림 2 의 기능, 테스트, 리뷰 예와 verifier 예도 그 글의 문장과 같다. 2025-06 글도 subagent 결과가 lead agent 를 거치며 줄어드는 일을 ‘game of telephone’ 이라고 불렀다.</li>
+    <li>남긴 subagent 도 main agent 가 tool 로 부른다. subagent 가 대화를 넘겨받는 handoff 는 사용자와 직접 말해야 할 때만 쓴다.</li>
+  </ul>
+  <p class="so">그래서 subagent 를 둘지는 그 일을 맡은 팀이 누구인지보다, 그 일의 context 를 main agent 와 떼어 놓을 수 있는지로 정해진다. 떼어 놓을 수 있는 대표적인 일은 서로 독립된 조사 경로, 인터페이스가 깔끔한 별도 component, 블랙박스 검증이다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>2026-10 글 머리말: <span class="q">“A single agent loop hits measurable performance degradation from context bloat, or”</span> <span class="q">“Multiple tasks need to be tackled in parallel with fresh context windows that can be discarded once the task is done, or”</span> <span class="q">“A single agent struggles to select appropriate tools or there are conflicting instructions in the system prompt.”</span></p>
+    <p>2026-01 글: <span class="q">“we've identified three situations where multiple agents consistently outperform a single agent: when context pollution degrades performance, when tasks can run in parallel, and when specialization improves tool selection or task focus.”</span></p>
+    <p>kit skill/steps/00-audit.md: <span class="q">“1. Context. It reads far more than the main agent needs afterwards: logs, long documents, big search results. As a rough guide, tens of thousands of tokens per call qualifies, and a few thousand does not.”</span></p>
+    <p>2026-10 글 §Subagents called as tools: <span class="q">“We’d only recommend a full handoff, where the subagent takes over the conversation, when it needs to talk to the user directly. Everything else can be a skill plus tools in the main loop.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="단일 loop">
+  <h2>단일 loop 는 한 모델이 tool 묶음을 부르고 하네스가 한계를 지키는 구조다</h2>
+  <p class="lead">이미 multi-agent 를 운영하는 팀이 향할 이행의 목표다. 모델이 판단하는 부분과 하네스가 강제하는 부분이 나뉜다.</p>
+  <div class="board" data-cols="요청|모델|tool 과 skill|하네스" data-lanes="1|2|3" aria-label="요청을 받은 한 모델이 한 context 안에서 계획을 쓰고 매 턴 tool call 묶음을 낸다. 하네스가 묶음을 병렬로 돌려 원래 결과를 같은 모델에 돌려주면 모델이 다음 걸음을 고른다. skill 은 필요할 때 본문을 읽고, 강한 제한은 tool 안에 있다. 하네스는 턴과 비용 예산, write gate 를 지키고, 답하거나 예산에 닿으면 loop 를 멈춘다">
+    <div class="card" id="c7-req" data-col="요청" data-lane="1"><b>사용자 요청</b></div>
+    <div class="card t-key" id="c7-model" data-col="모델" data-lane="1"><b>한 모델, 한 context</b><p>첫 턴에 계획을 context 에 쓰고 결과를 보며 고친다</p><p>다음 걸음은 tool 묶음, 사용자에게 질문, 답 가운데 하나다</p></div>
+    <div class="card" id="c7-tools" data-col="tool 과 skill" data-lane="1"><b>tool call 묶음</b><p>하네스가 병렬로 돌리고 가공하지 않은 결과를 같은 모델에 돌려준다</p></div>
+    <div class="card" id="c7-skill" data-col="tool 과 skill" data-lane="2"><b>skill</b><p>순서와 domain 절차. 짧은 설명만 보이다가 필요할 때 본문을 읽는다</p></div>
+    <div class="card" id="c7-hard" data-col="tool 과 skill" data-lane="3"><b>tool 안의 제한</b><p>검증, 승인 gate, 사용자별 권한, 대화 중 memory 조회</p></div>
+    <div class="card" id="c7-budget" data-col="하네스" data-lane="1..3" data-center><b>턴과 비용 예산, write gate</b><p>모델이 아니라 하네스가 정한다</p></div>
+    <div class="card t-good" id="c7-stop" data-col="모델" data-lane="2"><b>멈춤</b><p>모델이 답하거나 예산에 닿으면 끝난다. 답 뒤에 goal 이나 verifier 검사를 붙일 수 있다</p></div>
+    <span class="edge" data-from="c7-req" data-to="c7-model"></span>
+    <span class="edge" data-from="c7-model" data-to="c7-tools"></span>
+    <span class="edge" data-from="c7-model" data-to="c7-stop"></span>
+  </div>
+  <figure class="plate"><img src="data:image/webp;base64,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" alt="왼쪽 COMMON PATTERN 은 모델 둘레의 다섯 층이다. 요청이 multi-agent orchestrator, intent classifier, 다섯 단계의 고정 추론 pipeline, 사용자 구간별 bucket 셋, 추천 branch 셋을 거쳐 답이 된다. 오른쪽 WHAT WE OFTEN RECOMMEND 는 loop 하나다. 분명한 system prompt 하나를 받은 모델이 얇은 data tool 4-5개를 부르고 결과를 받으며, 출력 guardrail 을 거쳐 답한다"><figcaption>2026-10 글의 그림 1 (alt “subagent design”). 왼쪽은 기업 배포에서 흔한 다섯 층, 오른쪽은 자주 권하는 한 loop 다. 원본은 GIF 이고 첫 화면을 옮겼다.</figcaption></figure>
+  <ul class="notes">
+    <li>그림 1 의 ‘prompt 하나, tool 4-5개, guardrail’ 은 다섯 층 설계를 검토할 때 자주 주는 피드백이다. 모든 agent 에 적용할 tool 수 기준은 아니다.</li>
+    <li>migration kit 의 reference_loop/loop.py 가 같은 구성을 읽기 위한 Python 한 파일로 옮겨 두었다. 하네스 제한으로 턴 예산, subagent 가 쓴 토큰까지 세는 토큰 예산, 한 묶음의 호출 수 상한, 쓰기 tool 앞의 write gate 를 둔다.</li>
+    <li>이 형태는 사용자의 큰 목표를 이해하고 대신 행동하는 agent 로 가는 데도 낫다. agent 가 알게 된 것이 모두 한 context 에 남기 때문이다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>§How to fold subagents into the main agent loop: <span class="q">“One model and one context window running an open-ended tool loop, with limits (turn and cost budgets, write gates) set in the harness.”</span></p>
+    <p>같은 절: <span class="q">“Each turn, the model emits a batch of tool calls. The harness runs them in parallel and returns raw results to the same model, which decides the next step: another batch, a question to the user, or an answer.”</span></p>
+    <p>같은 절: <span class="q">“The loop stops when the model answers or hits a budget. A goal or verifier check can optionally run after the answer.”</span> <span class="q">“Ordering and domain procedure move into skills.”</span></p>
+    <p>kit reference_loop/loop.py: <span class="q">“Hard limits live in the harness, not the prompt: a turn budget, a token budget that also counts what subagents spend, a cap on calls per batch, and a write gate in front of any tool that changes something.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="procedure" data-label="이행 절차">
+  <h2>이행은 eval 을 먼저 만들고 subagent 를 하나씩 합치며 잰다</h2>
+  <p class="lead">2026-10 글은 아래 순서를 권한다. 단계마다 같은 eval 로 전후를 비교하고, 합친 쪽이 더 나쁠 때만 그 subagent 를 남긴다.</p>
+  <div class="board" data-cols="1|2|3|4|5" aria-label="eval 을 만들고, 함께 도는 subagent 를 합치고, 남길 subagent 는 tool 로 부르게 바꾼 뒤, 나머지를 하나씩 skill 과 tool 로 합친다. 합친 뒤에는 task 별로 뒤집힌 곳을 보고, 다음 subagent 로 넘어가 합치기 단계로 돌아간다">
+    <div class="card" id="c8-eval" data-col="1"><b>① eval</b><p>중앙 팀의 end-to-end 세트와 skill 마다 딸린 작은 세트. golden example 10개로 시작한다</p><p class="ev">§Task-completion evals</p></div>
+    <div class="card" id="c8-merge" data-col="2"><b>② merge</b><p>서로의 출력을 잇거나, 같은 데이터를 만지거나, 자주 함께 불리는 전문 agent 를 합친다</p><p class="ev">§Combining domain agents</p></div>
+    <div class="card" id="c8-tool" data-col="3"><b>③ tool 로 부르기</b><p>남길 subagent 는 main agent 가 tool 로 부르고 공통 응답 schema 를 받는다. subagent 를 다시 쓰지 않아도 된다</p><p class="ev">§Subagents called as tools</p></div>
+    <div class="card t-key" id="c8-fold" data-col="4"><b>④ fold</b><p>prompt 는 skill 로, API 호출은 MCP tool 로 옮기고 subagent 가 있을 때와 없을 때를 비교한다</p><p class="ev">§Folding subagents into the main agent via skills and tools</p></div>
+    <div class="card t-warn" id="c8-cmp" data-col="5"><b>⑤ 뒤집힌 task 확인</b><p>합계 점수만 보지 않고 결과가 뒤집힌 task 를 본다. task 마다 두 번 이상 돌린다</p></div>
+    <span class="edge" data-from="c8-eval" data-to="c8-merge"></span>
+    <span class="edge" data-from="c8-merge" data-to="c8-tool"></span>
+    <span class="edge" data-from="c8-tool" data-to="c8-fold"></span>
+    <span class="edge" data-from="c8-fold" data-to="c8-cmp"></span>
+    <span class="edge" data-from="c8-cmp" data-to="c8-fold">다음 subagent</span>
+  </div>
+  <ul class="notes">
+    <li>eval 은 처음에는 최종 답을 rubric 으로 채점한다. orchestrator 가 남아 있는 동안은 routing 정확도를 보고, 합친 뒤에는 맞는 skill 을 읽었는지와 맞는 tool 을 불렀는지를 본다. 구조를 비교하려면 결국 task 완료 eval 이 있어야 한다.</li>
+    <li>내부 시스템을 replay 하기 어려우면 중요한 사건에 timestamp 를 남겨 뒤에 targeted eval 로 replay 한다. Anthropic 안에서 쓴 방법이다.</li>
+    <li>kit 은 as-tool 의 자리가 다르다. kit 의 작업 순서는 merge, fold, as-tool 이고, fold 비교에서 진 subagent 도 as-tool 로 보낸다. 2026-10 글은 as-tool 을 subagent 를 다시 쓰지 않아도 되는 첫 단계로 둔다.</li>
+    <li>tool 로 부르는 단계에도 실패가 남는다. 전문 agent 마다 prompt, context, 소유 팀, eval 이 따로 있고, 호출마다 정보를 잃은 요약이 돌아오며, 호출 하나하나가 지연을 더하는 중첩 loop 다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>§Task-completion evals: <span class="q">“The eval structure we’ve seen work is one shared end-to-end set owned by a central team with smaller eval sets shipped with each skill by the team that owns it. Even a set of 10 golden examples is enough to start.”</span></p>
+    <p>§Folding subagents into the main agent via skills and tools: <span class="q">“Fold subagents into the main agent one at a time by turning each one’s prompts into skills and API calls into MCP tools. Compare eval performance with and without the subagent. Then decide which to keep.”</span></p>
+    <p>§Tools to accelerate this work: <span class="q">“Build a small end-to-end eval, fold in one subagent, and keep it as a subagent only if the folded version scores worse, then rinse and repeat.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="case" data-label="사례">
+  <h2>returns 를 합치자 평균 지연은 줄고 배송일 task 가 두 번 중 한 번 깨졌다</h2>
+  <p class="lead">2026-10 글이 sample support agent 로 든 사례다. v1 에서는 router 가 main agent 가 되어 returns 의 tool 셋을 직접 부르고, 나머지 subagent 는 그대로 둔다.</p>
+  <table>
+    <thead><tr><th>지표</th><th>baseline: router 와 subagent 6개</th><th>v1: returns 를 main agent 에 합침</th></tr></thead>
+    <tbody>
+      <tr><td><b>task 완료</b> (12개 task × 2회)</td><td>22/24</td><td>23/24</td></tr>
+      <tr><td><b>평균 지연</b></td><td>27.31초</td><td>19.36초</td></tr>
+      <tr><td><b>평균 model 호출</b></td><td>6.33번</td><td>4.83번</td></tr>
+      <tr><td><b>returns task 셋</b>(t04-t06) 평균 지연</td><td>30.05초</td><td>9.03초</td></tr>
+      <tr><td><b>t01 을 뺀 22행</b> 평균 지연</td><td>28.12초</td><td>20.12초</td></tr>
+      <tr><td><b>t01</b> 주문 5002 의 상태 묻기</td><td>2회 모두 통과</td><td>1회 통과, 1회 실패</td></tr>
+      <tr><td><b>t11</b> 배송이 늦으면 다른 주문을 반품하겠다는 요청</td><td>2회 모두 실패</td><td>2회 모두 통과</td></tr>
+    </tbody>
+  </table>
+  <pre><code>baseline t01 (results/baseline/results.jsonl:1)
+  "by_agent": {"router": {"calls": 3, ...}, "orders": {"calls": 2, ...}, "shipping": {"calls": 2, ...}}
+  답에 배송 예정일 October 3 이 있다
+
+v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
+  "by_agent": {"router": {"calls": 2, "input_tokens": 3081, "output_tokens": 259}}
+  "It's traveling under tracking ID TRK-77002, and there's no delivery date recorded yet."
+  배송일 검사 "ok": false  →  task_complete 0</code></pre>
+  <ul class="notes">
+    <li>숫자는 kit 의 example-run 에 남은 실행 기록(Claude Opus 5, task 마다 2회)에서 다시 셌다. 표의 합계와 평균은 이 문서가 kit 의 results.jsonl 24행씩을 합산한 값이다. kit 의 write-up 은 측정 결과와 그 해석을 지웠다고 밝히고, 기록을 다시 출력하는 명령만 남겨 두었다.</li>
+    <li>지연은 주로 returns task 에서 줄었다. 깨진 t01 을 빼고 평균을 내도 줄어든다. 그래서 지연 감소가 깨진 경로에서 호출을 건너뛴 덕분만은 아니다.</li>
+    <li>2026-10 글은 이 변경을 ‘subagent 하나를 다른 subagent 에 합쳤다’고 적는다. 기록의 change.md 는 returns subagent 를 main agent 에 합쳤다고 적는다. 깨진 경로는 글의 설명과 같다. 주문 조회 tool 을 쥔 main agent 가 shipping 에게 묻지 않고 혼자 답했다.</li>
+    <li>kit 은 이 실행에 대해 2회 반복이 얇다고 스스로 적는다. task 하나가 한 번 뒤집히면 그 task 의 값이 절반 움직이므로, 결정이 task 하나에 걸리면 세 번 이상 돌리라고 한다.</li>
+  </ul>
+  <p class="so">그래서 합계 점수만 보면 v1 은 나아졌다. 깨진 task 는 task 별로 펼쳐야 보이고, 그것도 두 번째 실행에서만 드러났다. 이 기록에서 읽을 수 있는 동작은 하나다. 합친 쪽이 사슬 앞쪽 subagent 의 tool(get_order)을 쥐게 되면, 모델이 사슬 뒤쪽 호출(shipping)을 건너뛰고 혼자 답할 수 있다. 글에 없는 일반화이고, 이 기록 한 건에서 끌어낸 것이다. 함께 도는 agent 사슬마다 task 를 두고 task 마다 두 번 이상 돌리라는 권고의 근거가 된 경우가 이 기록과 맞는다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§Folding subagents into the main agent via skills and tools: <span class="q">“When we tested this on a sample support agent, folding one subagent into another lowered latency, but also broke a process that had been passing. The main agent was holding the order lookup tool and answering on its own, without asking the shipping specialist for the delivery date.”</span></p>
+    <p>같은 절: <span class="q">“Before each change, make sure your eval has a task for every chain of agents that runs together in production and for every rule the agent must not break, and run each task more than once, since a break like this one only showed up in one run out of two.”</span></p>
+    <p>kit results/v1/change.md: <span class="q">“Fold the returns subagent into the main agent: returns skill loaded on demand, get_order/check_return_eligibility/create_return called by the main agent”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="decision" data-label="판정">
+  <h2>내 subagent 의 판정은 따로 둘 context 가 있는지로 정한다</h2>
+  <p class="lead">kit 의 audit 단계는 subagent 마다 fold, merge, as-tool, keep 가운데 하나를 준다. 6장의 조건 하나를 통과한 subagent 는 as-tool 이 되고, 사용자와 직접 대화하거나 바깥이 운영할 때만 keep 이 된다.</p>
+  <div class="board dense" data-cols="fold|merge|as-tool|keep" data-lanes="kit 의 기준|적용해 본 예|적용해 본 예 2" aria-label="네 판정을 칸으로 놓고, 맨 위 줄에 kit 의 판정 기준을, 아래 두 줄에 어느 글에도 없는 subagent 를 그 기준에 넣어 본 결과를 놓았다. 기본값은 fold 이고, 6장의 조건을 통과한 subagent 는 as-tool 이 된다">
+    <div class="card t-key" data-col="fold" data-lane="kit 의 기준"><b>기본값</b><p>절차와 domain 지식을 담은 prompt 와 API 호출 몇 개뿐이고, 그 일에 따로 context 가 필요 없다</p><p class="ev">skill, tool, 또는 둘 다가 된다</p></div>
+    <div class="card" data-col="merge" data-lane="kit 의 기준"><b>함께 도는 짝</b><p>서로의 출력을 잇거나, 같은 데이터를 읽거나, trace 대부분에서 함께 돈다</p></div>
+    <div class="card" data-col="as-tool" data-lane="kit 의 기준"><b>6장의 조건을 통과하고 한 번의 호출로 끝난다</b><p>main agent 가 tool 처럼 부르고 구조화된 결과를 받는다. 자기 목소리가 없다</p></div>
+    <div class="card" data-col="keep" data-lane="kit 의 기준"><b>드물다</b><p>사용자와 직접 여러 번 대화해야 하거나, 다른 회사가 운영해 바꿀 수 없다</p></div>
+    <div class="card" data-col="fold" data-lane="적용해 본 예"><b>법무 팀의 계약 검토 subagent</b><p>긴 정책 prompt, tool 여러 개, 자기 말투를 가졌다</p><p class="ev">정책은 skill 과 조회 tool 로, 말투는 main 이 맡는다</p></div>
+    <div class="card" data-col="merge" data-lane="적용해 본 예"><b>주문 조회와 배송 조회 subagent</b><p>주문 상태 질문마다 차례로 불린다</p><p class="ev">kit 의 audit 도 support desk 의 orders 와 shipping 에 merge 를 줬다</p></div>
+    <div class="card" data-col="as-tool" data-lane="적용해 본 예"><b>장애 분석 subagent</b><p>호출마다 로그 수만 토큰을 읽고 원인 몇 줄을 돌려준다</p><p class="ev">로그를 걸러 돌려줄 수 있으면 fold 를 먼저 검토한다</p></div>
+    <div class="card" data-col="keep" data-lane="적용해 본 예"><b>협력사가 운영하는 결제 상담 agent</b><p>대화를 넘겨받는 handoff 가 그대로 남는다</p></div>
+    <div class="card" data-col="fold" data-lane="적용해 본 예 2"><b>고정 단계만 도는 주간 보고서 subagent</b><p>단계가 정해져 있으니 workflow 다</p><p class="ev">고정된 부분은 tool 안의 코드로, 문장 고르기는 skill 로</p></div>
+    <div class="card" data-col="as-tool" data-lane="적용해 본 예 2"><b>경쟁사 문서 조사 subagent</b><p>문서 여러 건을 각각 새 context 에서 병렬로 읽고 짧은 결과만 돌려준다</p><p class="ev">6장의 병렬 조건. main 이 tool 로 불러 결론을 실제 데이터와 대조한다</p></div>
+  </div>
+  <ul class="notes">
+    <li>적용해 본 예 가운데 주문·배송 짝의 판정만 kit 의 기록에서 옮겼다. 나머지 다섯은 이 문서가 지은 경우다.</li>
+    <li>고정된 단계만 있는 subagent 는 workflow 이므로 plain code 라고 kit 은 적는다. 고정된 부분은 tool 안으로, 판단이 필요한 부분은 skill 로 가서 판정은 fold 다.</li>
+  </ul>
+  <p class="so">그래서 판정을 움직이는 값은 호출 한 번이 읽는 토큰 양, 새 context 로 병렬 탐색할 필요, 측정된 tool 선택 실패다. 맡은 팀, persona, prompt 길이, tool 수는 kit 의 판정에 들어가지 않는다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>kit skill/steps/00-audit.md: <span class="q">“| `fold` | The default. The subagent is a prompt (procedure, domain knowledge) plus some API calls, and nothing about its work needs a separate context. It becomes a skill, tools, or both, in the main agent. |”</span></p>
+    <p>같은 파일: <span class="q">“| `keep` | It has to hold the conversation with the user itself, or it belongs to another company and cannot be changed. The full handoff stays. This is rare. |”</span></p>
+    <p>같은 파일: <span class="q">“Before you settle on this, ask whether the tool could simply return less (filter, search, paginate). If it could, the better plan is often `fold` with a better tool.”</span></p>
+    <p>같은 파일: <span class="q">“- Its steps are fixed. Fixed steps are a workflow, which is plain code. Give it `fold`: the fixed part goes inside a tool, and whatever still needs judgment (choosing, explaining) goes in a skill.”</span></p>
+    <p>kit example-run/README.md: <span class="q">“The audit's verdict for `orders` and `shipping` is a merge, and the plan's worklist”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="ownership" data-label="팀의 몫">
+  <h2>여러 팀은 agent 를 만드는 대신 skill 과 tool 로 한 agent 에 기여한다</h2>
+  <p class="lead">domain 추론은 knowledge base, skill, MCP tool 에서 꺼내 쓴다. 작은 중앙 팀 하나가 system prompt 와 end-to-end 품질을 맡고, 새 skill, tool, eval 을 내보내기 전에 검토한다.</p>
+  <table>
+    <thead><tr><th>자리</th><th>맞는 경우</th><th>붙은 조건</th></tr></thead>
+    <tbody>
+      <tr><td><b>MCP tool</b></td><td>agent 가 행동을 하거나, 시스템의 실시간 데이터를 읽거나, 정해진 모양의 결과를 돌려줘야 할 때. 이행 중에는 subagent 를 계속 부르는 통로로도 쓴다</td><td>사용자 의도별로 묶는다. 앞 tool 의 출력이 필요한 tool 은 그것이 있는지 스스로 확인하고 모델이 따를 지시를 돌려준다</td></tr>
+      <tr><td><b>skill</b></td><td>팀이 일하는 방식이 필요할 때. 예전에 전문 subagent 의 prompt 가 담던 단계, 규칙, 판단이다</td><td>팀마다 DRI 가 자기 skill 을 맡아 서로 겹치지 않게 다듬고 eval 과 함께 내보낸다. /skill-doctor 로 skill 마다 비용과 실제 사용 빈도를 보고 안 쓰는 것을 지운다</td></tr>
+      <tr><td><b>knowledge base</b></td><td>가끔만 필요한 참고 자료일 때. 정책, 지표 정의, 제품 사양이 예다</td><td>모델이 부르는 검색이나 조회 tool 뒤에 두거나 skill 의 참고 파일로 싣는다. 코드가 가져와 prompt 에 붙여 넣는 방식은 피한다</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>2026-09 commerce 글은 system prompt 와 skill 의 경계로 출발점 하나를 준다. 트래픽의 1/3 이상에 걸리는 것은 system prompt 에 두고 나머지는 skill 에 둔다.</li>
+    <li>2026-01 글이 multi-agent 의 장점으로 든 전문가 협업 비유는 이 표에서 팀이 소유한 skill 과 tool 로 바뀐다. 팀의 전문성은 남고, 팀마다 따로 있던 context 와 목소리가 사라진다.</li>
+  </ul>
+  <p class="so">그래서 큰 조직에서 달라지는 것은 팀이 내보내는 산출물의 단위다. 팀이 내보내던 agent 가 skill, tool, 그리고 거기 딸린 eval 이 된다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§How several teams can contribute to a single agent: <span class="q">“Individual teams can shift their ownership from agents to skills and tools, with one small central team keeping ownership of the system prompt and end-to-end quality.”</span></p>
+    <p>§Skills: <span class="q">“Skills are the right fit when the agent needs to know how a team does work, like the steps, rules, and judgment calls a specialist subagent's prompt used to hold.”</span></p>
+    <p>§Knowledge bases: <span class="q">“Facts and reference material (policies, metric definitions, product specs) can sit behind a search or lookup tool the model calls, or ship as reference files inside a skill. Avoid having code retrieve and paste this context into prompts.”</span></p>
+    <p>commerce 글 §Skills, not subagents: <span class="q">“A good starting point is that anything relevant to a third or more of your traffic, whether anticipated before launch or observed in production, goes in the system prompt, and the rest goes in skills.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="synthesis" data-label="새로운 것">
+  <h2>Anthropic 의 2026-10 글이 바꾼 것은 subagent 를 남기는 입증 책임이다</h2>
+  <p class="lead">단일 agent 를 먼저 쓰라는 말과 context 로 나누라는 원칙은 앞선 글에 이미 있었다. 아래 판은 이어진 원칙과 2026-10 글에서 바뀐 것을 나눠 놓았다.</p>
+  <div class="board" data-cols="앞선 글에서 이어진 원칙|2026-10 글에서 바뀐 것" data-lanes="1|2|3|4|5" aria-label="왼쪽은 2024-12 부터 이어진 원칙이고 오른쪽은 2026-10 글에서 처음 바뀐 것이다. 오른쪽에서 이 문서가 가장 크게 보는 변화는 subagent 가 합친 쪽보다 eval 에서 나아야만 남는다는 점이다">
+    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="1"><b>가장 단순한 해법부터 쓴다</b><p>복잡성은 측정해서 효과가 보일 때만 더한다 (2024-12)</p></div>
+    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="2"><b>문제 유형 대신 context 로 나눈다</b><p>handoff 마다 정보가 줄어드는 telephone game (2025-06, 2026-01)</p></div>
+    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="3"><b>context 와 trace 를 공유한다</b><p>Cognition 의 원칙 (2025-06)</p></div>
+    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="4"><b>multi-agent 전에 tool search 를 써 본다</b><p>2026-01 글이 먼저 권했다</p></div>
+    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="5"><b>router 없는 한 loop 에 skill 을 붙인다</b><p>2026-09 commerce 글이 상거래 agent 에서 먼저 권했다</p></div>
+    <div class="card t-key" data-col="2026-10 글에서 바뀐 것" data-lane="1"><b>subagent 가 합친 쪽을 이겨야 남는다</b><p>2026-04 글은 multi-agent 를 고르면 대부분의 경우 orchestrator-subagent 부터 하라고 했다. 2026-10 글은 이미 있는 subagent 마다 합친 쪽과 eval 로 비교해, 합친 쪽이 더 나쁠 때만 남긴다</p></div>
+    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="2"><b>전문화 이유가 skill 과 tool search 로 간다</b><p>domain 지식, tool 수, persona, 팀 경계 (4장)</p></div>
+    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="3"><b>팀의 소유 단위가 skill, tool, eval 이 된다</b><p>작은 중앙 팀이 system prompt 와 end-to-end 품질을 맡는다 (11장)</p></div>
+    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="4"><b>이행 도구가 붙는다</b><p>migration kit, /claude-api 의 build-eval, prompt-audit, hillclimb, cost-optimize</p></div>
+  </div>
+  <ul class="notes">
+    <li>판단을 하네스에서 모델로 옮기는 방향은 2026-07 글의 context engineering 정리와 같다. Claude Code 팀은 그 글에서 Claude Opus 5 와 Fable 5 에 맞춰 system prompt 를 80% 넘게 지운 결과를 내놓고, 앞에 다 싣던 방식을 progressive disclosure 로, 규칙을 판단으로 바꿨다고 적는다.</li>
+    <li>prompt-audit 은 prompt, skill, tool 설명에서 예전 모델에 맞춰 쓴 지시를 찾아 diff 로 고칠 안을 낸다.</li>
+    <li>단일 loop 는 이미 orchestrator 와 전문 agent 를 가진 팀이 향할 목표로 제시된다. subagent 가 아직 없으면 한 loop 로 시작하라는 문장은 kit 의 README 에 있다.</li>
+    <li>왼쪽과 오른쪽을 나눈 것은 이 문서의 정리다. 2026-10 글 자체는 앞선 글과 자기 주장을 이렇게 나누지 않는다.</li>
+  </ul>
+  <p class="so">그래서 2026-10 글이 알리는 방향은 구조 하나의 우열을 정하는 데서 끝나지 않는다. Applied AI 팀은 마지막에, 모델이 바뀌면 이해와 지침도 바뀌므로 어느 구조든 그 뒤의 원칙만큼 중요하지 않다고 적는다. 재고, 한 번에 하나만 바꾸고, 버티는 것을 남기라는 원칙이다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>2024-12 글 §Combining and customizing these patterns: <span class="q">“To repeat: you should consider adding complexity only when it demonstrably improves outcomes.”</span></p>
+    <p>2026-10 글 §Tools to accelerate this work: <span class="q">“That makes any one architecture less important than the principle behind it: measure, change one thing at a time, and keep what holds up.”</span></p>
+    <p>같은 절: <span class="q">“As models get more capable and agents get longer running, more of your subagents can be skills and tools. You don’t have to make that move in one step, though.”</span></p>
+    <p>2026-07 글: <span class="q">“We removed over 80% of Claude Code’s system prompt for models like Claude Opus 5 and Claude Fable 5 with no measurable loss on our coding evaluations.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="critique" data-label="한계">
+  <h2>핵심 비교는 숫자 없이 Anthropic 의 관찰로만 제시된다</h2>
+  <p class="lead">아래 한계는 이 권고를 자기 시스템에 옮길 때 무엇부터 재야 하는지로 이어진다. 2026-10 글과 kit, 앞선 글이 모두 Anthropic 의 자료라는 점이 바탕에 있다.</p>
+  <ul class="points">
+    <li><b>숫자 없는 비교</b>skill 을 가진 단일 agent 가 품질에서 앞섰다는 비교는 ‘여러 기업 배포’라고만 적고 배포 수, 과제, 점수를 밝히지 않는다. 링크된 commerce 글의 같은 문장도 숫자가 없다. 그래서 자기 시스템의 eval 로 재기 전에는 이 결론을 가설로 둔다.</li>
+    <li><b>한 단계 낮아진 표현</b>2026-09 commerce 글은 같은 비교를 consistently 앞섰다고 적었고, 2026-10 글은 frequently 앞섰다고 적는다. 권고대로 subagent 마다 재는 편이 안전하다.</li>
+    <li><b>지연 2배는 고객 한 곳</b>지연 숫자는 고객 한 곳이 잰 약 2배뿐이고, 그 시스템의 규모와 과제는 나와 있지 않다. 자기 시스템의 지연은 eval 실행에서 직접 잰다.</li>
+    <li><b>사례가 고객 응대에 쏠려 있다</b>2026-10 글, commerce 글, kit 의 예제가 모두 고객 응대나 상거래 agent 다. 넓게 병렬 탐색하는 research 에서는 2025-06 글이 multi-agent 가 90.2% 높았다고 했고, Applied AI 팀도 research frontier 에 subagent 의 자리가 있다고 인정한다. 넓은 탐색이 핵심인 시스템은 6장의 병렬 조건부터 확인한다.</li>
+    <li><b>kit 기록은 얇다</b>실제 모델 실행은 한 사람이 한 모델로 두 번 돌린 것이다. merge 단계와 완성된 single_loop 버전은 실제 모델로 돌리지 않았고, kit 은 관리하지 않는 reference implementation 이다. 9장의 숫자는 방향을 보여 주는 예로만 읽는다.</li>
+    <li><b>합친 뒤의 context 비용은 재지 않았다</b>한 context 에 skill 본문과 tool 결과가 쌓이는 비용은 숫자로 나와 있지 않고, system prompt, context window, memory, 메모를 규율 있게 다뤄야 한다는 말뿐이다. 긴 대화를 다루는 agent 라면 합친 뒤의 턴당 토큰과 context 길이를 eval 실행에서 함께 잰다.</li>
+    <li><b>모델 능력 주장은 자기 평가</b>Opus 4.5 부터 한 loop 에서 훨씬 많은 일을 다룬다는 주장에는 측정 근거가 붙어 있지 않다. 80% 감축의 ‘손실 없음’은 Anthropic 이 자기 코딩 eval 로 잰 것이므로, 다른 영역의 agent 는 prompt 를 줄이기 전과 뒤를 자기 eval 로 비교한다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>2026-10 글 머리말: <span class="q">“In our comparisons across several enterprise deployments, a single agent with skills frequently outperformed both the one-prompt-for-everything design and the subagent design on quality, and often at a lower cost and latency per task.”</span></p>
+    <p>commerce 글 §Skills, not subagents: <span class="q">“In our comparisons across several enterprise deployments, a single agent with skills consistently has outperformed both the one-prompt-for-everything design and the subagent design on quality, and often at a lower cost and latency per task.”</span></p>
+    <p>2026-10 글 머리말: <span class="q">“To be clear, subagents still have their place, including at the research frontier. Use them when:”</span></p>
+    <p>kit README.md: <span class="q">“Not run on a real model: the merge and upkeep steps, the finished `single_loop/` version of the example, tasks t18 and t19, starting from a repo with no eval, and the kit on any system other than the example.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="setup" data-label="읽은 범위">
+  <h2>앞선 글과 kit 에서는 2026-10 글과 맞대는 데 필요한 부분만 열었다</h2>
+  <p class="lead">2026-10 글은 전문과 그림 글자까지 읽었다. migration kit 에서는 문서와 실행 기록을 읽었고, 코드는 실행하지 않았다.</p>
+  <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료. 열지 않은 것마다 얕아진 장을 적었다">
+    <div class="card" data-col="읽음"><b>2026-10 글 전문과 그림 셋의 글자</b><p>그림 둘은 GIF 의 첫 화면을 읽었다</p></div>
+    <div class="card" data-col="읽음"><b>앞선 Anthropic 글</b><p>2026-01 글 전문, 2024-12 글 전문, 2026-07 글 전문, 2025-06·2026-04·2026-09 글의 해당 절, Skills 글의 progressive disclosure 절</p></div>
+    <div class="card" data-col="읽음"><b>Cognition, Don’t Build Multi-Agents 전문</b></div>
+    <div class="card" data-col="읽음"><b>migration kit</b><p>README, audit 단계, reference loop 의 설명, example-run 두 개의 write-up 과 결과 파일</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>kit 의 나머지 단계 파일, scripts, templates</b><p class="ev">8장이 baseline 과 fold 단계의 세부 질문과 비용 추정을 다루지 않는다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>support desk 의 앱 코드와 traces</b><p class="ev">9장은 깨진 경로를 결과 행으로만 확인했다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>2026-10 글이 링크한 task budgets 와 tool search 문서</b><p class="ev">7장의 예산과 tool search 설명이 글의 수준에 머문다</p></div>
+  </div>
+  <ul class="notes">
+    <li>2024-12 글은 게시 뒤 고친 판을 읽었고 원판은 받지 않았다. 고친 판의 머리에는 그 뒤로 도구 환경이 많이 바뀌었다는 안내가 붙어 있다. 3장, 5장, 12장의 2024-12 인용은 고친 판의 문장이다.</li>
+    <li>2026-01 글과 2026-04 글의 받은 사본에는 2026-10 글로 가는 링크가 들어 있다. 링크를 언제 넣었는지는 확인하지 못했다.</li>
+    <li>기존 하네스 통념은 Anthropic 의 앞선 글과 Cognition 의 글로 세웠다. LangGraph, CrewAI 같은 multi-agent framework 의 문서는 열지 않았으므로, 그 framework 의 기본 구조와의 대비는 4장과 5장의 기준을 독자가 직접 대어 본다.</li>
+  </ul>
+  </section>
+
+  <section class="slide" data-role="sources" data-label="출처">
+  <h2>출처</h2>
+  <ul class="sources">
+    <li><a href="https://claude.com/ko/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop">w1 · Building agents: When to fold subagents into your main agent loop</a> <span class="t">Anthropic 의 Diane Sarkis, claude.com, 2026-10-22 게시. 한국어판 URL, 본문은 영어. 2026-10-25 사본</span></li>
+    <li><a href="https://claude.com/resources/articles/building-multi-agent-systems-when-and-how-to-use-them">w2 · Building multi-agent systems: When and how to use them</a> <span class="t">Anthropic 의 Cara Phillips 외, 2026-01-23 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://claude.com/resources/articles/multi-agent-coordination-patterns">w3 · Multi-agent coordination patterns: Five approaches and when to use them</a> <span class="t">Anthropic 의 Cara Phillips 외, 2026-04-10 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://www.anthropic.com/engineering/building-effective-agents">w4 · Building effective agents</a> <span class="t">Anthropic Engineering 의 Erik S. 와 Barry Zhang, 2024-12-19 게시. 게시 뒤 고친 판의 2026-10-25 사본</span></li>
+    <li><a href="https://www.anthropic.com/engineering/multi-agent-research-system">w5 · How we built our multi-agent research system</a> <span class="t">Anthropic Engineering 의 Jeremy Hadfield 외, 2025-06-13 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://cognition.ai/blog/dont-build-multi-agents">w6 · Don’t Build Multi-Agents</a> <span class="t">Cognition 의 Walden Yan, 2025-06-12 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://claude.dev/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models/">w7 · The new rules of context engineering for Claude 5 generation models</a> <span class="t">Anthropic Claude Code 팀의 Thariq Shihipar, 2026-07-24 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://claude.com/resources/articles/the-anatomy-of-effective-commerce-agents">w8 · A guide to the anatomy of effective commerce agents</a> <span class="t">Anthropic 의 Ali Shazal 과 Matthew Koen, 2026-09-02 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://claude.com/resources/articles/building-agents-with-skills-equipping-agents-for-specialized-work">w9 · Building agents with Skills: Equipping agents for specialized work</a> <span class="t">Anthropic 의 claude.com 글, 2026-01-22 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://github.com/anthropics/single-agent-loop-kit/tree/c43796287b83bec847db923f07131d1cc8de750d">r1 · anthropics/single-agent-loop-kit</a> <span class="t">Anthropic 의 reference implementation, Apache-2.0. commit c437962</span></li>
+  </ul>
+  </section>
+
+</main>
+<script>
+/* board 셸 스크립트
+   board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
+   plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
+   좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
+   render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
+(function () {
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var list = function (s) { return (s || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean); };
+  var narrow = function () { return window.matchMedia('(max-width: 760px)').matches; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var warnings = [];
+  window.__layout = { warnings: warnings, done: false };
+  var warn = function (where, msg) { var w = where + ': ' + msg; if (warnings.indexOf(w) < 0) warnings.push(w); };
+  var titleOf = function (el) { return ((el.querySelector(':scope > b') || el).textContent || '').replace(/\s+/g, ' ').trim(); };
+  // 그림의 값: [약|~] [+|-] [$] 숫자(쉼표 가능) [k|M|B] [단위]. 단위 목록은 check-doc.mjs 의 plot-data 와 같다
+  var NUM = /^([+-]?)\$?(\d+(?:\.\d+)?)([kMB]?)(%p|%|pt|ms|s|초|분|시간|일|건|개|번|회|명|배|x|×|원|달러)?$/;
+  var num = function (t) {
+    var m = NUM.exec(String(t).replace(/약|~|,|\s/g, ''));
+    if (!m) return NaN;
+    return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]) * ({ k: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1);
+  };
+
+  /* ── 장 번호, 목차 링크, 위 막대 ── */
+  var secs = $$('section.slide');
+  secs.forEach(function (s, k) {
+    if (!s.id) s.id = 'p' + (k + 1);
+    if (s.getAttribute('data-role') === 'cover') return;
+    var c = document.createElement('p'); c.className = 'chno'; c.setAttribute('aria-hidden', 'true');
+    c.textContent = String(k + 1).padStart(2, '0') + ' · ' + (s.getAttribute('data-label') || '');
+    s.insertBefore(c, s.firstChild);
+  });
+  $$('a[href^="#p"]').forEach(function (a) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) { a.removeAttribute('href'); a.classList.add('inert'); return; }
+    // 표지 흐름 판의 상자는 장 번호 칩을 셸이 링크에서 만든다. 장을 합치거나 옮겨도 칩이 낡지 않는다
+    if (a.classList.contains('card') && a.closest('section[data-role="cover"]')) {
+      var c = document.createElement('span'); c.className = 'chip'; c.textContent = (secs.indexOf(t) + 1) + '장';
+      a.insertBefore(c, a.firstChild);
+    }
+  });
+  var now = document.querySelector('.topbar .now');
+  if (now && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { var h = e.target.querySelector('h1,h2'); now.textContent = h ? h.textContent : ''; } });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(function (s) { io.observe(s); });
+  }
+
+  /* ── board: 칸 배치 ── */
+  function idx(spec, names) {
+    var one = function (v) { var n = names.indexOf(v); if (n >= 0) return n; var k = parseInt(v, 10); return isNaN(k) || String(k) !== v ? -1 : k - 1; };
+    if (!spec) return [0, 0];
+    if (spec === 'all') return [0, names.length - 1];
+    var ab = spec.split('..'), i = one(ab[0].trim()), j = ab[1] ? one(ab[1].trim()) : i;
+    if (i >= names.length || j >= names.length || j < i) return [-1, -1];
+    return [i, j];
+  }
+  function buildBoard(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    var cols = list(board.dataset.cols), lanes = list(board.dataset.lanes);
+    var ncol = Math.max(cols.length, 1), nl = Math.max(lanes.length, 1);
+    var colNames = cols.length ? cols : ['1'], laneNames = lanes.length ? lanes : ['1'];
+    // 칸과 줄의 이름은 화면에 보인다. 숫자만 쓴 이름(1|2|3)은 이름 없는 칸·줄이라 보이지 않는다.
+    var named = function (ns) { return ns.length > 0 && !ns.every(function (c) { return /^\d+$/.test(c); }); };
+    var laneLabels = named(lanes);
+    var axis = named(cols);
+    // 좁은 화면의 읽는 순서: 이름 있는 줄이 있으면 줄마다, 없으면 칸마다. data-read 가 정하면 그것을 따른다
+    var byCols = board.dataset.read ? board.dataset.read === 'cols' : !laneLabels;
+    var widths = (board.dataset.widths || '').split(/\s+/).filter(Boolean);
+    var cards = $$(':scope > .card', board);
+    cards.filter(function (c) { return c.classList.contains('react'); }).forEach(function (r) {
+      var t = document.getElementById(r.dataset.on);
+      if (!t || t.parentElement !== board) { warn(name, 'reaction points at missing card "' + r.dataset.on + '"'); return; }
+      if (!r.dataset.col) r.dataset.col = t.dataset.col || '1';
+      if (!r.dataset.lane) r.dataset.lane = t.dataset.lane || '1';
+    });
+    var occ = {}, laneRows = []; for (var q = 0; q < nl; q++) laneRows.push(1);
+    var pl = cards.map(function (c) {
+      var cc = idx(c.dataset.col, colNames), ll = idx(c.dataset.lane, laneNames);
+      if (cc[0] < 0 || ll[0] < 0) { warn(name, 'unknown lane/col on "' + titleOf(c).slice(0, 24) + '"'); cc = [0, 0]; ll = [0, 0]; }
+      return { c: c, c0: cc[0], c1: cc[1], l0: ll[0], l1: ll[1], s: 0 };
+    });
+    pl.forEach(function (p) {
+      if (p.l0 !== p.l1) return;
+      var s = 0;
+      for (;; s++) { var free = true; for (var k = p.c0; k <= p.c1; k++) if (occ[p.l0 + ':' + k + ':' + s]) free = false; if (free) break; }
+      for (var k2 = p.c0; k2 <= p.c1; k2++) occ[p.l0 + ':' + k2 + ':' + s] = 1;
+      p.s = s; laneRows[p.l0] = Math.max(laneRows[p.l0], s + 1);
+    });
+    var head = axis ? 1 : 0, lc = laneLabels ? 1 : 0, start = [], r = 1 + head;
+    for (var i = 0; i < nl; i++) { start[i] = r; r += laneRows[i]; }
+    board.style.gridTemplateColumns = (laneLabels ? 'minmax(72px, 104px) ' : '') +
+      colNames.map(function (_, i2) { return 'minmax(0, ' + (widths[i2] || 1) + 'fr)'; }).join(' ');
+    pl.forEach(function (p) {
+      p.c.style.gridColumn = (p.c0 + 1 + lc) + ' / ' + (p.c1 + 2 + lc);
+      p.c.style.gridRow = p.l0 === p.l1 ? String(start[p.l0] + p.s) : start[p.l0] + ' / ' + (start[p.l1] + laneRows[p.l1]);
+      p.order = byCols ? p.c0 * 1000 + p.l0 * 100 + p.s : p.l0 * 1000 + p.s * 100 + p.c0;
+    });
+    pl.forEach(function (p) {
+      if (p.c.classList.contains('react')) { var tp = pl.filter(function (x) { return x.c.id === p.c.dataset.on; })[0]; if (tp) p.order = tp.order + 0.5; }
+      p.c.style.order = String(Math.round(p.order * 2));
+      if (axis && cols.length) {
+        var chip = document.createElement('span'); chip.className = 'chip colchip'; chip.setAttribute('aria-hidden', 'true');
+        chip.textContent = p.c0 === p.c1 ? cols[p.c0] : (p.c0 === 0 && p.c1 === ncol - 1) ? '모든 칸' : cols[p.c0] + '–' + cols[p.c1];
+        p.c.insertBefore(chip, p.c.firstChild);
+      }
+    });
+    var add = function (cls, col, row, text, order) {
+      var d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true');
+      if (text != null) d.textContent = text; d.style.gridColumn = col; d.style.gridRow = row;
+      if (order != null) d.style.order = String(order);
+      board.insertBefore(d, board.firstChild); return d;
+    };
+    if (axis) cols.forEach(function (t, i3) { add('axis-h', String(i3 + 1 + lc), '1', t); });
+    if (axis && board.dataset.axisArrow) {
+      add('axis-arrow', (1 + lc) + ' / ' + (ncol + 1 + lc), '1');
+      add('axis-cap', laneLabels ? '1' : String(ncol + lc), laneLabels ? '1' : '2', board.dataset.axisArrow);
+    }
+    lanes.forEach(function (t, i4) {
+      if (laneLabels) {
+        var l = add('lane-label', '1', start[i4] + ' / ' + (start[i4] + laneRows[i4]), t, byCols ? -1 : i4 * 2000 - 1);
+        l.removeAttribute('aria-hidden');
+        if (i4 > 0) add('lane-rule', '1 / -1', String(start[i4]));
+      }
+    });
+    var order = pl.slice().sort(function (a, b) { return a.order - b.order; }).map(function (p) { return p.c; });
+    board._edges = [];
+    $$(':scope > .edge', board).forEach(function (e) {
+      var s = document.getElementById(e.dataset.from), t = document.getElementById(e.dataset.to);
+      if (!s || !t || s.parentElement !== board || t.parentElement !== board) { warn(name, 'edge ' + e.dataset.from + '→' + e.dataset.to + ' has no card'); return; }
+      board._edges.push(e);
+      var label = e.textContent.trim(), back = order.indexOf(t) < order.indexOf(s);
+      if (label || back) { var d = document.createElement('p'); d.className = 'to'; d.textContent = (back ? '↺ ' : '→ ') + (label ? label + ': ' : '') + titleOf(t); s.appendChild(d); }
+    });
+  }
+
+  /* ── board: 화살표. 상자의 실제 위치에서 계산한다 ── */
+  function wire(board, bi) {
+    var old = board.querySelector(':scope > svg.wires'); if (old) old.remove();
+    board.style.paddingBottom = '';
+    var reacts = $$(':scope > .card.react[data-on]', board);
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    if (board.scrollWidth > board.clientWidth + 2) warn(name, 'board is wider than the page');
+    if (narrow() || (!(board._edges || []).length && !reacts.length)) return;
+    var B = board.getBoundingClientRect();
+    var rect = function (el) { var q = el.getBoundingClientRect(); return { l: q.left - B.left, t: q.top - B.top, r: q.right - B.left, b: q.bottom - B.top, el: el }; };
+    var cards = $$(':scope > .card', board).map(rect);
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'wires');
+    svg.setAttribute('width', B.width); svg.setAttribute('height', B.height + 60); svg.setAttribute('role', 'img');
+    var said = [], needBottom = 0, segs = [], labels = [];
+    var cx = function (q) { return (q.l + q.r) / 2; }, cy = function (q) { return (q.t + q.b) / 2; };
+    board._edges.forEach(function (e) {
+      var S = document.getElementById(e.dataset.from), T = document.getElementById(e.dataset.to);
+      var s = rect(S), t = rect(T), pts, lo, hi;
+      if (t.l >= s.r - 2) {
+        lo = Math.max(s.t, t.t); hi = Math.min(s.b, t.b);
+        if (hi - lo >= 24) { var sm = (s.b - s.t) < (t.b - t.t) ? s : t; var y = Math.min(Math.max(cy(sm), lo + 12), hi - 12); pts = [[s.r, y], [t.l, y]]; }
+        else { var mx = (s.r + t.l) / 2; pts = [[s.r, cy(s)], [mx, cy(s)], [mx, cy(t)], [t.l, cy(t)]]; }
+      } else if (t.r <= s.l + 2) {
+        var yb = Math.max(s.b, t.b) + 26; needBottom = Math.max(needBottom, yb + 26);
+        pts = [[cx(s), s.b], [cx(s), yb], [cx(t), yb], [cx(t), t.b]];
+      } else if (t.t >= s.b - 2) {
+        lo = Math.max(s.l, t.l); hi = Math.min(s.r, t.r);
+        if (hi - lo >= 24) pts = [[(lo + hi) / 2, s.b], [(lo + hi) / 2, t.t]];
+        else { var my = (s.b + t.t) / 2; pts = [[cx(s), s.b], [cx(s), my], [cx(t), my], [cx(t), t.t]]; }
+      } else {
+        var x = (Math.max(s.l, t.l) + Math.min(s.r, t.r)) / 2; pts = [[x, s.t], [x, t.b]];
+      }
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M' + pts.map(function (q) { return q.join(' '); }).join(' L')); svg.appendChild(p);
+      var a = pts[pts.length - 2], b = pts[pts.length - 1], dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+      var h = document.createElementNS(NS, 'path'); h.setAttribute('class', 'head');
+      h.setAttribute('d', dx ? 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] - 4.5) + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] + 4.5) + ' Z'
+                             : 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 4.5) + ' ' + (b[1] - 8 * dy) + ' L' + (b[0] + 4.5) + ' ' + (b[1] - 8 * dy) + ' Z');
+      svg.appendChild(h);
+      for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], s: S, t: T });
+      var label = e.textContent.trim();
+      said.push(titleOf(S) + ' → ' + titleOf(T) + (label ? ' (' + label + ')' : ''));
+      if (label) {
+        var best = 0, bl = -1;
+        for (var k = 0; k < pts.length - 1; k++) { var L = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); if (L > bl) { bl = L; best = k; } }
+        var p0 = pts[best], p1 = pts[best + 1], mxl = (p0[0] + p1[0]) / 2, myl = (p0[1] + p1[1]) / 2;
+        e.style.left = '0px'; e.style.top = '0px';
+        var w = e.offsetWidth, hh = e.offsetHeight;
+        e.style.left = (p0[1] === p1[1] ? mxl - w / 2 : mxl + 6) + 'px'; e.style.top = (myl - hh / 2) + 'px';
+        labels.push(e);
+      }
+    });
+    reacts.forEach(function (r) {
+      var T = document.getElementById(r.dataset.on); if (!T) return;
+      var a = rect(r), t = rect(T), x = Math.max(a.l, t.l) + 18;
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'tether');
+      p.setAttribute('d', a.t >= t.b ? 'M' + x + ' ' + t.b + ' L' + x + ' ' + a.t : 'M' + a.l + ' ' + cy(a) + ' L' + t.r + ' ' + cy(t));
+      svg.appendChild(p);
+      said.push(titleOf(T) + ' 에 붙은 외부 반응');
+    });
+    svg.setAttribute('aria-label', '연결: ' + said.join('; '));
+    board.insertBefore(svg, board.firstChild);
+    if (needBottom > B.height) board.style.paddingBottom = (24 + needBottom - B.height) + 'px';
+    var hit = function (sg, c) { var l = Math.min(sg.a[0], sg.b[0]), r2 = Math.max(sg.a[0], sg.b[0]), t2 = Math.min(sg.a[1], sg.b[1]), b2 = Math.max(sg.a[1], sg.b[1]); return r2 > c.l + 3 && l < c.r - 3 && b2 > c.t + 3 && t2 < c.b - 3; };
+    segs.forEach(function (sg) { cards.forEach(function (c) { if (c.el !== sg.s && c.el !== sg.t && hit(sg, c)) warn(name, 'wire ' + sg.s.id + '→' + sg.t.id + ' crosses "' + titleOf(c.el).slice(0, 20) + '"'); }); });
+    var lr = labels.map(rect);
+    lr.forEach(function (L, i) {
+      cards.forEach(function (c) { if (L.r > c.l && L.l < c.r && L.b > c.t && L.t < c.b) warn(name, 'label "' + L.el.textContent.trim() + '" overlaps a card'); });
+      for (var j = i + 1; j < lr.length; j++) { var M = lr[j]; if (L.r > M.l && L.l < M.r && L.b > M.t && L.t < M.b) warn(name, 'two labels overlap'); }
+    });
+  }
+  function overflowCheck(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    $$(':scope > .card', board).forEach(function (c) { if (c.scrollWidth > c.clientWidth + 2) warn(name, 'text spills out of "' + titleOf(c).slice(0, 20) + '"'); });
+  }
+
+  /* ── plot ── */
+  function buildPlot(fig, fi) {
+    var table = fig.querySelector('table.plot-data'); if (!table) return;
+    var lg = document.createElement('div'); lg.className = 'plot-legend';
+    var cv = document.createElement('div'); cv.className = 'plot-canvas';
+    var mk = document.createElement('ol'); mk.className = 'plot-marks';
+    table.parentNode.insertBefore(lg, table); table.parentNode.insertBefore(cv, table); table.parentNode.insertBefore(mk, table);
+    var det = document.createElement('details'); det.className = 'vals'; det.innerHTML = '<summary>값 표 보기</summary>';
+    table.parentNode.insertBefore(det, table); det.appendChild(table);
+    fig._t = table; fig._cv = cv; fig._lg = lg; fig._mk = mk; fig._name = 'plot ' + (fi + 1) + ' "' + ((fig.querySelector('.fig-title') || {}).textContent || '').trim().slice(0, 24) + '"';
+  }
+  function colorFor(emph, s) { var i = emph.indexOf(s); return i === 0 ? 'var(--s1)' : i === 1 ? 'var(--s2)' : 'var(--dim)'; }
+  function drawBars(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg;
+    var ci = +table.dataset.cat || 0, ys = (table.dataset.y || '').split(/\s+/).filter(Boolean).map(Number);
+    var heads = Array.prototype.slice.call(table.tHead.rows[0].cells).map(function (c) { return c.textContent.trim(); });
+    var colors = ys.length === 1 ? ['var(--s1)'] : ys.map(function (_, i) { return i === ys.length - 1 ? 'var(--s1)' : i === ys.length - 2 ? 'var(--dim)' : 'var(--s2)'; });
+    lg.innerHTML = ys.length > 1 ? ys.map(function (y, i) { return '<span><i style="background:' + colors[i] + '"></i>' + heads[y] + '</span>'; }).join('') : '';
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var emph = list(table.dataset.emph);
+    var bad = rows.filter(function (tr) { return ys.some(function (y) { return !isFinite(num(tr.cells[y].textContent)); }); });
+    if (bad.length) warn(fig._name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (tr) { return bad.indexOf(tr) < 0; });
+    var max = +table.dataset.max || Math.max.apply(null, rows.map(function (tr) { return Math.max.apply(null, ys.map(function (y) { return num(tr.cells[y].textContent); })); }));
+    var html = '<div class="bars">';
+    rows.forEach(function (tr) {
+      var em = emph.indexOf(tr.cells[ci].textContent.trim()) >= 0;
+      html += '<div class="bar-row' + (em ? ' is-em' : '') + '"><span class="bar-name">' + tr.cells[ci].innerHTML + '</span><span class="bar-set">';
+      ys.forEach(function (y, i) {
+        var v = num(tr.cells[y].textContent);
+        // 값 열이 하나일 때 강조한 행만 색을 쓰고 나머지는 회색이다. 지는 행도 지우지 않는다
+        var col = ys.length === 1 && emph.length && !em ? 'var(--dim)' : colors[i];
+        html += '<span class="bar-line"><span class="bar-track"><span class="bar-fill" style="width:' + Math.max(0, Math.min(100, v / max * 100)) + '%;background:' + col + '"></span></span><span class="bar-val">' + tr.cells[y].textContent.trim() + '</span></span>';
+      });
+      html += '</span></div>';
+    });
+    cv.innerHTML = html + '</div>';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + rows.map(function (tr) { return tr.cells[ci].textContent.trim() + ': ' + ys.map(function (y) { return heads[y] + ' ' + tr.cells[y].textContent.trim(); }).join(', '); }).join('. '));
+  }
+  function drawLine(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg, mkl = fig._mk, name = fig._name;
+    var si = +table.dataset.series, xi = +table.dataset.x, yi = +table.dataset.y, xlog = table.hasAttribute('data-xlog');
+    var emph = list(table.dataset.emph);
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows).map(function (tr) {
+      return { tr: tr, s: tr.cells[si].textContent.trim(), x: num(tr.cells[xi].textContent), y: num(tr.cells[yi].textContent), label: tr.dataset.label, id: tr.id };
+    });
+    var bad = rows.filter(function (r) { return !isFinite(r.x) || !isFinite(r.y); });
+    if (bad.length) warn(name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (r) { return isFinite(r.x) && isFinite(r.y) && (!xlog || r.x > 0); });
+    if (rows.length < 2) { cv.innerHTML = ''; lg.innerHTML = ''; mkl.innerHTML = ''; warn(name, 'fewer than two rows to draw'); return; }
+    var series = rows.map(function (r) { return r.s; }).filter(function (s, i, a) { return a.indexOf(s) === i; });
+    var others = series.filter(function (s) { return emph.indexOf(s) < 0; });
+    lg.innerHTML = emph.map(function (s) { return '<span><i style="background:' + colorFor(emph, s) + '"></i>' + s + '</span>'; }).join('') +
+      (others.length ? '<span><i style="background:var(--dim)"></i>' + others.join(', ') + '</span>' : '');
+    var W = Math.max(cv.clientWidth, 260), small = W < 520, H = small ? 340 : 360;
+    var m = { l: 40, r: 12, t: 14, b: 30 };
+    var f = xlog ? Math.log10 : function (v) { return v; };
+    var xv = rows.map(function (r) { return r.x; }), yv = rows.map(function (r) { return r.y; });
+    var x0 = f(Math.min.apply(null, xv) / (xlog ? 1.15 : 1)), x1 = f(Math.max.apply(null, xv) * (xlog ? 1.12 : 1));
+    if (!xlog) { var pad = (x1 - x0) * 0.06 || 1; x0 -= pad; x1 += pad; }
+    var step = +table.dataset.ystep || 10;
+    var y0 = table.dataset.ymin != null ? +table.dataset.ymin : Math.floor((Math.min.apply(null, yv) - step / 5) / step) * step;
+    var y1 = table.dataset.ymax != null ? +table.dataset.ymax : Math.ceil((Math.max.apply(null, yv) + step / 5) / step) * step;
+    var X = function (v) { return m.l + (f(v) - x0) / (x1 - x0) * (W - m.l - m.r); };
+    var Y = function (v) { return m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b); };
+    var yUnit = /%/.test(rows[0] ? rows[0].tr.cells[yi].textContent : '') ? '%' : '';
+    cv.innerHTML = ''; mkl.innerHTML = '';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    cv.appendChild(svg);
+    var el = function (tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    var placed = [];
+    for (var v = y0; v <= y1 + 1e-9; v += step) {
+      el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) });
+      var tk = el('text', { class: 'tick', x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end' }, v + yUnit);
+      var bb = tk.getBBox(); placed.push({ x: bb.x, y: bb.y, width: bb.width + 4, height: bb.height });
+    }
+    var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
+    if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
+    cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
+    var segs = [], pts = [];
+    var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
+    drawOrder.forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; });
+      el('polyline', { class: 'ln', stroke: colorFor(emph, s), points: rs.map(function (r) { return X(r.x) + ',' + Y(r.y); }).join(' ') });
+      rs.forEach(function (r, i) { pts.push([X(r.x), Y(r.y)]); if (i) segs.push([[X(rs[i - 1].x), Y(rs[i - 1].y)], [X(r.x), Y(r.y)]]); });
+      rs.forEach(function (r) { el('circle', { class: 'dot', cx: X(r.x), cy: Y(r.y), r: emph.indexOf(s) >= 0 ? 5 : 4, fill: colorFor(emph, s) }); });
+    });
+    var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
+    var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
+    var score = function (b, withMarks) {
+      var n = 0;
+      if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
+      placed.forEach(function (q) { if (b.x < q.x + q.width && b.x + b.width > q.x && b.y < q.y + q.height && b.y + b.height > q.y) n += 3; });
+      pts.forEach(function (p) { if (p[0] > b.x - 5 && p[0] < b.x + b.width + 5 && p[1] > b.y - 5 && p[1] < b.y + b.height + 5) n += 2; });
+      if (!withMarks) segs.forEach(function (sg) { for (var k = 0; k <= 10; k++) { var sx = sg[0][0] + (sg[1][0] - sg[0][0]) * k / 10, sy = sg[0][1] + (sg[1][1] - sg[0][1]) * k / 10; if (sx > b.x && sx < b.x + b.width && sy > b.y && sy < b.y + b.height) { n += 1; break; } } });
+      return n;
+    };
+    var fit = function (t, x, y, offs, loose) {
+      var best = null;
+      for (var i = 0; i < offs.length; i++) {
+        var o = offs[i]; t.setAttribute('x', x + o[0]); t.setAttribute('y', y + o[1]); t.setAttribute('text-anchor', o[2]);
+        var b = t.getBBox(), box = { x: b.x - 2, y: b.y - 1, width: b.width + 4, height: b.height + 2 }, sc = score(box, loose);
+        if (!best || sc < best.sc) best = { sc: sc, o: o, box: box };
+        if (sc === 0) break;
+      }
+      t.setAttribute('x', x + best.o[0]); t.setAttribute('y', y + best.o[1]); t.setAttribute('text-anchor', best.o[2]);
+      return best;
+    };
+    var OFF = [[9, 4, 'start'], [0, -11, 'middle'], [-9, 4, 'end'], [0, 19, 'middle'], [7, -9, 'start'], [-7, -9, 'end'], [7, 17, 'start'], [-7, 17, 'end'],
+      [14, -14, 'start'], [-14, -14, 'end'], [14, 24, 'start'], [-14, 24, 'end'], [0, -22, 'middle'], [0, 30, 'middle']];
+    var MK = [[6, -6, 'start'], [-6, -6, 'end'], [6, 14, 'start'], [-6, 14, 'end'], [9, 4, 'start'], [-9, 4, 'end'], [0, -10, 'middle'], [0, 18, 'middle']];
+    var marks = 0;
+    // 글을 둘 자리가 없으면 점 옆에 번호만 두고 글은 그림 아래 목록으로 보낸다. 선택 글은 범례가 대신한다.
+    var place = function (x, y, text, cls, fill, offs, optional) {
+      var t = el('text', { class: cls, fill: fill || '' }, text), best = fit(t, x, y, offs, false);
+      if (best.sc === 0) { placed.push(best.box); return; }
+      t.remove(); if (optional) return;
+      var n = String(++marks), k = el('text', { class: 'mk' }, n), bm = fit(k, x, y, MK, true);
+      placed.push(bm.box);
+      if (bm.sc >= 3) warn(name, 'marker for "' + text + '" overlaps');
+      var li = document.createElement('li'); li.innerHTML = '<b>' + n + '</b> '; li.appendChild(document.createTextNode(text)); mkl.appendChild(li);
+    };
+    rows.filter(function (r) { return r.label; }).forEach(function (r) { place(X(r.x), Y(r.y), r.label, emph.indexOf(r.s) === 0 ? 'lbl strong' : 'lbl', '', OFF, false); });
+    if (ra && rb && table.dataset.refLabel) place((X(ra.x) + X(rb.x)) / 2, (Y(ra.y) + Y(rb.y)) / 2, table.dataset.refLabel, 'lbl', 'var(--muted)', [[0, 16, 'middle'], [0, -8, 'middle'], [0, 30, 'middle']], true);
+    series.filter(function (s) { return !rows.some(function (r) { return r.s === s && r.label; }); }).forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; }), r = rs[rs.length - 1]; place(X(r.x), Y(r.y), s, 'lbl', 'var(--muted)', OFF, true);
+    });
+    svg.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + series.map(function (s) {
+      return s + ': ' + rows.filter(function (r) { return r.s === s; }).map(function (r) { return r.tr.cells[xi].textContent.trim() + ', ' + r.tr.cells[yi].textContent.trim(); }).join('; ');
+    }).join('. '));
+  }
+  function drawPlot(fig) {
+    if (!fig._t) return;
+    if (fig._t.dataset.kind === 'bars') drawBars(fig); else drawLine(fig);
+  }
+
+  /* ── ladder: 막대 길이는 상자에 적힌 숫자에서 잰다. 같은 수를 두 번 쓰지 않는다 ── */
+  $$('.ladder[data-meter]').forEach(function (lad) {
+    var bigs = $$(':scope > .card .big', lad), vals = bigs.map(function (b) { return Math.abs(num(b.textContent.replace(/[+p]/g, ''))); });
+    var mx = Math.max.apply(null, vals);
+    bigs.forEach(function (b, i) { var m = document.createElement('span'); m.className = 'meter'; m.setAttribute('aria-hidden', 'true'); m.innerHTML = '<i style="width:' + (mx ? vals[i] / mx * 100 : 0) + '%"></i>'; b.parentNode.insertBefore(m, b.nextSibling); });
+  });
+
+  // 표지 목록은 두 칸에 위에서 아래로 채운다
+  $$('.toc ul').forEach(function (u) { u.style.gridTemplateRows = 'repeat(' + Math.ceil(u.children.length / 2) + ', auto)'; });
+  var boards = $$('.board'); boards.forEach(buildBoard);
+  var buildWarn = warnings.slice();
+  var plots = $$('figure.plot'); plots.forEach(buildPlot);
+  var layout = function () {
+    warnings.length = 0; buildWarn.forEach(function (w) { warnings.push(w); });
+    plots.forEach(drawPlot); boards.forEach(wire); boards.forEach(overflowCheck);
+  };
+  var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
+  layout();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); window.__layout.done = true; });
+})();
+</script>
+</body>
+</html>

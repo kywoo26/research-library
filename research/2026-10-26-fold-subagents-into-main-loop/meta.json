@@ -1,0 +1,9 @@
+{
+  "title": "subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것",
+  "date": "2026-10-26",
+  "seq": 42,
+  "summary": "Anthropic 은 router, planner, 팀별 subagent 를 main agent loop 하나에 합치라고 권한다. agent 를 나누던 이유를 skill 과 tool search 가 맡고, subagent 는 context 로 나뉘는 일에만 남으며, 합칠 때마다 eval 로 잰다",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer"
+}

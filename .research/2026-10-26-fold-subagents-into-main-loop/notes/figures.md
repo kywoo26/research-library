@@ -1,0 +1,11 @@
+# 원문(w1)의 그림
+
+그림 셋 모두 alt 만 있고 aria-label 이나 SVG 글자는 없다. 아래 글자는 받은 이미지 파일을 열어 읽은 것이다. GIF 둘은 첫 화면을 읽었다.
+
+- w1 그림 1 (alt "subagent design", https://assets.claude.com/a7cb2cf08bfcef461166310c0c55f28b72c33b0d.gif, 2024x884 GIF): 왼쪽 "COMMON PATTERN 5 layers of structure around the model" 은 REQUEST → Multi-agent orchestrator → Intent classifier → FIXED MULTI-STEP REASONING PIPELINE 1-5 → User-segment bucket 셋 → Recommendation branch 셋 → ANSWER. 오른쪽 "WHAT WE OFTEN RECOMMEND 1 loop one prompt, 4–5 tools, guardrails" 는 REQUEST → Single agent loop(One clear system prompt, Model, TOOL CALLS / RESULTS 로 오가는 4–5 thin data tools, Firm output guardrails) → ANSWER. 머리말 §We also often see proposed agent designs 문단 바로 뒤에 있다.
+- w1 그림 2 (alt "subagents split by problem", https://assets.claude.com/cd4b9c4417d5ba31776e8aa79e204966c08c6a43.png, 2024x980 PNG): "SPLIT BY PROBLEM TYPE" Agent 1 Writes the feature → HANDOFF → Agent 2 Writes the tests → HANDOFF → Agent 3 Reviews the code. 캡션 "Each handoff loses context. The test-writing agent doesn’t know why implementation decisions were made." 아래 "SPLIT BY CONTEXT" One agent Writes the feature and its tests, because it already has the context → Verifier Runs the tests. 캡션 "A verifier that only runs tests and reports results doesn’t need implementation context." §Using an agent loop with progressive disclosure 끝에 있다.
+- w1 그림 3 (alt "folding in subagents", https://assets.claude.com/ed6bd97496ffdab88763806d9e14f1ec61ed9255.gif, 2024x892 GIF): 세 칸. "Merge subagents" Main agent 아래 A B C D, 캡션 "Combine subagents that share context, so there are fewer." "Call them as tools" Main agent 아래 TOOL CALLS 로 Subagent returns a result 둘, 캡션 "The main agent calls each one as a tool and keeps the conversation." "Fold into skills and tools" Main agent 아래 Subagent 둘, 캡션 "Their prompts become skills and their API calls become tools." §Reducing subagents over time 에 있다.
+
+# 이전 글의 그림 (글자만)
+
+- w7 그림 "Then and now" (alt): Six old rules struck through, each pointing to its replacement: give Claude rules → give Claude judgement; give Claude examples → design interfaces; put it all upfront → use progressive disclosure; repeat yourself → simple tool descriptions; memory in CLAUDE.md files → auto-memory; simple specs → rich references.
