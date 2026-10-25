@@ -1131,3 +1131,27 @@ independent design pass:
 
 `isolation: worktree` branches from origin/main, not a stale local `main` (tested), and
 project agents' hooks need the folder's workspace trust.
+
+## Why `research-source` no longer prescribes retrieval routes (2026-10-26)
+
+The skill listed `WebFetch`, `gh` and `git clone` as primary routes and the `insane-search`
+plugin as the fallback for 403 / 402 / bot-wall / paywall. The owner removed the route block
+and uninstalled the plugin, keeping only requirements on the outcome.
+
+On 2026-10-25 a fresh `claude -p --safe-mode` session (no plugins, skills, hooks or CLAUDE.md,
+no hint about techniques, tools limited to WebFetch, WebSearch, Read, Write and curl) was given
+the 25 X, Reddit and Threads post URLs past documents used, plus the OpenAI page that once
+needed `insane-search`. It retrieved all 26 in 11 minutes and found the routes itself:
+`api.fxtwitter.com` for X, Reddit `.rss` with a retry on 429, the third-party proxy
+`fixthreads.seria.moe` for Threads, `r.jina.ai` for the 403 page. Where the retrieved scope
+matched, the text matched the quotes in `evidence.jsonl`. Threads long posts and replies came
+back incomplete, and the `insane-search` engine came back just as incomplete on the two of
+those posts it was tried on; past documents got those through headless-browser rendering. About 15 of 62 tool calls were trial and error.
+
+Two findings became the outcome requirements that stayed. `WebFetch` returned reworded Threads
+text; the session discarded it only because it had been told to save retrieved text, and a
+paraphrased fixed copy would pass `check-claims.mjs` since quotes are taken from it. So
+`notes/web/<id>.txt` must be the served text. And the working routes include third-party
+relays, whose text can differ from the original, so the `sources.jsonl` entry records what the
+text came through. The failure paragraph stayed as section 4, retitled, so the later section
+numbers, which `research-doc/references/paper.md` cites, did not move.
