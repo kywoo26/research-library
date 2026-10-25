@@ -1,0 +1,205 @@
+{
+ "slug": "2026-10-25-claude-code-effort-levels",
+ "date": "2026-10-25",
+ "question": "Claude Code 의 effort 단계는 실제로 무엇을 바꾸는가, 언제 어느 단계를 고르는가, 개발자가 자기 작업으로 단계를 어떻게 재는가. 원문에 없는 자기 작업에서 단계를 올리면 나아질지 예측할 수 있게 한다",
+ "flipCondition": "Opus 5.5 에서도 높은 단계가 놓친 경우보다 잘못된 판단을 더 많이 줄인다는 측정이 나오면, 3장과 9장의 실패 가르기 기준이 뒤집힌다",
+ "purpose": "explainer",
+ "decided": [
+  {
+   "what": "문서 종류",
+   "choice": "explainer",
+   "why": "요청이 '무엇을 바꾸고, 언제 어느 단계를 고르는지 정리' 와 '재는 방법' 이다. 도입 판단(comparison)도, 코드 경로(walkthrough)도 아니다. 독자가 원문에 없는 자기 작업에서 단계의 효과를 예측하는 것이 과업이다"
+  },
+  {
+   "what": "소스 종류와 고정",
+   "choice": "web 셋. w1 claude.dev 블로그 'Spending your effort'(요청 URL), w2 platform.claude.com 'Prompting Claude Opus 5.5' 의 .md 원문(§Calibrate effort), w3 claude.com 'Choosing a Claude model and effort level in Claude Code'(blog URL 은 resources/articles 로 redirect)",
+   "why": "소유자가 세 자료를 고정해서 쓰라고 했다. 셋 모두 text_sha256 과 Wayback archive_url 을 붙였다"
+  },
+  {
+   "what": "w2 의 범위",
+   "choice": "사본은 문서 전체, 읽고 인용한 범위는 머리말, Capabilities relevant to prompting, Calibrate effort",
+   "why": "소유자가 지정한 절이 Calibrate effort 다. 앞 절은 medium 기본값의 근거 문장이 있어 함께 읽었다"
+  },
+  {
+   "what": "그림 값",
+   "choice": "aria-label 과 SVG 글자에 있는 값만 쓴다. 그림 A 는 다섯 값만, 그림 B·C 는 Fable 5.1 만",
+   "why": "좌표에서 값을 추정하지 않는다는 visual.md 규칙. 다른 모델 탭은 스크립트로 바뀌어 정적 HTML 에 없다"
+  },
+  {
+   "what": "단계 고르기 예시",
+   "choice": "w1 과 w3 의 예시만 쓴다(브레인스토밍, 새 기능 구현, brownfield 버그 수정, 보안 취약점 찾기 등)",
+   "why": "소유자가 원문에 없는 일상 작업 예시를 지어 넣지 말라고 했다"
+  },
+  {
+   "what": "재는 절차",
+   "choice": "w2 §Calibrate effort 와 w3 의 진단 질문을 한 절차(9장)로 엮고, 엮은 순서와 원문에 없는 귀결을 장 안에 표시했다",
+   "why": "요청이 재는 방법을 따로 원한다. 세 글 어디에도 한 절차로 나오지 않는다"
+  },
+  {
+   "what": "PR 과 ship.mjs",
+   "choice": "돌리지 않았다",
+   "why": "소유자가 이번 실행에서 ship.mjs, push, PR 을 하지 말라고 직접 지시했다. 실행 지침(system prompt)의 ship.mjs 지시와 충돌하며, AGENTS.md 에 따라 소유자의 직접 지시를 따랐다"
+  }
+ ],
+ "needs_owner": [
+  {
+   "item": "11장(읽은 범위)을 접거나 10장(한계)과 합칠지",
+   "options": [
+    "그대로 둔다",
+    "10장에 합친다"
+   ],
+   "pick": "그대로 둔다",
+   "why": "렌즈 A 가 독자에게 필요 없다고 보았다. 장을 빼는 일이라 소유자 몫이다. setup 장은 skill 이 요구하는 장이다"
+  },
+  {
+   "item": "링크된 effort 문서(Recommended effort levels for Claude Opus 5.5, per-message effort change)를 코퍼스에 더할지",
+   "options": [
+    "세 소스로 둔다",
+    "effort 문서를 w4 로 고정해 7장과 9장의 API 설명을 보강한다"
+   ],
+   "pick": "세 소스로 둔다",
+   "why": "소유자가 고정할 자료를 지정했다. 코퍼스를 다시 여는 일은 소유자 몫이다"
+  },
+  {
+   "item": "Claude Code /effort 가 xhigh 를 받는지",
+   "options": [
+    "한계 장의 지시로 둔다",
+    "Claude Code 문서를 열어 확인한다"
+   ],
+   "pick": "한계 장의 지시로 둔다",
+   "why": "세 소스에 단계 목록이 없다. 확인하려면 네 번째 소스가 필요하다"
+  }
+ ],
+ "corpus": {
+  "sources": 3,
+  "retrievedAt": "2026-10-25T11:38:43Z",
+  "w1": "HTML 268 KB. 본문에 그림 A·B·C 의 aria-label 과 SVG 글자를 덧붙인 사본",
+  "w2": "같은 URL 에 .md 를 붙여 받은 markdown 원문 그대로",
+  "w3": "HTML 에서 script, style, svg 를 뺀 본문"
+ },
+ "evidenceCount": 78,
+ "claimsCount": 58,
+ "claimKinds": {
+  "web": 50,
+  "derived": 4,
+  "absence": 4
+ },
+ "checkClaims": {
+  "result": "OK 주장 58, 근거 86, 출처 3, --allow 없음",
+  "negativeTest": "c9 인용의 222k 를 223k 로 바꾼 사본을 --evidence 로 돌려 quote-match 로 막힘 확인"
+ },
+ "checkDoc": "OK, --allow 없음",
+ "checkProse": "OK, --allow 없음",
+ "lensModel": "sonnet",
+ "rounds": [
+  {
+   "round": 1,
+   "lensB": "수치 약 115개, 인용 약 20개 대조. 틀림 0건. 확인 못 함 2건(Rulebook 주석의 위치, 1 ÷ 5 계산 표시 누락), 원문과 어긋난 표현 2건(6장 lead 의 Opus 5.5 일반화, 4장 aria-label 일반화)",
+   "lensA": "과업 일부 가능. 고쳐야 3건(표지 흐름 4번 칸, 3장 h2 와 표지의 해석 실패 방향, 5장 h2 의 원인 단정), 과업을 막는 것 3건(해석 실패 기준, 재는 절차의 반복 횟수·비용·내리는 방향), 논증 구멍 4건",
+   "fixed": "위 항목 중 수치·방향·귀속·절차 보강을 고쳤다. 표지, 3, 4, 5, 6, 8, 9장"
+  },
+  {
+   "round": 2,
+   "recheck": "새 결함 1건: 9장 노트가 원문 'low comes close to it' 의 비교 대상을 medium 으로 못박았다. 카드 ⑤ 의 원문에 없는 귀결 표시",
+   "fixed": "9장 노트와 카드 ⑤ 근거 줄"
+  },
+  {
+   "round": "final",
+   "recheck": "9장 새 결함 없음"
+  }
+ ],
+ "rejected": [
+  "4장 판을 표로 바꾸기(형식 선호)",
+  "9장 API 캐시 노트와 7장 128,000 max_tokens 노트 접기(API 사용자에게 필요한 조건)",
+  "장 끝 p.so 의 반복 줄이기(문체)",
+  "'분야 규칙을 틀림' 이 덜 줄어드는 이유 설명(원문에 이유가 없다)"
+ ],
+ "rendered": "예. render.mjs 로 1280px 과 390px 를 찍었고, 고친 뒤 표지, 3, 6, 8, 9장 화면을 직접 보았다. 레이아웃 경고 0건",
+ "unverified": [
+  "부재 주장 4건(c15, c42, c52, c57): 모두 재실행 가능한 검색 명령이 있다",
+  "행동 주장: Claude Code 에서 단계를 바꿔도 prompt cache 가 유지된다는 w1 의 주장(c50)과 API 캐시 규칙(c51)은 런타임으로 확인하지 않았다",
+  "그림 C 의 'Rulebook-style work stays low' 주석이 어느 막대 옆인지는 SVG 좌표로만 알 수 있어 확인하지 않았다",
+  "그림 B·C 의 Opus 5, Fable 5 탭 값과 그림 A 의 나머지 점은 정적 HTML 에 없어 읽지 않았다"
+ ],
+ "unfixed": [],
+ "commitSubject": "Claude Code effort 단계 설명 문서 추가",
+ "commitBody": "Claude Code 의 effort 단계가 바꾸는 일의 양, 단계를 고르는 조건, 자기 작업으로 단계를 재는 절차를 설명하는 explainer 문서를 추가한다.\n\n근거 자료 (2026-10-25 고정):\n- w1 Thariq Shihipar, \"Using Claude Code: Spending your effort\" (claude.dev, 2026-09-25)\n- w2 Anthropic, \"Prompting Claude Opus 5.5\" §Calibrate effort (platform.claude.com)\n- w3 Lydia Hallie, \"Choosing a Claude model and effort level in Claude Code\" (claude.com, 2026-07-07)",
+ "gates": {
+  "at": "2026-10-25T11:51:38.932Z",
+  "session": "e8e70974-eed5-4fa8-b776-656b68ca05fb",
+  "results": {
+   "check-doc": {
+    "pass": true
+   },
+   "check-prose": {
+    "pass": true
+   },
+   "check-claims": {
+    "pass": true
+   }
+  }
+ },
+ "usage": {
+  "at": "2026-10-25T11:51:38.931Z",
+  "total": {
+   "claude-opus-5-5": {
+    "input_tokens": 136,
+    "cache_creation_input_tokens": 223738,
+    "cache_read_input_tokens": 7831927,
+    "output_tokens": 84800
+   },
+   "claude-sonnet-5-5": {
+    "input_tokens": 36,
+    "cache_creation_input_tokens": 158514,
+    "cache_read_input_tokens": 341532,
+    "output_tokens": 26775
+   }
+  },
+  "byAgent": {
+   "researcher": {
+    "claude-opus-5-5": {
+     "input_tokens": 136,
+     "cache_creation_input_tokens": 223738,
+     "cache_read_input_tokens": 7831927,
+     "output_tokens": 84800
+    }
+   },
+   "lens-reader": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 4,
+     "cache_creation_input_tokens": 21781,
+     "cache_read_input_tokens": 8482,
+     "output_tokens": 8421
+    }
+   },
+   "recheck": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 20,
+     "cache_creation_input_tokens": 52293,
+     "cache_read_input_tokens": 163850,
+     "output_tokens": 8320
+    }
+   },
+   "lens-numbers": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 12,
+     "cache_creation_input_tokens": 84440,
+     "cache_read_input_tokens": 169200,
+     "output_tokens": 10034
+    }
+   }
+  }
+ },
+ "shippedAt": "2026-10-25T12:06:15.563Z",
+ "ship": {
+  "branch": "doc/2026-10-25-claude-code-effort-levels",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "5baf16a7d113af8aef8d9008a4a910909ceb8a539a08480217497d193a17461b",
+  "unreviewed": false
+ }
+}

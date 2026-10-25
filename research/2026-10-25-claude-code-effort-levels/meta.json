@@ -1,0 +1,9 @@
+{
+  "title": "Claude Code effort 단계가 바꾸는 것과 단계를 고르는 법",
+  "date": "2026-10-25",
+  "seq": 37,
+  "summary": "effort 를 올리면 Claude 는 더 읽고 더 검증한다. 놓친 edge case 는 줄지만 잘못 고른 해석은 남으므로, 단계는 기본값 medium 에서 시작해 자기 작업의 실패 종류로 잰다",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer"
+}

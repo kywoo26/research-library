@@ -1,0 +1,7 @@
+# figures
+
+- w1 FIG A — Terminal-Bench 3.0 통과율 대 시도당 median 토큰(log), 모델 넷, effort 단계마다 점 하나. https://claude.dev/blog/spending-your-effort/ §Effort curves. 읽히는 점: Opus 5.5 at low 36.6%, Opus 5.5 at max 65.7%, Opus 5.5 at high 58.9%, Fable 5.1 at max 58.0% (Opus 5.5 at high 가 절반 토큰), Fable 5 xhigh~max 43.4%. 나머지 점 값은 aria-label 에 없다.
+- w1 FIG B — Terminal-Bench 3.0 시도별 결과, Fable 5.1 low 대 max, 370 attempts. low median 73k tokens, max median 222k tokens. passed 140 → 214; missed a case 59 → 24 (works on my machine 2 → 1, overfit to the examples 7 → 3, close, but not exact 10 → 6, a bug its tests missed 40 → 14); other failures 38 → 25; made the wrong call 133 → 107 (misread a requirement 45 → 26, wrong or incomplete fix 31 → 10, got the domain rule wrong 32 → 24, picked the wrong reading 25 → 47). 실패 분류는 model judge, 근사치.
+- w1 FIG C — 분야별 통과율, Fable 5.1 low→top: Security 7 tasks 64% → 87%, Hardware 5 tasks 34% → 75%, ML 13 tasks 54% → 73%, Science 15 tasks 41% → 61%, Software 20 tasks 43% → 56%, Media 4 tasks 18% → 30%, Operations 10 tasks 12% → 22%. low 는 가장 낮은 두 단계, top 은 가장 높은 세 단계를 합친 값. 주석 "Rulebook-style work stays low".
+- w1 빌드 그림 셋 — 이미지. 탭 글자: 한 줄 프롬프트 low 1.5 min, medium 4 min, high 11 min, max 67 min; 명세 빌드 low 16 min, medium 22 min, high 33 min, max 79 min; /config 재설계 low 1 min, max 28 min (본문).
+- w3 그림 — alt 없는 이미지. 캡션만: "The high effort path generates roughly 7x more tokens"; 토큰 곡선 그림 둘은 "for illustration purposes only … do not represent real benchmark data".
