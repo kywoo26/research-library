@@ -153,3 +153,6 @@
 {"id":"e152","source":"w1","locator":"§(메타데이터 칸)","quote":"AuthorDiane Sarkis - 날짜2026년 10월 22일 - 읽기 소요 시간18분","why":"byline 과 게시일"}
 {"id":"e153","source":"r1","locator":"README.md:111","quote":"- **You have no subagents yet.** Start with one loop. Read `reference_loop/loop.py` and\n  add tools and skills as testing shows you need them.","why":"subagent 가 아직 없으면 한 loop 로 시작하라는 kit 의 문장"}
 {"id":"e154","source":"w1","locator":"§How to fold subagents into the main agent loop","quote":"Many teams already have an orchestrator and a set of specialist agents in production. The following is the single loop design we'd suggest working toward:","why":"단일 loop 는 이미 multi-agent 가 있는 팀이 향할 목표"}
+{"id":"e155","source":"r1","locator":"skill/steps/00-audit.md:125","quote":"- **Worklist**: checkboxes, in this order: merges, then folds, then as-tool changes.","why":"kit 의 작업 순서: merge, fold, as-tool"}
+{"id":"e156","source":"r1","locator":"skill/steps/04-as-tool.md:3","quote":"Use this for a row whose verdict is `as-tool`, and for any subagent that lost its fold\ncomparison.","why":"fold 비교에서 진 subagent 를 as-tool 로"}
+{"id":"e157","source":"w1","locator":"§Subagents called as tools","quote":"This is a good first step, as you don’t need to rewrite the subagents.","why":"2026-10 글은 as-tool 을 fold 앞의 첫 단계로 둔다"}
