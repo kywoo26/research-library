@@ -1,0 +1,140 @@
+{
+ "slug": "2026-10-26-fold-subagents-into-main-loop",
+ "date": "2026-10-26",
+ "question": "Anthropic 의 'When to fold subagents into your main agent loop' 는 하네스 구축에서 통용되던 개념과 방법론(팀·문제 유형별 agent 분업, routing, 고정 pipeline, orchestrator-workers, prompt 의 규칙, multi-agent 출발점)을 어떻게 반박하거나 바꾸고, 어떤 방향을 알리는가. 원문 자신의 설계와 이행 절차도 놓치지 않는다. 독자가 원문에 없는 자기 subagent 를 놓고 fold, merge, as-tool, keep 가운데 무엇이 될지 예측할 수 있게 한다",
+ "flipCondition": "skill 과 tool search 를 쓴 단일 loop 가 같은 기업 과제에서 subagent 구성보다 품질이 낮다는 측정이 나오거나, 합친 뒤 context 가 쌓여 잴 만한 성능 저하가 흔히 나타나면, 4장과 12장의 '나누던 이유가 skill 과 tool search 로 간다' 와 '입증 책임이 subagent 로 넘어간다' 가 뒤집힌다",
+ "purpose": "explainer",
+ "decided": [
+  {
+   "what": "문서 종류",
+   "choice": "explainer",
+   "why": "요청이 '보고서', '어떻게 반박되고 달라지고 어떤 새 방법론을 알리는가' 다. 도입 판단(comparison)도 코드 경로(walkthrough)도 아니다. 독자가 원문에 없는 자기 subagent 에서 판정을 예측하는 것이 과업이다"
+  },
+  {
+   "what": "소스 고정",
+   "choice": "w1 은 소유자가 준 한국어판 URL. 본문이 영어라 같은 날 영어판과 본문을 대조해 같음을 확인했다. archive_url 은 영어판 사본",
+   "why": "한국어판 URL 의 Wayback 사본이 없었고, 두 판의 본문 차이는 메타데이터 칸의 표기뿐이었다"
+  },
+  {
+   "what": "'기존에 알려진 하네스 개념' 을 무엇으로 세울지",
+   "choice": "원문이 직접 링크하거나 같은 주제로 Anthropic 이 앞서 낸 글 일곱 편(w2-w5, w7-w9)과 Anthropic 밖의 Cognition 글 한 편(w6)을 고정해 대비를 세웠다. LangGraph, CrewAI 같은 framework 문서는 열지 않고 14장에 적었다",
+   "why": "요청의 각도가 기존 통념과의 대비다. 통념을 기억으로 쓰지 않으려면 고정한 글이 있어야 한다. 원문이 반박하는 대상이 주로 Anthropic 자신의 이전 권고(전문화, orchestrator-subagent 출발점)라서 그 글들이 가장 직접적이다. Cognition 글은 같은 주장이 바깥에서 먼저 나왔는지 보려고 넣었고, 그 글이 OpenAI swarm 과 Microsoft autogen 을 비판한 문장으로 framework 쪽 통념을 한 줄 받쳤다"
+  },
+  {
+   "what": "migration kit 저장소를 소스로 넣을지",
+   "choice": "r1 으로 고정하고 README, audit 단계, reference loop docstring, example-run 두 개의 기록을 읽었다. 코드는 실행하지 않았다",
+   "why": "원문이 두 번 링크하는 짝 자료다. audit 의 판정 기준(10장)과 원문 사례의 실제 기록(9장)이 여기에만 있다"
+  },
+  {
+   "what": "9장 숫자",
+   "choice": "kit 의 results.jsonl 을 직접 합산했다(derived 6건)",
+   "why": "kit write-up 이 측정 결과를 지웠다고 밝히고 기록만 남겼다. 원문의 사례 문장('두 번 중 한 번')을 기록으로 확인하고, 렌즈 A 가 지적한 지연 감소의 교란(깨진 t01)을 t01 을 뺀 평균과 returns task 평균으로 갈랐다"
+  },
+  {
+   "what": "그림",
+   "choice": "원문 그림 1(다섯 층 대 한 loop)과 그림 2(문제 유형 대 context 로 나누기)를 webp 로 줄여 넣었다. 그림 3 은 8장 절차 판으로 대신했다",
+   "why": "그림 1 이 원문의 중심 그림이다. 원본 GIF 839KB 는 문서 상한에 부담이라 첫 화면을 1200px webp(31KB)로 옮겼다"
+  },
+  {
+   "what": "10장의 예",
+   "choice": "원문에 없는 subagent 다섯을 지어 kit 의 기준에 넣어 보고, 지은 것임을 노트에 밝혔다. 주문·배송 짝만 kit 기록에서 옮겼다",
+   "why": "explainer 의 과업이 원문에 없는 경우의 예측이다. 렌즈 A 가 6장의 병렬 조건에 해당하는 예가 없다고 해 병렬 조사 예를 더했다"
+  },
+  {
+   "what": "Hacker News 반응",
+   "choice": "싣지 않았다",
+   "why": "Algolia 검색에서 원문 스레드(50224068, 2026-10-24)는 댓글 0, 점수 2 였다. 반응으로 쓸 글이 없다"
+  },
+  {
+   "what": "렌즈 B 의 '한 사람' 근거 없음",
+   "choice": "기각",
+   "why": "kit README 139행이 'by one person on one model' 이라고 적는다. recheck 도 기각이 맞다고 확인했다"
+  },
+  {
+   "what": "렌즈 A 의 노트 접기 제안",
+   "choice": "8장의 kit 멈춤 지점 노트, 10장의 확신도 노트, 3장의 과정 노트 둘(14장으로 옮김)만 정리하고 나머지는 남겼다",
+   "why": "남긴 노트(timestamp replay, /skill-doctor, prompt-audit, end-state)는 원문 자신의 권고다. 요청이 원문이 말하려는 바를 놓치지 말라고 했다"
+  }
+ ],
+ "needs_owner": [],
+ "corpus": {
+  "sources": 10,
+  "retrievedAt": "2026-10-25T15:00:58Z (w1), 2026-10-25T15:02:56Z-15:02:59Z (w2-w9), r1 commit c43796287b83bec847db923f07131d1cc8de750d",
+  "webCopies": "HTML 의 h1 부터 본문 끝까지에서 script, style, svg 와 태그를 뺀 글자. 그림은 alt 만 남김",
+  "figures": "notes/figures.md 에 원문 그림 셋의 글자를 이미지에서 읽어 적었다"
+ },
+ "evidenceCount": 154,
+ "claimsCount": 108,
+ "claimKinds": {
+  "web": 66,
+  "numeric": 17,
+  "doc": 14,
+  "derived": 6,
+  "absence": 4,
+  "code": 1
+ },
+ "checkClaims": "OK 주장 108, 근거 154, 출처 10, --allow 없음",
+ "checkDoc": "OK, --allow 없음",
+ "checkProse": "OK, --allow 없음",
+ "lensModel": "sonnet",
+ "rounds": [
+  {
+   "round": 1,
+   "lensB": "수치 약 62개 대조. 틀림 3건('두 번 넘게' 와 '세 번 넘게' 가 원문의 more than once, three or more 와 한 칸씩 어긋남, 4장 tool 수 20+ 를 '넘으면' 으로 쓰고 15-20+ 를 뺌). 확인 못 함 1건('한 사람', 기각). 9장 표는 재계산으로 모두 일치",
+   "lensA": "과업 일부 가능. 표지가 '기준선 이동' 을 말하지 않음, 12장 h2 와 판의 어긋남, 4·5장 h2 의 귀속 누락, 6장 조건과 10장 판정의 대응 없음, 9장 v1 구조와 지연 교란, 합친 뒤 context 비용의 한계 없음, framework 대비의 범위 선언 없음",
+   "fixed": "표지 답과 흐름 카드, 목차. 3장 Cognition 행. 4·5·6장 h2 귀속. 4장 tool 수. 8·9장 횟수. 9장 lead, 파생 행 둘, 지연 노트, 일반화 표시. 10장 lead, as-tool 기준, 셋째 줄 예 둘. 12장 h2 와 판. 13장 context 비용 한계. 14장 노트(옮긴 과정 노트, framework 범위)"
+  },
+  {
+   "round": 2,
+   "recheck": "새 결함 3건: 표지와 12장이 단일 loop 를 '기본값·출발점' 으로 쓴 것이 원문(이미 multi-agent 가 있는 팀이 향할 목표)보다 넓음, 3장 끝 문장이 '기준이 움직였다' 를 원문의 보고로 단정, 5장 끝 문장에서 often 이 빠짐. 9장 파생 행 둘은 재계산으로 일치",
+   "fixed": "표지 답을 '합친 쪽이 더 나쁠 때만 남긴다' 와 입증 책임의 해석으로, 12장 h2·핵심 카드·노트(kit README 의 'Start with one loop'), 3장 끝 문장을 Opus 4.5 주장으로, 5장 '자주', 14장 장 번호"
+  },
+  {
+   "round": "final",
+   "recheck": "새 결함 3건. 고치지 않고 unfixed 에 적었다"
+  }
+ ],
+ "rejected": [
+  "렌즈 B: 13장 '한 사람' 의 근거 없음(kit README 139행에 있다)",
+  "렌즈 A: timestamp replay, /skill-doctor, prompt-audit, end-state 노트 접기(원문 자신의 권고다)",
+  "렌즈 A: 9장 baseline·v1 trace 접기(깨진 경로를 보여 주는 hop 이다)"
+ ],
+ "rendered": "예. 마지막 수정 뒤 render.mjs 로 1280px 과 390px 를 다시 찍었고 배치 경고는 없었다. 1, 3, 5, 7, 9, 10장 화면을 직접 보았다",
+ "unverified": [
+  "부재 주장 4건(c39, c100, c101, c105): 모두 재실행 가능한 grep 명령이 있다",
+  "행동 주장: kit 의 코드(reference_loop, compare.py)와 support desk 앱은 실행하지 않았다. 9장은 kit 이 남긴 결과 파일만 합산했다",
+  "원문의 기업 배포 비교, 고객 한 곳의 약 2배, Claude Code prompt 80% 감축은 Anthropic 이 밝힌 것이고 재현하지 않았다",
+  "w2(2026-01 글)는 Wayback 사본을 얻지 못했고, 예전 주소의 2026-10-03 사본은 429 로 받지 못해 원문 링크가 언제 들어갔는지 대조하지 못했다",
+  "w4(2024-12 글)는 게시 뒤 고친 판만 읽었다",
+  "원문 그림 1·3 은 GIF 이고 첫 화면만 읽었다",
+  "LangGraph, CrewAI 등 multi-agent framework 문서는 열지 않았다(14장)"
+ ],
+ "unfixed": [
+  {
+   "item": "1장 표지 답: 'agent 를 나누던 이유가 사라졌다고 보고' 는 원문 'This removes the main reason teams previously split work across subagents' 보다 넓다. 원문은 주된 이유(context bloat) 하나를 말하고, 6장의 세 조건은 남는다. 고칠 말: 'agent 를 나누던 주된 이유를 progressive disclosure 가 덜어 준다고 보고'",
+   "meaning": true
+  },
+  {
+   "item": "1장 표지 답, 1장 목차의 3장 줄, 12장 핵심 카드: 2026-04 글의 'For most use cases' 가 빠졌다. 3장 표에는 '대부분의 경우' 가 있다. 고칠 말: 'multi-agent 를 고르면 대부분의 경우 orchestrator-subagent 부터 하라고 했다'",
+   "meaning": true
+  },
+  {
+   "item": "12장 끝 문단 '모델이 바뀔 때마다 이 판단을 다시 하라는 뜻이다' 는 원문에 없는 해석이 원문의 뜻처럼 쓰였다. 원문은 모델이 바뀌면 이해와 지침도 바뀐다고만 적는다. 고칠 말: 그 구절을 빼거나 '이 문서는 이를 모델이 바뀔 때마다 다시 재라는 뜻으로 읽는다' 로",
+   "meaning": true
+  }
+ ],
+ "commitSubject": "subagent 를 main agent loop 로 fold 하라는 Anthropic 글을 기존 하네스 설계와 맞대어 설명하는 문서를 더하다",
+ "commitBody": "Anthropic 의 'Building agents: When to fold subagents into your main agent loop'(2026-10-22) 를 설명하는 explainer 문서다. 원문이 router, planner, 팀별 subagent 를 main agent 하나의 loop 로 합치라고 하는 근거를, 같은 주제의 Anthropic 이전 글과 Cognition 글에 맞대어 정리했다. agent 를 나누던 전문화 이유가 skill 과 tool search 로, 하네스의 판단이 모델로 옮겨 가는 과정, 남는 subagent 의 조건, 단일 loop 설계, eval 을 먼저 두는 이행 절차, kit 의 판정 기준을 다룬다. 원문 사례는 migration kit 의 실행 기록을 합산해 확인했다(returns fold 뒤 평균 지연 27.31 → 19.36초, t01 이 2회 중 1회 깨짐). 마지막 재검토가 찾은 의미 결함 3건은 run.json unfixed 에 남겼다.\n\n근거 자료 (2026-10-25 고정):\n- w1 Diane Sarkis, \"Building agents: When to fold subagents into your main agent loop\" (claude.com, 2026-10-22, 한국어판 URL)\n- w2 Cara Phillips 외, \"Building multi-agent systems: When and how to use them\" (claude.com, 2026-01-23)\n- w3 Cara Phillips 외, \"Multi-agent coordination patterns\" (claude.com, 2026-04-10)\n- w4 Erik S., Barry Zhang, \"Building effective agents\" (anthropic.com, 2024-12-19, 고친 판)\n- w5 Jeremy Hadfield 외, \"How we built our multi-agent research system\" (anthropic.com, 2025-06-13)\n- w6 Walden Yan, \"Don't Build Multi-Agents\" (cognition.ai, 2025-06-12)\n- w7 Thariq Shihipar, \"The new rules of context engineering for Claude 5 generation models\" (claude.dev, 2026-07-24)\n- w8 Ali Shazal, Matthew Koen, \"A guide to the anatomy of effective commerce agents\" (claude.com, 2026-09-02)\n- w9 \"Building agents with Skills: Equipping agents for specialized work\" (claude.com, 2026-01-22)\n- r1 anthropics/single-agent-loop-kit @ c43796287b83bec847db923f07131d1cc8de750d\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+ "shippedAt": "2026-10-25T15:37:59.870Z",
+ "ship": {
+  "branch": "doc/2026-10-26-fold-subagents-into-main-loop",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "405bd9530cd32f7b5c37f0dd4766c1ab587d897f19b0b4fbc05c1b387c2342b4",
+  "unreviewed": false
+ }
+}
