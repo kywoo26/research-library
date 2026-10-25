@@ -41,6 +41,8 @@ The scaffold writes the kind as `purpose` in `meta.json` and lays out the chapte
 kind needs. The verify lenses read `purpose` to know what the document was meant to do.
 
 Then write the question the document settles and the condition that would flip its answer.
+What the request names to compare against sets the corpus: "세간에 알려진 방법론" means where
+practitioners learn it (the frameworks and guides they use), not the source's own publisher.
 Without them, coverage is decided by what is easy to reach, and the setup chapter ends up
 accurate about the wrong reading. A paper's own structure pulls the reading toward what a
 reviewer checks; the reader's task is often in a different section or in none.

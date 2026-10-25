@@ -154,9 +154,10 @@ visible in the `<pre>` with its locator.
 
 ## Calculations the source did not make
 
-Overlaying two tables to build a comparison the source never printed is allowed and often
-the most useful thing in the document. Label it in a note (`논문에는 이 비교가 없다`),
-so a reader who looks for it in the original does not come up empty.
+Overlaying two tables, or setting the source against other writing, to build a comparison
+the source never made is allowed and often the most useful thing in the document. Say so where
+the comparison starts (`논문에는 이 비교가 없다`, `이 글은 앞선 글을 언급하지 않는다`), so a
+reader does not take it for the source's own position.
 
 ## Producing the file
 
