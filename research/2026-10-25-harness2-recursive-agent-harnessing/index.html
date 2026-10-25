@@ -233,16 +233,18 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <h1>Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식</h1>
   <p class="answer">Harness² 는 모델은 그대로 두고 주위의 프롬프트, skill, script 같은 harness 파일을 과제마다 고쳐 쓰는 방법이다. 고친 harness 로 같은 과제를 다시 돌려 보고, 행동 차이를 근거로 편집을 고른다. 논문을 읽은 이 글의 판단으로는 원래 harness 대비 향상은 12개 조건 모두에서 측정됐지만, 다른 기법보다 낫다는 주장과 개선하는 법을 배운다는 주장은 근거가 얇다. 가져갈 것은 재실행으로 편집을 고르는 고리이고, 과제를 안전하게 다시 돌릴 수 있어야 쓸 수 있다.</p>
   <p class="src">Google Cloud AI Research 와 Northwestern University 연구진(Ruiyao Xu, Yanfei Chen, Chen-Yu Lee, Tomas Pfister 외)이 낸 arXiv 논문 2610.14224 v1 과, 저자들이 google-research 조직에 공개한 코드 저장소 harness2 의 커밋 1cfe254 이다.</p>
-  <div class="board flow" data-cols="원인|원리|대가|실증|주장" aria-label="원래 harness 의 실패가 절차에서 나므로, 고친 harness 를 같은 과제에 다시 돌려 행동 차이로 고른다. 그 대가로 과제마다 여러 번 실행한다. 원래 harness 대비 향상은 측정됐고, 다른 기법 대비 우위와 배우는 개선은 근거가 얇다">
-    <a class="card" id="f-cause" href="#p2" data-col="원인"><b>논문이 보인 실패 사례는 절차를 건너뛴 경우다</b><p>파일을 맞춰 보지 않거나 tool 을 실제로 부르지 않는다</p></a>
-    <a class="card" id="f-loop" href="#p3" data-col="원리"><b>고친 harness 를 같은 과제에 다시 돌려 비교한다</b><p>정답 대신 기준 실행과의 행동 차이를 근거로 쓴다</p></a>
-    <a class="card" id="f-cost" href="#p4" data-col="대가"><b>과제 하나에 실행 4k 번, 편집 세션 3k 번</b><p>k=1 에서도 JobBench 토큰이 원래의 약 5배다</p></a>
-    <a class="card t-good" id="f-shown" href="#p8" data-col="실증"><b>원래 harness 대비 향상은 12개 조건 모두에서 났다</b><p>+1.2 에서 +11.8 점, 세 번 실행한 평균</p></a>
-    <a class="card t-warn" id="f-claim" href="#p12" data-col="주장"><b>다른 기법 대비 우위와 배우는 개선은 근거가 얇다</b><p>가장 강한 baseline 을 표준편차보다 크게 앞선 조건은 12개 중 3개</p></a>
+  <div class="board flow" data-cols="원인|원리|대가|실증|근거가 얇다" data-lanes="1|2" aria-label="원래 harness 의 실패가 절차에서 나므로, 고친 harness 를 같은 과제에 다시 돌려 행동 차이로 고른다. 그 대가로 과제마다 여러 번 실행한다. 원래 harness 대비 향상은 측정됐고, 다른 기법 대비 우위와 개선하는 법을 배운다는 주장은 근거가 얇다">
+    <a class="card" id="f-cause" href="#p2" data-col="원인" data-lane="1..2" data-center><b>논문이 보인 실패 사례는 절차를 건너뛴 경우다</b><p>파일을 맞춰 보지 않거나 tool 을 실제로 부르지 않는다</p></a>
+    <a class="card" id="f-loop" href="#p3" data-col="원리" data-lane="1..2" data-center><b>고친 harness 를 같은 과제에 다시 돌려 비교한다</b><p>정답 대신 기준 실행과의 행동 차이를 근거로 쓴다</p></a>
+    <a class="card" id="f-cost" href="#p4" data-col="대가" data-lane="1..2" data-center><b>과제 하나에 실행 4k 번, 편집 세션 3k 번</b><p>k=1 에서도 JobBench 토큰이 원래의 약 5배다</p></a>
+    <a class="card t-good" id="f-shown" href="#p8" data-col="실증" data-lane="1..2" data-center><b>원래 harness 대비 향상은 12개 조건 모두에서 났다</b><p>+1.2 에서 +11.8 점, 세 번 실행한 평균</p></a>
+    <a class="card t-warn" id="f-claim" href="#p9" data-col="근거가 얇다" data-lane="1"><b>다른 기법보다 낫다는 근거는 얇다</b><p>가장 강한 baseline 을 표준편차보다 크게 앞선 조건은 12개 중 3개</p></a>
+    <a class="card t-warn" id="f-learn" href="#p11" data-col="근거가 얇다" data-lane="2"><b>개선하는 법을 배운다는 근거도 얇다</b><p>library 효과를 보인 비교는 재실행까지 함께 뺀 조건과 견준다</p></a>
     <span class="edge" data-from="f-cause" data-to="f-loop"></span>
     <span class="edge" data-from="f-loop" data-to="f-cost"></span>
     <span class="edge" data-from="f-cost" data-to="f-shown"></span>
     <span class="edge" data-from="f-shown" data-to="f-claim"></span>
+    <span class="edge" data-from="f-shown" data-to="f-learn"></span>
   </div>
   <div class="toc">
     <p class="toc-h">논증 밖에서 더 보는 장</p>
@@ -250,9 +252,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
       <li><span class="g">원리</span><a href="#p5">5 · 사례</a><span class="f">JobBench 과제 하나가 43.1 에서 77.8 로 오른 경로</span></li>
       <li><span class="g"></span><a href="#p6">6 · 멈추는 곳</a><span class="f">다시 돌릴 수 없는 과제, 후보가 같이 틀리는 과제, 편집 모델도 모르는 지식에서 원리가 멈춘다</span></li>
       <li><span class="g">비교</span><a href="#p7">7 · 다른 기법</a><span class="f">Meta-Harness, ReasoningBank, Harness Scaling, Best-of-k 와 갈리는 지점</span></li>
-      <li><span class="g"></span><a href="#p9">9 · 기법 대비</a><span class="f">가장 강한 baseline 과의 점수 차이를 조건마다 계산했다</span></li>
       <li><span class="g">근거</span><a href="#p10">10 · ablation</a><span class="f">library, scoping, composition 을 뺀 실험은 설정 하나에서만 돌렸다</span></li>
-      <li><span class="g"></span><a href="#p11">11 · 배우는 개선</a><span class="f">library 효과를 보인 비교는 실행 증거까지 함께 뺐다</span></li>
+      <li><span class="g"></span><a href="#p12">12 · 판정</a><span class="f">논문의 주장 여덟 개를 근거의 강도로 나눴다. 누출 방지는 주장, 부품 기여는 부분 실증이다</span></li>
       <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">채점 모델 겹침, network 접근, 공개 코드와 논문 실행의 차이</span></li>
       <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">논문 전부와 코드 저장소의 핵심 모듈을 읽었고 실행은 하지 않았다</span></li>
       <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">논문 v1 과 저장소 커밋</span></li>
@@ -326,7 +327,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li>토큰 값과 Meta-Harness 의 향상은 논문 Figure total_cost 의 점 위치를 좌표에서 읽은 근삿값이다. Harness² 의 향상 값은 본문에 적힌 수다.</li>
     <li>Gemini 3.5 Flash 와 OpenCode 조합 하나에서 잰 그림이다. 토큰에는 실행과 편집 비용이 모두 들어 있다.</li>
     <li>parallel 방식에서 실행 4k 번은 기준 실행 k, 후보 2k, 합성 결과 k 이고, 편집 3k 번은 제안 2k 와 합성 k 다. 선택과 반성 세션은 따로 더해진다.</li>
-    <li>논문 본표 실험의 기본 편집 모델은 Claude Opus 4.8 이다. 실행 모델보다 비싼 모델이 3k 번 불린다는 뜻이다.</li>
+    <li>논문 본표 실험의 기본 편집 모델은 Claude Opus 4.8 이다. 공개 코드의 일정대로라면 과제 하나에 편집 모델(Opus 4.8)이 3k 번 불린다.</li>
   </ul>
   <p class="so">논문은 Harness² 가 compute 대비 향상의 Pareto frontier 에 있다고 보고한다. 다만 원래 harness 와 견주면 k=1 에서도 토큰을 JobBench 에서 약 5배, WorkBuddy 에서 약 8배 더 쓰고 얻은 향상이라, 도입 비용은 과제당 토큰으로 따져야 한다.</p>
   <details class="orig"><summary>원문</summary>
