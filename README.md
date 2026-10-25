@@ -12,6 +12,8 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-10-25 | [Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-harness2-recursive-agent-harnessing/) | 논문 분석 |
+| 2026-10-25 | [teamai-cli 가 팀의 agent 설정을 git 저장소와 PR 로 나눠 주는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-teamai-cli-team-agent-config/) | 오픈소스 분석 |
 | 2026-10-25 | [로컬에서 돌리는 Jev 대안 decision model 고르기](https://kywoo26.github.io/research-library/research/2026-10-25-decision-models-for-local-jev/) | 오픈소스 분석 |
 | 2026-10-25 | [OpenAI 가 frontier 모델의 학습 환경을 가두고 red-teaming 으로 시험한 방식](https://kywoo26.github.io/research-library/research/2026-10-25-openai-frontier-training-containment/) | 메모 |
 | 2026-10-25 | [Claude Code effort 단계가 바꾸는 것과 단계를 고르는 법](https://kywoo26.github.io/research-library/research/2026-10-25-claude-code-effort-levels/) | 메모 |
