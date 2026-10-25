@@ -1,0 +1,9 @@
+{
+  "title": "Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식",
+  "date": "2026-10-25",
+  "seq": 41,
+  "summary": "Google Cloud AI Research 의 Harness² 가 harness 파일 편집과 같은 과제 재실행으로 frozen 모델의 점수를 올리는 원리, 다른 harness 개선 기법과의 차이, 실증된 것과 주장에 그치는 것을 논문 v1 과 공개 코드로 가른다.",
+  "category": "paper",
+  "format": "article",
+  "purpose": "explainer"
+}
