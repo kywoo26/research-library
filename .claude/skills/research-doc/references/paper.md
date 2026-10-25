@@ -14,11 +14,11 @@ by the kind and let the paper's section order go.
 | comparison | The baselines the paper actually ran, named | comparison, explainer when it explains why |
 | trace | One example run end to end through the mechanism | explainer |
 | `setup` | Sections and appendices read, which conditions the setup controlled and which it did not | all |
-| `result-*` | Results, read from the tables | all |
+| `result` | Results, read from the tables | all |
 | `critique` | Limits with attribution: which the paper admits, which you assert | all |
 | adoption call | When adopting makes sense, including what it costs to keep running | comparison |
 
-An explainer moves derivations and proofs the reader will not reuse into `details.more` or an
+An explainer moves derivations and proofs the reader will not reuse into `details.orig` or an
 appendix chapter.
 
 ## Numbers
@@ -59,7 +59,7 @@ voice restates the authors' own limits section.
 When a second paper extends the first, split only if the papers are **different in kind**:
 a methods paper and a systems paper crammed together blur both, and a paper that extends one
 section of another needs no document of its own. If you split, connect them with the same
-`series` value in `meta.json`, a `.lineage` bar on each cover, and `../<slug>/#p<N>` links
+`series` value in `meta.json`, a line in each cover's `p.src`, and `../<slug>/#p<N>` links
 to specific chapters. When the earlier document called something unverified and the later
 one settles it, go back and link from that spot, or readers keep taking away the stale
 conclusion. Chapter numbers shift and the links have to follow; `check-doc.mjs` checks that

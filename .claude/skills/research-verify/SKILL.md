@@ -25,7 +25,7 @@ that wrote a sentence re-reads it by the same route and reaches the same conclus
 A run in parallel, blind to each other and to the author.
 
 **A finding makes a claim in the document wrong, stops the reader from doing what its
-`purpose` promises, or, for the reader lens, costs the reader the point: a title or `.key`
+`purpose` promises, or, for the reader lens, costs the reader the point: a title, `h2` or `.lead`
 that misleads a scanning reader, or material the reader could skip.** Things that would be nice to add, sources that could also be read,
 and wording you would have chosen differently are not findings: one line each under 메모,
 or leave them out.
@@ -73,7 +73,7 @@ Structure (headings, the chapter grammar, references, the title copies) is `chec
 ### 3. Extract claims from the shipped sentences, while the lenses run
 
 Walk the visible text of `research/<slug>/index.html`, skipping CSS and JS, and write
-`.research/<slug>/claims.jsonl`. Include `figcaption` and table cells, where qualifiers like
+`.research/<slug>/claims.jsonl`. Include cards and their `.ev` lines, notes, figcaptions and table cells, where qualifiers like
 "the paper does not make this comparison" live. One claim per line:
 
 ```json
@@ -160,8 +160,8 @@ Wording findings from a re-check are recorded and left alone: each pass rewrites
 toward the gate and away from the reader. Record in `run.json` `rendered` (whether you looked
 at the rendered page after the fixes), `unverified` and `unfixed`.
 
-**A fact lens A reports missing goes into the chapter whose `.key` it supports**, as a
-fact-list line or in the fold; that is support, not a second claim. When no chapter's claim
+**A fact lens A reports missing goes into the chapter whose claim it supports**, as a
+card, a note or in the fold; that is support, not a second claim. When no chapter's claim
 covers it, it needs a chapter, and that is a needs-judgment item rather than a line squeezed
 into the nearest one. What lens A reports the reader could skip is the author's to cut or fold
 when it is a paragraph, a caveat or process talk, unless a claim in `claims.jsonl` rests on

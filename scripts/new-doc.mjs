@@ -37,8 +37,9 @@ const ROOT = findRoot(dirname(fileURLToPath(import.meta.url)));
 // 출발용 골격이다. 장은 두 축으로 정해진다. corpus (paper|oss) 는 setup·result·critique 의
 // 힌트를, purpose (comparison|explainer|walkthrough) 는 가운데 장을 정한다. 도입 판단은
 // comparison 에만 있다. 다른 종류에도 넣으면 아무도 묻지 않은 질문에 답하는 장이 생긴다.
-// eyebrow 중 index/tl-dr/critique/sources 만 check-doc.mjs 가 검사한다. 나머지는 내용을
-// 가리키는 이름으로 바꿔 쓰고, 합치거나 빼거나 더한다. 장은 20개 안쪽이다.
+// 셸은 board 셸이다(<html data-format="board">). 장마다 data-role 이 붙고, check-doc.mjs 는 그중
+// cover/critique/sources 만 요구한다. 나머지 장은 합치거나 빼거나 더한다. 장은 20개 안쪽이다.
+// 옛 셸의 tl-dr 장은 없다. 표지의 흐름 판이 그 자리를 맡는다.
 
 const CORPORA = ['paper', 'oss', 'web'];
 const PURPOSES = ['comparison', 'explainer', 'walkthrough'];
@@ -46,21 +47,21 @@ const PURPOSES = ['comparison', 'explainer', 'walkthrough'];
 // corpus 별 힌트. web 은 안내서·소개 글·블로그처럼 커밋도 arXiv 판도 없는 페이지다.
 const H = {
   paper: {
-    tldr: '독자가 할 일이나 기억할 점 몇 개', problem: '기존 방식이 무엇에서 실패하는가',
+    problem: '기존 방식이 무엇에서 실패하는가',
     compare: '논문이 실제로 돌린 baseline 을 이름으로', case: '예시 하나가 원리를 끝까지 통과하는 경로',
     map: '구성 요소와 그 사이의 데이터 흐름', trace: '예시 하나가 처리되는 경로를 끝까지',
     setup: '읽은 절과 부록, 맞춘 조건과 맞추지 않은 조건', result: '표와 그림에서 직접. 원문 차트는 다시 그린다',
     critique: '논문이 인정한 것과 내가 주장하는 것을 구분',
   },
   oss: {
-    tldr: '독자가 할 일이나 기억할 점 몇 개', problem: '이 프로젝트가 없앤 수작업',
+    problem: '이 프로젝트가 없앤 수작업',
     compare: '이게 없으면 무엇을 쓰게 되는가', case: '요청 하나가 코드를 끝까지 통과하는 경로',
     map: '패키지 경계, 무엇이 무엇과 통신하는가, 상태가 어디 있는가', trace: '한 요청의 모든 홉을 quote 와 file:line 으로',
     setup: '읽은 커밋과 범위, 열지 않은 디렉터리와 그 때문에 얕아진 장', result: '코드가 무엇을 하는가. 자체 벤치마크는 그렇게 표시',
     critique: '읽지 않은 코드, README 와 코드의 차이',
   },
   web: {
-    tldr: '독자가 할 일이나 기억할 점 몇 개', problem: '이 자료가 답하는 질문과, 답이 없을 때 개발자가 겪는 것',
+    problem: '이 자료가 답하는 질문과, 답이 없을 때 개발자가 겪는 것',
     compare: '원문이 견주는 대안을 이름으로', case: '원문의 예시 하나가 끝까지 가는 경로',
     map: '요청·응답·기록처럼 바뀌는 층과 그 사이의 관계', trace: '한 경로를 원문의 절 제목과 인용으로 끝까지',
     setup: '읽은 페이지와 절, 열지 않은 하위 문서와 그 때문에 얕아진 장', result: '원문의 표와 차트를 다시 그린 것. 값은 원문의 aria-label 이나 표에서',
@@ -88,8 +89,7 @@ const MIDDLE = {
 function chaptersFor(corpus, purpose) {
   const h = H[corpus];
   return [
-    ['index', '표지', null],
-    ['tl-dr', '요약', h.tldr],
+    ['cover', '표지', null],
     ['problem', '문제 정의', h.problem],
     ...MIDDLE[purpose](h),
     ['result', '결과', h.result],
@@ -102,43 +102,91 @@ function chaptersFor(corpus, purpose) {
 const pad2 = (n) => String(n).padStart(2, '0');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-function buildRail(chapters) {
-  const out = [];
-  chapters.forEach(([, label], i) => {
-    // 표지+요약, 본문, 마무리 사이에 구분선을 넣는다
-    if (i === 2 || chapters[i][0] === 'critique') out.push('    <div class="rail-sep"></div>');
-    out.push(`    <button class="rail-item" data-go="${i}"><span class="n">${pad2(i + 1)}</span><span>${esc(label)}</span></button>`);
-  });
-  return out.join('\n');
+// ---- board 장 골격 ----
+// 장은 h2(주장 한 문장) → p.lead(두 문장 이하) → 판이나 그림 → ul.notes → details.orig 다.
+// 판은 작성자가 줄(data-lane)과 칸(data-col)만 쓰고 셸이 그린다. TODO 판은 모양을 보이는 자리표시라
+// 장의 주장에 맞는 모양으로 바꾼다 (견본: .claude/skills/research-doc/references/specimens/).
+// 상자 id 는 문서 안에서 하나여야 하므로 장 번호를 앞에 붙인다.
+const card = (id, col, tone = '') =>
+  `    <div class="card${tone ? ' ' + tone : ''}" id="${id}" data-col="${col}"><b>TODO 이름</b><p>TODO 한두 줄</p><p class="ev">TODO 원문 위치</p></div>`;
+
+function bodyFor(role, n) {
+  const c = `c${n}`;
+  if (role === 'result') {
+    return [
+      '  <figure class="plot">',
+      '    <p class="fig-title">TODO 그림이 보여 주는 것</p>',
+      '    <table class="plot-data" data-series="0" data-x="1" data-y="2">',
+      '      <thead><tr><th>계열</th><th>TODO x</th><th>TODO y</th></tr></thead>',
+      '      <tbody><tr><td>TODO</td><td>TODO</td><td>TODO</td></tr><tr><td>TODO</td><td>TODO</td><td>TODO</td></tr></tbody>',
+      '    </table>',
+      '    <figcaption>TODO 원문의 어느 그림·표에서 왔는가, 근삿값이면 그 사실</figcaption>',
+      '  </figure>',
+    ];
+  }
+  if (role === 'trace') return ['  <pre>TODO 사례 하나가 지나는 경로. 원문 위치(§)를 줄마다 둔다</pre>'];
+  if (role === 'critique') return ['  <ul class="points"><li><b>TODO 한계의 이름</b>TODO 무엇을 모르는가, 그래서 독자가 무엇을 하는가</li></ul>'];
+  if (role === 'setup') {
+    return [
+      '  <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료">',
+      '    <div class="card" data-col="읽음"><b>TODO 읽은 것</b></div>',
+      '    <div class="card t-quiet" data-col="열지 않음"><b>TODO 열지 않은 것</b><p class="ev">TODO 그래서 얕아진 장</p></div>',
+      '  </div>',
+    ];
+  }
+  return [
+    '  <div class="board" data-cols="TODO 칸 이름|TODO 칸 이름" aria-label="TODO 이 판이 보여 주는 것을 한 문장으로">',
+    card(`${c}-a`, 1), card(`${c}-b`, 2, 't-key'),
+    `    <span class="edge" data-from="${c}-a" data-to="${c}-b"></span>`,
+    '  </div>',
+  ];
 }
 
-function buildSlides(chapters, { title, summary }) {
-  return chapters.map(([eyebrow, label, hint], i) => {
-    const active = i === 0 ? ' data-active="true"' : '';
-    // h2 는 짧은 제목, 주장은 .key 한 곳. .note 는 선택이라 골격에 넣지 않는다.
-    // sources 장은 주장이 없어 .key 도 없다 (check-doc 의 section-grammar 가 예외로 둔다).
-    const head = i === 0
-      ? `      <h1>${esc(title)}</h1>\n      <p class="dek">${esc(summary)}</p>\n      <p class="src">TODO 누가 낸 어떤 자료인가 (조직과 팀, 또는 저자와 역할)와 고정한 판</p>`
-      : eyebrow === 'sources'
-        ? `      <h2>${esc(label)}</h2>`
-        : `      <h2>TODO ${esc(label)} 장이 담은 것을 가리키는 짧은 제목</h2>\n      <p class="key">TODO 훑는 독자가 가져갈 주장 한두 문장. ${esc(hint || '')}</p>`;
-    const body = eyebrow === 'sources'
-      ? ['      <p>TODO 출처 목록. sources.jsonl 의 id 마다 한 줄</p>']
-      : [
-        '      <p>TODO 본문. 그림, diff, 표, 항목마다 한 줄인 사실 목록, 또는 짧은 문단. 원문에 차트·표가 있으면 그것을 다시 그린다</p>',
-        '      <details class="more"><summary>첨언</summary><p>TODO 원문 인용(.q 안에), 계산 과정, 원문 위치, 조건. 새 주장은 여기 못 들어간다</p></details>',
-      ];
+function buildSlides(chapters, { title }) {
+  const flow = chapters.map((ch, i) => [ch, i + 1]).filter(([[role]]) => !['cover', 'critique', 'setup', 'sources'].includes(role)).slice(0, 3);
+  const cover = [
+    '  <!-- 01 · cover. 흐름 판의 칸은 논증의 단계다. 이름과 수는 논증이 정하고, 장 번호 칩은 셸이 href 에서 만든다 -->',
+    '  <section class="slide" data-role="cover" data-label="표지">',
+    `  <h1>${esc(title)}</h1>`,
+    '  <p class="answer">TODO 질문에 대한 답. 무엇인지, 핵심 하나, 가장 중요한 차이 하나 (공백 뺀 280자 이하)</p>',
+    '  <p class="src">TODO 누가 낸 어떤 자료인가 (조직과 팀, 또는 저자와 역할)와 고정한 판</p>',
+    `  <div class="board flow" data-cols="${flow.map((_, k) => `TODO 단계 ${k + 1}`).join('|')}" aria-label="TODO 이 문서의 논증을 한 문장으로">`,
+    ...flow.map(([[, label], n], k) =>
+      `    <a class="card" id="f-${k + 1}" href="#p${n}" data-col="${k + 1}"><b>TODO ${esc(label)} 장의 주장</b><p>TODO 그 장의 숫자와 대상 하나</p></a>`),
+    ...flow.slice(1).map((_, k) => `    <span class="edge" data-from="f-${k + 1}" data-to="f-${k + 2}"></span>`),
+    '  </div>',
+    '  <div class="toc">',
+    '    <p class="toc-h">논증 밖에서 더 보는 장</p>',
+    '    <ul>',
+    ...chapters.slice(1).map(([, label], k) =>
+      `      <li><span class="g"></span><a href="#p${k + 2}">${k + 2} · ${esc(label)}</a><span class="f">TODO 사실 하나. 흐름 판에 있는 장은 지운다</span></li>`),
+    '    </ul>',
+    '  </div>',
+    '  </section>',
+  ].join('\n');
+  const rest = chapters.slice(1).map(([role, label, hint], k) => {
+    const n = k + 2;
+    if (role === 'sources') {
+      return [
+        `  <!-- ${pad2(n)} · sources -->`,
+        `  <section class="slide" data-role="sources" data-label="${esc(label)}">`,
+        `  <h2>${esc(label)}</h2>`,
+        '  <ul class="sources"><li><a href="TODO">TODO id · 제목</a> <span class="t">TODO 누가, 언제, 고정한 판</span></li></ul>',
+        '  </section>',
+      ].join('\n');
+    }
     return [
-      `  <!-- ${pad2(i + 1)} -->`,
-      `  <section class="slide"${active} data-label="${esc(label)}">`,
-      '    <div class="slide-inner">',
-      `      <p class="eyebrow">${eyebrow}</p>`,
-      head,
-      ...body,
-      '    </div>',
+      `  <!-- ${pad2(n)} · ${role}${hint ? `: ${hint}` : ''} -->`,
+      `  <section class="slide" data-role="${role}" data-label="${esc(label)}">`,
+      '  <h2>TODO 주장을 한 문장으로</h2>',
+      '  <p class="lead">TODO 두 문장 이하</p>',
+      ...bodyFor(role, n),
+      ...(role === 'result' ? [] : ['  <ul class="notes"><li>TODO 판의 출처. 원문에 없는 그림이면 그 사실</li></ul>']),
+      '  <details class="orig"><summary>원문</summary><p>TODO 원문 인용(<span class="q">“…”</span>)과 위치</p></details>',
       '  </section>',
     ].join('\n');
-  }).join('\n\n');
+  });
+  return [cover, ...rest].join('\n\n');
 }
 
 // ---- create ----
@@ -199,9 +247,7 @@ async function create(slug, corpus, purpose, opts) {
     .replace(/\{\{TITLE\}\}/g, esc(title))
     .replace(/\{\{SUMMARY\}\}/g, esc(summary))
     .replace(/\{\{SLUG\}\}/g, slug)
-    .replace(/\{\{COUNT\}\}/g, pad2(chapters.length))
-    .replace('{{RAIL}}', '    <!-- 목차는 셸 스크립트가 장에서 만든다. 장의 data-label 이 목차 이름이다 -->')
-    .replace('{{SLIDES}}', buildSlides(chapters, { title, summary }));
+    .replace('{{SLIDES}}', buildSlides(chapters, { title }));
 
   await mkdir(docDir, { recursive: true });
   await writeFile(join(docDir, 'index.html'), html);
@@ -241,7 +287,8 @@ async function create(slug, corpus, purpose, opts) {
 
   console.log(`research/${slug}/          index.html, meta.json (seq ${seq})`);
   console.log(`.research/${slug}/         sources.jsonl, evidence.jsonl, claims.jsonl, notes/`);
-  console.log(`\n출발용 ${chapters.length}장 (${corpus}, ${purpose}). eyebrow 는 내용을 가리키는 이름으로 바꾸고, 장은 합치거나 빼서 20개 안쪽으로 둔다.`);
+  console.log(`\n출발용 ${chapters.length}장 (${corpus}, ${purpose}), board 셸. 장마다 data-role 이 있고 TODO 판은 장의 주장에 맞는 모양으로 바꾼다.`);
+  console.log('견본: .claude/skills/research-doc/references/specimens/. 장은 합치거나 빼서 20개 안쪽으로 두고, 표지의 흐름 판과 목록을 장에 맞춘다.');
   console.log(`읽은 범위는 조사를 마친 뒤 ${chapters.findIndex((c) => c[0] === 'setup') + 1}장에 직접 적는다.`);
 }
 
@@ -313,8 +360,13 @@ if (!argv.length || argv.includes('--help') || argv.includes('-h')) {
   console.log('종류는 조사를 시킨 말에서 고른다. 쓸지 정하는 조사는 comparison, 원리를 설명하는 조사는 explainer,');
   console.log('고치거나 옮기는 조사는 walkthrough. 도입 판단 장은 comparison 에만 들어간다.\n');
   console.log('만드는 것:');
-  console.log('  research/<slug>/     index.html (출발용 골격), meta.json');
+  console.log('  research/<slug>/     index.html (board 셸의 출발용 골격), meta.json');
   console.log('  .research/<slug>/    sources.jsonl, evidence.jsonl, claims.jsonl, notes/\n');
+  console.log('골격은 board 셸이다(<html data-format="board">, assets/deck-shell.html).');
+  console.log('  표지        h1, p.answer, p.src, 논증 흐름 판(.board.flow), 흐름 밖 장의 목록(.toc)');
+  console.log('  장          h2(주장 한 문장), p.lead, 판(.board) 이나 그림(figure.plot), ul.notes, details.orig');
+  console.log('  data-role   cover, critique, sources 는 check-doc 이 요구한다. 나머지는 장의 종류 이름이다');
+  console.log('  판과 그림은 작성자가 줄과 칸만 쓰고 셸이 그린다. 모양은 specimens/ 의 견본을 따른다\n');
   console.log('두 트리는 항상 같은 이름을 쓴다. 이름을 바꿀 때는 rename 을 쓸 것.');
   console.log('직접 옮기면 두 트리가 어긋나 문서와 근거를 이어붙일 수 없다.');
   process.exit(0);
