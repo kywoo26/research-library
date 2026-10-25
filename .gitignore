@@ -39,3 +39,6 @@ research/*/src/
 # node
 node_modules/
 npm-debug.log*
+
+# subagent worktrees (isolation: worktree)
+.claude/worktrees/

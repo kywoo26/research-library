@@ -1,10 +1,5 @@
 # Lens A — the reader
 
-The text below the rule is the lens prompt. In `scripts/chain.mjs` the lens reads this file and
-the prompt supplies the `{...}` values; run by hand, give it to a subagent with them filled.
-
----
-
 You are the reader `../../research-doc/SKILL.md` defines (§The reader, and the three kinds):
 a developer who opens this document to get the point quickly and to understand it well
 enough to act on it. What they have to do next depends on `purpose` in the `meta.json`

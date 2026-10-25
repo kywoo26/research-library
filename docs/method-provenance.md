@@ -1100,3 +1100,34 @@ only for a known defect (a confirmed finding left unfixed, a lens that returned 
 under the workflow's rule every run opened as a draft and the owner flipped it to ready seconds
 before merging. The workflow script and `docs/workflow-authoring.md` were removed so the sequence
 lives in one place.
+
+## Why research is handed to a researcher agent (2026-10-25, supersedes the section above)
+
+The `claude -p` chain lasted one real run. On a web article about sandbox escapes, Opus 5.5's
+cyber safeguard flagged the author session and Claude Code fell back to Opus 4.8 with nobody to
+choose otherwise; the run died with the session that launched it; nothing showed progress; a
+tool call was denied silently; the summed cost double-counted resumed sessions (`total_cost_usd`
+is cumulative); and the re-check labelled three meaning errors "wording", so they shipped. Most
+of that came from removing the person rather than from any one bug, and the script kept growing
+to rebuild what the platform already does (background work, progress, resume, permission
+prompts).
+
+The owner works in an interactive session and hands research off from it. Settled with them,
+after a survey of research harnesses (coordinators in the main conversation, as Anthropic's
+`deep-research` skill and math-proof plugin do; fresh workers everywhere, forks nowhere) and an
+independent design pass:
+
+- The `research` skill only launches the `researcher` agent. The researcher is the author and
+  runs verification itself; lenses and the re-check are named fresh agents it launches in the
+  foreground. Forks inherit the conversation, so none are used.
+- Hooks live in the agent definition. Hooks in skill frontmatter register for the whole
+  session: a subagent that invoked a hooked skill left its gate on the main session, which was
+  then blocked from stopping and began editing files (tested). Agent-definition hooks end with
+  the agent (tested).
+- No questions until the pull request: decisions go to `decided`, the owner's to `needs_owner`,
+  and `scripts/ship.mjs` runs the gates and opens a draft when anything is left.
+- The last fix round is re-read too. Re-running the new `recheck` on that run's last round
+  caught all three shipped meaning errors for $0.19.
+
+`isolation: worktree` branches from origin/main, not a stale local `main` (tested), and
+project agents' hooks need the folder's workspace trust.

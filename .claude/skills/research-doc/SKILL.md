@@ -4,9 +4,8 @@ description: Writes a single-file HTML research document in Korean from a corpus
   by research-source. Defines the reader and the three document kinds (comparison,
   explainer, walkthrough), the first screen, the chapter grammar, figures and charts,
   quoting, and Korean prose that reads like a person explaining.
-when_to_use: Writing or substantially rewriting research/<slug>/index.html, turning a
-  paper, an open-source project or a web page into a document, adding chapters to an
-  existing one, or adding a diagram, chart, figure, or trace to one.
+when_to_use: Invoked by the researcher agent after research-source, in the same context. In
+  any other session, hand the job to the research skill.
 ---
 
 # Writing a research document
@@ -27,8 +26,6 @@ Read before writing:
 
 ## The reader, and the three kinds
 
-This is the one place the reader is defined; every other file points here.
-
 The reader is a developer, not a general audience and not the audience the source was
 written for. They open a document to get the point quickly and to understand the mechanism
 well enough to explain it. What the document has to do for them depends on its kind, which
@@ -41,15 +38,9 @@ well enough to explain it. What the document has to do for them depends on its k
 | `walkthrough` | find the code, or the request field, and follow the path to change it | the map of what talks to what, one path traced hop by hop, where a change would land |
 
 The adoption call belongs to the comparison. Comparisons with other systems and outside cases
-go in when the launch's `angle` or the request asks for them, gathered in one chapter.
+go in when the request asks for them, gathered in one chapter.
 
 Plain is the goal, and a qualifier the claim needs survives the plainness.
-
-## Write in the same context that did the research
-
-When a sentence turns shaky you reopen the file mid-paragraph; a summary handed across a
-context boundary is where invented detail creeps in. `references/oss.md` says when a
-compression subagent is the exception.
 
 ## The first screen and the length
 
@@ -198,7 +189,4 @@ document once from the first screen down, as the reader would, against the passa
 
 ## Hand off
 
-- **Started by `scripts/chain.mjs`** (its prompt says so): stop once the gates pass and
-  report. Separate contexts run the lenses after you.
-- **Started directly**: continue with `../research-verify/SKILL.md` without asking, and
-  **break the context there**; verify opens with why.
+Invoke `research-verify` without asking, in this same session.

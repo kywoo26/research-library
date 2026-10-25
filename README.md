@@ -66,7 +66,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 │   ├── check-doc.mjs               # 문서가 형식과 규약을 지키는지 검사
 │   ├── check-prose.mjs             # 한국어 산문 규칙 중 셀 수 있는 것을 검사
 │   ├── new-doc.mjs                 # 문서 골격과 작업 공간을 함께 생성·이동
-│   ├── chain.mjs                   # 세 skill 을 이어 PR 까지 가는 단계형 실행기
+│   ├── ship.mjs                    # 검증을 마친 문서를 브랜치·커밋·PR 로 내보냄
 │   ├── render.mjs                  # headless Chrome 으로 장마다 스크린샷
 │   ├── doc-text.mjs                # 읽는 순서대로 뽑은 문서 텍스트
 │   └── test/                       # 게이트 자신의 시험
