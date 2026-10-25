@@ -1,0 +1,9 @@
+{
+  "title": "로컬에서 돌리는 Jev 대안 decision model 고르기",
+  "date": "2026-10-25",
+  "seq": 39,
+  "summary": "Jev Decision Index 0.4.1 의 비공개 시험 점수로 open-weight decision model 을 GPU 급별로 비교하고, 라이선스와 질문 격리 계약까지 맞춰 로컬 후보를 고른다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "comparison"
+}

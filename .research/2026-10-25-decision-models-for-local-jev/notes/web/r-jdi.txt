@@ -1,0 +1,407 @@
+===== README.md @ 0b5ecaf2396891e76c13a19aa17b874b59abcc37 =====
+---
+title: Jev Decision Index
+emoji: 🔬
+colorFrom: yellow
+colorTo: blue
+sdk: static
+header: mini
+pinned: false
+short_description: Benchmarks and news on various repros of TypeSafe's Jev
+thumbnail: https://huggingface.co/spaces/multimodalart/jev-decision-index/resolve/main/og.png
+models:
+- fastino/GLiDE
+- tattrongvu/Jeffan-31b-1710
+- baselabs/mammoth-1
+- perplexity-ai/pplx-decider-v1.2
+- autotrust/AutoTrust-JEV-27B-v1.1
+- startlux-models/StartLux-Decision-v1.1-27B-Instant
+- andyzhang232/ajev-gemma4-31b-lm6q
+- LycheeAI/Lychee-27B
+- vllm-sr/d3-turbo
+- vllm-sr/d3
+- taoszhang/VisionJEV
+- misa-jsc/misa-ai-2.0-decision-plus
+- h2oai/h2o-lightning-31b
+- bespokelabs/Nimble-v4-max
+- morriszjm/AnyJev-Tacitus-31B
+- Mapika/decider-31b
+- plantwaterer/allec
+- PelaAI/KnowLine-35B-A3B-Gen1.5
+- sanghwa-na/bobcat-1.3
+- mukaddamzaid/amos-1-large
+- Maincode/matilda-decision-v1
+- PelaAI/KnowLine-26B-A4B-Gen2.5
+- frontier-infra/jebadiah-27b-v2-1
+- sthanika-ai/Sieve-31B
+- FINAL-Bench/Darwin-27B-ZTC
+- apertixai/cerno-27b
+- torchcast-ai/torchcast-decision-27b
+- OmniJev/OneJev1.6-27B
+- jsaurabh/qwen-decision-27b-noncausal-lora
+- chinhnc/Quyet-1.0-Large
+- plantwaterer/garum
+- baselabs/elephant-1
+- FrontiersMind/Lumma-fev-27B
+- sthanika-ai/Sieve-27B-v2
+- moganai/mogan-decision-31B-it
+- MISA-core/linne-fern-1-0
+- jaredpalmer/kev-27b
+- juspay/Xor-26B-A4B
+- lihe07/span-02
+- plantwaterer/garas
+- shisa-ai/shisa-de-2.1
+- caiovicentino1/Eikos-27B-FP8
+- shgao/rsi-jev-v6.1-vl-27b
+- startlux-models/StartLux-Decision-v1.1-9B-Instant
+- vllm-sr/Decision-2.0-Vega-27B
+- autotrust/JEV-35B
+- autotrust/JEV-27B
+- matthewagi/Tern-35B-A3B
+- surogate/rune-26b-a4b-GGUF
+- SkyPanther/synack-decide-26b-a4b
+- PelaAI/KnowLine-4B-Gen5.5
+- PixilabAI/Blink-v0.3-26B-A4B-NVFP4
+- theunnecessarythings/JADE
+- org2ai/Wald-26B-A4B
+- andyzhang232/ajev-gemma4-26b-a4b-lora1
+- Cloudflare/clef
+- startlux-models/StartLux-Decision-v1.1-4B-Instant
+- perplexity-ai/pplx-decider-flash-v1.2
+- vllm-sr/d3-flash
+- kirp/jpt-35b-a3b
+- juspay/xor
+- autotrust/GEV-26B-Decide
+- OmniJev/OneJev1.6-9B
+- nace-ai/drex-v2.0
+- plantwaterer/muria
+- tattrongvu/Jeffan-4B-2010
+- bespokelabs/Bespoke-Nimble-9B-v3
+- frontier-infra/jebadiah-9b-v2-1
+- vllm-sr/d3-mini
+- andyzhang232/ajev-gemma4-12b-lora7
+- OmniJev/OneJev1.6-4B
+- sky7350/Mica-v0.5-4B
+- olaverse/PurpleMIST-Flash-1.0
+- apertixai/cerno-9b
+- WangSenQWQ/Senova-4B
+- sthanika-ai/Sieve-9B-v2
+- victorbennett/Verdin-4B
+- Mapika/decider-35b-a3b-nvfp4
+- EldanRing/Winnow-12B
+- vllm-sr/Decision-2.0-Lux-9B
+- nace-ai/drex-v1.5
+- HopitAI/hopper
+- corners-ai/CoCo-Decision-2.4-4B
+- Cloudflare/clef-omni
+- alibiserikbay/JevK5-9B
+- Cloudflare/clef-flash
+- shgao/rsi-jev-v6.1-vl-4b
+- fdemelo/jegue
+- eljiwo/jiwo-4b
+- kirp/jpt-9b
+- everettjf/ezjev-4b-s2
+- akhilaaa3/Jev-Omni
+- DoccyHealth/Solomon
+- StandardThinking/StandardOne-8B-SH
+- autotrust/JEV-9B
+- bespokelabs/Bespoke-Nimble-9B-v2
+- sthanika-ai/Sieve-9B
+- apertixai/cerno-4b
+- sthanika-ai/Sieve-4B
+- jaredpalmer/kev-9b
+- blackmallangcow/nari-decision-4b
+- empiriolabsai/aplomb-1
+- vllm-sr/Decision-2.0-Nox-4B
+- HopitAI/hopper-g
+- startlux-models/StartLux-Decision-v1.1-2B-Instant
+- flymy-ai/decision-4b-v1.6
+- StandardThinking/StandardOne-3B-SH
+- kirp/jpt-4b
+- internlm/Intern-Decision-4B
+- shgao/rsi-jev-v5.0-vl-3b
+- Valen-Team/Valen-4B
+- TokenRhythm/NeoHorse-Jev-4B
+- alibiserikbay/JevK5
+- Mapika/decider-4b
+- interfaze-ai/lev
+- theaviv/Lev1-3.7B
+- jaredpalmer/kev-4b
+- sthanika-ai/Sieve-2B-v3
+- LatentMesh-Labs/latentmesh-blitz-2b-v1
+- felhen-ai/saracura-ptbr-4b
+- cbuk10001/Cam1
+- vllm-sr/d3-nano
+- kpiya/kas-4b
+- togethercomputer/Tev1-4B-experimental
+- EldanRing/Winnow-E4B
+- Leptos-ai/Aurelis-2B
+- AmirBraham/jevstral-8b
+- wayfind/metask-jev-4b-policy-mix
+- UserMoonlight/intelif-qwen3-4b
+- knowledgator/gliclass-v4-edge
+- LiquidAI/d1-3B
+- pngwn/system-one-qwen3.5-4b-scorer-v2b
+- chaoliangUNSW/Jev-Style-2B-Decision-v3
+- scar-ai/vera-core-2
+- OmniJev/OneJev1.6-0.8B
+- tardellirs/crivo-1b
+- davidburhans/gevva-e4b
+- startlux-models/StartLux-Decision-v1.1-0.8B-Instant
+- run-saina/saina-helm-2-omni-0.8b
+- vllm-sr/d3-lite
+- MLukauskas/amber-0.4b
+- eljiwo/jiwo-0.8b
+- run-saina/saina-helm-2-0.8b
+- flock-io/this-that-model-1.2
+- davidburhans/gevva-e2b
+- tardellirs/crivo-400m
+- Mapika/decider-2b
+- vllm-sr/Decision-2.0-Sol-2B
+- AnamK/jdi-ptr14-0.8b
+- Valen-Team/Valen-2B
+- sthanika-ai/sieve-2b
+- teilomillet/wyat-1-800m
+- internlm/Intern-Decision-2B
+- sthanika-ai/Sieve-0.8B
+- StrandsAgents/strands-decider-2B-hobson-v21
+- carrtesy/EXAONE-4.0-1.2B-JEV
+- tasksource/tasksource-decider-nano
+- tardellirs/crivo-68m
+- vllm-sr/Decision-2.0-Eos-0.8B
+- tardellirs/crivo-150m
+- hotchpotch/bekko-system-one-v0-400m
+- codavidgarcia/mola-150m
+- vllm-sr/d3-edge
+- codavidgarcia/mola-68m
+- Elfsong/jev-flan-t5-large-20261017-public-v2
+- decision-tune/decisiontune-1.0
+- Valen-Team/Valen-0.8B
+- Hanno-Labs/bosun-v3.1-1.7b
+- vllm-sr/Decision-2.0-Kai-0.6B
+- Lukitaduarte/dinah-1
+- jaredpalmer/kev-0.8b
+- lCREEl/pick-150m
+- kirp/jpt-0.8b
+- Elfsong/jev-ettin-400m-20261013-v0
+- mohamedlotfy50/sifr-0.8b-v3
+- tardellirs/crivo-32m
+- tardellirs/prumo
+- cortex-agent-llc/kodiak-v0.2-1b-accuracy
+- internlm/Intern-Decision-0.8B
+- chaoliangUNSW/Jev-Style-0.8B-Decision-v3
+- togethercomputer/Tev1-0.8B-experimental
+- hotchpotch/bekko-system-one-v0-68m
+- LiquidAI/d1-omni-600M
+- tardellirs/crivo-17m
+- wfzyx/von
+- Hanno-Labs/bosun-v3.1-0.6b
+- scar-ai/vera-spark
+- moganai/lavoir
+- fastino/GLiNER2.5-Decide
+- convaiinnovations/laya
+- alibiserikbay/JevK5-Lite
+- monotykamary/LFM2.5-2.6B-RLCD
+- hotchpotch/bekko-system-one-v0-17m
+- Contrastive-LM/CLM-v0.1-8B
+- notnotsamuel/LFM2.5-350M-RLCD
+- DangerLabs/DM-JEPA
+- SupersonicLabs/Julia-1
+- kshitijthakkar/nirnaya-0.4b-0.2a-decision
+- heman10x/rlcd-modernbert-151m
+- shisa-ai/shisa-de-2
+- OmniJev/OneJev1.5-0.8B
+- OmniJev/OneJev1.5-9B
+- OmniJev/OneJev1.5-27B
+- leinenterprises/Herbert_v0.5
+- tinnel123/jev-d3-46k
+- ken-jo/QEV-2B
+- ken-jo/QEV-0.8B
+- sthanika-ai/Sieve-Vision-4B
+- RBDash-Team/RBDash-Decision-v0.2
+- AlexWortega/openjev
+- bespokelabs/Bespoke-Nimble-9B
+- C-Tianyu/NanoJev
+- DavidHatley/system-one-mini
+- DeepMostInnovations/sales-conversion-model-reinf-learning
+- fastino/gliner2.5-base-v1
+- fastino/gliner2.5-multi-v1
+- fastino/gliner2.5-small-v1
+- flock-io/this-that-model-1.0
+- frontier-infra/jebadiah-27b
+- FrontiersMind/Lumma-fev-0.1b
+- FrontiersMind/Lumma-fev-0.6b
+- google/diffusiongemma-26B-A4B-it
+- google/gemma-4-31B
+- harshatheg/Qwen-2.5-1B-RLCD
+- knowledgator/gliformer-large-v1
+- llm-semantic-router/Decision-1.0-Eos-0.8B
+- llm-semantic-router/Decision-1.0-Kai-0.6B
+- llm-semantic-router/Decision-1.0-Lex-0.6B
+- llm-semantic-router/Decision-1.0-Lux-9B
+- llm-semantic-router/Decision-1.0-Nox-4B
+- llm-semantic-router/Decision-1.0-Sol-2B
+- Manav2op/verdict-small
+- Mapika/decider-35b-a3b
+- MoLeMo-Lab/mojev
+- perplexity-ai/pplx-decider-v1-27b
+- pngwn/system-one-qwen3.5-4b-scorer
+- Qwen/Qwen2.5-1.5B
+- Qwen/Qwen3-4B-Instruct-2507
+- Qwen/Qwen3.5-4B-Base
+- Qwen/Qwen3.6-27B
+- Qwen/Qwen3.8-27B
+- Qwen/Qwen3.8-27B-FP8
+- andyzhang232/ajev-gemma4-12b-lora5
+- Lukitaduarte/dinah-0
+- OmniJev/OneJev-0.8B
+- perplexity-ai/pplx-decider-v1.1-27b
+- corners-ai/CoCo-Decision-4B
+- frontier-infra/jebadiah-9b-v2
+- Maincode/matilda-jev-v1.5
+- sthanika-ai/Sieve-27B
+- sthanika-ai/Sieve-2B-v2
+- scar-ai/vera-core
+- OmniJev/OneJev1.5-4B
+---
+
+# Jev Reproductions Tracker
+
+Who is rebuilding TypeSafe's **Jev** (System One / RLCD) in the open?
+
+This static Space opens on the Decision Index leaderboard; the **News** tab tracks the artifacts in one combined grid, color-coded by kind:
+
+- **Decoding**: parallel constrained decoding on stock models (inference technique, no new weights)
+- **Diffusion**: text diffusion models run in a "Jev mode"
+- **Trained**: Jev-like scoring heads and fine-tunes, weights often on the Hub, promised models listed last
+- **Prior art**: "this already exists" claims
+- **Explainers**: architecture speculation, explainers, benchmarks and roundups
+
+Cards sort by a **trending** score: ♥ likes on X + 5 × GitHub stars + 8 × Hub likes + views ÷ 500, plus a **recency credit** (up to 8000, halving daily) so a fresh release is not buried under older, louder ones. The credit is scaled by the item's own engagement, so a brand-new entry nobody has reacted to yet cannot climb on its date alone. Cards added within a day of the metrics snapshot get a green **new** badge. Use the category and "has" chips to filter, or switch the sort.
+
+…plus a section on what is still **not** in the open: TypeSafe's weights, the RLCD algorithm, and any open model matching Jev's calibration claims.
+
+Hugging Face models and Spaces are first-class artifacts here, not only GitHub repos.
+
+## Decision Index (`index.html`)
+
+The **Index** tab (switch at the top of every page) is the leaderboard: every open reproduction and Jev, ranked by the Full score: 60% private tests of the same skills and 40% private tasks from new domains, both on the public scale. The public benchmarks are shown next to every model but do not count, so the ranking rests on tests nobody can train on. The switch on the main chart offers Full score, Public only and Your own (set your own part and area weights). Below the chart sit the per-area radars, every benchmark with its public and private scores, and a full page per model (`index.html?model=<engine>`; `?model=jev` is Jev's own report). A Vision board ranks the image-capable entrants the same way.
+
+The public suite is 37 benchmarks in five areas, each chance-corrected so 0 is random guessing and 100 is perfect; an unanswered request counts as wrong. The private tests and the new-domain tasks are never published. The **Methodology** page has the full rules, every benchmark's subset and baseline, and the changelog.
+
+## Contributing
+
+All news data lives in one JS array (`ITEMS`) near the bottom of `news.html` (the News tab; the Index tab is `index.html`). Open a PR on this Space to add or correct an entry. Please include the announcement post on X if there is one, and the Hub / GitHub link.
+
+Engagement metrics are a snapshot (2026-09-24) from public post metadata and will drift.
+
+## Credits
+
+Visual identity and outlined Huggies from [HF Huggiverse (Chunte/HFBA)](https://huggingface.co/spaces/Chunte/HFBA). Unofficial and community-maintained; not affiliated with TypeSafe AI.
+
+
+===== data/index.json, data/methodology.json @ 0b5ecaf2396891e76c13a19aa17b874b59abcc37 의 발췌 =====
+각 줄은 아래 파일에서 인용 주변 ±200자를 바이트 그대로 잘라 온 것이다. 원본 전체의 sha256 은 sources.jsonl 의 file_sha256 에 있다.
+[data/index.json 문자 위치 0부터 원문 그대로] {"generated_utc":"2026-10-22T20:10:35Z","suite":{"requests":110201,"scoreable":109759,"benchmarks":42,"jev_benchmarks":42,"panel":37,"panel_full":37,"categories":5,"dropped":["MiniWoB++","Boxoban","RTFM","ScienceWorld","Hanabi","Codenames"],"hardware":"1 x NVIDIA RTX PRO 6000","jev_ve
+[data/index.json 문자 위치 137부터 원문 그대로] el_full":37,"categories":5,"dropped":["MiniWoB++","Boxoban","RTFM","ScienceWorld","Hanabi","Codenames"],"hardware":"1 x NVIDIA RTX PRO 6000","jev_version":"jev-1.14.0","panel_id":"decision-index-0.3","calibration_note":"32 benchmarks with a per-field right or wrong answer (ToolRet, BRIGHT and RouterBench excluded), each weighted equally; a 1-in-6 sample of requests; confidence is the probability placed on the chosen option. Rows an entrant trained on count as wrong here too.","formulas":[{"id":"balanced_raw","normalization":"raw","formula":"100*sum_c(0.2*category[c])","label":"Public index, raw accuracy"},{"id":"balance
+[data/index.json 문자 위치 597부터 원문 그대로]  as wrong here too.","formulas":[{"id":"balanced_raw","normalization":"raw","formula":"100*sum_c(0.2*category[c])","label":"Public index, raw accuracy"},{"id":"balanced_skill","normalization":"skill","formula":"0.60*private_same_skills + 0.40*private_new_domains, both mapped onto the public scale with untuned stock models","label":"Full score"},{"id":"breadth_skill","normalization":"skill","shift":0.1,"formula":"100*(product_c((0.1+0.9*category[c])**0.2)-0.1)/0.9","label":"Public index, breadth"}],"edition":"release-v4","label":"Decision I
+[data/index.json 문자 위치 41302부터 원문 그대로] null},"62":{"score":0.8165,"metric":"accuracy","cases":3652,"median_ms":520,"p95_ms":null,"usd":null},"64":{"score":0.7254,"metric":"accuracy","cases":528,"median_ms":507.8,"p95_ms":null,"usd":null}},"latency":{"median":196,"p95":296.8,"note":"Hosted API, network round-trip from our lab: one sequential HTTPS client on the latency-v1 sample. Not comparable to the on-card single-process figures."},"interactive":[],"references":[{"catalog_id":25,"model":"Claude Fable 5.1 (Adaptive Reasoning, Max Effort, Default F
+[data/index.json 문자 위치 44687부터 원문 그대로] ement of failures.","Latency includes HTTPS and service scheduling; not isolated model inference.","The interactive games and the extra benchmarks of the Jev 1.13 release run were not run for 1.14."],"calibration":{"acc":0.7431,"conf":0.8165,"ece":0.0799,"brier":0.3567,"over95":0.0265,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0005,"conf":0.0843,"acc":0.1429},{"lo":0.1,"w":0.0225,"conf":0.1574,"acc":0.1142},{"lo":0.2,"w":0.0307,"conf":0.2411,"acc":0.1246},{"lo"
+[data/index.json 문자 위치 44729부터 원문 그대로] S and service scheduling; not isolated model inference.","The interactive games and the extra benchmarks of the Jev 1.13 release run were not run for 1.14."],"calibration":{"acc":0.7431,"conf":0.8165,"ece":0.0799,"brier":0.3567,"over95":0.0265,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0005,"conf":0.0843,"acc":0.1429},{"lo":0.1,"w":0.0225,"conf":0.1574,"acc":0.1142},{"lo":0.2,"w":0.0307,"conf":0.2411,"acc":0.1246},{"lo":0.3,"w":0.0276,"conf":0.3466,"acc":0.4647
+[data/index.json 문자 위치 50997부터 원문 그대로] andom":0.25,"tracks":[],"combined":0.7067,"private_eq":0.7818},"64":{"raw":0.7254,"skill":0.6568,"coverage":1,"random":0.2,"tracks":[],"combined":0.7003,"private_eq":0.7622}},"coverage":1,"pending":0,"v03":{"engine":"jev","pub":60.7,"same_skills":59.28,"new_domains":48.26,"v":60.24,"lab":false,"jev":true,"rank_v":41,"rank_pub":47,"name":"Jev 1.14","eq":{"S":58.91,"O":62.24},"rank_tie":10,"tied":true,"parts":{"public":0,"same_skills":35.34,"new_domains":24.9}},"meta":{"org":{"id":"typesafe-ai","name":"typesafe.ai","logo":"data
+[data/index.json 문자 위치 92799부터 원문 그대로] :false,"jev":false,"rank_v":56,"rank_pub":80,"name":"vLLM-SR Decision 2.0 Vega 27B","eq":{"S":55.3,"O":62.07},"rank_tie":12,"tied":true,"parts":{"public":0,"same_skills":33.18,"new_domains":24.83}}},{"engine":"kev-27b","name":"Kev 27B","long_name":"Kev 27B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/jaredpalmer/kev-27b","code_url
+[data/index.json 문자 위치 92967부터 원문 그대로] ":33.18,"new_domains":24.83}}},{"engine":"kev-27b","name":"Kev 27B","long_name":"Kev 27B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/jaredpalmer/kev-27b","code_url":null,"base_model":"Qwen/Qwen3.8-27B","base_url":"https://huggingface.co/Qwen/Qwen3.8-27B","weights_repo":null,"served_checkpoint":null},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"a
+[data/index.json 문자 위치 93353부터 원문 그대로] Qwen/Qwen3.8-27B","base_url":"https://huggingface.co/Qwen/Qwen3.8-27B","weights_repo":null,"served_checkpoint":null},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7322,"conf":0.7281,"ece":0.0218,"brier":0.3591,"over95":0.007,"n":35088,"benchmarks":32,"rel":[{"lo":0,"w":0.0338,"conf":0.072,"acc":0.1569},{"lo":0.1,"w":0.023,"conf":0.1374,"acc":0.3039},{"lo":0.2,"w":0.0166,"conf":0.2576,"acc":0.2574},{"lo":0.
+[data/index.json 문자 위치 94236부터 원문 그대로] 0432,"acc":0.8482,"conf":0.8067},"retrieval":{"ece":0.0857,"acc":0.6521,"conf":0.6697},"tools":{"ece":0.0432,"acc":0.9367,"conf":0.9558},"arts":{"ece":0.0606,"acc":0.5878,"conf":0.5542}}},"gaps":null,"latency":{"median":135,"p95":null,"mean":227.8},"results":{"1":{"score":0.9782,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":null},"2":{"score":0.6836,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 105254부터 원문 그대로] nding":0,"n":6},{"id":"tools","raw":0.7614,"skill":0.7265,"combined":0.7754,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6144,"skill":0.4266,"combined":0.4505,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"kev-27b","pub":56.69,"same_skills":55.51,"new_domains":51.51,"v":59.56,"lab":false,"jev":false,"rank_v":46,"rank_pub":81,"name":"Kev 27B","eq":{"S":55.1,"O":66.26},"rank_tie":11,"tied":true,"parts":{"public":0,"same_skills":33.06,"new_domains":26.5}},"notes":["Per-benchmark times are not shown: the board run sent reque
+[data/index.json 문자 위치 134629부터 원문 그대로] :0.0595,"acc":0.7897,"conf":0.8492},"retrieval":{"ece":0.1238,"acc":0.6809,"conf":0.8046},"tools":{"ece":0.0423,"acc":0.9359,"conf":0.9753},"arts":{"ece":0.1,"acc":0.5926,"conf":0.6921}}},"gaps":null,"latency":{"median":102.1,"p95":null,"mean":584.6},"results":{"1":{"score":0.9599,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":263.3},"2":{"score":0.6573,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 212872부터 원문 그대로] ab":false,"jev":false,"rank_v":70,"rank_pub":99,"name":"Decider chat · Qwen3.6-27B","eq":{"S":51.7,"O":59.11},"rank_tie":15,"tied":true,"parts":{"public":0,"same_skills":31.02,"new_domains":23.65}}},{"engine":"clef","name":"Cloudflare clef","long_name":"Cloudflare clef","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/Cloudflare/clef","code_url":nu
+[data/index.json 문자 위치 213053부터 원문 그대로] domains":23.65}}},{"engine":"clef","name":"Cloudflare clef","long_name":"Cloudflare clef","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/Cloudflare/clef","code_url":null,"base_model":"Qwen/Qwen3.8-27B","base_url":"https://huggingface.co/Qwen/Qwen3.8-27B","weights_repo":null,"served_checkpoint":null,"org":{"id":"Cloudflare","name":"Cloudflare","logo":"data/orgs/Cloudflare.png"}},"completed":110201,"
+[data/index.json 문자 위치 213515부터 원문 그대로] repo":null,"served_checkpoint":null,"org":{"id":"Cloudflare","name":"Cloudflare","logo":"data/orgs/Cloudflare.png"}},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7783,"conf":0.8096,"ece":0.0395,"brier":0.306,"over95":0.0233,"n":35088,"benchmarks":32,"rel":[{"lo":0,"w":0.0311,"conf":0.0637,"acc":0.1167},{"lo":0.1,"w":0.0208,"conf":0.1418,"acc":0.241},{"lo":0.2,"w":0.0088,"conf":0.2576,"acc":0.2976},{"lo":
+[data/index.json 문자 위치 225428부터 원문 그대로] nding":0,"n":6},{"id":"tools","raw":0.8346,"skill":0.8071,"combined":0.7551,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6416,"skill":0.4888,"combined":0.4471,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"clef","pub":61.71,"same_skills":53.11,"new_domains":45.06,"v":54.92,"lab":false,"jev":false,"rank_v":68,"rank_pub":41,"name":"Cloudflare clef","eq":{"S":52.67,"O":58.3},"rank_tie":15,"tied":true,"parts":{"public":0,"same_skills":31.6,"new_domains":23.32}}},{"engine":"joshua-diffusion-full","name":"JoshuaSP diffusion
+[data/index.json 문자 위치 346171부터 원문 그대로] .96,"v":41.73,"lab":false,"jev":false,"rank_v":115,"rank_pub":132,"name":"Sieve 9B","eq":{"S":42.3,"O":40.87},"rank_tie":26,"tied":true,"parts":{"public":0,"same_skills":25.38,"new_domains":16.35}}},{"engine":"kev-9b-v2","name":"Kev 9B v2","long_name":"Kev 9B v2","variant":null,"meta":{"kind":"LoRA + head","technique":"autoregressive","technique_name":"autoregressive","served_params":9650000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/jaredpalmer/kev-9b","code_url":
+[data/index.json 문자 위치 346342부터 원문 그대로] 5.38,"new_domains":16.35}}},{"engine":"kev-9b-v2","name":"Kev 9B v2","long_name":"Kev 9B v2","variant":null,"meta":{"kind":"LoRA + head","technique":"autoregressive","technique_name":"autoregressive","served_params":9650000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/jaredpalmer/kev-9b","code_url":null,"base_model":"Qwen/Qwen3.5-9B-Base","base_url":"https://huggingface.co/Qwen/Qwen3.5-9B-Base","weights_repo":null,"served_checkpoint":null},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration"
+[data/index.json 문자 위치 346734부터 원문 그대로] n3.5-9B-Base","base_url":"https://huggingface.co/Qwen/Qwen3.5-9B-Base","weights_repo":null,"served_checkpoint":null},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.6541,"conf":0.6795,"ece":0.0453,"brier":0.4506,"over95":0.0116,"n":35088,"benchmarks":32,"rel":[{"lo":0,"w":0.0565,"conf":0.0582,"acc":0.1087},{"lo":0.1,"w":0.018,"conf":0.1471,"acc":0.4072},{"lo":0.2,"w":0.0212,"conf":0.2553,"acc":0.3453},{"lo":
+[data/index.json 문자 위치 347620부터 원문 그대로] .0471,"acc":0.7566,"conf":0.7915},"retrieval":{"ece":0.1427,"acc":0.7096,"conf":0.6244},"tools":{"ece":0.0447,"acc":0.819,"conf":0.7892},"arts":{"ece":0.0828,"acc":0.4443,"conf":0.5037}}},"gaps":null,"latency":{"median":60.3,"p95":null,"mean":90.1},"results":{"1":{"score":0.9522,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":null},"2":{"score":0.6379,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 358619부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.6084,"skill":0.5686,"combined":0.5865,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.4587,"skill":0.1751,"combined":0.213,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"kev-9b-v2","pub":41.54,"same_skills":42.37,"new_domains":29.9,"v":40.91,"lab":false,"jev":false,"rank_v":118,"rank_pub":133,"name":"Kev 9B v2","eq":{"S":41.81,"O":39.57},"rank_tie":27,"tied":true,"parts":{"public":0,"same_skills":25.08,"new_domains":15.83}},"notes":["Per-benchmark times are not shown: the board run sent r
+[data/index.json 문자 위치 580881부터 원문 그대로] 6,"v":32.72,"lab":false,"jev":false,"rank_v":146,"rank_pub":140,"name":"Winnow-E4B","eq":{"S":36.17,"O":27.54},"rank_tie":34,"tied":true,"parts":{"public":0,"same_skills":21.7,"new_domains":11.02}}},{"engine":"clef-flash","name":"Cloudflare clef-flash","long_name":"Cloudflare clef-flash","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9650000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/Cloudflare/clef-flash","code_ur
+[data/index.json 문자 위치 581080부터 원문 그대로] {"engine":"clef-flash","name":"Cloudflare clef-flash","long_name":"Cloudflare clef-flash","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9650000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/Cloudflare/clef-flash","code_url":null,"base_model":"Qwen/Qwen3.5-9B","base_url":"https://huggingface.co/Qwen/Qwen3.5-9B","weights_repo":null,"served_checkpoint":null,"org":{"id":"Cloudflare","name":"Cloudflare","logo":"data/orgs/Cloudflare.png"}},"completed":110201,"c
+[data/index.json 문자 위치 581545부터 원문 그대로] repo":null,"served_checkpoint":null,"org":{"id":"Cloudflare","name":"Cloudflare","logo":"data/orgs/Cloudflare.png"}},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7563,"conf":0.7764,"ece":0.0249,"brier":0.3333,"over95":0.0088,"n":35088,"benchmarks":32,"rel":[{"lo":0,"w":0.0383,"conf":0.0325,"acc":0.0405},{"lo":0.1,"w":0.0174,"conf":0.1504,"acc":0.201},{"lo":0.2,"w":0.0233,"conf":0.2542,"acc":0.2736},{"lo":
+[data/index.json 문자 위치 582431부터 원문 그대로] 0.0393,"acc":0.8467,"conf":0.886},"retrieval":{"ece":0.196,"acc":0.6304,"conf":0.6984},"tools":{"ece":0.0578,"acc":0.9709,"conf":0.9193},"arts":{"ece":0.0221,"acc":0.6162,"conf":0.6076}}},"gaps":null,"latency":{"median":53.4,"p95":null,"mean":149.8},"results":{"1":{"score":0.9876,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":108.1},"2":{"score":0.6624,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 593434부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.851,"skill":0.8187,"combined":0.6595,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6266,"skill":0.4841,"combined":0.3927,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"clef-flash","pub":56.15,"same_skills":44.01,"new_domains":35,"v":44.43,"lab":false,"jev":false,"rank_v":103,"rank_pub":84,"name":"Cloudflare clef-flash","eq":{"S":43.46,"O":45.87},"rank_tie":24,"tied":true,"parts":{"public":0,"same_skills":26.08,"new_domains":18.35}}},{"engine":"decider-4b","name":"Decider 4B","long_nam
+[data/index.json 문자 위치 1068599부터 원문 그대로] "v":14.53,"lab":false,"jev":false,"rank_v":201,"rank_pub":189,"name":"Sifr 0.8B v3.1","eq":{"S":18.09,"O":9.2},"rank_tie":48,"tied":true,"parts":{"public":0,"same_skills":10.86,"new_domains":3.68}}},{"engine":"laya-1e28ac20","name":"Laya","long_name":"Laya","variant":null,"meta":{"kind":"full fine-tune","technique":"encoder","technique_name":"encoder","served_params":421293830,"params_estimated":false,"params_from_name":false,"trained_bytes":2329053944,"model_url":"https://huggingface.co/convaiinnovations/laya","code_url
+[data/index.json 문자 위치 1068753부터 원문 그대로] :0,"same_skills":10.86,"new_domains":3.68}}},{"engine":"laya-1e28ac20","name":"Laya","long_name":"Laya","variant":null,"meta":{"kind":"full fine-tune","technique":"encoder","technique_name":"encoder","served_params":421293830,"params_estimated":false,"params_from_name":false,"trained_bytes":2329053944,"model_url":"https://huggingface.co/convaiinnovations/laya","code_url":"https://github.com/NandhaKishorM/laya","base_model":null,"base_url":null,"weights_repo":"convaiinnovations/laya","served_checkpoint":null},"completed":109767,"counts":{"ok":109767,"unsupported":320},"lifted":false,"calibration":{"acc":0.377,"conf":0.5172,"
+[data/index.json 문자 위치 1069142부터 원문 그대로] .com/NandhaKishorM/laya","base_model":null,"base_url":null,"weights_repo":"convaiinnovations/laya","served_checkpoint":null},"completed":109767,"counts":{"ok":109767,"unsupported":320},"lifted":false,"calibration":{"acc":0.377,"conf":0.5172,"ece":0.1402,"brier":0.7211,"over95":0.0116,"n":35088,"benchmarks":32,"rel":[{"lo":0,"w":0.0485,"conf":0.0771,"acc":0.0455},{"lo":0.1,"w":0.0375,"conf":0.1433,"acc":0.1199},{"lo":0.2,"w":0.0673,"conf":0.2665,"acc":0.1752},{"lo"
+[data/index.json 문자 위치 1070327부터 원문 그대로] ,"share":0.0026},{"reason":"prompt longer than its context window (no truncation allowed)","share":0},{"reason":"answer options longer than its per-option budget (no truncation allowed)","share":0}]},"latency":{"median":5.8,"p95":222.5,"mean":32.7},"results":{"1":{"score":0.3813,"jev":0.964,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":38.7},"2":{"score":0.1278,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 1082693부터 원문 그대로] had 72 rows of ~5.3 s kernel compilation, kept as latency-v1-full.fast-coldjit); p95 still includes first-use CUDA graph capture per bucket. Stock path (19.8 / 51.2 ms) kept as latency-v1-full.stock","v03":{"engine":"laya-1e28ac20","pub":6.19,"same_skills":9.08,"new_domains":6.63,"v":9.21,"lab":false,"jev":false,"rank_v":216,"rank_pub":222,"name":"Laya","eq":{"S":8.13,"O":10.84},"rank_tie":53,"tied":true,"parts":{"public":0,"same_skills":4.88,"new_domains":4.33}}},{"engine":"clm-v0.1-8b","name":"CLM-v0.1-8B","long_name":"CLM-v0.1-8B Qw
+[data/index.json 문자 위치 1390022부터 원문 그대로] .95,"lab":false,"jev":false,"rank_v":50,"rank_pub":82,"name":"garas (Gemma 4 31B)","eq":{"S":56.24,"O":63.03},"rank_tie":11,"tied":true,"parts":{"public":0,"same_skills":33.74,"new_domains":25.21}}},{"engine":"darwin-27b-ztc","name":"Darwin-27B-ZTC","long_name":"Darwin-27B-ZTC","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":25624600064,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/FINAL-Bench/Darwin-27B-ZTC","code_url":null,"base_model":"FINAL-Bench/Darwin-27B-RSI","base_
+[data/index.json 문자 위치 1753025부터 원문 그대로] ull,"model_url":null,"code_url":null,"base_model":null,"base_url":null,"weights_repo":null,"served_checkpoint":null},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7377,"conf":0.8146,"ece":0.078,"brier":0.3577,"over95":0.0213,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0002,"conf":0.082,"acc":0.4},{"lo":0.1,"w":0.0188,"conf":0.1646,"acc":0.0982},{"lo":0.2,"w":0.0303,"conf":0.2417,"acc":0.1844},{"lo":0.3
+[data/index.json 문자 위치 1753907부터 원문 그대로] 0615,"acc":0.8248,"conf":0.8861},"retrieval":{"ece":0.1536,"acc":0.6685,"conf":0.8206},"tools":{"ece":0.0219,"acc":0.9471,"conf":0.9543},"arts":{"ece":0.0934,"acc":0.5701,"conf":0.6605}}},"gaps":null,"latency":{"median":524,"p95":536.1,"mean":524},"results":{"1":{"score":0.9575,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":876.6},"2":{"score":0.6528,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 1765232부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.7764,"skill":0.7509,"combined":0.7317,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.583,"skill":0.3908,"combined":0.4898,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"jev-1.13.0","pub":57.96,"same_skills":58.04,"new_domains":47.72,"v":59.22,"lab":false,"jev":false,"rank_v":48,"rank_pub":69,"name":"Jev 1.13","eq":{"S":57.66,"O":61.58},"rank_tie":11,"tied":true,"parts":{"public":0,"same_skills":34.59,"new_domains":24.63}}},{"engine":"startlux-decision-v1.1-27b-instant","name":"StartLux-D
+[data/index.json 문자 위치 1778969부터 원문 그대로] "lab":false,"jev":false,"rank_v":6,"rank_pub":3,"name":"StartLux-Decision v1.1 27B","eq":{"S":64.51,"O":73.02},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":38.71,"new_domains":29.21}}},{"engine":"pplx-decider-v1.2","name":"Perplexity Decider v1.2 (27B)","long_name":"Perplexity Decider v1.2 (27B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":26085330160,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/perplexity-ai/pplx-decider-v1.
+[data/index.json 문자 위치 1779191부터 원문 그대로] -v1.2","name":"Perplexity Decider v1.2 (27B)","long_name":"Perplexity Decider v1.2 (27B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":26085330160,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/perplexity-ai/pplx-decider-v1.2","code_url":null,"base_model":"Qwen/Qwen3.8-27B","base_url":"https://huggingface.co/Qwen/Qwen3.8-27B","weights_repo":null,"served_checkpoint":null,"org":{"id":"perplexity-ai","name":"Perplexity","logo":"data/orgs/perplexity-ai.png"}},"completed":11
+[data/index.json 문자 위치 1779675부터 원문 그대로] null,"served_checkpoint":null,"org":{"id":"perplexity-ai","name":"Perplexity","logo":"data/orgs/perplexity-ai.png"}},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7877,"conf":0.8206,"ece":0.0551,"brier":0.2996,"over95":0.018,"n":34406,"benchmarks":31,"rel":[{"lo":0,"w":0.0143,"conf":0.0766,"acc":0.1721},{"lo":0.1,"w":0.0227,"conf":0.1452,"acc":0.2894},{"lo":0.2,"w":0.0166,"conf":0.2485,"acc":0.4783},{"lo":
+[data/index.json 문자 위치 1780562부터 원문 그대로] 0145,"acc":0.8985,"conf":0.9073},"retrieval":{"ece":0.1383,"acc":0.7122,"conf":0.8474},"tools":{"ece":0.0372,"acc":0.9557,"conf":0.9858},"arts":{"ece":0.0922,"acc":0.6911,"conf":0.6056}}},"gaps":null,"latency":{"median":144.4,"p95":1552.2,"mean":415.1},"results":{"1":{"score":0.9776,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":180.1},"2":{"score":0.6745,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 1792295부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.872,"skill":0.8544,"combined":0.8244,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7166,"skill":0.5624,"combined":0.5642,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"pplx-decider-v1.2","pub":67.74,"same_skills":64.3,"new_domains":57.76,"v":67.98,"lab":false,"jev":false,"rank_v":4,"rank_pub":14,"name":"Perplexity Decider v1.2 (27B)","eq":{"S":63.99,"O":73.98},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":38.39,"new_domains":29.59}}},{"engine":"pplx-decider-flash-v1.2","name":"P
+[data/index.json 문자 위치 1792596부터 원문 그대로] ":false,"jev":false,"rank_v":4,"rank_pub":14,"name":"Perplexity Decider v1.2 (27B)","eq":{"S":63.99,"O":73.98},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":38.39,"new_domains":29.59}}},{"engine":"pplx-decider-flash-v1.2","name":"Perplexity Decider Flash v1.2 (4B)","long_name":"Perplexity Decider Flash v1.2 (4B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4539265536,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/perplexity-ai/pplx-decider-flas
+[data/index.json 문자 위치 1792834부터 원문 그대로] me":"Perplexity Decider Flash v1.2 (4B)","long_name":"Perplexity Decider Flash v1.2 (4B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4539265536,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2","code_url":null,"base_model":"Qwen/Qwen3.5-4B","base_url":"https://huggingface.co/Qwen/Qwen3.5-4B","weights_repo":null,"served_checkpoint":null,"org":{"id":"perplexity-ai","name":"Perplexity","logo":"data/orgs/perplexity-ai.png"}},"completed":110
+[data/index.json 문자 위치 1793321부터 원문 그대로] null,"served_checkpoint":null,"org":{"id":"perplexity-ai","name":"Perplexity","logo":"data/orgs/perplexity-ai.png"}},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.742,"conf":0.7799,"ece":0.0523,"brier":0.3626,"over95":0.0305,"n":34406,"benchmarks":31,"rel":[{"lo":0,"w":0.0327,"conf":0.0712,"acc":0.1476},{"lo":0.1,"w":0.0226,"conf":0.1407,"acc":0.2411},{"lo":0.2,"w":0.0103,"conf":0.2513,"acc":0.3572},{"lo"
+[data/index.json 문자 위치 1794209부터 원문 그대로] 0171,"acc":0.8681,"conf":0.8664},"retrieval":{"ece":0.1389,"acc":0.7057,"conf":0.8417},"tools":{"ece":0.0342,"acc":0.9394,"conf":0.9701},"arts":{"ece":0.0918,"acc":0.6086,"conf":0.5168}}},"gaps":null,"latency":{"median":74.8,"p95":380.5,"mean":136.8},"results":{"1":{"score":0.9575,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":73.1},"2":{"score":0.6511,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 1805700부터 원문 그대로] 1,"pending":0,"n":6},{"id":"tools","raw":0.8303,"skill":0.81,"combined":0.757,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6382,"skill":0.4662,"combined":0.45,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"pplx-decider-flash-v1.2","pub":60.06,"same_skills":56.16,"new_domains":40.02,"v":54.29,"lab":false,"jev":false,"rank_v":71,"rank_pub":49,"name":"Perplexity Decider Flash v1.2 (4B)","eq":{"S":55.76,"O":52.07},"rank_tie":16,"tied":true,"parts":{"public":0,"same_skills":33.46,"new_domains":20.83}}},{"engine":"amos-1-large","name":"Amos 1
+[data/index.json 문자 위치 1872982부터 원문 그대로] lse,"rank_v":7,"rank_pub":23,"name":"AJev lm6q (Gemma 4 31B)","eq":{"S":63.05,"O":74.34},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":37.83,"new_domains":29.74}},"new_in_edition":true},{"engine":"mammoth-1","name":"baselabs mammoth-1 (27B)","long_name":"baselabs mammoth-1 (27B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27356728560,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/baselabs/mammoth-1","code_url"
+[data/index.json 문자 위치 1873186부터 원문 그대로] ine":"mammoth-1","name":"baselabs mammoth-1 (27B)","long_name":"baselabs mammoth-1 (27B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27356728560,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/baselabs/mammoth-1","code_url":null,"base_model":"Qwen/Qwen3.5-27B","base_url":"https://huggingface.co/Qwen/Qwen3.5-27B","weights_repo":"baselabs/mammoth-1","served_checkpoint":"9d1962f193e48a68cf0f3598dc7fb4462fd23ad9","org":{"id":"baselabs","name":"baselabs","logo"
+[data/index.json 문자 위치 1873737부터 원문 그대로] d9","org":{"id":"baselabs","name":"baselabs","logo":"data/orgs/baselabs.png"},"pr":260,"new":true,"show_notes":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.8266,"conf":0.8653,"ece":0.0408,"brier":0.2377,"over95":0.0137,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0026,"conf":0.0772,"acc":0.2456},{"lo":0.1,"w":0.0116,"conf":0.1531,"acc":0.1653},{"lo":0.2,"w":0.0139,"conf":0.2517,"acc":0.2851},{"lo"
+[data/index.json 문자 위치 1874626부터 원문 그대로] .0153,"acc":0.9135,"conf":0.9271},"retrieval":{"ece":0.1139,"acc":0.7402,"conf":0.8541},"tools":{"ece":0.032,"acc":0.9557,"conf":0.9853},"arts":{"ece":0.0531,"acc":0.7567,"conf":0.7645}}},"gaps":null,"latency":{"median":220.1,"p95":712.5,"mean":435.1},"results":{"1":{"score":0.9823,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":331.3},"2":{"score":0.7042,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 1886346부터 원문 그대로] pending":0,"n":6},{"id":"tools","raw":0.9014,"skill":0.886,"combined":0.8343,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7771,"skill":0.6408,"combined":0.627,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"mammoth-1","pub":75.34,"same_skills":66.26,"new_domains":56.27,"v":68.44,"lab":false,"jev":false,"rank_v":3,"rank_pub":1,"name":"baselabs mammoth-1 (27B)","eq":{"S":65.98,"O":72.14},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":39.59,"new_domains":28.86}},"new_in_edition":true},{"engine":"elephant-1-basela
+[data/index.json 문자 위치 1886656부터 원문 그대로] lse,"rank_v":3,"rank_pub":1,"name":"baselabs mammoth-1 (27B)","eq":{"S":65.98,"O":72.14},"rank_tie":3,"tied":true,"parts":{"public":0,"same_skills":39.59,"new_domains":28.86}},"new_in_edition":true},{"engine":"elephant-1-baselabs","name":"baselabs elephant-1 (9B)","long_name":"baselabs elephant-1 (9B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9409813744,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/baselabs/elephant-1","code_url"
+[data/index.json 문자 위치 1886870부터 원문 그대로] hant-1-baselabs","name":"baselabs elephant-1 (9B)","long_name":"baselabs elephant-1 (9B)","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9409813744,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/baselabs/elephant-1","code_url":null,"base_model":"Qwen/Qwen3.5-9B","base_url":"https://huggingface.co/Qwen/Qwen3.5-9B","weights_repo":"baselabs/elephant-1","served_checkpoint":"14537f08b0374edf9867ed0a4d2bd8df59e0400c","org":{"id":"baselabs","name":"baselabs","logo"
+[data/index.json 문자 위치 1887420부터 원문 그대로] 0c","org":{"id":"baselabs","name":"baselabs","logo":"data/orgs/baselabs.png"},"pr":243,"new":true,"show_notes":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.8013,"conf":0.8571,"ece":0.0578,"brier":0.2711,"over95":0.0154,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0052,"conf":0.0795,"acc":0.1676},{"lo":0.1,"w":0.0138,"conf":0.148,"acc":0.1881},{"lo":0.2,"w":0.0108,"conf":0.2555,"acc":0.2489},{"lo":
+[data/index.json 문자 위치 1888305부터 원문 그대로] .0205,"acc":0.9025,"conf":0.9229},"retrieval":{"ece":0.1966,"acc":0.681,"conf":0.8774},"tools":{"ece":0.0281,"acc":0.9603,"conf":0.9831},"arts":{"ece":0.0353,"acc":0.7386,"conf":0.7627}}},"gaps":null,"latency":{"median":113.7,"p95":253.3,"mean":221.5},"results":{"1":{"score":0.9829,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":113.4},"2":{"score":0.6765,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 1899974부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.896,"skill":0.8796,"combined":0.8207,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7611,"skill":0.6163,"combined":0.5667,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"elephant-1-baselabs","pub":72.24,"same_skills":62.44,"new_domains":44.41,"v":60.26,"lab":false,"jev":false,"rank_v":40,"rank_pub":4,"name":"baselabs elephant-1 (9B)","eq":{"S":62.11,"O":57.49},"rank_tie":10,"tied":true,"parts":{"public":0,"same_skills":37.27,"new_domains":22.99}},"new_in_edition":true},{"engine":"matilda-decision
+[data/index.json 문자 위치 1993295부터 원문 그대로] ,"jev":false,"rank_v":86,"rank_pub":40,"name":"OneJev1.6-4B","eq":{"S":55.37,"O":39.15},"rank_tie":20,"tied":true,"parts":{"public":0,"same_skills":33.22,"new_domains":15.66}},"new_in_edition":true},{"engine":"onejev1.6-0.8b","name":"OneJev1.6-0.8B","long_name":"OneJev1.6-0.8B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":852985920,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/OmniJev/OneJev1.6-0.8B","code_ur
+[data/index.json 문자 위치 1993484부터 원문 그대로] on":true},{"engine":"onejev1.6-0.8b","name":"OneJev1.6-0.8B","long_name":"OneJev1.6-0.8B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":852985920,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/OmniJev/OneJev1.6-0.8B","code_url":null,"base_model":"Qwen/Qwen3.5-0.8B","base_url":"https://huggingface.co/Qwen/Qwen3.5-0.8B","weights_repo":null,"served_checkpoint":null,"org":{"id":"OmniJev","name":"OmniJev","logo":"data/orgs/OmniJev.png"},"pr":217,"replaces":"onejev1.
+[data/index.json 문자 위치 1993992부터 원문 그대로] g":{"id":"OmniJev","name":"OmniJev","logo":"data/orgs/OmniJev.png"},"pr":217,"replaces":"onejev1.5-0.8b","new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7039,"conf":0.7379,"ece":0.0351,"brier":0.3828,"over95":0.0082,"n":34406,"benchmarks":31,"rel":[{"lo":0,"w":0.0025,"conf":0.0828,"acc":0.0947},{"lo":0.1,"w":0.0197,"conf":0.1573,"acc":0.1064},{"lo":0.2,"w":0.0252,"conf":0.2571,"acc":0.2756},{"lo"
+[data/index.json 문자 위치 1994881부터 원문 그대로] .0203,"acc":0.7841,"conf":0.7943},"retrieval":{"ece":0.0338,"acc":0.7916,"conf":0.8224},"tools":{"ece":0.0256,"acc":0.9336,"conf":0.9492},"arts":{"ece":0.074,"acc":0.6119,"conf":0.6847}}},"gaps":null,"latency":{"median":13.1,"p95":103.9,"mean":32.6},"results":{"1":{"score":0.9634,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":39.6},"2":{"score":0.6846,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 2006229부터 원문 그대로] nding":0,"n":6},{"id":"tools","raw":0.7492,"skill":0.7286,"combined":0.6265,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6163,"skill":0.3564,"combined":0.3334,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"onejev1.6-0.8b","pub":48.76,"same_skills":40.49,"new_domains":9.28,"v":29.58,"lab":false,"jev":false,"rank_v":158,"rank_pub":112,"name":"OneJev1.6-0.8B","eq":{"S":39.9,"O":14.11},"rank_tie":36,"tied":true,"parts":{"public":0,"same_skills":23.94,"new_domains":5.64}},"new_in_edition":true},{"engine":"garum","name":"garum (Gemma 
+[data/index.json 문자 위치 2060175부터 원문 그대로] v":false,"rank_v":47,"rank_pub":53,"name":"Xor 26B-A4B v1.2","eq":{"S":58.37,"O":61.06},"rank_tie":11,"tied":true,"parts":{"public":0,"same_skills":35.02,"new_domains":24.42}},"new_in_edition":true},{"engine":"startlux-decision-v1.1-9b-instant","name":"StartLux-Decision v1.1 9B","long_name":"StartLux-Decision v1.1 9B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9653104368,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decisi
+[data/index.json 문자 위치 2060405부터 원문 그대로] .1-9b-instant","name":"StartLux-Decision v1.1 9B","long_name":"StartLux-Decision v1.1 9B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":9653104368,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant","code_url":null,"base_model":"Qwen/Qwen3.5-9B","base_url":"https://huggingface.co/Qwen/Qwen3.5-9B","weights_repo":null,"served_checkpoint":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"new"
+[data/index.json 문자 위치 2060926부터 원문 그대로] t":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.8015,"conf":0.8473,"ece":0.0458,"brier":0.265,"over95":0.0142,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0013,"conf":0.0922,"acc":0.0929},{"lo":0.1,"w":0.0049,"conf":0.1556,"acc":0.0954},{"lo":0.2,"w":0.0126,"conf":0.2578,"acc":0.1292},{"lo"
+[data/index.json 문자 위치 2061812부터 원문 그대로] 0.0172,"acc":0.9021,"conf":0.912},"retrieval":{"ece":0.0337,"acc":0.8146,"conf":0.8474},"tools":{"ece":0.0073,"acc":0.9687,"conf":0.9663},"arts":{"ece":0.0319,"acc":0.7406,"conf":0.768}}},"gaps":null,"latency":{"median":38.6,"p95":261.4,"mean":93},"results":{"1":{"score":0.9776,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":238},"2":{"score":0.6774,"jev":null,"metric":"nDCG@10"
+[data/index.json 문자 위치 2073112부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.8974,"skill":0.8817,"combined":0.8063,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.772,"skill":0.6309,"combined":0.5829,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"startlux-decision-v1.1-9b-instant","pub":69.98,"same_skills":61.3,"new_domains":41.38,"v":58.07,"lab":false,"jev":false,"rank_v":55,"rank_pub":8,"name":"StartLux-Decision v1.1 9B","eq":{"S":60.95,"O":53.75},"rank_tie":12,"tied":true,"parts":{"public":0,"same_skills":36.57,"new_domains":21.5}},"new_in_edition":true},{"engine":"startlux-decisio
+[data/index.json 문자 위치 2073447부터 원문 그대로] e,"rank_v":55,"rank_pub":8,"name":"StartLux-Decision v1.1 9B","eq":{"S":60.95,"O":53.75},"rank_tie":12,"tied":true,"parts":{"public":0,"same_skills":36.57,"new_domains":21.5}},"new_in_edition":true},{"engine":"startlux-decision-v1.1-4b-instant","name":"StartLux-Decision v1.1 4B","long_name":"StartLux-Decision v1.1 4B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4659865088,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decisi
+[data/index.json 문자 위치 2073677부터 원문 그대로] .1-4b-instant","name":"StartLux-Decision v1.1 4B","long_name":"StartLux-Decision v1.1 4B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4659865088,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decision-v1.1-4B-Instant","code_url":null,"base_model":"Qwen/Qwen3.5-4B","base_url":"https://huggingface.co/Qwen/Qwen3.5-4B","weights_repo":null,"served_checkpoint":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"new"
+[data/index.json 문자 위치 2074198부터 원문 그대로] t":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7812,"conf":0.8329,"ece":0.0517,"brier":0.2956,"over95":0.0217,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0015,"conf":0.0841,"acc":0.026},{"lo":0.1,"w":0.0059,"conf":0.1581,"acc":0.1376},{"lo":0.2,"w":0.0172,"conf":0.2654,"acc":0.0873},{"lo":
+[data/index.json 문자 위치 2075084부터 원문 그대로] 0121,"acc":0.8839,"conf":0.8918},"retrieval":{"ece":0.1214,"acc":0.7535,"conf":0.8702},"tools":{"ece":0.0197,"acc":0.9486,"conf":0.9683},"arts":{"ece":0.0273,"acc":0.7375,"conf":0.7548}}},"gaps":null,"latency":{"median":38.3,"p95":165.7,"mean":68.8},"results":{"1":{"score":0.9628,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":195},"2":{"score":0.6773,"jev":null,"metric":"nDCG@10"
+[data/index.json 문자 위치 2086373부터 원문 그대로] nding":0,"n":6},{"id":"tools","raw":0.8813,"skill":0.8642,"combined":0.7696,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7513,"skill":0.6002,"combined":0.5717,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"startlux-decision-v1.1-4b-instant","pub":67.81,"same_skills":58.6,"new_domains":38.07,"v":54.8,"lab":false,"jev":false,"rank_v":69,"rank_pub":13,"name":"StartLux-Decision v1.1 4B","eq":{"S":58.22,"O":49.67},"rank_tie":15,"tied":true,"parts":{"public":0,"same_skills":34.93,"new_domains":19.87}},"new_in_edition":true},{"engine":"startlux-decisi
+[data/index.json 문자 위치 2099980부터 원문 그대로] "rank_v":123,"rank_pub":55,"name":"StartLux-Decision v1.1 2B","eq":{"S":51.07,"O":23.68},"rank_tie":28,"tied":true,"parts":{"public":0,"same_skills":30.64,"new_domains":9.47}},"new_in_edition":true},{"engine":"startlux-decision-v1.1-0.8b-instant","name":"StartLux-Decision v1.1 0.8B","long_name":"StartLux-Decision v1.1 0.8B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":873438784,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decisio
+[data/index.json 문자 위치 2100216부터 원문 그대로] b-instant","name":"StartLux-Decision v1.1 0.8B","long_name":"StartLux-Decision v1.1 0.8B","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":873438784,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant","code_url":null,"base_model":"Qwen/Qwen3.5-0.8B","base_url":"https://huggingface.co/Qwen/Qwen3.5-0.8B","weights_repo":null,"served_checkpoint":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"ne
+[data/index.json 문자 위치 2100742부터 원문 그대로] t":null,"org":{"id":"startlux-models","name":"StartLux","logo":"data/orgs/startlux-models.png"},"pr":208,"new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7251,"conf":0.7269,"ece":0.0145,"brier":0.362,"over95":0.0051,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0027,"conf":0.0833,"acc":0.0591},{"lo":0.1,"w":0.0112,"conf":0.1614,"acc":0.2645},{"lo":0.2,"w":0.0332,"conf":0.262,"acc":0.2039},{"lo":
+[data/index.json 문자 위치 2101627부터 원문 그대로] 0144,"acc":0.8055,"conf":0.7962},"retrieval":{"ece":0.0175,"acc":0.7836,"conf":0.7818},"tools":{"ece":0.0487,"acc":0.9095,"conf":0.8651},"arts":{"ece":0.0406,"acc":0.7027,"conf":0.6711}}},"gaps":null,"latency":{"median":29.9,"p95":87.1,"mean":40.3},"results":{"1":{"score":0.9351,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":151.4},"2":{"score":0.6401,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 2112904부터 원문 그대로] pending":0,"n":6},{"id":"tools","raw":0.7709,"skill":0.7458,"combined":0.617,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.6936,"skill":0.511,"combined":0.4962,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"startlux-decision-v1.1-0.8b-instant","pub":53.79,"same_skills":41.29,"new_domains":6.86,"v":28.88,"lab":false,"jev":false,"rank_v":161,"rank_pub":91,"name":"StartLux-Decision v1.1 0.8B","eq":{"S":40.71,"O":11.12},"rank_tie":37,"tied":true,"parts":{"public":0,"same_skills":24.43,"new_domains":4.45}},"new_in_edition":true},{"engine":"verdin-4b","na
+[data/index.json 문자 위치 2480772부터 원문 그대로] lse,"rank_v":44,"rank_pub":21,"name":"mogan-decision-31B-it","eq":{"S":57.28,"O":63.64},"rank_tie":11,"tied":true,"parts":{"public":0,"same_skills":34.37,"new_domains":25.46}},"new_in_edition":true},{"engine":"jeffan-31b-1710","name":"Jeffan-31b-1710","long_name":"Jeffan-31b-1710","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":31273086512,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/tattrongvu/Jeffan-31b-1710","c
+[data/index.json 문자 위치 2480964부터 원문 그대로] :true},{"engine":"jeffan-31b-1710","name":"Jeffan-31b-1710","long_name":"Jeffan-31b-1710","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":31273086512,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/tattrongvu/Jeffan-31b-1710","code_url":null,"base_model":"google/gemma-4-31B-it","base_url":"https://huggingface.co/google/gemma-4-31B-it","weights_repo":null,"served_checkpoint":null,"pr":241,"new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted
+[data/index.json 문자 위치 2481387부터 원문 그대로] rl":"https://huggingface.co/google/gemma-4-31B-it","weights_repo":null,"served_checkpoint":null,"pr":241,"new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.8241,"conf":0.8706,"ece":0.0465,"brier":0.2485,"over95":0.0164,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0003,"conf":0.0896,"acc":0.125},{"lo":0.1,"w":0.0075,"conf":0.1541,"acc":0.1575},{"lo":0.2,"w":0.0109,"conf":0.2535,"acc":0.235},{"lo":0
+[data/index.json 문자 위치 2482273부터 원문 그대로] 0117,"acc":0.9128,"conf":0.9184},"retrieval":{"ece":0.0883,"acc":0.8169,"conf":0.9048},"tools":{"ece":0.0397,"acc":0.9566,"conf":0.9907},"arts":{"ece":0.0589,"acc":0.7495,"conf":0.7996}}},"gaps":null,"latency":{"median":121,"p95":1514,"mean":336.2},"results":{"1":{"score":0.9752,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":54.9},"2":{"score":0.7565,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 2493596부터 원문 그대로] pending":0,"n":6},{"id":"tools","raw":0.908,"skill":0.8937,"combined":0.8118,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7792,"skill":0.636,"combined":0.6489,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"jeffan-31b-1710","pub":73.13,"same_skills":66.15,"new_domains":59.06,"v":69.75,"lab":false,"jev":false,"rank_v":2,"rank_pub":2,"name":"Jeffan-31b-1710","eq":{"S":65.86,"O":75.58},"rank_tie":2,"tied":false,"parts":{"public":0,"same_skills":39.52,"new_domains":30.23}},"new_in_edition":true},{"engine":"autotrust-jev-27b-v11","n
+[data/index.json 문자 위치 2681973부터 원문 그대로] ev":false,"rank_v":174,"rank_pub":157,"name":"jdi-ptr14-0.8b","eq":{"S":30.58,"O":13.06},"rank_tie":40,"tied":true,"parts":{"public":0,"same_skills":18.35,"new_domains":5.23}},"new_in_edition":true},{"engine":"glide-v1.2","name":"Fastino GLiDE 1.2","long_name":"Fastino GLiDE 1.2","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/fastino/GLiDE","code_url":"htt
+[data/index.json 문자 위치 2682164부터 원문 그대로] ":true},{"engine":"glide-v1.2","name":"Fastino GLiDE 1.2","long_name":"Fastino GLiDE 1.2","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":27800000000,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/fastino/GLiDE","code_url":"https://huggingface.co/fastino/GLiDE/tree/main/glide","base_model":"Qwen/Qwen3.8-27B","base_url":"https://huggingface.co/Qwen/Qwen3.8-27B","weights_repo":"fastino/GLiDE","served_checkpoint":"a7e45896be7c96ba3354891da790c5ec99c30b6c","weights_note":null,"org":{"id":"fastino","name":"Fa
+[data/index.json 문자 위치 2682793부터 원문 그대로] astino","name":"Fastino","logo":"data/orgs/fastino.png"},"pr":255,"replaces":"decision-27b-ckpt-nothink","new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.8149,"conf":0.8262,"ece":0.0204,"brier":0.2568,"over95":0.0072,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.009,"conf":0.0816,"acc":0.1135},{"lo":0.1,"w":0.0187,"conf":0.1404,"acc":0.227},{"lo":0.2,"w":0.0066,"conf":0.2448,"acc":0.3639},{"lo":0
+[data/index.json 문자 위치 2683676부터 원문 그대로] 0.0181,"acc":0.9015,"conf":0.8834},"retrieval":{"ece":0.0348,"acc":0.8163,"conf":0.8358},"tools":{"ece":0.0388,"acc":0.9474,"conf":0.986},"arts":{"ece":0.0415,"acc":0.751,"conf":0.7216}}},"gaps":null,"latency":{"median":92.9,"p95":1121.1,"mean":284},"results":{"1":{"score":0.9734,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":308.2},"2":{"score":0.7122,"jev":null,"metric":"nDCG@1
+[data/index.json 문자 위치 2695126부터 원문 그대로] ending":0,"n":6},{"id":"tools","raw":0.8964,"skill":0.8804,"combined":0.8491,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.769,"skill":0.6259,"combined":0.5867,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"glide-v1.2","pub":71.99,"same_skills":68.57,"new_domains":59.66,"v":71.52,"lab":false,"jev":false,"rank_v":1,"rank_pub":5,"name":"Fastino GLiDE 1.2","eq":{"S":68.31,"O":76.32},"rank_tie":1,"tied":false,"parts":{"public":0,"same_skills":40.99,"new_domains":30.53}},"new_in_edition":true},{"engine":"h2o-lightning-31b","nam
+[data/index.json 문자 위치 2843638부터 원문 그대로] alse,"rank_v":26,"rank_pub":11,"name":"KnowLine 26B-A4B Gen2.5","eq":{"S":62.49,"O":67.7},"rank_tie":6,"tied":true,"parts":{"public":0,"same_skills":37.5,"new_domains":27.08}},"new_in_edition":true},{"engine":"knowline-4b-gen5.5","name":"KnowLine 4B Gen5.5","long_name":"KnowLine 4B Gen5.5","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4659865088,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5","cod
+[data/index.json 문자 위치 2843839부터 원문 그대로] engine":"knowline-4b-gen5.5","name":"KnowLine 4B Gen5.5","long_name":"KnowLine 4B Gen5.5","variant":null,"meta":{"kind":"full fine-tune","technique":"autoregressive","technique_name":"autoregressive","served_params":4659865088,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5","code_url":null,"base_model":"Qwen/Qwen3.5-4B","base_url":"https://huggingface.co/Qwen/Qwen3.5-4B","weights_repo":null,"served_checkpoint":null,"org":{"id":"PelaAI","name":"PelaAI","logo":"data/orgs/PelaAI.png"},"pr":272,"replaces":"knowline-4b-g
+[data/index.json 문자 위치 2844346부터 원문 그대로] rg":{"id":"PelaAI","name":"PelaAI","logo":"data/orgs/PelaAI.png"},"pr":272,"replaces":"knowline-4b-gen5","new":true},"completed":110201,"counts":{"ok":110201,"unsupported":0,"error":0},"lifted":false,"calibration":{"acc":0.7825,"conf":0.8275,"ece":0.0472,"brier":0.2928,"over95":0.0142,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0073,"conf":0.082,"acc":0.1127},{"lo":0.1,"w":0.0166,"conf":0.1389,"acc":0.1941},{"lo":0.2,"w":0.0111,"conf":0.249,"acc":0.2437},{"lo":0
+[data/index.json 문자 위치 2845232부터 원문 그대로] 0282,"acc":0.8697,"conf":0.8974},"retrieval":{"ece":0.0339,"acc":0.7706,"conf":0.7829},"tools":{"ece":0.0225,"acc":0.9637,"conf":0.9782},"arts":{"ece":0.0411,"acc":0.7461,"conf":0.7689}}},"gaps":null,"latency":{"median":35.2,"p95":170.3,"mean":61.1},"results":{"1":{"score":0.9728,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":null},"2":{"score":0.6839,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 2857161부터 원문 그대로] nding":0,"n":6},{"id":"tools","raw":0.8912,"skill":0.8736,"combined":0.7712,"coverage":1,"pending":0,"n":5},{"id":"arts","raw":0.7582,"skill":0.6097,"combined":0.5883,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"knowline-4b-gen5.5","pub":66.76,"same_skills":61.2,"new_domains":37.28,"v":55.99,"lab":false,"jev":false,"rank_v":63,"rank_pub":17,"name":"KnowLine 4B Gen5.5","eq":{"S":60.85,"O":48.69},"rank_tie":14,"tied":true,"parts":{"public":0,"same_skills":36.51,"new_domains":19.48}},"new_in_edition":true},{"engine":"gliclass-v4-edge","nam
+[data/index.json 문자 위치 2857476부터 원문 그대로] :false,"rank_v":63,"rank_pub":17,"name":"KnowLine 4B Gen5.5","eq":{"S":60.85,"O":48.69},"rank_tie":14,"tied":true,"parts":{"public":0,"same_skills":36.51,"new_domains":19.48}},"new_in_edition":true},{"engine":"gliclass-v4-edge","name":"GLiClass v4 edge (0.4B)","long_name":"GLiClass v4 edge (0.4B)","variant":null,"meta":{"kind":"full fine-tune","technique":"encoder","technique_name":"encoder","served_params":439790595,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/knowledgator/gliclass-v4-edge","code_ur
+[data/index.json 문자 위치 2857671부터 원문 그대로] ue},{"engine":"gliclass-v4-edge","name":"GLiClass v4 edge (0.4B)","long_name":"GLiClass v4 edge (0.4B)","variant":null,"meta":{"kind":"full fine-tune","technique":"encoder","technique_name":"encoder","served_params":439790595,"params_estimated":false,"params_from_name":false,"trained_bytes":null,"model_url":"https://huggingface.co/knowledgator/gliclass-v4-edge","code_url":null,"base_model":"microsoft/deberta-v3-large","base_url":"https://huggingface.co/microsoft/deberta-v3-large","weights_repo":null,"served_checkpoint":null,"org":{"id":"knowledgator","name":"Knowledgator Engineering","logo":"data/orgs/knowledgator
+[data/index.json 문자 위치 2858203부터 원문 그대로] rg":{"id":"knowledgator","name":"Knowledgator Engineering","logo":"data/orgs/knowledgator.png"},"pr":270,"new":true},"completed":110201,"counts":{"ok":110199,"unsupported":2,"error":0},"lifted":false,"calibration":{"acc":0.68,"conf":0.7581,"ece":0.0887,"brier":0.4259,"over95":0.0315,"n":34411,"benchmarks":31,"rel":[{"lo":0,"w":0.0278,"conf":0.0784,"acc":0.1911},{"lo":0.1,"w":0.0296,"conf":0.139,"acc":0.2121},{"lo":0.2,"w":0.0206,"conf":0.2571,"acc":0.1929},{"lo":
+[data/index.json 문자 위치 2859090부터 원문 그대로] 0849,"acc":0.7904,"conf":0.8753},"retrieval":{"ece":0.0838,"acc":0.7699,"conf":0.8485},"tools":{"ece":0.0467,"acc":0.9092,"conf":0.8695},"arts":{"ece":0.0859,"acc":0.5907,"conf":0.6083}}},"gaps":null,"latency":{"median":21.8,"p95":188.2,"mean":55.7},"results":{"1":{"score":0.9055,"jev":null,"metric":"case exact accuracy","requests":1694,"answered":1694,"unsupported":0,"errors":0,"median_ms":19.9},"2":{"score":0.5502,"jev":null,"metric":"nDCG@10
+[data/index.json 문자 위치 2870546부터 원문 그대로] ":0,"n":6},{"id":"tools","raw":0.6255,"skill":0.5812,"combined":0.4976,"coverage":0.9995,"pending":0,"n":5},{"id":"arts","raw":0.5853,"skill":0.3859,"combined":0.4022,"coverage":1,"pending":0,"n":6}],"v03":{"engine":"gliclass-v4-edge","pub":47.49,"same_skills":42.16,"new_domains":10.53,"v":31.21,"lab":false,"jev":false,"rank_v":152,"rank_pub":119,"name":"GLiClass v4 edge (0.4B)","eq":{"S":41.59,"O":15.64},"rank_tie":35,"tied":true,"parts":{"public":0,"same_skills":24.95,"new_domains":6.26}},"new_in_edition":true},{"engine":"jpt-35b-a3b","name
+[data/methodology.json 문자 위치 731부터 원문 그대로] sion":"jev-1.14.0","jev_edition":"Lab run, 2026-10-14","jev_api_cost_usd":12.2567,"jev_billed_tokens":{"input_tokens":291826668,"output_tokens":44483219},"hardware":{"label":"1 x NVIDIA RTX PRO 6000","reproductions":"1 x NVIDIA RTX PRO 6000 (Blackwell Server Edition, 96 GB), one GPU per run, isolated Python environment per engine","jev":"TypeSafe hosted API (jev-1.14.0) over HTTPS; the frozen suite's request payloads still name jev-1.13.0, the model they were built with"},"release_notes":["Original 500-case pilot remains froze
+[data/methodology.json 문자 위치 864부터 원문 그대로] ut_tokens":44483219},"hardware":{"label":"1 x NVIDIA RTX PRO 6000","reproductions":"1 x NVIDIA RTX PRO 6000 (Blackwell Server Edition, 96 GB), one GPU per run, isolated Python environment per engine","jev":"TypeSafe hosted API (jev-1.14.0) over HTTPS; the frozen suite's request payloads still name jev-1.13.0, the model they were built with"},"release_notes":["Original 500-case pilot remains frozen separately.","Request caps count planned logical e
+[data/methodology.json 문자 위치 157028부터 원문 그대로] g answer is never retried."},{"rule":"Native abstentions stand","detail":"A model that abstains keeps its abstention as a terminal answer; the wrapper never forces it into a listed option."},{"rule":"Unanswered = wrong","detail":"Unsupported, refused and errored requests score zero against the full denominator. Nobody climbs by skipping the hard cases."}],"complete_run_gate":{"total_requests":120340,"excluded_questions":442,"scoreable_rows":119898,"rule":"A run enters the index only when its status event is
+[data/methodology.json 문자 위치 206678부터 원문 그대로] 2,"44":25,"45":3,"48":50,"50":8,"56":10,"57":60,"58":27,"59":14,"61":20,"62":18,"64":2},"refusals":"every entrant runs the same 760 rows; rows it refuses on its board run are recorded but not timed"},"load":"one process, one request at a time, no concurrency, on exactly one RTX PRO 6000 (96 GB); no multi-GPU entrants","path":"fastest inference path the model or its code supports (CUDA graphs, fused/fla kernels, flash attention, compiled paths, vLLM/SGLang, prefix/KV reuse, batching questions inside a row); rows th
+[data/methodology.json 문자 위치 245369부터 원문 그대로] are":0,"reasons":[]},{"engine":"eikos-27b-fp8","name":"Eikos-27B","variant":"FP8","total":120340,"unanswered":0,"share":0,"reasons":[]}],"changelog":[{"edition":"v0.4.1","date":"2026-10-21","notes":["We expanded and refreshed the private new-domain tests to cover a wider range of real decisions and measure them more accurately. The added tasks are harder, so new-domain scores sit lower than before."]},{"edition":"v0.4","date":"2026-10-19","notes":["Full score = 0.60 × private tests of the same skills + 0.40 × private tasks from new domains, both mapped onto the public scale using untuned stock 
+[data/methodology.json 문자 위치 245780부터 원문 그대로] ion":"v0.4","date":"2026-10-19","notes":["Full score = 0.60 × private tests of the same skills + 0.40 × private tasks from new domains, both mapped onto the public scale using untuned stock models.","Public benchmarks are still run and shown next to every model, but they no longer count toward the Full score: the ranking rests entirely on tests nobody can train on.","The new-domain part uses a revised set of private tasks, kept to the ones that rank untuned stock models the same way the rest of the index does.","Ties are unchanged: models within 0.9 points of t
+[data/methodology.json 문자 위치 246098부터 원문 그대로] king rests entirely on tests nobody can train on.","The new-domain part uses a revised set of private tasks, kept to the ones that rank untuned stock models the same way the rest of the index does.","Ties are unchanged: models within 0.9 points of the first model in their group share a rank."]},{"edition":"v0.3.2","date":"2026-10-12","notes":["Scoring bug fix: three same-skill sets (the GPQA, MMLU-Pro and BBH skill sets) were left out of the same-skill score for 37 models scored since th

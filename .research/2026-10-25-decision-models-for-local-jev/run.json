@@ -1,0 +1,160 @@
+{
+ "slug": "2026-10-25-decision-models-for-local-jev",
+ "question": "2026-10-25 기준으로 로컬에서 돌릴 수 있는 Jev 대안(판단과 확률을 내는 open 구현과 모델)에는 무엇이 있고, 어떤 리더보드로 비교되며, 로컬에서 쓰려면 무엇을 골라야 하는가",
+ "flipCondition": "후보가 Jev Decision Index 의 비공개 시험에서 Jev 1.14 와 0.9점 안에 들지 못하거나, 라이선스가 상용 운영을 막거나, 요청 형식·질문 격리가 기존 Jev 클라이언트와 맞지 않으면 그 GPU 칸의 판정이 바뀐다",
+ "decided": [
+  "문서 종류는 comparison 으로 정했다. 요청이 '무엇을 골라야 하는지'를 묻기 때문이다.",
+  "새 문서로 썼다. research/2026-09-21-jev-system-one 은 Jev 설명의 참고로만 읽고 고치지 않았다(owner 지시).",
+  "corpus 종류는 oss 로 정했다. 중심 자료가 Hugging Face 저장소(Space 와 model repo)이고 모두 커밋으로 고정했다. TypeSafe 문서와 AA 방법론은 web 출처로 고정 사본과 archive 를 남겼다.",
+  "비교 기준 보드는 Jev Decision Index 0.4.1(Space 커밋 0b5ecaf, 데이터 2026-10-22)로 정했다. 로컬 가중치를 직접 돌리고 비공개 시험으로 순위를 매기는 유일한 쪽이라서다. Artificial Analysis Decision Index 는 벤더 API 만 재므로 방법론만 다뤘다.",
+  "후보는 보드 228행 가운데 크기 구간별 상위 행과 앞선 문서·업계에서 많이 언급된 행(Kev, Laya, Clef-flash)으로 골랐다. 모든 행의 카드를 읽지는 않았다.",
+  "GPU 메모리 칸(CPU, 16GB, 24~48GB, 80GB 이상)은 bf16 가중치 크기(파라미터 x 2바이트)에 여유를 더해 정했다. 문서에 이 조사의 판단이라고 밝혔다.",
+  "1위 GLiDE 1.2 를 첫 추천으로 두지 않았다. Fastino Community License 가 연 매출 1천만 달러 초과 기업의 상용 운영에 별도 계약을 요구하기 때문이다.",
+  "slug 는 check-doc 의 title-subject 규칙에 맞춰 2026-10-25-local-jev-alternatives 에서 2026-10-25-decision-models-for-local-jev 로 new-doc.mjs rename 했다.",
+  "owner 의 이번 실행 지시대로 ship.mjs 를 돌리지 않았고 push 와 PR 도 하지 않았다.",
+  "Hugging Face 출처 14개를 kind=web 으로 기록했다. 게이트 hook 은 RESEARCH_CHECKOUT_DIR 없이 돌아서 repo 체크아웃을 찾지 못한다. 그래서 커밋을 담은 resolve URL 에서 받은 바이트를 notes/web/<id>.txt 로 고정했다. repo 와 commit 은 같은 줄에 남겼다. 보드의 한 줄 JSON(3.1MB)은 인용 주변 ±200자만 발췌했고 원본 sha256 을 file_sha256 에 적었다."
+ ],
+ "needs_owner": [
+  "lens A 가 후보의 유지 이력(릴리스 주기, 관리자 수, 이슈 응답)을 요구했다. 지금은 9장에 '보지 않았다'는 한계로만 적었다. 선택지: (a) 그대로 둔다, (b) 후보 저장소의 커밋 이력과 Discussions 를 열어 유지 장을 추가한다. 내 선택은 (a)다. 저장소가 모두 한 달 남짓이라 이력이 판단을 바꾸기 어렵다.",
+  "Artificial Analysis Decision Index 의 점수표는 JavaScript 로 그려져 정적 사본에 값이 없다. 선택지: (a) 방법론만 둔다, (b) headless 렌더로 값을 받아 hosted 비교를 한 장 추가한다. 내 선택은 (a)다. 로컬 선택이라는 질문에는 쓰이지 않는다.",
+  "한국어 업무 성능은 자료가 없다. 실제 도입 전에 owner 의 한국어 표본으로 elephant-1(또는 mammoth-1)과 Jev 1.14 를 함께 재는 실행이 필요하다. 이 문서 범위 밖이다."
+ ],
+ "unverified": [
+  "모델을 하나도 실행하지 않았다. 메모리·설치 조건은 각 model card 의 설명이고 지연은 보드가 RTX PRO 6000 에서 잰 값이다.",
+  "각 모델의 서빙 코드(engine.py, serve.patch, knowline_server.py, pplx_decider 패키지 등)는 열지 않았다. 6장의 질문 처리 방식은 카드의 설명이다.",
+  "mammoth-1 과 elephant-1 이 한 요청의 질문끼리 서로 보는지 확인하지 못했다(카드에 없음).",
+  "보드의 비공개 시험은 운영자 밖에서 확인할 수 없다.",
+  "Kev 27B 와 pplx-decider flash 카드는 앞부분만, StartLux 9B, Laya, Clef-flash 는 라이선스 머리말만 읽었다.",
+  "Artificial Analysis 점수표 값은 읽지 못했다."
+ ],
+ "unfixed": [],
+ "rendered": "render.mjs 로 1280px 과 390px 화면을 찍어 표지, 4장 막대 그림, 6장 표(390px), 8장 판단 판을 눈으로 확인했다. 배치 경고 없음(첫 렌더의 390px 가로 넘침은 표를 tablewrap 으로 감싸 고쳤다).",
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 13,
+   "rejected": 3,
+   "touched": 6,
+   "recheck": {
+    "hard": 2,
+    "wording": 0,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 2,
+   "applied": 3,
+   "rejected": 0,
+   "touched": 3,
+   "recheck": {
+    "hard": 0,
+    "wording": 0,
+    "badRejections": 0
+   }
+  }
+ ],
+ "rejected": [
+  "lens A: 3장의 Artificial Analysis 칸을 접으라는 제안. owner 질문이 '어떤 리더보드로 비교되는지'를 묻기 때문에 남겼다.",
+  "lens A: 9장의 '카드와 실제 접근' 항목을 7장으로 옮기라는 제안. 확인 시점에 기댄 관찰이라 한계 장에 두었다.",
+  "lens A: 7장의 bf16 크기 계산 노트를 빼라는 제안. 8장 GPU 칸의 근거라 남겼다."
+ ],
+ "stoppedBecause": "dry",
+ "after_last_recheck": [],
+ "openFindings": 0,
+ "gates": {
+  "at": "2026-10-25T12:39:24.449Z",
+  "session": "da5824ed-50f9-41de-8d8e-fd6ca5321697",
+  "results": {
+   "check-doc": {
+    "pass": true
+   },
+   "check-prose": {
+    "pass": true
+   },
+   "check-claims": {
+    "pass": true
+   }
+  }
+ },
+ "commitSubject": "로컬에서 돌리는 Jev 대안 decision model 비교 문서 추가",
+ "commitBody": "TypeSafe Jev 를 로컬에서 대신할 open-weight decision model 을 비교한다.\nJev Decision Index 0.4.1 의 비공개 시험 Full score 를 크기별로 견주고, 요청 형식과\n질문 격리, GPU 메모리, 라이선스를 겹쳐 GPU 칸별로 시험할 모델을 고른다.\n\n출처:\n- huggingface.co/spaces/multimodalart/jev-decision-index @ 0b5ecaf (데이터 2026-10-22)\n- model card: fastino/GLiDE, tattrongvu/Jeffan-31b-1710, baselabs/mammoth-1,\n  baselabs/elephant-1, perplexity-ai/pplx-decider-v1.2 와 flash-v1.2, jaredpalmer/kev-27b,\n  PelaAI/KnowLine-4B-Gen5.5, startlux-models/StartLux-Decision-v1.1-9B-Instant,\n  knowledgator/gliclass-v4-edge, OmniJev/OneJev1.6-0.8B, convaiinnovations/laya,\n  Cloudflare/clef-flash (모두 커밋 고정)\n- TypeSafe 문서 Models, Introduction 과 Artificial Analysis Decision Index 방법론\n  (2026-10-25 사본)",
+ "finishedAt": "2026-10-25T21:40:00+09:00",
+ "reviews": [
+  {
+   "at": "2026-10-25T12:29:02.451Z",
+   "agent": "lens-numbers",
+   "sha": "f1aee7046fd3d8dc130997598e1eed60569683f68caf52d6ec2720d94fc8e2ae"
+  },
+  {
+   "at": "2026-10-25T12:29:07.241Z",
+   "agent": "lens-reader",
+   "sha": "f1aee7046fd3d8dc130997598e1eed60569683f68caf52d6ec2720d94fc8e2ae"
+  },
+  {
+   "at": "2026-10-25T12:34:34.868Z",
+   "agent": "recheck",
+   "sha": "465a53aa3cfb64c306ab283443462161d06c7567e373afb5897ea14190ba009f"
+  },
+  {
+   "at": "2026-10-25T12:36:06.478Z",
+   "agent": "recheck",
+   "sha": "c7b2be8a20b5450e9662bae8e9c770fc6e251eb5744bde540f2abfe858161101"
+  }
+ ],
+ "usage": {
+  "at": "2026-10-25T12:39:24.449Z",
+  "total": {
+   "claude-sonnet-5-5": {
+    "input_tokens": 78,
+    "cache_creation_input_tokens": 147022,
+    "cache_read_input_tokens": 1048132,
+    "output_tokens": 26070
+   },
+   "claude-opus-5-5": {
+    "input_tokens": 256,
+    "cache_creation_input_tokens": 423590,
+    "cache_read_input_tokens": 33729839,
+    "output_tokens": 133189
+   }
+  },
+  "byAgent": {
+   "lens-numbers": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 36,
+     "cache_creation_input_tokens": 60526,
+     "cache_read_input_tokens": 630922,
+     "output_tokens": 10305
+    }
+   },
+   "lens-reader": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 6,
+     "cache_creation_input_tokens": 23318,
+     "cache_read_input_tokens": 30389,
+     "output_tokens": 5274
+    }
+   },
+   "recheck": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 36,
+     "cache_creation_input_tokens": 63178,
+     "cache_read_input_tokens": 386821,
+     "output_tokens": 10491
+    }
+   },
+   "researcher": {
+    "claude-opus-5-5": {
+     "input_tokens": 256,
+     "cache_creation_input_tokens": 423590,
+     "cache_read_input_tokens": 33729839,
+     "output_tokens": 133189
+    }
+   }
+  }
+ }
+}
