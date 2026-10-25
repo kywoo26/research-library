@@ -24,9 +24,8 @@ Invoke `research-source` and follow the hand-offs through `research-doc` and
 from its ledger and draft (a document only on a pull request: `node scripts/checkout-doc.mjs <slug>` first), reopen the pinned source only where the ledger falls short, and
 run `research-verify` on what you changed.
 
-Where a skill would ask the owner, decide what you can from the request and the source and
-record it in `run.json` under `decided`; what only the owner can decide goes under
-`needs_owner`.
+Where a skill would ask the owner, decide from the request and the source and record it in
+`run.json` under `decided`; `needs_owner` holds only what `research-verify` leaves to the owner.
 
 When the last round is done, write `commitSubject` and `commitBody` into `run.json` (the
 Commits section of `AGENTS.md`) and run `node scripts/ship.mjs research/<slug>`. It runs the

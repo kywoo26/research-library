@@ -145,12 +145,13 @@ go through the lenses again.
 **Must-fix items are the author's to resolve without asking.** A wrong number, a flipped
 direction, a truncated quote and a dead cross-reference each have one correct answer.
 
-**Needs-judgment items are the author's too, except where the fix changes what the document
-concludes or how much of it exists.** Retitling, cutting a chapter, adding one and reopening
-the corpus are the owner's: record each in `run.json` under `needs_owner` with the options
-and the one you would pick, and leave the document as it is. A fix that needs a chapter that is
-not there stays a needs-judgment item even when it would fit in one line, because a line
-with no chapter behind it is what the next round finds.
+**Needs-judgment items are the author's too.** The owner handed over the whole job, so
+retitling, cutting, merging or adding a chapter and reopening the corpus are yours to decide:
+make the call, and record it in `run.json` under `decided` with the reason, where the owner
+reviews it in the pull request. A fix that needs a chapter that is not there gets the chapter,
+because a line with no chapter behind it is what the next round finds. Only two things go under
+`needs_owner`: a request that reads two ways with different answers, and something only the
+owner can supply.
 
 Re-run the machine checks after fixing, and have the `recheck` agent re-read the chapters the
 edits touched. Stop when a round turns up no new must-fix item; two rounds at most. After the
