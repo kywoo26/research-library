@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="ko" data-format="board">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식</title>
+<meta name="description" content="Google Cloud AI Research 의 Harness² 가 harness 파일 편집과 같은 과제 재실행으로 frozen 모델의 점수를 올리는 원리, 다른 harness 개선 기법과의 차이, 실증된 것과 주장에 그치는 것을 논문 v1 과 공개 코드로 가른다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식">
+<meta property="og:description" content="Google Cloud AI Research 의 Harness² 가 harness 파일 편집과 같은 과제 재실행으로 frozen 모델의 점수를 올리는 원리, 다른 harness 개선 기법과의 차이, 실증된 것과 주장에 그치는 것을 논문 v1 과 공개 코드로 가른다.">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-25-harness2-recursive-agent-harnessing/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ═══ board 셸 ═══════════════════════════════════════════════
+   장은 주장(h2) 하나와 그 주장을 담은 판(board) 하나다. 작성자는 상자가 어느 줄(lane)
+   어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
+   html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
+
+/* ── tokens. tone 의 뜻은 모든 문서에서 같다 ── */
+:root {
+  color-scheme: light;
+  --paper:#f6f6f3; --card:#ffffff; --ink:#1f2328; --ink-2:#424a53; --muted:#6e7781; --rule:#d8dee4; --wire:#6e7781;
+  --s1:#0969da; --s2:#cf4a22; --dim:#afb8c1;
+  --n-bg:#ffffff; --n-bd:#c9d1d9; --n-ink:#1f2328;   /* 기본: 대상 하나 */
+  --k-bg:#eef4ff; --k-bd:#0969da; --k-ink:#0550ae;   /* t-key: 판에서 장이 주장하는 상자 하나 (판마다 하나까지) */
+  --g-bg:#effbf2; --g-bd:#1a7f37; --g-ink:#116329;   /* t-good: 좋아진다, 권한다 */
+  --w-bg:#fff8c5; --w-bd:#9a6700; --w-ink:#7d4e00;   /* t-warn: 조건, 주의 */
+  --b-bg:#ffebe9; --b-bd:#cf222e; --b-ink:#a40e26;   /* t-bad: 실패, 나빠진다 */
+  --p-bg:#fff0f6; --p-bd:#bf3989; --p-ink:#99286e;   /* t-person: 사람이 하는 일 */
+  --q-bg:#f6f8fa; --q-bd:#afb8c1; --q-ink:#424a53;   /* t-quiet: 배경, 재지 않은 것 */
+  --r-bg:#f8f5ff; --r-bd:#8250df; --r-ink:#6639ba;   /* react: 원문 밖의 반응 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper:#0d1117; --card:#161b22; --ink:#e6edf3; --ink-2:#b1bac4; --muted:#8b949e; --rule:#30363d; --wire:#8b949e;
+    --s1:#4493f8; --s2:#f0883e; --dim:#545d68;
+    --n-bg:#161b22; --n-bd:#3d444d; --n-ink:#e6edf3;
+    --k-bg:#0c2240; --k-bd:#4493f8; --k-ink:#79b8ff;
+    --g-bg:#0f2a19; --g-bd:#3fb950; --g-ink:#7ee787;
+    --w-bg:#2a2110; --w-bd:#d29922; --w-ink:#e3b341;
+    --b-bg:#3a1418; --b-bd:#f85149; --b-ink:#ff8e86;
+    --p-bg:#33152a; --p-bd:#db61a2; --p-ink:#f2a3cf;
+    --q-bg:#1b2029; --q-bd:#545d68; --q-ink:#b1bac4;
+    --r-bg:#1f1733; --r-bd:#a371f7; --r-ink:#d2a8ff;
+  }
+}
+
+/* ── page ── */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
+h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
+.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px; padding:8px 28px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--rule); }
+.topbar a { color:var(--s1); text-decoration:none; font-weight:600; }
+.topbar .now { color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:40px; }
+section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
+.chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
+h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
+h2 { font-size:clamp(22px,2.5vw,29px); line-height:1.28; letter-spacing:-.015em; margin:0 0 10px; max-width:30em; text-wrap:balance; }
+h3 { font-size:15px; margin:0 0 6px; }
+.answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
+p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
+.lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
+.block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
+ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
+ul.notes li::before { content:"· "; }
+ul.points { list-style:none; margin:0; padding:0; display:grid; gap:10px; max-width:64em; }
+ul.points li { background:var(--card); border:1px solid var(--rule); border-radius:9px; padding:10px 14px; font-size:14.5px; }
+ul.points li > b:first-child { display:block; margin-bottom:2px; }
+ul.sources { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; }
+ul.sources a { color:var(--s1); overflow-wrap:anywhere; }
+ul.sources .t { color:var(--ink-2); }
+details.orig { margin:18px 0 0; font-size:13.5px; color:var(--ink-2); }
+details.orig summary { cursor:pointer; color:var(--muted); font-size:13px; font-weight:600; }
+details.orig p { margin:8px 0; max-width:70em; }
+span.q { color:var(--ink-2); }
+a.xref, .lead a, .so a, ul.notes a, ul.points a { color:var(--s1); text-underline-offset:2px; }
+code { font:12.5px var(--mono); background:var(--q-bg); padding:1px 4px; border-radius:4px; }
+pre { font:12px/1.62 var(--mono); background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; overflow-x:auto; margin:0 0 14px; color:var(--ink-2); }
+pre b { color:var(--ink); } pre code { background:none; padding:0; }
+pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--b-ink); }
+.good { color:var(--g-ink); font-weight:700; } .bad { color:var(--b-ink); font-weight:700; }
+.plate { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:10px; }
+.plate img { display:block; width:100%; height:auto; }
+.tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--rule); border-radius:10px; margin:0 0 14px; }
+table { border-collapse:collapse; font-size:13px; width:100%; }
+td,th { padding:7px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--rule); line-height:1.5; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr:last-child td { border-bottom:0; }
+:focus-visible { outline:2px solid var(--s1); outline-offset:2px; border-radius:3px; }
+
+/* ── board ── */
+.board { position:relative; display:grid; column-gap:40px; row-gap:20px; align-items:stretch;
+  background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:22px 24px; margin:0; }
+.board.dense { column-gap:18px; }
+.board > .edge { position:absolute; z-index:3; font-size:11.5px; line-height:1.3; color:var(--ink-2); background:var(--card);
+  padding:1px 5px; border-radius:4px; white-space:nowrap; }
+.board > .edge:empty { display:none; }
+svg.wires { position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+svg.wires path { stroke:var(--wire); stroke-width:1.6; fill:none; }
+svg.wires path.head { fill:var(--wire); stroke:none; }
+svg.wires path.tether { stroke:var(--r-bd); stroke-dasharray:3 3; stroke-width:1.4; }
+.lane-label { font-size:13px; font-weight:700; color:var(--ink-2); align-self:center; }
+.lane-rule { align-self:start; height:0; border-top:1px dashed var(--rule); margin-top:-10px; }
+.axis-h { font:700 12.5px var(--mono); color:var(--ink-2); text-align:center; padding:0 0 6px; border-bottom:2px solid var(--rule); align-self:end; }
+.board[data-axis-arrow] .axis-h { border-bottom-color:transparent; }
+.axis-arrow { height:0; border-top:2px solid var(--muted); align-self:end; position:relative; margin-bottom:-1px; }
+.axis-arrow::after { content:""; position:absolute; right:-2px; top:-6px; border:5px solid transparent; border-left:8px solid var(--muted); }
+.axis-cap { font-size:11.5px; line-height:1.35; color:var(--muted); align-self:end; padding-bottom:4px; }
+
+/* ── card ── */
+.card { position:relative; z-index:1; display:block; background:var(--n-bg); border:1px solid var(--n-bd); border-radius:9px;
+  padding:11px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); text-decoration:none; }
+.card > b { display:block; font-size:14.5px; line-height:1.4; color:var(--n-ink); margin:0 0 3px; }
+.card p { margin:0 0 2px; }
+.card .ev { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:6px; }
+.card .big { display:block; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--n-ink); margin-top:2px; }
+.card .big small { font-size:14px; font-weight:600; color:var(--ink-2); }
+.card ul { margin:2px 0 0; padding-left:16px; } .card li { margin:1px 0; }
+.card a { color:var(--s1); }
+.chip { display:inline-block; font:600 11.5px/1.5 var(--mono); padding:0 6px; border-radius:5px; border:1px solid var(--n-bd); color:var(--ink-2); margin:0 4px 4px 0; background:var(--card); }
+.card .colchip, .card .to { display:none; }
+.card.slim { padding:7px 12px; }
+.card.slim > b { font-size:15px; margin:0; }
+.card.slim .ev { margin-top:0; }
+.t-key { --n-bg:var(--k-bg); --n-bd:var(--k-bd); --n-ink:var(--k-ink); }
+.t-good { --n-bg:var(--g-bg); --n-bd:var(--g-bd); --n-ink:var(--g-ink); }
+.t-warn { --n-bg:var(--w-bg); --n-bd:var(--w-bd); --n-ink:var(--w-ink); }
+.t-bad { --n-bg:var(--b-bg); --n-bd:var(--b-bd); --n-ink:var(--b-ink); }
+.t-person { --n-bg:var(--p-bg); --n-bd:var(--p-bd); --n-ink:var(--p-ink); }
+.t-quiet { --n-bg:var(--q-bg); --n-bd:var(--q-bd); --n-ink:var(--q-ink); }
+a.card[href]:hover { outline:2px solid var(--n-bd); outline-offset:1px; }
+a.inert { cursor:default; }
+/* 원문 밖의 반응. 바꾸는 주장(data-on) 바로 아래에 붙고 혼자 서지 않는다 */
+.card.react { --n-bg:var(--r-bg); --n-bd:var(--r-bd); --n-ink:var(--r-ink); border-style:dashed; border-width:1.5px; font-size:13px; }
+.card.react .who { display:block; font:600 11.5px/1.5 var(--mono); color:var(--r-ink); margin:0 0 4px; }
+.card.react .who::before { content:"외부 반응 · "; }
+.card.react .check { margin-top:6px; color:var(--ink-2); }
+.card.react .check::before { content:"원문 대조: "; font-weight:700; color:var(--ink); }
+.verdict { display:inline-block; font:700 11px/1.5 var(--mono); padding:0 6px; border-radius:5px; margin-right:4px; }
+.verdict.holds { background:var(--g-bg); color:var(--g-ink); border:1px solid var(--g-bd); }
+.verdict.contra { background:var(--b-bg); color:var(--b-ink); border:1px solid var(--b-bd); }
+.verdict.open { background:var(--q-bg); color:var(--q-ink); border:1px solid var(--q-bd); }
+
+/* ── split, panel, ladder ── */
+.split { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:18px; align-items:start; }
+.split.even { grid-template-columns:1fr 1fr; }
+.panel { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:18px 20px; }
+.panel > .block-title:first-child { margin-top:0; }
+.panel > .ev { font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+.ladder { display:grid; gap:16px; }
+.ladder > .card:not(:first-child)::before { content:""; position:absolute; left:22px; top:-16px; height:15px; border-left:1.6px solid var(--wire); }
+.meter { display:block; height:6px; border-radius:3px; background:var(--rule); margin:6px 0 2px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--n-bd); }
+
+/* ── plot: 표가 데이터이고 그림은 셸이 그린다 ── */
+figure.plot { margin:0; }
+.fig-title { font-size:14.5px; font-weight:700; margin:0 0 2px; }
+.fig-sub { font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+.plot-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-2); margin:0 0 4px; }
+.plot-legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.plot-canvas svg { display:block; }
+.plot-canvas .grid { stroke:var(--rule); stroke-width:1; }
+.plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
+.plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
+.plot-canvas .dot { stroke:var(--card); stroke-width:2; }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
+.plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
+.plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
+.plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
+ol.plot-marks { margin:4px 0 0; padding-left:0; list-style:none; font-size:12px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; }
+ol.plot-marks b { font-family:var(--mono); }
+.bars { display:grid; gap:9px; }
+.bar-row { display:grid; grid-template-columns:minmax(80px,140px) 1fr; gap:10px; align-items:center; }
+.bar-name { font-size:12.5px; color:var(--ink-2); text-align:right; }
+.bar-row.is-em .bar-name, .bar-row.is-em .bar-val { color:var(--ink); font-weight:700; }
+.bar-set { display:grid; gap:2px; }
+.bar-line { display:grid; grid-template-columns:1fr minmax(3.6em, max-content); gap:8px; align-items:center; }
+.bar-track { height:11px; background:repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%); border-radius:2px; }
+.bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
+.bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
+figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+details.vals { margin-top:6px; font-size:12.5px; }
+details.vals summary { cursor:pointer; color:var(--muted); }
+details.vals table { width:auto; font-size:12.5px; }
+details.vals td, details.vals th { padding:3px 10px 3px 0; }
+
+/* ── cover: 논증 흐름과 나머지 장의 짧은 목록 ── */
+.board .card[data-center] { align-self:center; }
+.toc { margin:18px 0 0; }
+.toc-h { font-size:13px; font-weight:700; color:var(--ink-2); margin:0 0 6px; }
+.toc ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+.toc li { display:grid; grid-template-columns:64px auto 1fr; gap:10px; align-items:baseline; font-size:13.5px; padding:5px 0; border-bottom:1px solid var(--rule); }
+.toc .g { font-size:12px; color:var(--muted); }
+.toc a { color:var(--ink); text-decoration:none; font-weight:600; white-space:nowrap; }
+.toc a[href]:hover { color:var(--s1); text-decoration:underline; }
+.toc .f { color:var(--muted); font-size:12.5px; }
+
+/* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
+@media (max-width: 760px) {
+  .topbar { padding:8px 16px; }
+  main { padding:0 14px 80px; }
+  section.slide { padding:36px 0 26px; }
+  .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
+  .board .lane-rule, .board .axis-h, .board .axis-arrow, .board .axis-cap, .board > .edge, .board > svg.wires { display:none; }
+  .board .lane-label { margin:10px 0 0; font-size:12.5px; color:var(--muted); }
+  .card .colchip { display:inline-block; }
+  .card .to { display:block; font-size:12.5px; color:var(--ink-2); margin-top:6px; }
+  .split, .split.even { grid-template-columns:1fr; }
+  .toc ul { grid-template-columns:1fr; grid-template-rows:none !important; grid-auto-flow:row; }
+  .toc li { grid-template-columns:1fr; gap:0; }
+  .toc .g:empty { display:none; }
+  .toc a { white-space:normal; }
+  .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
+}
+@media print { .topbar { display:none; } section.slide { break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="#p1">지도</a><span class="now"></span></div>
+<main>
+
+  <section class="slide" data-role="cover" data-label="표지">
+  <h1>Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식</h1>
+  <p class="answer">Harness² 는 모델은 그대로 두고 주위의 프롬프트, skill, script 같은 harness 파일을 과제마다 고쳐 쓰는 방법이다. 고친 harness 로 같은 과제를 다시 돌려 보고, 행동 차이를 근거로 편집을 고른다. 논문을 읽은 이 글의 판단으로는 원래 harness 대비 향상은 12개 조건 모두에서 측정됐지만, 다른 기법보다 낫다는 주장과 개선하는 법을 배운다는 주장은 근거가 얇다. 가져갈 것은 재실행으로 편집을 고르는 고리이고, 과제를 안전하게 다시 돌릴 수 있어야 쓸 수 있다.</p>
+  <p class="src">Google Cloud AI Research 와 Northwestern University 연구진(Ruiyao Xu, Yanfei Chen, Chen-Yu Lee, Tomas Pfister 외)이 낸 arXiv 논문 2610.14224 v1 과, 저자들이 google-research 조직에 공개한 코드 저장소 harness2 의 커밋 1cfe254 이다.</p>
+  <div class="board flow" data-cols="원인|원리|대가|실증|주장" aria-label="원래 harness 의 실패가 절차에서 나므로, 고친 harness 를 같은 과제에 다시 돌려 행동 차이로 고른다. 그 대가로 과제마다 여러 번 실행한다. 원래 harness 대비 향상은 측정됐고, 다른 기법 대비 우위와 배우는 개선은 근거가 얇다">
+    <a class="card" id="f-cause" href="#p2" data-col="원인"><b>논문이 보인 실패 사례는 절차를 건너뛴 경우다</b><p>파일을 맞춰 보지 않거나 tool 을 실제로 부르지 않는다</p></a>
+    <a class="card" id="f-loop" href="#p3" data-col="원리"><b>고친 harness 를 같은 과제에 다시 돌려 비교한다</b><p>정답 대신 기준 실행과의 행동 차이를 근거로 쓴다</p></a>
+    <a class="card" id="f-cost" href="#p4" data-col="대가"><b>과제 하나에 실행 4k 번, 편집 세션 3k 번</b><p>k=1 에서도 JobBench 토큰이 원래의 약 5배다</p></a>
+    <a class="card t-good" id="f-shown" href="#p8" data-col="실증"><b>원래 harness 대비 향상은 12개 조건 모두에서 났다</b><p>+1.2 에서 +11.8 점, 세 번 실행한 평균</p></a>
+    <a class="card t-warn" id="f-claim" href="#p12" data-col="주장"><b>다른 기법 대비 우위와 배우는 개선은 근거가 얇다</b><p>가장 강한 baseline 을 표준편차보다 크게 앞선 조건은 12개 중 3개</p></a>
+    <span class="edge" data-from="f-cause" data-to="f-loop"></span>
+    <span class="edge" data-from="f-loop" data-to="f-cost"></span>
+    <span class="edge" data-from="f-cost" data-to="f-shown"></span>
+    <span class="edge" data-from="f-shown" data-to="f-claim"></span>
+  </div>
+  <div class="toc">
+    <p class="toc-h">논증 밖에서 더 보는 장</p>
+    <ul>
+      <li><span class="g">원리</span><a href="#p5">5 · 사례</a><span class="f">JobBench 과제 하나가 43.1 에서 77.8 로 오른 경로</span></li>
+      <li><span class="g"></span><a href="#p6">6 · 멈추는 곳</a><span class="f">다시 돌릴 수 없는 과제, 후보가 같이 틀리는 과제, 편집 모델도 모르는 지식에서 원리가 멈춘다</span></li>
+      <li><span class="g">비교</span><a href="#p7">7 · 다른 기법</a><span class="f">Meta-Harness, ReasoningBank, Harness Scaling, Best-of-k 와 갈리는 지점</span></li>
+      <li><span class="g"></span><a href="#p9">9 · 기법 대비</a><span class="f">가장 강한 baseline 과의 점수 차이를 조건마다 계산했다</span></li>
+      <li><span class="g">근거</span><a href="#p10">10 · ablation</a><span class="f">library, scoping, composition 을 뺀 실험은 설정 하나에서만 돌렸다</span></li>
+      <li><span class="g"></span><a href="#p11">11 · 배우는 개선</a><span class="f">library 효과를 보인 비교는 실행 증거까지 함께 뺐다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">채점 모델 겹침, network 접근, 공개 코드와 논문 실행의 차이</span></li>
+      <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">논문 전부와 코드 저장소의 핵심 모듈을 읽었고 실행은 하지 않았다</span></li>
+      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">논문 v1 과 저장소 커밋</span></li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="slide" data-role="problem" data-label="원인">
+  <h2>논문이 보인 실패 사례는 절차를 건너뛴 경우다</h2>
+  <p class="lead">실험의 출발 harness 는 거의 비어 있다. 논문이 보여 준 실패 사례는 대부분 해야 할 절차를 건너뛴 경우다.</p>
+  <div class="board" data-cols="출발 harness|관찰된 실패|harness 가 바꾸는 곳" data-lanes="1|2|3" aria-label="출발 harness 는 benchmark 지시문과 빈 자리표시자뿐이고, 관찰된 실패는 절차를 건너뛴 것이며, 그 절차는 frozen 모델을 건드리지 않고 harness 의 여덟 파일로 고칠 수 있다">
+    <div class="card t-quiet" id="b-stock" data-col="출발 harness" data-lane="1..3" data-center><b>지시문과 자리표시자뿐인 파일들</b><p>상시 파일은 benchmark 지시문만 담고, skill 과 script 디렉터리에는 이름만 적힌 자리표시자가 있다</p><p class="ev">논문 부록 D.1</p></div>
+    <div class="card" id="b-f1" data-col="관찰된 실패" data-lane="1"><b>원본 파일끼리 숫자를 맞춰 보지 않는다</b><p>JobBench 메모 과제, 쓴 결과물을 다시 열어 확인하지도 않았다</p><p class="ev">§4 Case Study</p></div>
+    <div class="card" id="b-f2" data-col="관찰된 실패" data-lane="2"><b>tool 을 부르지 않고 호출문을 글로 쓴다</b><p>WorkBuddy Code 과제</p><p class="ev">부록 E.7</p></div>
+    <div class="card" id="b-f3" data-col="관찰된 실패" data-lane="3"><b>Word 변경 추적 층의 수정을 놓친다</b><p>LAB 중재 문서 과제</p><p class="ev">부록 E.7</p></div>
+    <div class="card t-key" id="b-fix" data-col="harness 가 바꾸는 곳" data-lane="1..3" data-center><b>여덟 개의 파일로 된 harness</b><p>system prompt, guardrails, memory, tool guidance, skills, scripts, subagents, plugin</p><p class="ev">§2.1, 부록 표 components</p></div>
+    <span class="edge" data-from="b-stock" data-to="b-f2"></span>
+    <span class="edge" data-from="b-f2" data-to="b-fix"></span>
+  </div>
+  <ul class="notes"><li>세 실패는 논문이 고른 사례다. 전체 실패 중 절차 실패의 비율을 논문은 세지 않았다.</li></ul>
+  <p class="so">그래서 모델 가중치를 고정해도 점수가 오를 여지가 있다. 출발 harness 가 빈약할수록 그 여지가 크다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§2.1: <span class="q">“Let $\mathcal{M}$ be a model with frozen parameters.”</span></p>
+    <p>부록 D.1: <span class="q">“In the stock harness the always-on files are empty apart from the benchmark's instructions and every on-demand directory contains only a placeholder that names the lever”</span></p>
+    <p>§4 Case Study: <span class="q">“Its trajectory revealed procedural failures rather than knowledge gaps: data was never reconciled across source files, and outputs were never reopened for verification after being written.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="원리">
+  <h2>고친 harness 를 같은 과제에 다시 돌려 행동 차이로 고른다</h2>
+  <p class="lead">정답이나 채점 결과 없이 고치는 것이 이 방법의 조건이다. 그래서 근거는 같은 과제를 원래 harness 와 고친 harness 로 각각 돌렸을 때의 행동 차이뿐이다.</p>
+  <div class="board" data-cols="1|2|3|4|5" data-lanes="과제 안|과제 사이" aria-label="과제 안에서는 기준 실행, 두 갈래 편집 제안, 같은 과제 재실행, 합성, 선택이 이어지고, 과제가 끝나면 채택한 harness 와 교훈을 library 에 넣어 다음 과제의 제안 단계로 되돌린다">
+    <div class="card" id="m1" data-col="1" data-lane="과제 안"><b>① 기준 실행</b><p>현재 harness 로 과제를 한 번 돌린다. 정답 여부가 아니라 행동을 보기 위한 실행이다</p><p class="ev">§2.2.1 Propose</p></div>
+    <div class="card" id="m2" data-col="2" data-lane="과제 안"><b>② 두 갈래 제안</b><p>편집 모델이 계획과 tool 사용 같은 일반 결함용, 해당 분야 지식용 harness 를 하나씩 만든다</p><p class="ev">§2.2.1 Propose</p></div>
+    <div class="card t-key" id="m3" data-col="3" data-lane="과제 안"><b>③ 같은 과제 재실행</b><p>두 후보를 같은 모델과 환경으로 다시 돌려 기준 실행과 비교한다</p><p class="ev">§2.2.1 Probe</p></div>
+    <div class="card" id="m4" data-col="4" data-lane="과제 안"><b>④ 합성</b><p>지지된 편집을 합치거나 하나만 고르거나 원래 harness 를 유지한다</p><p class="ev">§2.2.1 Compose</p></div>
+    <div class="card" id="m5" data-col="5" data-lane="과제 안"><b>⑤ 결과물 선택</b><p>k&gt;1 이면 선택 모델이 익명화한 결과물 중 하나를 고른다</p><p class="ev">§2.2.2 Final Selection</p></div>
+    <div class="card" id="m6" data-col="4..5" data-lane="과제 사이"><b>⑥ library 갱신</b><p>채택한 harness 전체와 EXPERIENCE.md 교훈을 분야별 library 에 넣는다</p><p class="ev">§2.3</p></div>
+    <span class="edge" data-from="m1" data-to="m2"></span>
+    <span class="edge" data-from="m2" data-to="m3"></span>
+    <span class="edge" data-from="m3" data-to="m4"></span>
+    <span class="edge" data-from="m4" data-to="m5"></span>
+    <span class="edge" data-from="m6" data-to="m2">다음 과제</span>
+  </div>
+  <ul class="notes">
+    <li>다음 과제는 앞 과제의 harness 를 물려받지 않고 같은 출발 harness 에서 시작한다. library 는 제안 단계에서 열어 보는 참고 자료로만 쓰인다.</li>
+    <li>parallel 방식은 ②와 ③을 k 쌍 만들고 합성을 k 번 따로 한다. sequential 방식은 ②에서 ④까지를 k 번 이어서 돈다.</li>
+    <li>어떤 행동 차이가 개선인지는 정해진 규칙이 아니라 합성 단계의 편집 모델이 diff 와 실행 기록을 읽고 판단한다. 저자들도 실행의 무작위성과 모델 공통의 편향 때문에 이 근거가 정답을 확인하지는 못한다고 적는다.</li>
+    <li>논문의 중심 그림은 pipeline 그림(Figure harness2_main_new)이고, 위 판은 그 단계를 따른다.</li>
+  </ul>
+  <p class="so">모델이 바뀌지 않아도 점수가 오르는 까닭은 편집이 trajectory 에서 본 실패를 겨냥하고, 같은 과제를 다시 돌려 그 효과를 확인하기 때문이다. k=1 이면 제출물은 합성한 harness 의 실행 한 번이라서 여러 결과물 중에 고르는 효과가 없다. k&gt;1 부터는 고르는 효과가 더해진다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§2.2.1: <span class="q">“The reference reveals how the harness behaves, not whether its deliverable is correct.”</span> <span class="q">“Each candidate harness is executed on the same task under matched model and environment configurations.”</span> <span class="q">“Composition is selective: it may merge supported changes, revise conflicting edits, adopt one candidate, or preserve the current harness.”</span></p>
+    <p>§2.3: <span class="q">“The next task starts from the common execution harness $\mathcal{H}_0$, but refinement is guided by the updated improvement harness $\mathcal{R}_{t+1}$.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="대가">
+  <h2>그 대가는 과제 하나에 실행 4k 번과 편집 3k 번이다</h2>
+  <p class="lead">공개 코드는 recursion 예산 k 마다 실행 4k 번과 편집 세션 3k 번을 잡는다. 그래서 k=1 에서도 과제를 네 번 돌리고, 편집 모델을 세 번 부른다.</p>
+  <table>
+    <thead><tr><th>설정</th><th>JobBench 과제당 토큰과 향상</th><th>WorkBuddy 과제당 토큰과 향상</th></tr></thead>
+    <tbody>
+      <tr><td>원래 harness</td><td>약 5M, 0</td><td>약 0.3M, 0</td></tr>
+      <tr><td>Harness² k=1</td><td>약 27M, +4.5</td><td>약 2.3M, +5.1</td></tr>
+      <tr><td>Harness² k=5</td><td>약 140M, +7.5</td><td>약 12M, +8.4</td></tr>
+      <tr><td>Meta-Harness</td><td>약 250M, 약 +4.3</td><td>약 20M, 약 +4.0</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>토큰 값과 Meta-Harness 의 향상은 논문 Figure total_cost 의 점 위치를 좌표에서 읽은 근삿값이다. Harness² 의 향상 값은 본문에 적힌 수다.</li>
+    <li>Gemini 3.5 Flash 와 OpenCode 조합 하나에서 잰 그림이다. 토큰에는 실행과 편집 비용이 모두 들어 있다.</li>
+    <li>parallel 방식에서 실행 4k 번은 기준 실행 k, 후보 2k, 합성 결과 k 이고, 편집 3k 번은 제안 2k 와 합성 k 다. 선택과 반성 세션은 따로 더해진다.</li>
+    <li>논문 본표 실험의 기본 편집 모델은 Claude Opus 4.8 이다. 실행 모델보다 비싼 모델이 3k 번 불린다는 뜻이다.</li>
+  </ul>
+  <p class="so">논문은 Harness² 가 compute 대비 향상의 Pareto frontier 에 있다고 보고한다. 다만 원래 harness 와 견주면 k=1 에서도 토큰을 JobBench 에서 약 5배, WorkBuddy 에서 약 8배 더 쓰고 얻은 향상이라, 도입 비용은 과제당 토큰으로 따져야 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>harness2/core/recursion.py:17: <span class="q">“Each mode schedules 4k rollouts and 3k improvement stages, including shared base executions.”</span></p>
+    <p>§4 Compute--Performance Trade-off: <span class="q">“increasing $k$ from $1$ to $5$ raises gains over the base from $4.5$ to $7.5$ points on JobBench and from $5.1$ to $8.4$ on WorkBuddy-Bench.”</span> <span class="q">“Meta-Harness uses more compute than \ours{} at $k{=}5$ for lower performance.”</span></p>
+    <p>부록 F: <span class="q">“\ours{} requires additional executions and editor sessions to propose, probe, and compose harness changes.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="case" data-label="사례">
+  <h2>JobBench 메모 과제는 편집 네 개로 43.1 에서 77.8 이 됐다</h2>
+  <p class="lead">Gemini 3.5 Flash 와 OpenCode 로 돌린 JobBench 과제 하나를 논문이 끝까지 보여 준다. 두 갈래 제안이 각각 다른 파일을 고쳤고, 합성 단계가 네 편집을 모두 남겼다.</p>
+  <pre><span class="c"># 논문 §4 Case Study 와 Figure case_jobbench</span>
+기준 실행             점수 43.1
+  trajectory          원본 파일끼리 숫자를 맞추지 않음, 쓴 결과물을 다시 열지 않음
+
+② 일반 결함 제안      guardrail: 입력을 모두 목록으로 만들고 숫자를 출처까지 추적
+                      script: 만든 파일을 다시 열어 확인
+② 분야 제안           skill: 일정, 장소, 인건비, 예산 파일을 맞추는 절차
+                      tool guidance: 이 과제의 숫자 형식 다루는 법
+③ 재실행과 비교       두 후보를 같은 과제에 다시 돌림
+④ 합성                <span class="k">네 편집을 모두 유지</span>
+재실행                숫자를 교차 확인하고 빠진 메모 절을 채움, <span class="k">점수 77.8</span></pre>
+  <ul class="notes">
+    <li>점수는 사후 채점 값이고 파이프라인은 이 점수를 보지 못한다.</li>
+    <li>부록의 다른 사례도 같은 모양이다. tool guidance 파일 하나로 60.0 에서 100.0 이 된 WorkBuddy Code 과제가 있다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>§4 Case Study: <span class="q">“The optimized re-run successfully cross-referenced the figures and restored the memo's missing sections, raising the score to $77.8$.”</span></p>
+    <p>부록 E.7: <span class="q">“The reference emits calls as plain text without running tools. A tool-guidance edit forbidding pseudo-calls raises the score from $60.0$ to $100.0$.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="limits" data-label="멈추는 곳">
+  <h2>재실행할 수 없거나 후보가 같이 틀리면 원리가 멈춘다</h2>
+  <p class="lead">논문이 보여 주지 않은 상황은 원리가 기대는 조건으로 예측한다. 아래 예측은 논문 수치와 코드에서 끌어낸 추론이고, 논문이 직접 시험한 것은 아니다.</p>
+  <ul class="points">
+    <li><b>되돌릴 수 없는 작업</b>메일 발송이나 결제처럼 실행이 바깥을 바꾸는 과제는 4k 번 다시 돌릴 수 없다. 논문의 세 benchmark 는 모두 매번 새 container 나 문서 사본에서 다시 돌릴 수 있는 과제다.</li>
+    <li><b>편집 모델도 모르는 지식이 필요한 실패</b>분야 지식은 편집 모델이 skill 로 적어 줄 수 있을 때만 메워진다. 절차 실패와 지식 실패를 나눠 잰 결과는 논문에 없어서, 지식이 모자라 틀리는 과제의 향상 폭은 예측할 근거가 약하다.</li>
+    <li><b>모델이 강할 때</b>향상이 준다는 경향은 일관되지 않다. 같은 모델로 편집한 실험에서 Opus 5 는 WorkBuddy +3.3 이었지만 JobBench 에서는 +5.5 로 다섯 모델 중 가장 컸다. k=1 본표에서도 GLM-5 가 Gemini 보다 크게 오른 것은 WorkBuddy 와 LAB 이고, JobBench 에서는 Gemini 쪽이 더 올랐다.</li>
+    <li><b>모든 후보가 같은 틀린 전제를 공유할 때</b>재실행 비교로는 잡히지 않는다. 논문의 실패 분석에서 틀린 전제가 후보 넷에 모두 퍼져 점수가 50 에서 42 로 내려간 사례가 있다.</li>
+    <li><b>원래 결과물이 더 나을 때</b>공개 코드의 선택 단계는 기준 실행의 결과물을 후보에 넣지 않는다. 그래서 편집이 해를 끼친 과제에서도 원래 결과물로 돌아갈 수 없고, 되돌리는 길은 합성 단계가 원래 harness 를 유지하는 것뿐이다.</li>
+  </ul>
+  <p class="so">자기 agent 에 적용할 때는 과제를 안전하게 여러 번 재실행할 수 있는지부터 확인한다. 논문의 출발 harness 는 거의 비어 있었으므로, 이미 다듬은 harness 에서 시작한다면 논문의 최대 향상을 그대로 기대하지 않는다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>harness2/core/selection.py:98: <span class="q">“so the reference executions are not in the pool and there is no abstention by construction.”</span></p>
+    <p>부록 E.6: <span class="q">“Second, an incorrect premise can propagate across candidates.”</span></p>
+    <p>부록 E.5: <span class="q">“\ours{} exceeds the strongest fixed alternative by $4.6$, $5.8$, and $4.9$ points on Code, Web, and Office.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="comparison" data-label="다른 기법">
+  <h2>다른 기법과 갈리는 곳은 재실행 비교와 합성이다</h2>
+  <p class="lead">논문이 실제로 돌린 baseline 은 아래 넷이고, 모두 같은 실행 모델과 같은 Opus 4.8 편집 모델을 쓴다. 표는 각 기법이 무엇을 언제 바꾸는지를 논문 설명대로 옮겼다.</p>
+  <table>
+    <thead><tr><th>기법</th><th>무엇을 언제, 무엇을 근거로 바꾸나</th><th>Harness² 와의 차이</th></tr></thead>
+    <tbody>
+      <tr><td>Best-of-k</td><td>harness 는 그대로 두고, 과제마다 원래 harness 로 k 번 돌린 결과물 중 하나를 고른다</td><td>재실행은 같고 harness 편집이 없다</td></tr>
+      <tr><td>ReasoningBank</td><td>과제 사이에 context 로 넣는 memory 를 바꾼다. 정답 없는 자기 판정으로 나눈 trajectory 가 근거다</td><td>harness 파일을 고치지 않는다</td></tr>
+      <tr><td>Harness Scaling</td><td>과제마다 harness 파일을 고치고 상태는 넘기지 않는다. 지금까지의 trajectory 가 근거다</td><td>두 갈래 제안, 합성, library 가 없다</td></tr>
+      <tr><td>Meta-Harness</td><td>배포 전에 한 번 harness 코드를 찾는다. train 절반의 채점 점수가 근거다</td><td>정답 신호를 쓰고 배포 뒤에는 고정한다</td></tr>
+      <tr><td>Harness²</td><td>과제마다 harness 파일 여덟 종을 고치고 library 를 넘긴다. 기준 실행과 후보 실행의 행동 차이가 근거다</td><td></td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>논문 부록의 비교표에서 Improver Update 열의 표시에 대해, 저자들은 그 표시가 갱신 장치가 있다는 뜻일 뿐 개선 능력이 검증됐다는 뜻이 아니라고 적는다.</li>
+    <li>저자들이 내세우는 새로움도 하나의 장치가 아니다. 정답 없이 과제 흐름에서 두 harness 를 함께 고치는 조합이라고 적는다.</li>
+  </ul>
+  <p class="so">그래서 Harness² 가 낫다는 주장은 Harness Scaling 대비 두 갈래 제안과 합성, Best-of-k 대비 harness 편집이 더하는 몫으로 읽어야 한다. 그 몫의 크기는 9장과 10장의 수치가 정한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>부록 C: <span class="q">“Revision and reflection use Claude~Opus~4.8, matching our editor.”</span> <span class="q">“There is no scope split, no aggregation, no library, and the revision session never sees a score.”</span></p>
+    <p>부록 B: <span class="q">“The train halves of WorkBuddy-Bench and JobBench are used by Meta-Harness alone, as its offline setting.”</span></p>
+    <p>부록 A: <span class="q">“a check records an update mechanism, not verified gains in improvement ability.”</span> <span class="q">“Our distinction lies in combining label-free task-stream refinement of both harnesses with learning from task-level exploration, rather than in streaming, experience reuse, or improver updates alone.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="원래 대비">
+  <h2>원래 harness 대비 향상은 12개 조건 모두에서 났다</h2>
+  <p class="lead">세 benchmark 와 네 실행 설정의 12개 조건에서 Harness² 한 걸음(k=1)은 모두 원래 harness 보다 점수가 높았다. WorkBuddy 와 LAB 에서는 빈 harness 위의 GLM-5 가 가장 크게 올랐다.</p>
+  <figure class="plot">
+    <p class="fig-title">조건별 향상, Harness² k=1 점수에서 원래 harness 점수를 뺀 값</p>
+    <table class="plot-data" data-kind="bars" data-cat="0" data-y="3" data-emph="GLM-5 OpenCode LAB">
+      <thead><tr><th>조건</th><th>원래</th><th>Harness²</th><th>향상</th></tr></thead>
+      <tbody>
+        <tr><td>Gemini OpenCode WorkBuddy</td><td>72.4</td><td>77.5</td><td>+5.1</td></tr>
+        <tr><td>Gemini Codex WorkBuddy</td><td>74.5</td><td>77.5</td><td>+3.0</td></tr>
+        <tr><td>GLM-5 OpenCode WorkBuddy</td><td>64.2</td><td>75.7</td><td>+11.5</td></tr>
+        <tr><td>GLM-5 Codex WorkBuddy</td><td>64.4</td><td>75.3</td><td>+10.9</td></tr>
+        <tr><td>Gemini OpenCode JobBench</td><td>31.5</td><td>36.0</td><td>+4.5</td></tr>
+        <tr><td>Gemini Codex JobBench</td><td>33.9</td><td>35.3</td><td>+1.4</td></tr>
+        <tr><td>GLM-5 OpenCode JobBench</td><td>20.6</td><td>24.2</td><td>+3.6</td></tr>
+        <tr><td>GLM-5 Codex JobBench</td><td>23.6</td><td>24.8</td><td>+1.2</td></tr>
+        <tr><td>Gemini OpenCode LAB</td><td>79.9</td><td>81.9</td><td>+2.0</td></tr>
+        <tr><td>Gemini Codex LAB</td><td>71.6</td><td>75.6</td><td>+4.0</td></tr>
+        <tr><td>GLM-5 OpenCode LAB</td><td>59.6</td><td>71.4</td><td>+11.8</td></tr>
+        <tr><td>GLM-5 Codex LAB</td><td>58.1</td><td>65.9</td><td>+7.8</td></tr>
+      </tbody>
+    </table>
+    <figcaption>논문 WorkBuddy-Bench 본표(Avg.)와 JobBench·LAB 본표(Score, Partial)의 평균값이다. 향상 열은 두 값을 빼서 이 글이 계산했다.</figcaption>
+  </figure>
+  <ul class="notes">
+    <li>점수는 세 번 실행한 평균이다. Gemini Codex JobBench 의 +1.4 와 GLM-5 Codex JobBench 의 +1.2 는 원래 harness 쪽 표준편차(2.6, 2.3)보다 작아서 실행 사이 흔들림과 구별되지 않는다.</li>
+    <li>k=1 의 제출물은 합성한 harness 의 실행 한 번이다. 그래서 이 향상은 여러 결과물 중에 고른 효과가 아니라 harness 편집의 효과로 읽을 수 있다.</li>
+    <li>JobBench 수치는 13장의 network 항목 때문에 채점 기준표 노출 가능성을 배제할 수 없다.</li>
+    <li>k=5 parallel recursion 은 여기에 WorkBuddy 2.9~3.9점, JobBench 3.0~4.2점, LAB 2.6~6.7%p 를 더한다.</li>
+    <li>GLM-5 는 한 걸음 뒤 WorkBuddy 에서 75.7(OpenCode)과 75.3(Codex)이 되어 원래 harness 의 Gemini 3.5 Flash 72.4, 74.5 를 넘는다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>§3.2: <span class="q">“On WorkBuddy-Bench, \ours{} raises GLM-5's average score by 11.5 points under OpenCode”</span> <span class="q">“Parallel task-level recursion at $k{=}5$ adds a further 2.9 to 3.9 points on WorkBuddy-Bench, 3.0 to 4.2 points on JobBench, and 2.6 to 6.7 percentage points in LAB's Partial pass rate over a single step.”</span></p>
+    <p>§3.1: <span class="q">“Main tables report means and standard deviations over three runs, each with a shuffled task order”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="기법 대비">
+  <h2>가장 강한 baseline 과의 차이는 8개 조건에서 1.1점 안이다</h2>
+  <p class="lead">같은 12개 조건에서 Harness² k=1 점수와 본표의 baseline 셋(ReasoningBank, Meta-Harness, Harness Scaling) 중 가장 높은 점수의 차이를 계산했다. 차이가 두 쪽 표준편차보다 큰 조건은 3개이고, LAB 의 한 조건에서는 Meta-Harness 가 앞선다.</p>
+  <figure class="plot">
+    <p class="fig-title">Harness² k=1 점수에서 가장 강한 baseline 점수를 뺀 값</p>
+    <table class="plot-data" data-kind="bars" data-cat="0" data-y="2" data-emph="Gemini Codex LAB">
+      <thead><tr><th>조건</th><th>가장 강한 baseline</th><th>차이</th></tr></thead>
+      <tbody>
+        <tr><td>Gemini OpenCode WorkBuddy</td><td>Meta-Harness 76.4</td><td>+1.1</td></tr>
+        <tr><td>Gemini Codex WorkBuddy</td><td>Harness Scaling 73.8</td><td>+3.7</td></tr>
+        <tr><td>GLM-5 OpenCode WorkBuddy</td><td>Meta-Harness 69.7</td><td>+6.0</td></tr>
+        <tr><td>GLM-5 Codex WorkBuddy</td><td>Meta-Harness 74.2</td><td>+1.1</td></tr>
+        <tr><td>Gemini OpenCode JobBench</td><td>Meta-Harness 35.8</td><td>+0.2</td></tr>
+        <tr><td>Gemini Codex JobBench</td><td>Meta-Harness 34.8</td><td>+0.5</td></tr>
+        <tr><td>GLM-5 OpenCode JobBench</td><td>Meta-Harness 20.9</td><td>+3.3</td></tr>
+        <tr><td>GLM-5 Codex JobBench</td><td>Meta-Harness 23.9</td><td>+0.9</td></tr>
+        <tr><td>Gemini OpenCode LAB</td><td>Meta-Harness 81.6</td><td>+0.3</td></tr>
+        <tr><td>Gemini Codex LAB</td><td>Meta-Harness 76.5</td><td>-0.9</td></tr>
+        <tr><td>GLM-5 OpenCode LAB</td><td>ReasoningBank 71.3</td><td>+0.1</td></tr>
+        <tr><td>GLM-5 Codex LAB</td><td>ReasoningBank 63.8</td><td>+2.1</td></tr>
+      </tbody>
+    </table>
+    <figcaption>논문 본표 두 개의 평균값으로 이 글이 계산했다. 논문에는 이 차이 표가 없다.</figcaption>
+  </figure>
+  <ul class="notes">
+    <li>차이가 1.1점 안인 8개 조건에서 두 쪽 표준편차는 0.2에서 4.5 사이라서, 세 번 실행만으로는 순위를 가를 수 없다.</li>
+    <li>GLM-5 Codex LAB 의 +2.1 은 두 쪽 표준편차(2.7, 3.3)보다 작다. 그래서 흔들림보다 크게 앞선 조건은 +3.7, +6.0, +3.3 의 3개다.</li>
+    <li>WorkBuddy Code 와 Office 의 scaling 그림에서 Harness² 는 k=2 에서 이미 k=5 의 모든 baseline 보다 높다. Code 에서는 근소한 차이다. 원래 harness 를 k 번 돌려 고르는 Best-of-k 도 여기 들어간다. 다만 같은 k 가 같은 compute 는 아니다. Harness² 는 k 마다 실행 4k 번이고 Best-of-k 는 k 번이다.</li>
+    <li>compute 를 축으로 놓은 비교는 Gemini 3.5 Flash 와 OpenCode 조합 하나의 Figure total_cost 뿐이다. 거기서 JobBench 의 Harness² k=1(약 27M, +4.5)은 비슷한 compute 의 ReasoningBank k=5(약 25M, 약 +1.5)보다 높다.</li>
+  </ul>
+  <p class="so">그래서 실증된 우위는 흔들림보다 크게 앞선 3개 조건과, 조합 하나에서 잰 scaling 그림과 compute 그림이다. 나머지 9개 조건의 차이는 실행 사이 흔들림 안에 있어서, 다른 기법보다 낫다는 주장은 조건마다 따로 확인해야 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§3.2: <span class="q">“Harness Scaling underperforms the base in seven of the twelve benchmark--configuration pairs.”</span> <span class="q">“on LAB Partial, Meta-Harness leads for Gemini~3.5~Flash under~Codex.”</span></p>
+    <p>§4: <span class="q">“Notably, both recursive forms of \ours{} at $k{=}2$ outperform every plotted baseline at $k{=}5$ on both domains.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="ablation" data-label="ablation">
+  <h2>부품을 뺀 실험은 설정 하나에서만 돌렸다</h2>
+  <p class="lead">library, 두 갈래 제안, 합성을 하나씩 뺀 ablation 은 Gemini 3.5 Flash 와 OpenCode, k=1 조합에서만 돌렸다. 표에 표준편차가 없다.</p>
+  <table>
+    <thead><tr><th>설정</th><th>WorkBuddy</th><th>차이</th><th>JobBench</th><th>차이</th></tr></thead>
+    <tbody>
+      <tr><td>Harness² 전체</td><td>77.5</td><td></td><td>36.0</td><td></td></tr>
+      <tr><td>library 없이</td><td>74.4</td><td>-3.1</td><td>34.2</td><td>-1.8</td></tr>
+      <tr><td>두 갈래 대신 일반 편집 둘</td><td>74.6</td><td>-2.9</td><td>32.3</td><td>-3.7</td></tr>
+      <tr><td>합성 없이 한 후보 선택</td><td>75.9</td><td>-1.6</td><td>34.1</td><td>-1.9</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>같은 조합의 본표 표준편차가 WorkBuddy 2.5, JobBench 2.3 이다. 그래서 1.6~3.7점의 차이는 한 번의 측정으로는 실행 사이 흔들림과 구별하기 어렵다.</li>
+    <li>k=5 로 고친 harness(WorkBuddy 평균 80.8)에서 component 를 지우는 다른 ablation 에서는 skill 을 지울 때 세 분야 평균이 5.3점, script 를 지울 때 3.7점 내려갔다. 이득의 상당 부분이 이 두 종류의 파일에 있다.</li>
+  </ul>
+  <p class="so">부품 셋이 모두 기여한다는 논문의 결론은 크기뿐 아니라 방향도 한 설정에서 한 번 잰 값에 기댄다. 다른 설정에서 반복해 재기 전까지는 가설로 둔다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§4 Ablation Study: <span class="q">“with Gemini~3.5~Flash as the executor under the OpenCode harness at $k{=}1$, so that each component is isolated from the test-time”</span></p>
+    <p>부록 E.1: <span class="q">“On the three-domain average, the skills, scripts, and prompt-group ablations lose $5.3$, $3.7$, and $1.5$ points, respectively.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="배우는 개선">
+  <h2>개선하는 법을 배운다는 근거는 비교 조건이 섞여 있다</h2>
+  <p class="lead">논문의 핵심 주장은 library 가 다음 과제의 개선을 돕는다는 것이다. 이를 보인 실험은 library 만 뺀 것이 아니라 기준 실행과 후보 재실행까지 함께 뺀 조건과 비교한다.</p>
+  <table>
+    <thead><tr><th>조건</th><th>Code</th><th>Web</th><th>Office</th></tr></thead>
+    <tbody>
+      <tr><td>원래 harness</td><td>73.4</td><td>69.9</td><td>74.0</td></tr>
+      <tr><td>재실행 없이, library 도 없이 편집</td><td>63.2</td><td>65.0</td><td>77.1</td></tr>
+      <tr><td>재실행 없이, k=1 에서 모은 library 를 주고 편집</td><td>73.8</td><td>72.6</td><td>77.5</td></tr>
+      <tr><td>재실행 없이, k=5 에서 모은 library 를 주고 편집</td><td>74.3</td><td>74.3</td><td>79.1</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes">
+    <li>값은 논문 Figure library_transfer 왼쪽 그림에 적힌 WorkBuddy 점수다. Code 에서 k=1 library 는 원래 수준(73.4)을 되찾는 데 그친다(73.8). Web 과 Office 에서는 원래보다 2.7점, 3.5점 높다. k=5 library 의 향상은 Code +0.9, Web +4.4, Office +5.1 이다.</li>
+    <li>JobBench 에서 모은 library 를 WorkBuddy 에 옮기면 한 걸음 편집이 +0.6, +0.5, +2.9 점 오른다. 앞의 둘은 본표 표준편차보다 작다.</li>
+    <li>과제마다 자기 library 항목만 빼고 다시 돌린 실험은 뒤 과제의 경험도 쓴다. 그래서 저자들도 이것을 실시간 적응의 근거가 아닌 사후 분석으로 적는다.</li>
+  </ul>
+  <p class="so">library 를 준 편집이 원래 harness 보다 높은 결과는 있지만, 그 몫이 library 때문인지는 이 비교로 가를 수 없다. 개선 방법 자체가 나아진다는 주장은 같은 조건에서 library 하나만 바꾼 실험을 여러 설정에서 반복해야 확인된다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§4 Analysis of Harnessing-Level Recursion: <span class="q">“directly refining the base execution harness without access to reference executions, candidate probes, or the improvement library degrades performance on Code and Web.”</span> <span class="q">“An improvement library accumulated at $k{=}1$ restores base performance.”</span> <span class="q">“With $k{=}5$, the library instead supports gains of $0.9$, $4.4$, and $5.1$ points on Code, Web, and Office.”</span> <span class="q">“This retrospective test uses later-task experience to evaluate cross-task reuse, not online adaptation.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="verdict" data-label="판정">
+  <h2>실증된 것은 원래 harness 대비 향상과 예산 효과다</h2>
+  <p class="lead">논문의 주장을 근거의 강도로 나눴다. 실증은 여러 조건에서 반복해 잰 것, 부분 실증은 한 설정이나 사후 분석에서 잰 것, 주장은 장치의 설명만 있는 것이다.</p>
+  <table>
+    <thead><tr><th>논문의 주장</th><th>근거</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>한 걸음이 원래 harness 보다 낫다</td><td>12개 조건 모두 향상, 세 번 실행 평균</td><td>실증. 다만 JobBench Codex 두 조건은 흔들림과 구별되지 않는다</td></tr>
+      <tr><td>recursion 예산을 늘리면 더 오른다</td><td>k=5 가 12개 조건 모두에서 더 높음, WorkBuddy 두 분야의 k 곡선</td><td>실증. 대가로 k=1 보다 토큰이 약 5배 든다(토큰 비율은 Gemini OpenCode 조합 하나)</td></tr>
+      <tr><td>약한 모델에 고친 harness 를 주면 강한 모델을 넘는다</td><td>GLM-5 75.7, 75.3 대 원래 harness 의 Gemini 72.4, 74.5</td><td>실증. WorkBuddy 에서만</td></tr>
+      <tr><td>다른 harness 개선 기법보다 낫다</td><td>3개 조건에서 표준편차보다 크게 앞섬, 9개 조건은 흔들림 안이고 그중 1개는 뒤짐. WorkBuddy scaling 그림과 compute 그림은 조합 하나</td><td>부분 실증</td></tr>
+      <tr><td>library, 두 갈래 제안, 합성이 모두 기여한다</td><td>설정 하나, k=1, 표준편차 없음</td><td>부분 실증</td></tr>
+      <tr><td>개선하는 법 자체를 배운다</td><td>재실행까지 뺀 조건과의 비교, 사후 leave-one-out</td><td>주장에 가깝다</td></tr>
+      <tr><td>더 강한 편집 모델이 필요 없다</td><td>다섯 모델이 스스로 편집해 모두 향상, k=2</td><td>부분 실증. Gemini 3.5 Flash JobBench 는 +0.9</td></tr>
+      <tr><td>정답이나 채점 결과가 편집에 새지 않는다</td><td>코드의 경로 제외와 표지 문자열 검사</td><td>주장. 실행 모델의 network 접근은 논문에 적혀 있지 않다</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes"><li>판정은 논문 수치와 코드를 읽은 이 글의 판단이다. 저자들이 붙인 등급이 아니다.</li><li>JobBench 를 쓴 행의 근거는 13장의 network 항목만큼 약해진다.</li></ul>
+  <p class="so">자기 harness 에 가져갈 것은 같은 과제를 다시 돌려 편집을 고르는 고리다. library 축적의 효과는 직접 재 보기 전까지 덤으로 여긴다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>§4 Same Model as Executor and Editor: <span class="q">“All five models, from GLM-5 to Claude~Opus~5, improve on every benchmark.”</span></p>
+    <p>§3.2: <span class="q">“On WorkBuddy-Bench, a single step lifts GLM-5 to 75.7 with OpenCode and 75.3 with Codex, surpassing the corresponding base Gemini scores of 72.4 and 74.5.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="critique" data-label="한계">
+  <h2>채점 모델과 network 접근이 결과 해석을 제약한다</h2>
+  <p class="lead">항목마다 논문이 인정한 것인지, 코드와 표를 읽고 찾은 것인지를 괄호에 밝혔다. 할 일이 있는 항목은 끝에 그 일을 붙였다.</p>
+  <ul class="points">
+    <li><b>채점 모델 겹침(이 글의 지적)</b>JobBench 는 Claude Opus 4.8 이 채점하는데, 같은 모델이 편집과 선택도 맡는다. WorkBuddy 의 판정 항목은 Gemini 3.5 Flash 가 채점해서, Gemini 실행 설정에서는 실행 모델과 채점 모델이 같다. 논문은 shared model bias 를 한계로 적지만 이 겹침은 따로 다루지 않는다. 재현할 때는 채점 모델을 편집 모델과 다른 계열로 바꿔 본다.</li>
+    <li><b>network 접근(이 글의 지적)</b>공개 코드는 network 접근을 막지 않고, 검증 실행에서 Codex rollout 이 JobBench 채점 기준표를 스스로 내려받았다고 문서에 적혀 있다. 논문은 실험 때의 network 설정을 적지 않았다. 재현할 때는 huggingface.co 와 github.com 을 실행 host 에서 막는다.</li>
+    <li><b>표본 크기(이 글의 지적)</b>시험 과제는 WorkBuddy 40, 35, 25개, JobBench 34개, LAB 100개이고 실행은 세 번이다. 표준편차가 4.5까지 나와서 1점 안팎의 차이로 순위를 매기지 않는다.</li>
+    <li><b>공개 코드와 논문 실행의 차이(저장소가 밝힘)</b>저장소는 논문 실행이 다른 과제, 모델 배포, 추가 도구를 썼을 수 있다고 적는다. 기본 편집 모델은 실행 모델과 같고, 제공 설정은 Vertex Gemini 실행 모델만 다룬다. 논문의 split 파일과 baseline 구현도 들어 있지 않다. 그래서 본표 수치는 이 저장소로 바로 다시 낼 수 없다.</li>
+    <li><b>누출 검사의 범위(이 글의 지적)</b>코드의 검사는 일곱 개 표지 문자열을 찾는 tripwire 이고, 주석도 그것이 방어 자체가 아니라고 적는다. 채점 기준표는 benchmark 별 경로 제외 목록으로 막는다. 새 benchmark 를 붙일 때는 그 목록을 직접 채워야 한다.</li>
+    <li><b>library 입장 조건(이 글의 지적)</b>논문은 실행 대조로 지지된 교훈만 남긴다고 적지만, 코드가 확인하는 것은 반성 모델의 출력에 cue, lesson, evidence 칸이 채워졌는지다. 지지 여부는 반성 모델의 판단에 맡겨져 있다.</li>
+    <li><b>저자들이 인정한 한계</b>재실행과 편집 세션만큼 추론 비용이 늘고, 행동 대조는 정답을 보장하지 않으며, 채택한 편집이 다른 과제로 옮겨 간다는 보장도 없다.</li>
+    <li><b>외부 재현 없음</b>2026-10-25 에 검색한 범위에서는 논문을 다시 요약한 글만 있었고 독립 재현은 찾지 못했다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>부록 B: <span class="q">“Deliverables are judged against a weighted rubric by Claude~Opus~4.8”</span> <span class="q">“with Gemini~3.5~Flash as the judge model where one is needed”</span></p>
+    <p>docs/EXPERIMENTS.md:97: <span class="q">“In a validation run of this release, a Codex rollout on JobBench downloaded its task's rubric without being instructed to.”</span></p>
+    <p>dependencies/PINNED.md:40: <span class="q">“Historical paper runs may have used different tasks, model deployments, and additional local tooling;”</span></p>
+    <p>harness2/core/context.py:459: <span class="q">“A tripwire on the adapters' read boundary, not the defence itself”</span></p>
+    <p>부록 F: <span class="q">“They do not guarantee correctness or establish that an adopted change will transfer to a different task.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="setup" data-label="읽은 범위">
+  <h2>논문 전부와 저장소 핵심 모듈을 읽었고 실행하지 않았다</h2>
+  <p class="lead">논문은 v1 의 LaTeX 원본에서 본문, 부록, 모든 표를 읽었고 그림 파일은 이미지로 열었다. 코드는 커밋 1cfe254 에서 recursion, 선택, library, 누출 검사 경로를 읽었다.</p>
+  <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료, 그리고 열지 않아서 얕아진 장">
+    <div class="card" data-col="읽음"><b>논문 본문, 부록 A~G, 모든 표</b><p>부록 H 의 prompt 는 훑어만 봤다</p></div>
+    <div class="card" data-col="읽음"><b>저장소 README 와 docs 세 문서, dependencies/PINNED.md</b></div>
+    <div class="card" data-col="읽음"><b>harness2/core 의 recursion, selection, library</b><p>context 의 누출 검사 부분도 읽었다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>third_party, substrate, cli, benchmark adapter 대부분</b><p class="ev">그래서 실행 환경과 채점 경로의 세부는 6장과 13장에 반영하지 못했다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>코드 실행과 demo</b><p class="ev">모델 자격 증명이 없어 돌리지 않았다. 4장의 실행 횟수는 코드 주석과 구조에서 읽었다</p></div>
+  </div>
+  <ul class="notes"><li>scaling 그림과 compute 그림은 숫자가 인쇄되지 않아 좌표에서 읽었고, 해당 장에 그 사실을 적었다.</li></ul>
+  </section>
+
+  <section class="slide" data-role="sources" data-label="출처">
+  <h2>출처</h2>
+  <ul class="sources">
+    <li><a href="https://arxiv.org/abs/2610.14224v1">p1 · Harness²: Recursive Agent Harnessing for an Open World</a> <span class="t">Ruiyao Xu, Yanfei Chen 외, Google Cloud AI Research 와 Northwestern University, arXiv 2610.14224 v1 (2026-10-09 제출)</span></li>
+    <li><a href="https://github.com/google-research/harness2/tree/1cfe254e8d25b15f37048c3730134686abe60335">r1 · google-research/harness2</a> <span class="t">논문 저자들의 공개 코드, Apache-2.0, 커밋 1cfe254</span></li>
+  </ul>
+  </section>
+
+</main>
+<script>
+/* board 셸 스크립트
+   board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
+   plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
+   좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
+   render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
+(function () {
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var list = function (s) { return (s || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean); };
+  var narrow = function () { return window.matchMedia('(max-width: 760px)').matches; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var warnings = [];
+  window.__layout = { warnings: warnings, done: false };
+  var warn = function (where, msg) { var w = where + ': ' + msg; if (warnings.indexOf(w) < 0) warnings.push(w); };
+  var titleOf = function (el) { return ((el.querySelector(':scope > b') || el).textContent || '').replace(/\s+/g, ' ').trim(); };
+  // 그림의 값: [약|~] [+|-] [$] 숫자(쉼표 가능) [k|M|B] [단위]. 단위 목록은 check-doc.mjs 의 plot-data 와 같다
+  var NUM = /^([+-]?)\$?(\d+(?:\.\d+)?)([kMB]?)(%p|%|pt|ms|s|초|분|시간|일|건|개|번|회|명|배|x|×|원|달러)?$/;
+  var num = function (t) {
+    var m = NUM.exec(String(t).replace(/약|~|,|\s/g, ''));
+    if (!m) return NaN;
+    return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]) * ({ k: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1);
+  };
+
+  /* ── 장 번호, 목차 링크, 위 막대 ── */
+  var secs = $$('section.slide');
+  secs.forEach(function (s, k) {
+    if (!s.id) s.id = 'p' + (k + 1);
+    if (s.getAttribute('data-role') === 'cover') return;
+    var c = document.createElement('p'); c.className = 'chno'; c.setAttribute('aria-hidden', 'true');
+    c.textContent = String(k + 1).padStart(2, '0') + ' · ' + (s.getAttribute('data-label') || '');
+    s.insertBefore(c, s.firstChild);
+  });
+  $$('a[href^="#p"]').forEach(function (a) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) { a.removeAttribute('href'); a.classList.add('inert'); return; }
+    // 표지 흐름 판의 상자는 장 번호 칩을 셸이 링크에서 만든다. 장을 합치거나 옮겨도 칩이 낡지 않는다
+    if (a.classList.contains('card') && a.closest('section[data-role="cover"]')) {
+      var c = document.createElement('span'); c.className = 'chip'; c.textContent = (secs.indexOf(t) + 1) + '장';
+      a.insertBefore(c, a.firstChild);
+    }
+  });
+  var now = document.querySelector('.topbar .now');
+  if (now && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { var h = e.target.querySelector('h1,h2'); now.textContent = h ? h.textContent : ''; } });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(function (s) { io.observe(s); });
+  }
+
+  /* ── board: 칸 배치 ── */
+  function idx(spec, names) {
+    var one = function (v) { var n = names.indexOf(v); if (n >= 0) return n; var k = parseInt(v, 10); return isNaN(k) || String(k) !== v ? -1 : k - 1; };
+    if (!spec) return [0, 0];
+    if (spec === 'all') return [0, names.length - 1];
+    var ab = spec.split('..'), i = one(ab[0].trim()), j = ab[1] ? one(ab[1].trim()) : i;
+    if (i >= names.length || j >= names.length || j < i) return [-1, -1];
+    return [i, j];
+  }
+  function buildBoard(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    var cols = list(board.dataset.cols), lanes = list(board.dataset.lanes);
+    var ncol = Math.max(cols.length, 1), nl = Math.max(lanes.length, 1);
+    var colNames = cols.length ? cols : ['1'], laneNames = lanes.length ? lanes : ['1'];
+    // 칸과 줄의 이름은 화면에 보인다. 숫자만 쓴 이름(1|2|3)은 이름 없는 칸·줄이라 보이지 않는다.
+    var named = function (ns) { return ns.length > 0 && !ns.every(function (c) { return /^\d+$/.test(c); }); };
+    var laneLabels = named(lanes);
+    var axis = named(cols);
+    // 좁은 화면의 읽는 순서: 이름 있는 줄이 있으면 줄마다, 없으면 칸마다. data-read 가 정하면 그것을 따른다
+    var byCols = board.dataset.read ? board.dataset.read === 'cols' : !laneLabels;
+    var widths = (board.dataset.widths || '').split(/\s+/).filter(Boolean);
+    var cards = $$(':scope > .card', board);
+    cards.filter(function (c) { return c.classList.contains('react'); }).forEach(function (r) {
+      var t = document.getElementById(r.dataset.on);
+      if (!t || t.parentElement !== board) { warn(name, 'reaction points at missing card "' + r.dataset.on + '"'); return; }
+      if (!r.dataset.col) r.dataset.col = t.dataset.col || '1';
+      if (!r.dataset.lane) r.dataset.lane = t.dataset.lane || '1';
+    });
+    var occ = {}, laneRows = []; for (var q = 0; q < nl; q++) laneRows.push(1);
+    var pl = cards.map(function (c) {
+      var cc = idx(c.dataset.col, colNames), ll = idx(c.dataset.lane, laneNames);
+      if (cc[0] < 0 || ll[0] < 0) { warn(name, 'unknown lane/col on "' + titleOf(c).slice(0, 24) + '"'); cc = [0, 0]; ll = [0, 0]; }
+      return { c: c, c0: cc[0], c1: cc[1], l0: ll[0], l1: ll[1], s: 0 };
+    });
+    pl.forEach(function (p) {
+      if (p.l0 !== p.l1) return;
+      var s = 0;
+      for (;; s++) { var free = true; for (var k = p.c0; k <= p.c1; k++) if (occ[p.l0 + ':' + k + ':' + s]) free = false; if (free) break; }
+      for (var k2 = p.c0; k2 <= p.c1; k2++) occ[p.l0 + ':' + k2 + ':' + s] = 1;
+      p.s = s; laneRows[p.l0] = Math.max(laneRows[p.l0], s + 1);
+    });
+    var head = axis ? 1 : 0, lc = laneLabels ? 1 : 0, start = [], r = 1 + head;
+    for (var i = 0; i < nl; i++) { start[i] = r; r += laneRows[i]; }
+    board.style.gridTemplateColumns = (laneLabels ? 'minmax(72px, 104px) ' : '') +
+      colNames.map(function (_, i2) { return 'minmax(0, ' + (widths[i2] || 1) + 'fr)'; }).join(' ');
+    pl.forEach(function (p) {
+      p.c.style.gridColumn = (p.c0 + 1 + lc) + ' / ' + (p.c1 + 2 + lc);
+      p.c.style.gridRow = p.l0 === p.l1 ? String(start[p.l0] + p.s) : start[p.l0] + ' / ' + (start[p.l1] + laneRows[p.l1]);
+      p.order = byCols ? p.c0 * 1000 + p.l0 * 100 + p.s : p.l0 * 1000 + p.s * 100 + p.c0;
+    });
+    pl.forEach(function (p) {
+      if (p.c.classList.contains('react')) { var tp = pl.filter(function (x) { return x.c.id === p.c.dataset.on; })[0]; if (tp) p.order = tp.order + 0.5; }
+      p.c.style.order = String(Math.round(p.order * 2));
+      if (axis && cols.length) {
+        var chip = document.createElement('span'); chip.className = 'chip colchip'; chip.setAttribute('aria-hidden', 'true');
+        chip.textContent = p.c0 === p.c1 ? cols[p.c0] : (p.c0 === 0 && p.c1 === ncol - 1) ? '모든 칸' : cols[p.c0] + '–' + cols[p.c1];
+        p.c.insertBefore(chip, p.c.firstChild);
+      }
+    });
+    var add = function (cls, col, row, text, order) {
+      var d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true');
+      if (text != null) d.textContent = text; d.style.gridColumn = col; d.style.gridRow = row;
+      if (order != null) d.style.order = String(order);
+      board.insertBefore(d, board.firstChild); return d;
+    };
+    if (axis) cols.forEach(function (t, i3) { add('axis-h', String(i3 + 1 + lc), '1', t); });
+    if (axis && board.dataset.axisArrow) {
+      add('axis-arrow', (1 + lc) + ' / ' + (ncol + 1 + lc), '1');
+      add('axis-cap', laneLabels ? '1' : String(ncol + lc), laneLabels ? '1' : '2', board.dataset.axisArrow);
+    }
+    lanes.forEach(function (t, i4) {
+      if (laneLabels) {
+        var l = add('lane-label', '1', start[i4] + ' / ' + (start[i4] + laneRows[i4]), t, byCols ? -1 : i4 * 2000 - 1);
+        l.removeAttribute('aria-hidden');
+        if (i4 > 0) add('lane-rule', '1 / -1', String(start[i4]));
+      }
+    });
+    var order = pl.slice().sort(function (a, b) { return a.order - b.order; }).map(function (p) { return p.c; });
+    board._edges = [];
+    $$(':scope > .edge', board).forEach(function (e) {
+      var s = document.getElementById(e.dataset.from), t = document.getElementById(e.dataset.to);
+      if (!s || !t || s.parentElement !== board || t.parentElement !== board) { warn(name, 'edge ' + e.dataset.from + '→' + e.dataset.to + ' has no card'); return; }
+      board._edges.push(e);
+      var label = e.textContent.trim(), back = order.indexOf(t) < order.indexOf(s);
+      if (label || back) { var d = document.createElement('p'); d.className = 'to'; d.textContent = (back ? '↺ ' : '→ ') + (label ? label + ': ' : '') + titleOf(t); s.appendChild(d); }
+    });
+  }
+
+  /* ── board: 화살표. 상자의 실제 위치에서 계산한다 ── */
+  function wire(board, bi) {
+    var old = board.querySelector(':scope > svg.wires'); if (old) old.remove();
+    board.style.paddingBottom = '';
+    var reacts = $$(':scope > .card.react[data-on]', board);
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    if (board.scrollWidth > board.clientWidth + 2) warn(name, 'board is wider than the page');
+    if (narrow() || (!(board._edges || []).length && !reacts.length)) return;
+    var B = board.getBoundingClientRect();
+    var rect = function (el) { var q = el.getBoundingClientRect(); return { l: q.left - B.left, t: q.top - B.top, r: q.right - B.left, b: q.bottom - B.top, el: el }; };
+    var cards = $$(':scope > .card', board).map(rect);
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'wires');
+    svg.setAttribute('width', B.width); svg.setAttribute('height', B.height + 60); svg.setAttribute('role', 'img');
+    var said = [], needBottom = 0, segs = [], labels = [];
+    var cx = function (q) { return (q.l + q.r) / 2; }, cy = function (q) { return (q.t + q.b) / 2; };
+    board._edges.forEach(function (e) {
+      var S = document.getElementById(e.dataset.from), T = document.getElementById(e.dataset.to);
+      var s = rect(S), t = rect(T), pts, lo, hi;
+      if (t.l >= s.r - 2) {
+        lo = Math.max(s.t, t.t); hi = Math.min(s.b, t.b);
+        if (hi - lo >= 24) { var sm = (s.b - s.t) < (t.b - t.t) ? s : t; var y = Math.min(Math.max(cy(sm), lo + 12), hi - 12); pts = [[s.r, y], [t.l, y]]; }
+        else { var mx = (s.r + t.l) / 2; pts = [[s.r, cy(s)], [mx, cy(s)], [mx, cy(t)], [t.l, cy(t)]]; }
+      } else if (t.r <= s.l + 2) {
+        var yb = Math.max(s.b, t.b) + 26; needBottom = Math.max(needBottom, yb + 26);
+        pts = [[cx(s), s.b], [cx(s), yb], [cx(t), yb], [cx(t), t.b]];
+      } else if (t.t >= s.b - 2) {
+        lo = Math.max(s.l, t.l); hi = Math.min(s.r, t.r);
+        if (hi - lo >= 24) pts = [[(lo + hi) / 2, s.b], [(lo + hi) / 2, t.t]];
+        else { var my = (s.b + t.t) / 2; pts = [[cx(s), s.b], [cx(s), my], [cx(t), my], [cx(t), t.t]]; }
+      } else {
+        var x = (Math.max(s.l, t.l) + Math.min(s.r, t.r)) / 2; pts = [[x, s.t], [x, t.b]];
+      }
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M' + pts.map(function (q) { return q.join(' '); }).join(' L')); svg.appendChild(p);
+      var a = pts[pts.length - 2], b = pts[pts.length - 1], dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+      var h = document.createElementNS(NS, 'path'); h.setAttribute('class', 'head');
+      h.setAttribute('d', dx ? 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] - 4.5) + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] + 4.5) + ' Z'
+                             : 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 4.5) + ' ' + (b[1] - 8 * dy) + ' L' + (b[0] + 4.5) + ' ' + (b[1] - 8 * dy) + ' Z');
+      svg.appendChild(h);
+      for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], s: S, t: T });
+      var label = e.textContent.trim();
+      said.push(titleOf(S) + ' → ' + titleOf(T) + (label ? ' (' + label + ')' : ''));
+      if (label) {
+        var best = 0, bl = -1;
+        for (var k = 0; k < pts.length - 1; k++) { var L = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); if (L > bl) { bl = L; best = k; } }
+        var p0 = pts[best], p1 = pts[best + 1], mxl = (p0[0] + p1[0]) / 2, myl = (p0[1] + p1[1]) / 2;
+        e.style.left = '0px'; e.style.top = '0px';
+        var w = e.offsetWidth, hh = e.offsetHeight;
+        e.style.left = (p0[1] === p1[1] ? mxl - w / 2 : mxl + 6) + 'px'; e.style.top = (myl - hh / 2) + 'px';
+        labels.push(e);
+      }
+    });
+    reacts.forEach(function (r) {
+      var T = document.getElementById(r.dataset.on); if (!T) return;
+      var a = rect(r), t = rect(T), x = Math.max(a.l, t.l) + 18;
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'tether');
+      p.setAttribute('d', a.t >= t.b ? 'M' + x + ' ' + t.b + ' L' + x + ' ' + a.t : 'M' + a.l + ' ' + cy(a) + ' L' + t.r + ' ' + cy(t));
+      svg.appendChild(p);
+      said.push(titleOf(T) + ' 에 붙은 외부 반응');
+    });
+    svg.setAttribute('aria-label', '연결: ' + said.join('; '));
+    board.insertBefore(svg, board.firstChild);
+    if (needBottom > B.height) board.style.paddingBottom = (24 + needBottom - B.height) + 'px';
+    var hit = function (sg, c) { var l = Math.min(sg.a[0], sg.b[0]), r2 = Math.max(sg.a[0], sg.b[0]), t2 = Math.min(sg.a[1], sg.b[1]), b2 = Math.max(sg.a[1], sg.b[1]); return r2 > c.l + 3 && l < c.r - 3 && b2 > c.t + 3 && t2 < c.b - 3; };
+    segs.forEach(function (sg) { cards.forEach(function (c) { if (c.el !== sg.s && c.el !== sg.t && hit(sg, c)) warn(name, 'wire ' + sg.s.id + '→' + sg.t.id + ' crosses "' + titleOf(c.el).slice(0, 20) + '"'); }); });
+    var lr = labels.map(rect);
+    lr.forEach(function (L, i) {
+      cards.forEach(function (c) { if (L.r > c.l && L.l < c.r && L.b > c.t && L.t < c.b) warn(name, 'label "' + L.el.textContent.trim() + '" overlaps a card'); });
+      for (var j = i + 1; j < lr.length; j++) { var M = lr[j]; if (L.r > M.l && L.l < M.r && L.b > M.t && L.t < M.b) warn(name, 'two labels overlap'); }
+    });
+  }
+  function overflowCheck(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    $$(':scope > .card', board).forEach(function (c) { if (c.scrollWidth > c.clientWidth + 2) warn(name, 'text spills out of "' + titleOf(c).slice(0, 20) + '"'); });
+  }
+
+  /* ── plot ── */
+  function buildPlot(fig, fi) {
+    var table = fig.querySelector('table.plot-data'); if (!table) return;
+    var lg = document.createElement('div'); lg.className = 'plot-legend';
+    var cv = document.createElement('div'); cv.className = 'plot-canvas';
+    var mk = document.createElement('ol'); mk.className = 'plot-marks';
+    table.parentNode.insertBefore(lg, table); table.parentNode.insertBefore(cv, table); table.parentNode.insertBefore(mk, table);
+    var det = document.createElement('details'); det.className = 'vals'; det.innerHTML = '<summary>값 표 보기</summary>';
+    table.parentNode.insertBefore(det, table); det.appendChild(table);
+    fig._t = table; fig._cv = cv; fig._lg = lg; fig._mk = mk; fig._name = 'plot ' + (fi + 1) + ' "' + ((fig.querySelector('.fig-title') || {}).textContent || '').trim().slice(0, 24) + '"';
+  }
+  function colorFor(emph, s) { var i = emph.indexOf(s); return i === 0 ? 'var(--s1)' : i === 1 ? 'var(--s2)' : 'var(--dim)'; }
+  function drawBars(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg;
+    var ci = +table.dataset.cat || 0, ys = (table.dataset.y || '').split(/\s+/).filter(Boolean).map(Number);
+    var heads = Array.prototype.slice.call(table.tHead.rows[0].cells).map(function (c) { return c.textContent.trim(); });
+    var colors = ys.length === 1 ? ['var(--s1)'] : ys.map(function (_, i) { return i === ys.length - 1 ? 'var(--s1)' : i === ys.length - 2 ? 'var(--dim)' : 'var(--s2)'; });
+    lg.innerHTML = ys.length > 1 ? ys.map(function (y, i) { return '<span><i style="background:' + colors[i] + '"></i>' + heads[y] + '</span>'; }).join('') : '';
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var emph = list(table.dataset.emph);
+    var bad = rows.filter(function (tr) { return ys.some(function (y) { return !isFinite(num(tr.cells[y].textContent)); }); });
+    if (bad.length) warn(fig._name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (tr) { return bad.indexOf(tr) < 0; });
+    var max = +table.dataset.max || Math.max.apply(null, rows.map(function (tr) { return Math.max.apply(null, ys.map(function (y) { return num(tr.cells[y].textContent); })); }));
+    var html = '<div class="bars">';
+    rows.forEach(function (tr) {
+      var em = emph.indexOf(tr.cells[ci].textContent.trim()) >= 0;
+      html += '<div class="bar-row' + (em ? ' is-em' : '') + '"><span class="bar-name">' + tr.cells[ci].innerHTML + '</span><span class="bar-set">';
+      ys.forEach(function (y, i) {
+        var v = num(tr.cells[y].textContent);
+        // 값 열이 하나일 때 강조한 행만 색을 쓰고 나머지는 회색이다. 지는 행도 지우지 않는다
+        var col = ys.length === 1 && emph.length && !em ? 'var(--dim)' : colors[i];
+        html += '<span class="bar-line"><span class="bar-track"><span class="bar-fill" style="width:' + Math.max(0, Math.min(100, v / max * 100)) + '%;background:' + col + '"></span></span><span class="bar-val">' + tr.cells[y].textContent.trim() + '</span></span>';
+      });
+      html += '</span></div>';
+    });
+    cv.innerHTML = html + '</div>';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + rows.map(function (tr) { return tr.cells[ci].textContent.trim() + ': ' + ys.map(function (y) { return heads[y] + ' ' + tr.cells[y].textContent.trim(); }).join(', '); }).join('. '));
+  }
+  function drawLine(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg, mkl = fig._mk, name = fig._name;
+    var si = +table.dataset.series, xi = +table.dataset.x, yi = +table.dataset.y, xlog = table.hasAttribute('data-xlog');
+    var emph = list(table.dataset.emph);
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows).map(function (tr) {
+      return { tr: tr, s: tr.cells[si].textContent.trim(), x: num(tr.cells[xi].textContent), y: num(tr.cells[yi].textContent), label: tr.dataset.label, id: tr.id };
+    });
+    var bad = rows.filter(function (r) { return !isFinite(r.x) || !isFinite(r.y); });
+    if (bad.length) warn(name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (r) { return isFinite(r.x) && isFinite(r.y) && (!xlog || r.x > 0); });
+    if (rows.length < 2) { cv.innerHTML = ''; lg.innerHTML = ''; mkl.innerHTML = ''; warn(name, 'fewer than two rows to draw'); return; }
+    var series = rows.map(function (r) { return r.s; }).filter(function (s, i, a) { return a.indexOf(s) === i; });
+    var others = series.filter(function (s) { return emph.indexOf(s) < 0; });
+    lg.innerHTML = emph.map(function (s) { return '<span><i style="background:' + colorFor(emph, s) + '"></i>' + s + '</span>'; }).join('') +
+      (others.length ? '<span><i style="background:var(--dim)"></i>' + others.join(', ') + '</span>' : '');
+    var W = Math.max(cv.clientWidth, 260), small = W < 520, H = small ? 340 : 360;
+    var m = { l: 40, r: 12, t: 14, b: 30 };
+    var f = xlog ? Math.log10 : function (v) { return v; };
+    var xv = rows.map(function (r) { return r.x; }), yv = rows.map(function (r) { return r.y; });
+    var x0 = f(Math.min.apply(null, xv) / (xlog ? 1.15 : 1)), x1 = f(Math.max.apply(null, xv) * (xlog ? 1.12 : 1));
+    if (!xlog) { var pad = (x1 - x0) * 0.06 || 1; x0 -= pad; x1 += pad; }
+    var step = +table.dataset.ystep || 10;
+    var y0 = table.dataset.ymin != null ? +table.dataset.ymin : Math.floor((Math.min.apply(null, yv) - step / 5) / step) * step;
+    var y1 = table.dataset.ymax != null ? +table.dataset.ymax : Math.ceil((Math.max.apply(null, yv) + step / 5) / step) * step;
+    var X = function (v) { return m.l + (f(v) - x0) / (x1 - x0) * (W - m.l - m.r); };
+    var Y = function (v) { return m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b); };
+    var yUnit = /%/.test(rows[0] ? rows[0].tr.cells[yi].textContent : '') ? '%' : '';
+    cv.innerHTML = ''; mkl.innerHTML = '';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    cv.appendChild(svg);
+    var el = function (tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    var placed = [];
+    for (var v = y0; v <= y1 + 1e-9; v += step) {
+      el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) });
+      var tk = el('text', { class: 'tick', x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end' }, v + yUnit);
+      var bb = tk.getBBox(); placed.push({ x: bb.x, y: bb.y, width: bb.width + 4, height: bb.height });
+    }
+    var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
+    if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
+    cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
+    var segs = [], pts = [];
+    var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
+    drawOrder.forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; });
+      el('polyline', { class: 'ln', stroke: colorFor(emph, s), points: rs.map(function (r) { return X(r.x) + ',' + Y(r.y); }).join(' ') });
+      rs.forEach(function (r, i) { pts.push([X(r.x), Y(r.y)]); if (i) segs.push([[X(rs[i - 1].x), Y(rs[i - 1].y)], [X(r.x), Y(r.y)]]); });
+      rs.forEach(function (r) { el('circle', { class: 'dot', cx: X(r.x), cy: Y(r.y), r: emph.indexOf(s) >= 0 ? 5 : 4, fill: colorFor(emph, s) }); });
+    });
+    var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
+    var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
+    var score = function (b, withMarks) {
+      var n = 0;
+      if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
+      placed.forEach(function (q) { if (b.x < q.x + q.width && b.x + b.width > q.x && b.y < q.y + q.height && b.y + b.height > q.y) n += 3; });
+      pts.forEach(function (p) { if (p[0] > b.x - 5 && p[0] < b.x + b.width + 5 && p[1] > b.y - 5 && p[1] < b.y + b.height + 5) n += 2; });
+      if (!withMarks) segs.forEach(function (sg) { for (var k = 0; k <= 10; k++) { var sx = sg[0][0] + (sg[1][0] - sg[0][0]) * k / 10, sy = sg[0][1] + (sg[1][1] - sg[0][1]) * k / 10; if (sx > b.x && sx < b.x + b.width && sy > b.y && sy < b.y + b.height) { n += 1; break; } } });
+      return n;
+    };
+    var fit = function (t, x, y, offs, loose) {
+      var best = null;
+      for (var i = 0; i < offs.length; i++) {
+        var o = offs[i]; t.setAttribute('x', x + o[0]); t.setAttribute('y', y + o[1]); t.setAttribute('text-anchor', o[2]);
+        var b = t.getBBox(), box = { x: b.x - 2, y: b.y - 1, width: b.width + 4, height: b.height + 2 }, sc = score(box, loose);
+        if (!best || sc < best.sc) best = { sc: sc, o: o, box: box };
+        if (sc === 0) break;
+      }
+      t.setAttribute('x', x + best.o[0]); t.setAttribute('y', y + best.o[1]); t.setAttribute('text-anchor', best.o[2]);
+      return best;
+    };
+    var OFF = [[9, 4, 'start'], [0, -11, 'middle'], [-9, 4, 'end'], [0, 19, 'middle'], [7, -9, 'start'], [-7, -9, 'end'], [7, 17, 'start'], [-7, 17, 'end'],
+      [14, -14, 'start'], [-14, -14, 'end'], [14, 24, 'start'], [-14, 24, 'end'], [0, -22, 'middle'], [0, 30, 'middle']];
+    var MK = [[6, -6, 'start'], [-6, -6, 'end'], [6, 14, 'start'], [-6, 14, 'end'], [9, 4, 'start'], [-9, 4, 'end'], [0, -10, 'middle'], [0, 18, 'middle']];
+    var marks = 0;
+    // 글을 둘 자리가 없으면 점 옆에 번호만 두고 글은 그림 아래 목록으로 보낸다. 선택 글은 범례가 대신한다.
+    var place = function (x, y, text, cls, fill, offs, optional) {
+      var t = el('text', { class: cls, fill: fill || '' }, text), best = fit(t, x, y, offs, false);
+      if (best.sc === 0) { placed.push(best.box); return; }
+      t.remove(); if (optional) return;
+      var n = String(++marks), k = el('text', { class: 'mk' }, n), bm = fit(k, x, y, MK, true);
+      placed.push(bm.box);
+      if (bm.sc >= 3) warn(name, 'marker for "' + text + '" overlaps');
+      var li = document.createElement('li'); li.innerHTML = '<b>' + n + '</b> '; li.appendChild(document.createTextNode(text)); mkl.appendChild(li);
+    };
+    rows.filter(function (r) { return r.label; }).forEach(function (r) { place(X(r.x), Y(r.y), r.label, emph.indexOf(r.s) === 0 ? 'lbl strong' : 'lbl', '', OFF, false); });
+    if (ra && rb && table.dataset.refLabel) place((X(ra.x) + X(rb.x)) / 2, (Y(ra.y) + Y(rb.y)) / 2, table.dataset.refLabel, 'lbl', 'var(--muted)', [[0, 16, 'middle'], [0, -8, 'middle'], [0, 30, 'middle']], true);
+    series.filter(function (s) { return !rows.some(function (r) { return r.s === s && r.label; }); }).forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; }), r = rs[rs.length - 1]; place(X(r.x), Y(r.y), s, 'lbl', 'var(--muted)', OFF, true);
+    });
+    svg.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + series.map(function (s) {
+      return s + ': ' + rows.filter(function (r) { return r.s === s; }).map(function (r) { return r.tr.cells[xi].textContent.trim() + ', ' + r.tr.cells[yi].textContent.trim(); }).join('; ');
+    }).join('. '));
+  }
+  function drawPlot(fig) {
+    if (!fig._t) return;
+    if (fig._t.dataset.kind === 'bars') drawBars(fig); else drawLine(fig);
+  }
+
+  /* ── ladder: 막대 길이는 상자에 적힌 숫자에서 잰다. 같은 수를 두 번 쓰지 않는다 ── */
+  $$('.ladder[data-meter]').forEach(function (lad) {
+    var bigs = $$(':scope > .card .big', lad), vals = bigs.map(function (b) { return Math.abs(num(b.textContent.replace(/[+p]/g, ''))); });
+    var mx = Math.max.apply(null, vals);
+    bigs.forEach(function (b, i) { var m = document.createElement('span'); m.className = 'meter'; m.setAttribute('aria-hidden', 'true'); m.innerHTML = '<i style="width:' + (mx ? vals[i] / mx * 100 : 0) + '%"></i>'; b.parentNode.insertBefore(m, b.nextSibling); });
+  });
+
+  // 표지 목록은 두 칸에 위에서 아래로 채운다
+  $$('.toc ul').forEach(function (u) { u.style.gridTemplateRows = 'repeat(' + Math.ceil(u.children.length / 2) + ', auto)'; });
+  var boards = $$('.board'); boards.forEach(buildBoard);
+  var buildWarn = warnings.slice();
+  var plots = $$('figure.plot'); plots.forEach(buildPlot);
+  var layout = function () {
+    warnings.length = 0; buildWarn.forEach(function (w) { warnings.push(w); });
+    plots.forEach(drawPlot); boards.forEach(wire); boards.forEach(overflowCheck);
+  };
+  var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
+  layout();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); window.__layout.done = true; });
+})();
+</script>
+</body>
+</html>

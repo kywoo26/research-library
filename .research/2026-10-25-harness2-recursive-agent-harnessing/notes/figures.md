@@ -1,0 +1,25 @@
+# Figures and tables of arXiv 2610.14224v1 (Harness²)
+
+Retrievable from https://arxiv.org/e-print/2610.14224v1 (figures/), and the tables from the LaTeX.
+
+- Figure intro_teaser (Overall performance): WorkBuddy-Bench by domain, Gemini 3.5 Flash under OpenCode. Base 73.4 / 69.9 / 74.0, Meta-Harness 75.5 / 75.1 / 78.6, Ours k=5 80.8 / 78.3 / 83.4 for Code / Web / Office; gains +7.4 / +8.4 / +9.4. Right panel: WB-code scaling over k.
+- Figure harness2_main_new (pipeline): Agent Executor, Harness Editor (Invariant, Domain), Candidate Probes, Harness Composer, Experience Reflector, Improvement Harness. Central figure of the paper.
+- Figure components: the eight components C1 system prompt to C8 plugin, grouped by runtime role.
+- Figure scaling: (a) parallel recursion, k base executions, k DOM and k INV candidates, k compositions; (b) sequential.
+- Figure scaling_curves (Effect of task-level recursion), rendered and read as an image: WB-code and WB-office, k = 1..5. Ours (Parallel) Code 76.5 at k=1 rising to 80.8 at k=5; Office 79.5 to 83.4 (endpoints match the paper text). Best-of-k base bars on WB-code read off the axis approximately 73, 74, 76.5, 77, 75 for k = 1..5; WB-office approximately 74, 76.6, 77.8, 78.3, 79.8. Harness Scaling WB-code approx 74.1, 74.7, 73.3, 75.6, 76.7. These approximate values are read off coordinates; the figure prints no numbers.
+- Figure total_cost (Compute-performance trade-off), rendered and read as an image: x axis total compute per task in M tokens (log). JobBench: Base approx 5M at gain 0; Ours k=1 approx 27M at gain 4.5; Ours k=5 approx 140M at gain 7.5; Meta-Harness approx 250M at gain approx 4.3. WorkBuddy-Bench: Base approx 0.3M; Ours k=1 approx 2.3M at gain 5.1; Ours k=5 approx 12M at gain 8.4; Meta-Harness approx 20M at gain approx 4.0. Positions read off coordinates; the gains for Ours match the paper text.
+- Figure library_transfer (Harnessing-level recursion): left, WB-code base 73.4, w/o library 63.2, k=1 library 73.8, k=5 library 74.3; WB-web 69.9, 65.0, 72.6, 74.3; WB-office 74.0, 77.1, 77.5, 79.1 (gains +0.9, +4.4, +5.1 printed). Right, JobBench to WorkBuddy transfer: base 73.4 / 69.9 / 74.0, Ours k=1 76.5 / 76.4 / 79.5, + JB experience 77.1 / 76.9 / 82.4.
+- Figure loo_library (Leave-one-out reuse): WorkBuddy 77.5 to 79.4 (+1.9), JobBench 36.0 to 37.7 (+1.7).
+- Figure same_model (Same model as executor and editor, OpenCode, k=2), PNG read as image. Base to Ours. WorkBuddy-Bench: GLM-5 64.2 to 68.3 (+4.1), 3.5 Flash 72.4 to 78.3 (+5.9), 3.7 Flash 78.3 to 80.4 (+2.1), Opus 4.8 76.6 to 80.7 (+4.1), Opus 5 78.9 to 82.2 (+3.3). JobBench: GLM-5 20.6 to 23.5 (+2.9), 3.5 Flash 31.5 to 32.4 (+0.9), 3.7 Flash 49.4 to 51.2 (+1.8), Opus 4.8 48.3 to 50.8 (+2.5), Opus 5 62.4 to 67.9 (+5.5). LAB: GLM-5 59.6 to 73.3 (+13.7), 3.5 Flash 79.9 to 81.6 (+1.7), 3.7 Flash 85.5 to 89.1 (+3.6), Opus 4.8 81.2 to 85.6 (+4.4), Opus 5 86.7 to 89.7 (+3.0).
+- Figure cross_model_transfer (harness refined for Gemini 3.5 Flash applied unchanged), PNG: WB-code GLM-5 58.5 to 75.8 (+17.3), 3.7 Flash 79.9 to 80.2 (+0.3), Opus 4.8 76.5 to 79.1 (+2.6); WB-office GLM-5 73.7 to 76.3 (+2.6), 3.7 Flash 78.8 to 85.2 (+6.4), Opus 4.8 83.4 to 84.5 (+1.1).
+- Figure harness_comparison (Production harnesses on WorkBuddy-Bench, Gemini 3.5 Flash), PNG: WB-code CodeBuddy 71.2, OpenCode 73.4, Codex 74.0, Claude Code 76.2, Ours 80.8 (+4.6); WB-web 68.7, 69.9, 72.5, 71.2, Ours 78.3 (+5.8); WB-office 72.5, 74.0, 77.0, 78.5, Ours 83.4 (+4.9).
+- Figure library_reuse: share of modified component files reused (>=50% of lines from a library entry), adapted (5-50%) and fresh (<5%) per benchmark; the extracted bar labels are ambiguous for LAB and WB-web, so only the paper text is used: library provenance in 22% of modified files on LAB and WB-office, 47% on JobBench, and 2-10% retain at least half their lines.
+- Figure failure_cards: nine regressions. Blind selection took a weaker candidate: WB-code 96 to 55 (-41), WB-web 100 to 70 (-30), LAB 54 to 26 (-28). The edit capped the pool: WB-code 50 to 42 (-8), WB-code 75 to 64 (-11), LAB 83 to 81 (-2). Neither: JobBench 31 to 24 (-7), WB-web 44 to 10 (-34, judge crash), JobBench 16 to 8 (-8).
+- Figure case_jobbench: base 43.1 to 77.8. case_wbcode 60.0 to 100.0. case_wboffice 23.6 to 100.0. case_wbweb 64.0 to 100.0. case_lab 44.4 to 94.5. case_jbhooks 72.0 to 100.0.
+- Table tab:workbuddy: WorkBuddy-Bench, four configs, base / ReasoningBank / Meta-Harness / Harness Scaling / Harness² (k=1) / + Recursion (k=5 delta). Means and SD over 3 runs.
+- Table tab:jobbench_lab: JobBench Score and LAB Partial, same layout.
+- Table tab:ablation: WorkBuddy 77.5 / 74.4 (w/o library) / 74.6 (w/o scoping) / 75.9 (w/o composition); JobBench 36.0 / 34.2 / 32.3 / 34.1. No SD reported.
+- Table tab:component-ablation: base 72.4 avg, full 80.8, w/o prompt 79.3, w/o skills 75.5, w/o scripts 77.1.
+- Table tab:tool-use: tool calls and error rate, base vs Harness² k=1.
+- Table tab:positioning: 28 methods on Object, Stage, Label, Streaming, Scaling, Improver Update.
+- Table tab:components: the eight components with file, activation, definition.

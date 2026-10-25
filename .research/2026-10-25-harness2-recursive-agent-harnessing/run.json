@@ -1,0 +1,168 @@
+{
+ "reviews": [
+  {
+   "at": "2026-10-25T12:39:19.776Z",
+   "agent": "lens-numbers",
+   "sha": "49d65fa7684e95d8cd3d6e3cf7480c24bec21b800f1565990e88850ac3a772d2"
+  },
+  {
+   "at": "2026-10-25T12:39:24.417Z",
+   "agent": "lens-reader",
+   "sha": "49d65fa7684e95d8cd3d6e3cf7480c24bec21b800f1565990e88850ac3a772d2"
+  },
+  {
+   "at": "2026-10-25T12:48:06.674Z",
+   "agent": "recheck",
+   "sha": "3f79241f3e2790e7665a3996518af616605ea87199cb80ffb43d3a73acbe7863"
+  },
+  {
+   "at": "2026-10-25T12:50:39.622Z",
+   "agent": "recheck",
+   "sha": "6acc53c5252494bb5dcd1de19c0d8c9bf3ff9796ac1deff8b073d9bc3f7e246a"
+  }
+ ],
+ "slug": "2026-10-25-harness2-recursive-agent-harnessing",
+ "question": "Google Research 의 Harness²(recursive agent harnessing)는 왜 모델 가중치를 고정한 채 에이전트 성능을 끌어올릴 수 있는가? 흔히 이야기되는 다른 하네스 개선 기법들과 비교해 무엇이 더 나으며, 그중 실제로 실증된 것은 무엇이고 주장에 그치는 것은 무엇인가?",
+ "mode": "non-interactive evaluation run. The owner's message says: do not run ship.mjs, do not push, do not open a PR, stop after the gates pass. commitSubject and commitBody are written for completeness only.",
+ "slides": 15,
+ "evidenceCount": 96,
+ "claimsCount": 73,
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 31,
+   "rejected": 0,
+   "touched": 12,
+   "recheck": {
+    "hard": 1,
+    "wording": 3,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 2,
+   "applied": 4,
+   "rejected": 0,
+   "touched": 4,
+   "recheck": {
+    "hard": 0,
+    "wording": 1,
+    "badRejections": 0
+   }
+  }
+ ],
+ "stoppedBecause": "no new must-fix after round 2",
+ "gates": {
+  "at": "2026-10-25T12:53:33.362Z",
+  "session": "249d732e-9fe4-4e86-9abc-0e6839655697",
+  "results": {
+   "check-doc": {
+    "pass": true
+   },
+   "check-prose": {
+    "pass": true
+   },
+   "check-claims": {
+    "pass": false,
+    "tail": "    --repo google-research/harness2=<path> 로 알려주거나, RESEARCH_CHECKOUT_DIR 를 설정하거나,\n    git clone --filter=blob:none https://github.com/google-research/harness2.git\n\nFAIL  research/2026-10-25-harness2-recursive-agent-harnessing  (주장 73개, 근거 115개, 출처 2개)\n      [quote-match] 체크아웃 없이 검증된 주장이 있다 (google-research/harness2)\n      논문 근거 100건 중 47건은 표·그림으로 좁히지 못해 문서 전체에서 대조했다\n\n1건이 막혔다. 고치거나 --allow= 로 명시적으로 넘길 것."
+   }
+  }
+ },
+ "rendered": true,
+ "rendered_note": "headless Chrome via scripts/render.mjs after the last fixes; cover, ch03, ch04, ch05, ch07, ch09, ch10 and dark ch08 screenshots were opened and read",
+ "decided": [
+  "kind = explainer. The request leads with 왜 (mechanism) and asks to sort demonstrated from claimed. It asks for no adopt/hold call, so the comparison with other techniques is one chapter (7) plus the margin chapter (9).",
+  "corpus = arXiv 2610.14224 v1 (LaTeX e-print, sha256 pinned) as primary, google-research/harness2 at commit 1cfe254 as secondary. Both exist; nothing was invented.",
+  "'other harness improvement techniques' = the baselines the paper actually ran (Best-of-k, ReasoningBank, Harness Scaling, Meta-Harness) plus the paper's own positioning table. Methods only listed in that table were not read.",
+  "The verdict scale (실증 / 부분 실증 / 주장) is this document's own, stated as such in chapter 12. A margin counts as clear only when it exceeds the standard deviation on both sides.",
+  "Values from charts without printed numbers (total_cost, scaling_curves) are shown as approximations read off coordinates and marked so. PNG-only figure values are claims with verdict unverified.",
+  "Code claims (the selector pool excludes base executions, the leak guard is a 7-marker tripwire, the 4k/3k schedule) come from reading the code. The code was not executed, because there were no model credentials."
+ ],
+ "needs_owner": [
+  "Cover flow structure (lens A): chapters 9 and 11 carry the last flow card's claim but sit in the toc list, and chapter 5 (case) is off the flow. Options: (a) leave as is, (b) link the last card to 9 and add 11 to the flow, (c) fold chapter 5 into chapter 3. I would pick (b). It changes the chapter layout, so it is left for the owner.",
+  "Lens A suggested cutting or folding chapter 14 (읽은 범위) and parts of chapter 13. Chapter 14 is the required setup chapter, so I kept it. Cutting parts of 13 would change what the document says about reproducibility, so it is left for the owner.",
+  "Lens A asked for a general rule that maps failure types to the component that gets edited. The paper gives no such rule. Adding one needs a new chapter built from the case figures, so it is left for the owner."
+ ],
+ "unverified": [
+  "c14, c15, c45: token positions read off Figure total_cost coordinates (approximate; lens B re-read the rendered PDF and matched).",
+  "c23, c57: same_model PNG values (Opus 5 JobBench is the largest; Gemini 3.5 Flash JobBench +0.9).",
+  "c53: library_transfer values that the gate cannot scope (wrapfigure); lens B matched them against the PDF.",
+  "Absence claims: 3 (c5, c62, c66), each with a re-runnable search.",
+  "Code behaviour claims were read, not executed: k=1 trivial selection, selection pool, 4k/3k schedule, library admission.",
+  "No independent replication found. A web search on 2026-10-25 returned only restatements (hyper.ai, the-agent-report.com, themenonlab.blog, techjacksolutions.com)."
+ ],
+ "unfixed": [
+  "Ch04 note 「실행 모델보다 비싼 모델이 3k 번 불린다」: the paper calls Opus 4.8 the default editor but makes no price comparison, so 'more expensive' is this document's inference (final recheck, wording)."
+ ],
+ "commitSubject": "Harness² 의 recursive agent harnessing 문서 추가",
+ "commitBody": "Google Cloud AI Research 의 Harness² 가 모델 가중치를 고정한 채 harness 파일 편집과 같은 과제 재실행으로 agent 점수를 올리는 원리, 다른 harness 개선 기법과의 차이, 실증된 것과 주장에 그치는 것을 정리한다.\n\n출처:\n- arXiv 2610.14224 v1, Harness²: Recursive Agent Harnessing for an Open World (LaTeX e-print, text sha256 d97ff280)\n- google-research/harness2 커밋 1cfe254e8d25b15f37048c3730134686abe60335\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+ "finishedAt": "2026-10-25T13:00:00Z",
+ "usage": {
+  "at": "2026-10-25T12:53:33.361Z",
+  "total": {
+   "claude-sonnet-5-5": {
+    "input_tokens": 114,
+    "cache_creation_input_tokens": 196018,
+    "cache_read_input_tokens": 2710077,
+    "output_tokens": 54254
+   },
+   "claude-opus-5-5": {
+    "input_tokens": 190,
+    "cache_creation_input_tokens": 343869,
+    "cache_read_input_tokens": 18121243,
+    "output_tokens": 128141
+   }
+  },
+  "byAgent": {
+   "lens-numbers": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 52,
+     "cache_creation_input_tokens": 86651,
+     "cache_read_input_tokens": 1518048,
+     "output_tokens": 23734
+    }
+   },
+   "recheck": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 58,
+     "cache_creation_input_tokens": 89373,
+     "cache_read_input_tokens": 1179189,
+     "output_tokens": 18573
+    }
+   },
+   "lens-reader": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 4,
+     "cache_creation_input_tokens": 19994,
+     "cache_read_input_tokens": 12840,
+     "output_tokens": 11947
+    }
+   },
+   "researcher": {
+    "claude-opus-5-5": {
+     "input_tokens": 190,
+     "cache_creation_input_tokens": 343869,
+     "cache_read_input_tokens": 18121243,
+     "output_tokens": 128141
+    }
+   }
+  }
+ },
+ "shippedAt": "2026-10-25T13:19:26.612Z",
+ "ship": {
+  "branch": "doc/2026-10-25-harness2-recursive-agent-harnessing",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "6acc53c5252494bb5dcd1de19c0d8c9bf3ff9796ac1deff8b073d9bc3f7e246a",
+  "unreviewed": false
+ }
+}
