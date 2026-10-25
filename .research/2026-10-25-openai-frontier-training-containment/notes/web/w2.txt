@@ -1,0 +1,4 @@
+Hacker News comment 50216357 by betterunix2 at 2026-10-23T22:40:46.000Z on story 50214416 (parent 50215714)
+https://news.ycombinator.com/item?id=50216357
+
+I am unconvinced.  Why can't they just set up workstations on the airgapped network to run and monitor their experiments?

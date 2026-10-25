@@ -1,0 +1,253 @@
+{
+ "slug": "2026-10-25-openai-frontier-training-containment",
+ "question": "OpenAI 는 frontier 모델의 학습과 평가 환경을 어떻게 가두고, red-teaming 에서 무엇이 드러났고 무엇을 고쳤으며, 무엇을 근거로 학습을 재개했는가. 이 글이 자기 보고라는 점과 공개하지 않은 부분은 무엇인가",
+ "flip_condition": "OpenAI 가 발견 내역이나 safety case 의 기준값을 공개해, 재개 판단이 감시를 피한 쉬운 경로의 부재 말고 다른 근거에 기댄 것으로 드러나면 10장의 읽기가 바뀐다",
+ "slides": 15,
+ "evidenceCount": 71,
+ "claimsCount": 74,
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 24,
+   "rejected": 0,
+   "touched": 11,
+   "recheck": {
+    "hard": 3,
+    "wording": 0,
+    "badRejections": 0
+   },
+   "note": "렌즈 B: 재개 근거를 한 문장으로 줄인 곳, 공개 여부 단정, 연결과 서비스 단위, '일부러', 하루 안 변경의 근거 사본 없음, 링크 수, 범위 확대. 렌즈 A: 표지 문단과 고친 것의 위치, 수정 뒤 재시험, 반복된 사건 보고서 노트, 곁가지 노트. recheck 가 세 건(고친 것 카드의 목록, 8장 p.so 의 귀속, 13장 카드 표현)을 냈다"
+  },
+  {
+   "round": 2,
+   "applied": 8,
+   "rejected": 0,
+   "touched": 5,
+   "recheck": {
+    "hard": 0,
+    "wording": 1,
+    "badRejections": 0
+   },
+   "note": "마지막 recheck 는 표지 p.answer 와 summary 에서 '제한적' 한정어가 빠진 것 하나를 냈고, 규칙대로 고치지 않고 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-1",
+   "applied": 14,
+   "rejected": 0,
+   "touched": 7,
+   "recheck": {
+    "hard": 0,
+    "wording": 4,
+    "badRejections": 0
+   },
+   "note": "소유자의 고칠 것 세 가지(표지의 '제한적', 멈춘 범위와 재개 범위, safety case 글로 재개 근거 보강)를 반영한 뒤 렌즈 B 와 A 를 장 1, 2, 10, 11, 13, 14, 15 에 다시 돌렸다. 렌즈 B: 'specific failures', 'potential attack paths', 13장의 '가장 능력 있는 모델' 한정어, '재개를 허락한 safety case' 의 전제. 렌즈 A: 2장 제목이 차이를 지운다, 10장에 safety case 보강이 안 보인다, 8장의 경로와 재개 기준의 긴장, 11장 제목과 표의 판정처럼 읽히는 칸, 사건 조사 절 누락, 표지 p.src 에 safety case 글 없음. recheck 는 hard 0, 한정어 넓힘 4건(표지 '가장 능력 있는 모델', '요구', '도입 중'의 범위, 'severe')"
+  },
+  {
+   "round": "fix-2",
+   "applied": 4,
+   "rejected": 0,
+   "touched": 2,
+   "recheck": {
+    "hard": 0,
+    "wording": 3,
+    "badRejections": 0
+   },
+   "note": "recheck 의 한정어 4건을 고쳤다. 마지막 recheck 는 hard 0, 표현 선호 3건을 냈고 규칙대로 고치지 않고 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-3",
+   "applied": 3,
+   "rejected": 0,
+   "touched": 3,
+   "recheck": {
+    "hard": 0,
+    "wording": 3,
+    "badRejections": 0
+   },
+   "note": "지난 PR 의 unfixed 세 건을 고쳤다. 표지 p.answer 와 summary 에서 중단과 red-teaming 을 다른 문장으로 나눴고, 같은 암시가 있던 2장 판의 aria-label 도 고쳤다. 11장 격리 red-teaming 행에 safety analysis 조건과 그 부재를 넣었고, 사건 조사 행을 예시로 고쳤다. 표지는 cover-length 상한 280자에 맞춰 줄였다. recheck 는 hard 0, 표현 3건을 냈고 규칙대로 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-4",
+   "applied": 6,
+   "rejected": 0,
+   "touched": 6,
+   "recheck": {
+    "hard": 0,
+    "wording": 4,
+    "badRejections": 0
+   },
+   "note": "main 의 check-doc 에 새로 생긴 h2-length(45자) 규칙에 걸린 2, 3, 9, 10, 11, 12장 h2 를 줄였다. 빠진 내용은 각 장의 lead 와 판에 이미 있다. 10장 h2 는 heading-form 규칙(쉼표 목록) 때문에 한 번 더 고쳤다. recheck 는 hard 0, 표현 4건을 냈고 규칙대로 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-5",
+   "applied": 6,
+   "rejected": 0,
+   "touched": 6,
+   "recheck": {
+    "hard": 0,
+    "wording": 4,
+    "badRejections": 0
+   },
+   "note": "소유자의 요청대로 fix-4 recheck 의 표현 여섯 건을 고쳤다(표지 판 aria-label, 2, 9, 10, 11, 12장). claims c5, c36, c41, c53, c59 를 맞췄다. recheck 는 hard 0, 표현 4건을 냈고 규칙대로 unfixed 에 남겼다"
+  }
+ ],
+ "decided": [
+  "문서 종류는 explainer 로 정했다. 요청이 '정리해 줘'이고 쓸지 말지를 묻지 않으므로 comparison 이 아니며, 고칠 코드가 없으므로 walkthrough 도 아니다. 예측할 사례는 11장의 '내 sandbox 에 옮기기'다",
+  "slug 는 2026-10-25-openai-frontier-training-containment 로 정했다",
+  "원문(w1)이 WebFetch 와 curl 에 403 을 내서 insane-search engine(curl_cffi safari 지문)으로 받았다. 고정 사본은 article 요소의 본문이다",
+  "Internet Archive 사본 둘(w7: 2026-10-23T19:51Z, w8: 2026-10-24T16:18Z)을 출처에 넣었다. 두 사본을 견주면 본문 9곳이 다르고, 이 차이를 12장의 한계로 적었다",
+  "HN 토론(story 50214416, 댓글 120개)에서 원문 주장을 읽는 데 영향을 주는 댓글 둘(w2 air-gap 반론, w4 채널 시험이 지시받은 것이라는 지적)만 반응 상자로 넣었다. 처음 고정했던 다른 댓글 셋은 쓰지 않아 지웠다",
+  "차트 값은 페이지에 실린 Vega-Lite spec 의 258개 점에서 읽었고, 경계 그림은 원문 이미지(webp, 약 37KB)를 그대로 넣었다",
+  "소유자의 요청대로 doc/2026-10-25-openai-frontier-training-containment 브랜치에서 이어 고쳤다. 같은 원문으로 쓴 다른 문서(2026-10-25-openai-training-containment)는 열지 않았다",
+  "소유자가 지난 needs_owner 의 선택지 (2)를 골랐다. 그래서 safety case 글(w9, 2026-09-28 게시)만 새 출처로 열었고, Hugging Face 글과 DNS 사건 보고서, Patch the Planet 글, GitHub 와 Linux 링크 8개는 열지 않았다. 14장에 그 사실을 적었다",
+  "w9 는 curl 이 403 이라 w1 과 같은 방법(curl_cffi safari 지문)으로 받았다. Save Page Now 는 520 으로 실패해서 2026-09-29T06:48:52Z archive 사본을 archive_url 로 두었다. 두 본문은 단어 하나(review/reviews)만 다르다",
+  "safety case 글의 내용은 10장에 다 넣지 않고 11장(safety case 지침)을 새로 두었다. 10장의 주장은 OpenAI 가 든 재개 근거이고, 지침이 무엇을 요구하는지와 격리 글이 그 항목에 무엇을 적었는지는 다른 주장이기 때문이다. 10장 lead 와 notes 가 11장을 가리킨다. 옛 11-14장은 12-15장이 되었고 claims.jsonl 의 scope 장 번호도 옮겼다",
+  "멈춘 범위와 재개 범위의 차이는 표지 p.answer 와 재개 카드, 2장 제목과 카드와 notes 와 p.so, 10장 결과 카드와 notes, 13장 한계 목록에 넣었다. 멈춘 쪽의 '가장 능력 있는 모델'과 재개 쪽의 'frontier 모델'이 다르게 적힌 것도 2장에 적었다",
+  "2장의 10월 1일 카드에 있던 '평가를 마치고'는 원문 'assessments' 를 옮긴 말이라 평가(evaluation) 재개로 읽힐 수 있었다. '점검을 마치고'로 바꾸고 notes 에 그 뜻을 적었다",
+  "커밋은 브랜치의 기존 커밋을 고쳐 쓰지 않고 새 커밋으로 얹었다. 기존 커밋의 subject 가 이번 수정을 담지 않기 때문이다. merge 할 때 squash 하면 문서 하나에 커밋 하나가 된다",
+  "소유자의 요청대로 PR #17 의 unfixed 세 건만 고쳤다. 같은 원문으로 쓴 다른 문서(2026-10-25-openai-training-containment)는 열지 않았다",
+  "같은 암시(red-teaming 을 중단 기간 안에 했다)가 meta.json summary, head 의 description 두 곳, 2장 판의 aria-label 에도 있어서 함께 고쳤다. 2장 aria-label 은 원문이 중단 동안 했다고 적은 인프라와 monitoring 강화만 남겼다",
+  "표지 문단을 둘로 나누자 280자를 넘어서 '이 울타리를' 을 '울타리를' 로, '거쳐' 를 '연결로' 로, '열어 둔 연결 하나하나를' 을 '열어 둔 연결을 모두' 로 줄였다. 한정어(제한적, 좁은 연결, 자기 보고, 글에 없다)는 그대로 두었다",
+  "사건 조사 행은 w9 §3 의 'Some examples of such actions could include' 를 접힌 원문에 더했다. 근거 e71(캠페인 시작 문장), e72 와 주장 c74 를 더하고 c59, c65, c72 를 고쳤다",
+  "git 이 이 worktree 에서 막혀서(명령이 rtk 로 바뀌어 worktree 격리 검사가 거부했다) 소유자가 말한 git switch 를 하지 못했다. 브랜치는 다른 worktree(agent-ab96a20f7e89aaf34)에 체크아웃되어 있었고, 그 worktree 의 문서 sha 가 PR 의 마지막 docSha 와 같아서 그 파일을 이 worktree 로 옮겨 고쳤다",
+  "게이트 hook 이 h2-length 를 막아서 요청 범위 밖이지만 h2 여섯 개를 45자 안으로 줄였다. 장을 더하거나 빼지 않았고, 각 h2 가 하는 주장은 그대로다. c51 의 scope 에서 2장 h2 를 뺐다(9월 20일이 h2 에서 빠졌다)",
+  "PR 브랜치 갱신: 소유자 세션이 researcher worktree 의 수정 파일을 PR 브랜치로 옮겨 ship.mjs 를 돌렸다 (researcher worktree 에서 git 이 격리 검사에 막혔고, 브랜치는 끝난 실행의 worktree 가 잡고 있었다)",
+  "소유자의 요청대로 run.json unfixed 의 마지막 recheck(표현) 여섯 건만 고쳤다. 렌즈 A 의 13장 되풀이 메모는 그대로 두었다. 같은 원문으로 쓴 다른 문서(2026-10-25-openai-training-containment)는 열지 않았다",
+  "git 이 이 worktree(agent-acb4fff1ceeed4d79)의 격리 검사에 막혀, 소유자의 지시대로 PR 브랜치 checkout(/home/k/.paseo/worktrees/384rq95p/average-toad)의 research/ 와 .research/ 아래 이 slug 두 디렉터리를 이 worktree 로 복사해 고쳤다. 게이트는 이 worktree 의 scripts(main)로 돌렸다",
+  "10장의 수정은 원문이 시점을 적지 않은 the fixes we had implemented 라서 '재개 전에 한 수정' 으로 적었다. 중단 기간 안에 했다고는 쓰지 않았다",
+  "9장 h2 의 조건은 'OpenAI 가 시킨 시험' 으로 적었다. cache 시험은 원문이 'we asked agents ... to exchange synthetic secrets' 라고 적은 시험이다. 채널까지 정해 준 시험인지는 원문이 이 시험에 대해 적지 않아서 '지시받은' 은 쓰지 않았다. 이 문장을 9장 접힌 원문과 c36 근거에 더했다. h2 길이 때문에 '같은 host' 와 'network 없이' 는 lead 와 카드 ④ 에만 남았다",
+  "12장 h2 는 세 연결(metrics, log, 인증)을 쉼표 목록 없이 담으려고 '내부 서비스 연결' 로 묶었다. 원문의 'specific services we operate' 에 맞춘 말이고, 세 이름은 판의 카드에 있다. '그 연결부터' 는 카드 k-p2 에 맞춰 '그 연결마다' 로 바꿨다",
+  "2장 h2 는 주어 OpenAI 를 빼고 '가장 능력 있는 모델의' 를 넣어 43자로 맞췄다. 주어는 lead 첫 문장이 밝힌다",
+  "10장 h2 의 세 근거는 쉼표 목록 규칙(heading-form) 때문에 'red-teaming 결과와 수정과 monitoring 개선으로' 로 이었다",
+  "이번 실행은 소유자의 지시대로 ship.mjs 를 돌리지 않고 게이트 통과에서 멈췄다. commitSubject 와 commitBody 는 이번 수정에 맞춰 고쳐 두었다"
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "원문 페이지 w1 과 safety case 글 w9 는 403 때문에 브라우저가 아닌 TLS 지문 요청으로 받았다. w1 은 2026-10-24T16:18Z archive 사본(w8)과, w9 는 2026-09-29T06:48Z archive 사본과 본문이 같다",
+  "차트의 Vega-Lite spec 원본은 notes 에 남기지 않았고, 그 점 값은 notes/figures.md 에만 있다",
+  "부재 주장 9건(c30, c45, c46, c47, c52, c55, c60, c65, c71)은 고정 사본에 대한 grep 명령으로만 확인했다",
+  "12장의 예상(c49), 10장 p.so 의 해석(c50), 11장 p.so 의 권고(c68)는 이 문서가 원문에서 끌어낸 읽기이고 원문으로 확인할 수 없다. 11장 표의 오른쪽 칸도 두 글을 맞춰 본 것이고 문서가 그 사실을 밝힌다",
+  "링크된 GitHub advisory, PR, Linux commit 8개와 DNS 사건 보고서를 열지 않아, 7장의 수정 내용은 원문의 이름표 수준이고 11장의 사건 조사 행은 맞춰 보지 못했다"
+ ],
+ "unfixed": [
+  "렌즈 A(고치지 않음): 13장의 '멈춘 범위와 재개한 범위', '수정 뒤 재시험', 'safety case 의 내용' 은 2장과 10장의 notes 와 같은 말을 되풀이한다. 한계를 한 곳에 모으는 장이라 두었다",
+  "마지막 recheck(표현): 11장 격리 red-teaming 행의 오른쪽 칸은 쓴 모델과 safety analysis 여부만 짚는다. 원문 격리 글은 학습 중 모델이 닿을 수 있는 서비스를 모두 공격했다고 적지 않는다. '서비스 전체를 시험했는지는 적지 않는다' 를 더하면 표가 고르다",
+  "마지막 recheck(표현): 2장 h2 의 앞 절은 '가장 능력 있는 모델' 이고, 뒤 절의 재개 대상은 같은 모델처럼 읽힌다. 원문은 재개 쪽을 'frontier models' 라고 적고, 2장 notes 가 둘이 같은지 원문이 적지 않는다고 밝힌다",
+  "마지막 recheck(표현): 10장 h2 는 원문의 'monitoring and stopping systems' 가운데 'monitoring 개선' 만 적는다. lead 와 카드에는 정지 시스템이 있다",
+  "마지막 recheck(표현): 12장 h2 의 '시험해야 한다' 는 이 문서의 처방이라 훑는 독자가 OpenAI 의 권고로 읽을 수 있다. lead 와 notes 가 원문의 권고가 아니라고 밝힌다"
+ ],
+ "rendered": "render.mjs 로 1280px 와 390px 너비에서 15장을 38장 그림으로 찍었다. 여섯 건을 고친 뒤 2, 9, 10, 11장(1280)과 12장(390)을 직접 봤다. h2 는 두 줄로 들어가고 넘침은 없다. manifest 의 scrollers 는 모두 0 이다. 표지 판 aria-label 은 화면에 보이지 않아 doc 원본으로만 확인했다. 다크 모드는 보지 않았다",
+ "reviews": [
+  {
+   "at": "2026-10-25T10:30:07.912Z",
+   "agent": "recheck",
+   "sha": "d801204a47f2f916a38d8ec95ff8a01330839fe9639005d3333b60438cfffa3e"
+  },
+  {
+   "at": "2026-10-25T10:46:37.120Z",
+   "agent": "lens-numbers",
+   "sha": "93c530009cb3fab6762ec08669399715c9a6a673be5497ed39ed6ff5130d84b4"
+  },
+  {
+   "at": "2026-10-25T10:46:41.717Z",
+   "agent": "lens-reader",
+   "sha": "93c530009cb3fab6762ec08669399715c9a6a673be5497ed39ed6ff5130d84b4"
+  },
+  {
+   "at": "2026-10-25T10:50:09.694Z",
+   "agent": "recheck",
+   "sha": "442e9f30fe20f08c75a5deb0c079d5a54be9f6ac2cf3c7efd6e21ae4a082012c"
+  },
+  {
+   "at": "2026-10-25T10:51:47.272Z",
+   "agent": "recheck",
+   "sha": "fbd2bc8f6bc1b810159f6096b3650a502b261c448a40106dd57cb3b634133960"
+  },
+  {
+   "at": "2026-10-25T12:12:55.473Z",
+   "agent": "recheck",
+   "sha": "0a20a11972147ac0c434aec39d88cff1012e70f86f303281af59777cec14b1e7"
+  },
+  {
+   "at": "2026-10-25T12:15:56.599Z",
+   "agent": "recheck",
+   "sha": "a1c72e4fa7bef1bd2fa99b8b3c87eea725da5e5df11b903b66725360fa1b6e09"
+  },
+  {
+   "at": "2026-10-25T12:22:32.655Z",
+   "agent": "recheck",
+   "sha": "70630cdc7cef79eb60210be287ad57f506581c940a2d99df5a5c65fd5841b857"
+  }
+ ],
+ "stoppedBecause": "recheck hard 0. 소유자의 지시로 ship.mjs 전에 멈춤",
+ "commitSubject": "OpenAI 학습 환경 격리 문서의 h2 넷과 수정 시점, 지침 행, 표지 판 설명을 원문에 맞추다",
+ "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 다룬 explainer 를 소유자의 요청대로 고쳤다. 지난 recheck 가 남긴 표현 여섯 건이다. 2장 h2 에 멈춘 범위(가장 능력 있는 모델)를 넣었다. 9장 h2 에 OpenAI 가 시킨 시험과 합성 비밀이라는 조건을 넣었다. 10장 h2 에 재개 근거 셋을 모두 적고, '그동안 한 수정' 을 원문 시점에 맞춰 '재개 전에 한 수정' 으로 바꿨다. 11장 격리 red-teaming 행에 원문의 during training 을 살렸다. 12장 h2 를 세 연결을 묶는 '내부 서비스 연결' 로 바꿨다. 표지 판 aria-label 의 인과 표현을 '사건 뒤 멈췄다' 로 바꿨다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), OpenAI 「Towards safety cases for frontier AI training」(2026-09-28 게시, 2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
+ "finishedAt": "2026-10-25T12:17:04.023Z",
+ "gates": {
+  "at": "2026-10-25T12:24:30.821Z",
+  "session": "1980688f-5d47-4a33-b19e-f9218fdf151c",
+  "results": {
+   "check-doc": {
+    "pass": true
+   },
+   "check-prose": {
+    "pass": true
+   },
+   "check-claims": {
+    "pass": true
+   }
+  }
+ },
+ "usage": {
+  "at": "2026-10-25T12:24:30.820Z",
+  "total": {
+   "claude-sonnet-5-5": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 26849,
+    "cache_read_input_tokens": 154815,
+    "output_tokens": 4436
+   },
+   "claude-opus-5-5": {
+    "input_tokens": 70,
+    "cache_creation_input_tokens": 90837,
+    "cache_read_input_tokens": 2188383,
+    "output_tokens": 25199
+   }
+  },
+  "byAgent": {
+   "recheck": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 14,
+     "cache_creation_input_tokens": 26849,
+     "cache_read_input_tokens": 154815,
+     "output_tokens": 4436
+    }
+   },
+   "researcher": {
+    "claude-opus-5-5": {
+     "input_tokens": 70,
+     "cache_creation_input_tokens": 90837,
+     "cache_read_input_tokens": 2188383,
+     "output_tokens": 25199
+    }
+   }
+  }
+ },
+ "shippedAt": "2026-10-25T12:25:29.088Z",
+ "ship": {
+  "branch": "doc/2026-10-25-openai-frontier-training-containment",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "70630cdc7cef79eb60210be287ad57f506581c940a2d99df5a5c65fd5841b857",
+  "unreviewed": false
+ }
+}

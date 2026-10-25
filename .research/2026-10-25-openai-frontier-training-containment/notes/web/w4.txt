@@ -1,0 +1,6 @@
+Hacker News comment 50215651 by dmicah at 2026-10-23T21:30:42.000Z on story 50214416 (parent 50215570)
+https://news.ycombinator.com/item?id=50215651
+
+It's unclear how much the creativity is on the part of the agents themselves
+
+> In most of these tests, we directed agents to investigate specific communication channels or provided them with a protocol for encoding and decoding messages. In one instance, we only supplied agents with a broad list of infrastructure vulnerabilities and asked them to find a way to communicate. The agents converted a vulnerability from that list into a communication channel, agreed on a shared encoding, and successfully exchanged information with each other.
