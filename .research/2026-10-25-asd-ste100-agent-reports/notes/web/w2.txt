@@ -1,0 +1,61 @@
+ 
+ ABOUT STE 
+ Home 
+ About STE 
+ STEMG STEMG structure STE Support Teams Terms of reference Training Why training is necessary Accredited STE trainers 
+ Tools Downloads Issue 9 Change Form 
+ FAQ 
+ About ASD-STE100 
+ Simplified Technical English 
+ Standard for Technical Documentation
+ Origin 
+ ASD-STE100 Simplified Technical English (STE) is a controlled natural language developed in the  late 1970s (originally as AECMA Simplified English) to help the users of English-language maintenance documentation understand what they read. It was initially applicable to commercial aviation and later became a requirement for defense projects, including land and sea vehicles. As a result, maintenance manuals and technical texts today are mostly written in STE. 
+ Requirements, recommendations, and references 
+ STE was first released in 1986 as AECMA Document, PSC-85-16598. Since then, there have been several releases leading to the current version. Throughout the years, there have been a total of 17 releases of the ASD-STE100 (full issues, changes, and revisions) produced in more than 90 STEMG working meetings, held in 13 countries and 26 different cities. 
+ In commercial aviation, STE became a requirement in 1986 for the ATA 100  specification for technical publications(now ATA iSpec 2200 ) and for the  ATA 104 specification for training. STE is also a recommendation in the   S1000D Specification. 
+ EDSTAR (European Defence Standards Reference)   recommends STE as one of the best practice standards for technical documentation in defense contracting by all EDA (European Defence Agency) participating member states. 
+ STE is a requirement in official directives issued by aviation authorities such as EASA (European Union Aviation Safety Agency), FAA (Federal Aviation Administration), and CAAC (Civil Aviation Administration of China) for continued airworthiness. 
+ STE is also referenced in ISO 24620-4:2023 (Language resource management). 
+ Today 
+ Today, the success of STE is such that it is used well beyond its original purpose of maintenance documentation and outside the aerospace and defense domains. 
+ Interest in STE has grown significantly in the fields of language services, professional translation and interpreting, and academia. 
+ The current version of ASD-STE100 is Issue 9 , January 2025. 
+ Although the STE structure is stable and consolidated, the language must be kept in line with technological and terminological developments and updated based on continuous user feedback. 
+ ASD-STE100 is fully owned by ASD , Brussels, Belgium.   
+ Request your free official copy of ASD-STE100, Issue 9 What's new in Issue 9 
+ Purpose and objectives of Simplified Technical English 
+ Why English can be difficult 
+ English is the international language of many industries and is the most widely used language for technical documentation.
+ However, it is often not the native language of either the readers or the writers of such documentation.
+ Many readers have only limited knowledge of English and may be easily confused by complex sentence structures, as well as by the large number of meanings and synonyms that many English words have.   
+ Why STE was created 
+ The key driver for the creation of a controlled and simplified form of English was a request from the airlines (80% of which were not from English-speaking countries) to ensure accurate maintenance practices and guarantee aircraft availability and safety. 
+ Human Factor risks 
+ Complex technical instructions can be misunderstood, and misunderstandings can lead to accidents.
+ STE makes technical texts easier to understand for all readers and is an important and valuable resource for technical writing.
+ It helps operators understand maintenance instructions correctly, removes linguistic barriers, and reduces Human Factor risks.    
+ How does STE work? 
+ The STE standard consists of a set of writing rules and a controlled dictionary .
+ The writing rules focus on grammar and style. The dictionary contains the approved words that a writer can use and a list of words that are not approved with related alternative suggestions. These approved words were selected because they were simple and easy to recognize.
+ In general, each word has only one meaning and is approved with only one part of speech.
+ Writers can also use noun terms and verb terms that are applicable to their companies, industries, or subject fields.
+ STE identifies these terms as technical nouns and technical verbs and gives the necessary rules to use them correctly. 
+ Rules 
+ 53 writing rules in 9 sections that focus on word choice, grammar, sentence structure, and style.
+ Dictionary 
+ The dictionary contains the approved words that a writer can use (approximately 900 words, each with one meaning and one part of speech). It also includes a list of words that are not approved (approximately 1200) with related alternative suggestions. 
+ Terminology 
+ STE permits the use of company or project-related terms that are not listed in the dictionary. These are subject-specific nouns and verbs. 
+ What's new in Issue 9 
+ The release of Issue 9 of ASD-STE100 Simplified Technical English (STE) on January 15, 2025, marks a milestone in its evolution from a specification into an international standard. Developed by the STEMG with contributions from National and Multi-Country Support Teams , this update reflects three years of collaborative work focused on clarity, safety, and global applicability. The transition from “specification” to “standard” reinforces STE’s universal role in technical documentation, with its official subtitle now reading “Standard for Technical Documentation.” A key focus of Issue 9 has been the comprehensive review of terminology and meta-terminology. More than half of the 53 writing rules were refined for clarity, while 555 dictionary entries were updated for linguistic precision. Terminological classifications have been modernized in line with ISO 1087-1:2019, with the introduction of clearer designations such as technical nouns and technical verbs. Subject field classifications were expanded, and the dictionary streamlined to remain practical for technical writers, translators, and non-linguists alike. With its strengthened structure, revised terminology, and alignment with international standards, Issue 9 ensures that STE continues to support clarity, safety, and usability across industries well beyond aerospace and defense. 
+ Request a copy of ASD-STE100 Issue 9 
+ The STEMG 
+ The ASD Simplified Technical English Maintenance Group (STEMG) is responsible for the development, production, publication, and maintenance of ASD-STE100.
+ The group includes experts from ASD countries ( members ) along with international experts from countries that are not members of ASD ( partners ).
+ There are also national and multi-country STE support teams (STEST) that assist the STEMG in its work. Originally formed in 1983 as a working group (SEWG) to develop AECMA Simplified English, in 2004, when ASD was created, the group changed its name to the STEMG.
+ The STEMG reports to the ASD Services Commission (SVC). 
+ More about the STEMG 
+ © Copyright 2026 STEMG - All Rights Reserved
+ Privacy Contact Linkedin Facebook 
+ Privacy and Cookie Policy .">
+ 

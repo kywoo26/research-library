@@ -1,0 +1,132 @@
+        Simplified Technical English
+        Maintenance Group
+
+
+
+
+White Paper
+ASD-STE100 Simplified Technical English and Artificial
+Intelligence (AI)
+Exploring the impact of AI on ASD-STE100 content creation,
+translation, and technical documentation processes
+
+Introduction
+The purpose of this white paper is to clarify the position of the ASD Simplified Technical English
+Maintenance Group (STEMG) on the use of Artificial Intelligence (AI) in relation to ASD-STE100
+Simplified Technical English (STE).
+The rapid emergence of AI, particularly Large Language Models (LLMs), has significantly changed
+the creation, management, and translation of technical content. These technologies can process
+large volumes of data, support terminology consistency, and accelerate drafting and localization.
+Organizations now operate in a context where human expertise and AI capabilities must be
+integrated to maintain accuracy, standard compliance, and content quality.
+For the STE community, this shift introduces both opportunities and risks, alongside the need for
+structured guidance. AI and LLMs can support faster content production, improve terminology
+control, and facilitate multilingual consistency. Conversely, they can compromise controlled natural
+language discipline, reduce traceability of content decisions, and introduce undetected inaccuracies.
+The primary role of the STEMG is to develop and maintain the STE standard. It does not engage in
+producing AI software or tools and does not endorse any of them. However, ongoing monitoring is
+required to ensure that STE principles are always maintained and preserved. In all cases, the
+standard takes priority, and AI adoption must support, not override, STE requirements, preserving
+clarity, safety, and controlled natural language discipline.
+
+
+The Role of AI in Technical Content Creation
+AI and LLMs are already extensively used in drafting, translating, and managing technical content.
+Potential benefits include:
+   •    Increased efficiency and productivity
+   •    Improved consistency across multilingual documentation
+   •    Automated checks for STE compliance, but currently with varying levels of accuracy
+
+
+    Aerospace, Security and Defence Industries Association of Europe | Rue du Trône 100 I 1050 Brussels, Belgium I T: +32 2 775 81 10 I
+                            info@asd-europe.org I www.asd-europe.org                                Page 1
+       Simplified Technical English
+       Maintenance Group
+
+
+
+However, challenges remain:
+   •   Variable reliability and factual accuracy of AI-generated content
+   •   Potential compromise of terminology control
+   •   Limited traceability of content sources
+For the STE community, AI tools can support STE-compliant writing and translation but cannot
+replace human oversight. Continuous intervention is necessary to ensure that STE principles remain
+the primary reference in all technical communication activities.
+
+
+Key Ethical and Regulatory Framework
+AI deployment in technical communication is subject to ethical and regulatory considerations:
+   •   EU AI Act: Introduces a risk-based approach, classifying AI applications according to
+       potential impact, especially for safety, reliability, or compliance.
+   •   UNESCO AI Ethics Principles: Emphasize transparency, accountability, and the need for
+       human oversight.
+   •   Other frameworks: ISO standards on AI and OECD (Organisation for Economic Co-operation
+       and Development) recommendations provide additional guidance on trustworthy AI
+       deployment.
+For STE, these frameworks underscore the importance of compliance and auditability in AI-assisted
+workflows, ensuring that AI use always aligns with the STE standard and remains accountable to
+human experts.
+
+
+Risks and Safeguards
+AI introduces specific risks in technical communication that require careful management:
+   •   Transparency and explainability: Users must understand how AI outputs are generated.
+   •   Accountability: Responsibility remains with the human author or organization.
+   •   Data confidentiality: Protect proprietary and sensitive technical information.
+   •   Reliability and troubleshooting risks: AI performance may be limited in safety-critical
+       scenarios or with non-standard content.
+   •   Legal and reputational implications: Disclaimers and clear boundaries of AI use are
+       essential.
+These safeguards help ensure that AI is applied responsibly without compromising STE principles.
+
+
+
+
+   Aerospace, Security and Defence Industries Association of Europe | Rue du Trône 100 I 1050 Brussels, Belgium I T: +32 2 775 81 10 I
+                           info@asd-europe.org I www.asd-europe.org                                Page 2
+        Simplified Technical English
+        Maintenance Group
+
+
+
+STEMG Actions and Recommendations
+The STEMG has already taken steps to protect the STE standard, including extending on behalf of
+ASD the non-endorsement policy to AI tools, consistent with the existing software and training
+practices. Recommended future actions include:
+   •    Maintain open dialogue with AI developers and stakeholders to stay informed on
+        technology trends.
+   •    Encourage proprietary or in-house AI tools where confidentiality is critical.
+   •    Develop benchmarks or evaluation frameworks to assess AI performance in STE-compliant
+        writing and translation.
+   •    Monitor regulations, ethics, and best practices to ensure STE principles are upheld.
+
+
+Guidance for STE Users and Organizations
+Responsible use of AI in STE environments requires clear guidance:
+   •    Supportive use only: AI should assist, not replace, human authors.
+   •    Disclaimers: Indicate when AI-assisted content is used, with scope and limitations.
+   •    Internal policies: Define rules for data handling, model validation, and quality assurance.
+   •    Safe and unsafe practices: Provide examples of compliant AI-assisted workflows and
+        practices to avoid.
+Obeying these recommendations allows organizations and users to leverage AI benefits while
+keeping STE principles as the primary reference.
+
+
+Conclusions
+AI will not replace human authors, but it is reshaping technical writing.
+From drafting and terminology management to revision and quality assurance, AI is becoming an
+integral part of the technical writing process. The key challenge is no longer adoption, but
+responsible use: maintaining transparency, accountability, and strict adherence to STE principles
+and rules. By applying clear official policies, maintaining human oversight, and prioritizing the
+standard, organizations can benefit from AI’s efficiency and consistency while safeguarding
+accuracy, safety, and professional integrity.
+
+
+                                                 The STEMG and STEMG AITT (Artificial Intelligence Task Team),
+                                                                                                                             June 2026
+
+
+
+    Aerospace, Security and Defence Industries Association of Europe | Rue du Trône 100 I 1050 Brussels, Belgium I T: +32 2 775 81 10 I
+                            info@asd-europe.org I www.asd-europe.org                                Page 3
+

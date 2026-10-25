@@ -1,0 +1,122 @@
+ 
+ FAQ 
+ Home 
+ About STE 
+ STEMG STEMG structure STE Support Teams Terms of reference Training Why training is necessary Accredited STE trainers 
+ Tools Downloads Issue 9 Change Form 
+ FAQ 
+ Frequently Asked Questions 
+ Prepared by the STEMG to help you understand the key concepts of ASD-STE100 Simplified Technical English (STE) 
+ About STE 
+ Use and application 
+ Rules and restrictions 
+ Maintenance and updates 
+ Tools and training 
+ Misconceptions 
+ About STE 
+ What is ASD-STE100 Simplified Technical English (STE?) 
+ ASD-STE100 Simplified Technical English (STE) is an international standard to write technical documentation in a controlled natural language. 
+ STE has two parts: a set of writing rules (part 1) and a controlled dictionary (part 2). The writing rules cover aspects of grammar and style. The dictionary gives the general approved words that a writer can use. 
+ The approved words were selected because they were simple and easy to recognize. In general, each word has only one meaning and is approved with only one part of speech. For example, to fall has the approved meaning of to move down by the force of gravity , and not to decrease . When there are synonyms in English, STE selects one synonym and does not include the others. For example, STE uses start instead of begin , commence , initiate , or originate .
+ STE approved meanings and spelling are based on American English and the Merriam-Webster’s dictionary.
+ Writers can use the approved words in the dictionary as a core vocabulary. Writers can also use noun terms and verb terms that are applicable to their companies, industries, or subject fields. STE identifies these terms as “technical nouns” and “technical verbs” and gives the necessary rules to use these terms correctly. 
+ What is the Aerospace, Security and Defence Industries Association of Europe (ASD)? 
+ ASD is the voice of European aerospace, security, and defense industries. With 26 major European companies and 23 National Associations as members, the overall representation adds up to more than 4,000 companies across 21 European countries. 
+ ASD (formerly AECMA) is the owner of the ASD-STE100 standard. For more information, visit www.asd-europe.org  
+ Who created STE? And why? 
+ The STE project started in 1979, at a time when the aerospace industry had many more manufacturers than it does today. Although all companies wrote their maintenance manuals in English and followed the same ATA specification (ATA 100), their writing styles varied significantly.
+ Some documentation was written in American English—for example, by Boeing, Douglas, and Lockheed Martin. Others used British English—for example, by Hawker Siddeley and British Aircraft Corporation. Several manufacturers, such as Fokker, Aeritalia, and early Airbus members (Aerospatiale, MBB, CASA), wrote in English as non-native speakers. Many European airlines also needed to translate parts of their manuals into local languages so that their maintenance staff could understand them.
+ This situation created challenges for European airlines, which at the time were part of the Association of European Airlines (AEA). In response, the AEA approached AECMA (the European Association of Aerospace Industries) in 1979 and asked aircraft manufacturers to explore the possibility of creating a controlled natural language that all manufacturers could adopt as a shared same standard.
+ After reviewing the types of controlled natural languages used in other industries, AECMA decided in 1981 to develop its own controlled natural language and set up a dedicated project group. 
+ AECMA did not want to limit the project to European industry. Through collaboration with the Aerospace Industries Association of America (AIA), the American aerospace industry was invited to participate—especially since several AIA member companies had already begun similar efforts to standardize technical language. 
+ A parallel project group was formed within AIA in the United States to support the European initiative. Several preparatory meetings between the two groups took place in Europe and in the United States to define a shared approach and work plan under the AECMA leadership.
+ Following in-depth research and discussion, the AECMA Simplified English Working Group (SEWG) was officially established on June 30, 1983, at the Fokker plant near Schiphol Airport in Amsterdam. This marked the official start of the AECMA Simplified English project. 
+ The result of this collaborative work was a guide, known as the AECMA Simplified English Guide. This guide later became a Specification and in 2004, after the merger of AECMA with two other associations to form ASD, changed its name to become ASD Simplified Technical English, Specification ASD-STE100. In 2006, and again in 2018, ASD-STE100 was granted the European Union Trade Mark. Starting from Issue 9, in 2025, ASD-STE100 is now an international standard, and its name is now in accordance with the registered Trade Mark: ASD-STE100 Simplified Technical English. 
+ Use and application 
+ Why does any industry need STE? 
+ STE addresses challenges in English comprehension that arise from complex sentence structures, confusing word forms, and ambiguous terminology . Although STE was originally developed for the aerospace industry, its benefits are indeed applicable across all sectors. For example, it is also used for land and sea vehicles (as referenced in the S1000D specification), in the renewable energies industry, and in the medical device sector. 
+ Who needs to write in STE? 
+ STE was developed to make maintenance documentation easier to read, so writers of such documentation use it in procedural and descriptive texts. It is not intended for general-purpose writing, such as international correspondence. However, many of its principles (for example, short sentences, one topic per sentence, and the use of the active voice) can be effectively adopted and applied in other writing contexts.
+ Where can I get a copy of ASD-STE100? 
+ The standard is available to everyone free of charge. The only file format for distribution is PDF.  Please refer to the instructions given in the DOWNLOADS section to request your copy.
+ Rules and restrictions 
+ Why does STE not allow “-ing” forms? 
+ One of the purposes of STE is to avoid ambiguity, and the use of words that end with “-ing” can easily lead to misunderstandings. These words can have different functions in a sentence (parts of speech). These different functions for words that have an “-ing” form can frequently cause ambiguity or long, complex sentences. Thus, words that have an “-ing” form are usually not permitted. 
+ It is possible to use words that have an “-ing” form as technical nouns or parts of a technical noun. There are words in the dictionary that end in “-ing,” but these words are nouns, adjectives, pronouns, or prepositions. Examples: opening (n), remaining (adj), something (pron), during (prep).  
+ Do conditional clauses always need to precede the main clause? 
+ The STE rules tell you that if there is a condition in a work step that readers must know before doing the work step, it is important to put this condition at the beginning of the sentence. Here, in the example " If hot oil touches your skin, injuries can occur. ", it is important to write the condition first and then the result that follows from that condition.
+ Why can’t I use passive sentences? 
+ In procedural texts, STE uses a direct language and the imperative (or command) form of the verb. For example, “ Install the component. ” If we write “The component must be installed.”, this is not a direct instruction to the reader and ambiguity could occur. Procedures must not be narrative and must not use passive sentences. In descriptive texts, we also use the active voice. We can use the passive voice only if the agent (the person or thing that does the action) is unknown (for example, “ During the transmission, the data was corrupted. ”)
+ Why can’t I change the wording in some safety instructions? How can I make them compliant with STE? 
+ Generally, STE lets you write safety instructions (for example, WARNINGS and CAUTIONS) without difficulty. However, in some companies, legal departments control the content of safety instructions. This is because of perceived liability issues. As a result, technical writers may need to collaborate with lawyers to develop wording that both minimizes legal risks and complies with STE requirements. Ultimately, individual company policies will determine the extent to which STE is used in safety instructions.
+ Does the STE dictionary include all the words that are necessary to write technical documentation? 
+ The STE dictionary contains a controlled general vocabulary of approximately 900 approved words, sufficient to write any technical sentence. However, the dictionary does not include technical nouns and technical verbs which are applicable to a company, industry, or subject field. The writing rules in the standard give clear guidance on how to use technical nouns and technical verbs correctly.
+ How were the words for the STE dictionary selected? 
+ The criteria used to select the approved words in the dictionary were basically simplicity, and frequency of use. For example, the word do is simpler, and much more frequent than achieve , carry out , or accomplish . In most cases, the words that are approved have only one meaning and one part of speech. For example, about is approved only with the meaning concerned with . You cannot use it to mean approximately or around (these words are also approved, with their own specific definitions). Similarly, check is approved only as a noun (as in do a check ), not as a verb (as in check the lights ).
+ Can technical nouns and technical verbs contain terms that are not approved in the STE dictionary? 
+ Yes, if those terms are part of official documentation, engineering drawings, company glossaries, or terminology databases. The dictionary does not list technical nouns and technical verbs. They are defined by the subject-field categories they belong to. If a word that is not approved in the dictionary is used as a part of a technical noun or technical verb, it automatically becomes part of that technical noun or technical verb, and as such it is acceptable. This is the only way to use words that are not approved, but it is recommended to limit this use as much as possible.  
+ Maintenance and updates 
+ How is STE maintained? 
+ The STE standard is maintained by the ASD Simplified Technical English Maintenance Group ( STEMG ), a working group of ASD. 
+ When will the next issue of ASD-STE100 be published? 
+ The frequency of issues is usually three years. The current issue is 9, released in January 2025. The next issue 10 is scheduled for January 2028. 
+ How can I make a suggestion to improve STE? 
+ The STE standard needs continuous feedback from its users.
+ A change form is included in the standard, and a template is also available on this website. Use the form to submit your recommendation or change proposal . You can either send it electronically through the website or email it directly to the STEMG ( stemg@asd-ste100.org ). 
+ The STEMG has records of all change forms and their assessments. The change forms are discussed in STEMG meetings, and the next issue of ASD-STE100 will include the agreed changes. The STEMG usually sends information to the originators of the change forms about the related STEMG assessments and decisions.  
+ If I submit a change proposal (change form) for a new word or meaning, can I use it immediately? 
+ No. The STEMG will review the request. If the proposal is approved, changes will occur in a future issue of the standard.
+ Tools and training 
+ Is a language checking tool necessary to write in STE? 
+ No. While several commercial companies offer language checking tools (for example, grammar and term checkers, including AI-based solutions) that support STE, these tools are optional. STE users are free to use them, but must bear in mind that no tool can replace the standard itself. ASD and the STEMG DO NOT endorse or certify any company, organization, or individual that sells tools claimed to be ″fully compliant” with ASD-STE100. These providers have not received any authorization to use the ASD logo, copyright, or trademark of ASD-STE100 in their material. Read more on the dedicated page .
+ Where can I get certified STE training? 
+ Some STEMG members and partners are authorized to give certified STE training. A list of trainers is available here .
+ In addition, ASD and UNINETTUNO University have an agreement which permits UNINETTUNO to provide certified STE training. Only UNINETTUNO can certify trainers on behalf of ASD.
+ Read more on the dedicated page .  
+ How can I become an accredited STE Trainer? 
+ ASD and UNINETTUNO University have an agreement which permits UNINETTUNO to provide certified STE training. Only UNINETTUNO can certify trainers on behalf of ASD. Read more about STE training on the dedicated page . 
+ Is STE simple to write? 
+ STE was created for the maximum benefit of the reader. This does not necessarily mean that it is simple to write.
+ To write in STE correctly, you must:
+ - Have a good technical knowledge of the unit that is the subject of your writing
+ - Have a strong command of the English language
+ - Understand the STE writing rules and the STE dictionary
+ - Be able to identify which words you can use as technical nouns and technical verbs
+ - Be capable of structuring ideas logically and addressing the needs of your readers.
+ As a general guideline, a C1 proficiency level in English (as defined by the Common European Framework of Reference for Languages) is recommended. Users at the C1 advanced level:
+ - Can understand a wide range of demanding, longer clauses and recognize implicit meaning
+ - Can express ideas fluently and spontaneously without much obvious searching for expressions
+ - Can use language flexibly and effectively for social, academic and professional purposes
+ - Can produce clear, well-structured, detailed text on complex subjects, showing controlled use of organizational patterns, connectors, and cohesive devices. 
+ Read more about STE training on the dedicated page . 
+ Misconceptions 
+ Is STE “baby English” or a dumbed-down version of English? 
+ No. The purpose of STE is to describe complex systems and complex tasks in a clear and simple form. This allows readers—even those with limited English proficiency—to understand the content easily. It is a precise and structured writing standard, not a simplified or childish version of English.
+ Is STE only for non-native speakers of English? 
+ No. Although STE was created to help non-native speakers of English, it also improves communication among English native speakers.
+ Does STE eliminate the need of translation? 
+ Yes, if the readers have a basic knowledge of English.
+ No, if the readers do not have such level of proficiency.  
+ If translation is necessary, does STE help the translation process? 
+ Yes. One of the primary objectives of STE is to make translation easier. If the approved words, their related meaning, and the types of sentence constructions in a text are controlled, variation in source texts is minimized. As a result, it is easier to translate text written in STE into the target language, whether by translators, neural machine translation engines, or Large Language Models (LLMs). 
+ Will STE change the meaning of technical texts? 
+ No. If correctly used, STE does not change the meaning of technical texts. This is because the standard requires the writer to have a high level of both technical and linguistic expertise.
+ Can anyone use STE? 
+ Yes. Anyone can use the principles of STE in general documents. STE creates texts that are clearer, shorter, more concise, and more accurate. The primary advantage is the standardization of documentation with the maximum benefit for the readers.
+ Can STE be used for oral communication? 
+ No. STE was developed specifically for technical documentation. But the writing rules and the controlled dictionary can also support clearer communication in meetings and presentations. 
+ Do readers need training in STE? 
+ No. STE is not a new language. It is a carefully structured version of English which removes confusing word usages and complex sentence structures. Readers with basic English proficiency will immediately notice that the words and sentences are less confusing or ambiguous with STE. It is not necessary to know STE rules to enjoy the benefits of reading documents written in STE.
+ Can STE be used to teach English? 
+ No. The ASD-STE100 standard is not designed as an English course book. Its purpose is to help writers present complex information in a form that is easy to understand. Writing clearly—especially in STE—requires a high level of fluency in English, as it is a demanding and skilled task. 
+ Can STE be applied to all technical documentation? 
+ Yes. Although STE was created to improve aircraft maintenance documentation, its principles can significantly improve the readability and clarity of technical documentation across any industry. 
+ Is ASD-STE100 part of the S-Series? 
+ No, STE is no longer a specification, and its role is to support technical writing worldwide whenever there is a requirement.
+ Do you have further questions? 
+ The STEMG is here to help. 
+ Contact the STEMG 
+ © Copyright 2026 STEMG - All Rights Reserved
+ Privacy Contact Linkedin Facebook 
+ Privacy and Cookie Policy .">
+ 

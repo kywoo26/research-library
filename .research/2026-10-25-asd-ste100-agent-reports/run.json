@@ -1,0 +1,83 @@
+{
+ "reviews": [
+  {
+   "at": "2026-10-25T03:47:08.066Z",
+   "agent": "lens-numbers",
+   "sha": "413d8ce00580a5de934b0c134440275cf426874b2212cf6aa8864e7f17fb72fa"
+  },
+  {
+   "at": "2026-10-25T03:47:11.956Z",
+   "agent": "lens-reader",
+   "sha": "413d8ce00580a5de934b0c134440275cf426874b2212cf6aa8864e7f17fb72fa"
+  },
+  {
+   "at": "2026-10-25T03:52:33.815Z",
+   "agent": "lens-numbers",
+   "sha": "329e582d0ecf77e8578482ac0c031a049fe8b25669e7050a259cef1423afcee7"
+  },
+  {
+   "at": "2026-10-25T03:52:37.750Z",
+   "agent": "lens-reader",
+   "sha": "329e582d0ecf77e8578482ac0c031a049fe8b25669e7050a259cef1423afcee7"
+  },
+  {
+   "at": "2026-10-25T03:56:08.453Z",
+   "agent": "recheck",
+   "sha": "bdb13cc7e1d6e50adcbeb7091585e4bbb7ca79685ebc2ae8d3ac2572e65a10aa"
+  },
+  {
+   "at": "2026-10-25T03:57:42.525Z",
+   "agent": "recheck",
+   "sha": "fc72744aececd508b8fdcd983a474bd8ece050653e64164acb04c10c584b5f3b"
+  }
+ ],
+ "decided": [
+  "문서 종류는 comparison 으로 정했다. 요청이 \"도입해 볼 만한지 판단해 줘\"여서, 읽는 사람이 trial 이나 hold 를 고를 수 있어야 하기 때문이다.",
+  "앞선 시도가 남긴 원장과 초안을 이 worktree 의 같은 slug 로 복사해 이어 갔다. 나는 고정한 원문을 원장의 신원으로 다시 열었다. 백서 PDF 는 pdftotext 결과의 sha256 이 text_sha256 과 같았고, 카파시 게시물은 fxtwitter API 가 주는 본문이 고정 사본과 같았다. STEMG 의 세 페이지는 응답 200 을 확인했고, 인용은 고정 사본으로 대조했다.",
+  "규격 본문 Issue 9 는 신청서에 신청자 정보를 적어야 받는다. 나는 소유자 대신 신청하지 않았다. 그래서 문서는 규칙별 문구와 수치를 쓰지 않고, STEMG 의 FAQ 와 소개 페이지가 설명한 규칙만 쓴다.",
+  "판단 범위는 카파시의 1단계(STE 문장)로 좁혔다. 2단계 다이어그램과 3단계 HTML 은 이 저장소의 문서가 이미 쓰고 있고, 4단계 영상은 요청이 뺐다.",
+  "문서가 제안하는 researcher.md 의 한 줄은 이 PR 에 넣지 않았다. 하네스를 바꾸는 일이라 문서 PR 과 섞지 않는다.",
+  "slug 2026-10-25-asd-ste100-agent-reports 는 앞선 시도가 정한 그대로 두었다."
+ ],
+ "needs_owner": [
+  {
+   "question": "researcher.md 의 마지막 보고 지시 뒤에 STE 한 줄을 넣는 하네스 PR 을 열지 정해 주세요. 넣는다면 어느 문장을 쓸지도 정해 주세요.",
+   "options": [
+    "소유자가 효과를 본 지시 문장을 그대로 넣는다",
+    "문서 8장의 예시 줄을 넣는다",
+    "넣지 않는다"
+   ],
+   "default": "소유자의 문장을 받으면 그 문장을, 받지 못하면 8장의 예시 줄을 넣는다"
+  },
+  {
+   "question": "규격 본문을 받으려면 신청서에 신청자 정보를 적어야 합니다. 규칙별 문구까지 확인하려면 소유자가 신청해 주세요.",
+   "options": [
+    "신청해서 4장을 규칙 원문으로 보강한다",
+    "신청하지 않는다"
+   ],
+   "default": "신청하지 않는다. 판단은 규칙별 수치에 기대지 않는다"
+  }
+ ],
+ "unverified": [
+  "6장의 연결(STE 의 행위자 규칙과 지시문 규칙이 역할별 보고를 낳았다)은 추론이다. 나는 소유자가 받은 보고와 소유자의 지시 문장을 보지 못했다.",
+  "한국어에서 피동을 막으면 행위자가 주어로 서는지는 확인하지 않았다. 문서 9장이 이 한계를 적는다.",
+  "규격 본문 Issue 9 의 53개 규칙 문구는 열지 않았다.",
+  "부재 주장 2건(보고 쪽 문장 규칙 없음, STEMG 자료에 한국어 언급 없음)은 재실행할 수 있는 grep 명령을 claims.jsonl 에 남겼다. 행동 주장은 없다."
+ ],
+ "rendered": "render.mjs 로 headless Chrome 에서 11장을 찍어 표지, 요약, 5~8장을 2차 수정 뒤 화면으로 봤다. 가로 넘침은 없다.",
+ "unfixed": [],
+ "commitSubject": "ASD-STE100 문장 규칙을 에이전트 보고와 한국어 문서에 들일지 판단한 문서를 더하다",
+ "commitBody": "주제: 안드레이 카파시가 AI 답을 읽기 쉽게 하는 첫 방법으로 권한 ASD-STE100(Simplified Technical English)을 이 저장소의 에이전트 보고와 한국어 문서 산문에 들일 만한지 판단한다. researcher 의 마지막 보고와 run.json 의 decided, needs_owner 문장에는 행위자 규칙과 지시문 규칙을 trial 로, 렌즈 보고는 assess, 문서 산문은 hold 로 본다.\n\n출처:\n- 카파시의 X 게시물 (2026-10-02, x.com/karpathy/status/2105819303471976479)\n- ASD STEMG 의 소개 페이지, FAQ, 다운로드 페이지, AI 백서 (2026-06)\n- 이 저장소 commit 054f28c 의 researcher.md, research skill, ship.mjs, prose-ko.md, check-prose.mjs, research-verify 와 렌즈 reference, AUTHORING.md\n규격 본문 Issue 9 는 신청서를 거쳐야 받을 수 있어 열지 않았다.",
+ "shippedAt": "2026-10-25T03:58:15.677Z",
+ "ship": {
+  "branch": "doc/2026-10-25-asd-ste100-agent-reports",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "fc72744aececd508b8fdcd983a474bd8ece050653e64164acb04c10c584b5f3b",
+  "unreviewed": false
+ }
+}

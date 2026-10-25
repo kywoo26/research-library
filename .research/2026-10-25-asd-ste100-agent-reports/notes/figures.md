@@ -1,0 +1,9 @@
+# Figures
+
+- w1 photo/1 (pbs.twimg.com/media/HTlaHqgbwAAS1lv.png, 3200x1600): a one-sheet overview titled "Simplified Technical English: overview", six panels A-F. Who drew it is not stated in the post; its title block names "Source asd-ste100.org". Its values were not checked against the standard (w6 not opened), so the document does not carry its numbers.
+  - A Document structure: Part 1 Writing rules (Section 1 Words, 2 Noun clusters, 3 Verbs, 4 Sentences, 5 Procedures, 6 Descriptive writing, 7 Safety instructions, 8 Punctuation and word counts, 9 Writing practices); Part 2 Dictionary (approved words, unapproved words, technical names, technical verbs); "About 900 approved words".
+  - B Anatomy of STE sentences: "It is imperative that the operator ensures the hydraulic reservoir is replenished prior to commencing operation." rewritten as "Make sure that the hydraulic reservoir is full before you start the operation."
+  - C Verb forms: imperative, simple present, simple past, simple future, infinitive, past participle as adjective approved; progressive (-ing), perfect, passive in procedures not approved.
+  - D Dictionary entries: commence -> START, ensure -> MAKE SURE, prior to -> BEFORE, replenish -> FILL, utilize -> USE, approximately -> ABOUT, in order to -> TO.
+  - E Writing rule limits (maximum values): procedural sentence, descriptive sentence, descriptive paragraph, noun cluster, instructions in each sentence. Bullets: "Use the same word for the same thing every time." "Do not leave out words like the, a and this." "Use the active voice in procedures." "Use vertical lists for complex text." "Write one topic in each paragraph."
+  - F History: 1979 AECMA starts work; 1986 first AECMA Simplified English Guide; 2005 becomes ASD-STE100; Now free download, revised by the ASD STEMG.
