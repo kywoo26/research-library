@@ -40,7 +40,9 @@ const run = existsSync(runPath) ? JSON.parse(readFileSync(runPath, 'utf8')) : {}
 if (!run.commitSubject || !run.commitBody) die('run.json 에 commitSubject 와 commitBody 가 없다');
 const hooksFile = join('.research', slug, 'notes', 'hooks.json');
 const hooks = existsSync(hooksFile) ? JSON.parse(readFileSync(hooksFile, 'utf8')) : {};
-const reviews = [...(run.reviews || []), ...(hooks.reviews || [])];
+// run.json 의 reviews 는 hook 기록을 notes/hooks.json 으로 옮기기 전(#24) 실행들의 것이다. 그 sha 로 판정하면
+// 이번 실행과 상관없이 '재검증 뒤 바뀌었다' 가 된다(#34). 이번 worktree 의 hook 기록만 본다.
+const reviews = hooks.reviews || [];
 const modelSwitches = [...(run.modelSwitches || []), ...(hooks.modelSwitches || [])];
 
 // 0. seq 는 목록 순서다. main 에 아직 없는 문서는 그사이 main 에 들어온 문서와 겹치지 않게 맨 뒤로 옮긴다.
@@ -138,7 +140,7 @@ ${list(unfixed)}
 
 ## 실행 기록
 - 게이트(이 스크립트가 돌렸다): ${Object.entries(gates).map(([k, v]) => `${k} ${v ? '통과' : '막힘'}`).join(', ')}
-- 렌즈·재검증 호출 ${reviews.length}회${unreviewed ? '. 마지막 재검증 뒤 문서가 바뀌었다' : ''}
+- 렌즈·재검증 호출 ${reviews.length ? `${reviews.length}회` : '기록 없음(이 worktree 에서 hook 이 돌지 않았다)'}${unreviewed ? '. 마지막 재검증 뒤 문서가 바뀌었다' : ''}
 - 렌더링: ${run.rendered || '기록 없음'}
 - 도식이 든 본문 장: ${figureShare(docPath)}
 - 토큰과 모델별 사용량은 실행이 끝날 때 hook 이 .research/${slug}/notes/hooks.json 에 남긴다(커밋하지 않는다)
