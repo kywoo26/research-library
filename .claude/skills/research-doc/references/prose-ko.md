@@ -140,7 +140,9 @@ neighbours it turns into when one form is avoided:
 - a run of sentences ending in absence or negation
 - the document talking about itself (`이 문서는`, `이 장에서는`, `이 대응은 이 문서가 만든 것이고`)
 - the source as a speaker, sentence after sentence (`원문은 … 적는다`, `원문이 든 사례`): a page does
-  not speak. Name its author once where the claim starts (`Anthropic 은 … 권한다`), then state the facts
+  not speak. Name its author once where the claim starts (`Anthropic 은 … 권한다`), then state the facts.
+  A heading states the claim; it names a source only when who said it is the chapter's point (two
+  sources compared, a view that changed), and then by name and date, never `원문`
 
 Keep all of them out of headings; `check-doc.mjs` blocks the ones it can count. In the body they
 are review findings, read in context: a contrast that corrects what the reader actually believes

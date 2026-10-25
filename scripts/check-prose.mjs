@@ -104,7 +104,7 @@ export const HUMAN_BAND = {
   comma: [1.28, 1.59],
 };
 
-const RULES = Object.fromEntries([...PATTERNS.map(([id, desc]) => [id, desc]), ['source-as-speaker', `원문을 주어로 세운 문장 (원문은, 원문이) — 3건까지 (2026-10-26 이후 문서)`]]);
+const RULES = Object.fromEntries([...PATTERNS.map(([id, desc]) => [id, desc]), ['source-as-speaker', `원문을 주어로 세운 문장 (원문은, 원문이) — 3건까지, 제목에는 0건 (2026-10-26 이후 문서)`]]);
 
 // 보이는 산문만 남긴다. 인용과 코드는 규칙 대상이 아니다.
 export function visibleProse(html) {
@@ -137,6 +137,11 @@ export function checkDoc(slug, html) {
   const slides = slidesOf(html);
   const problems = [];
   const speaker = prose.match(SOURCE_SPEAKER) || [];
+  // 제목은 주장을 쓴다. 출처를 이름으로 적을 수는 있어도 '원문' 은 쓰지 않는다.
+  const headSpeaker = [...html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/g)].map((m) => m[1].replace(/<[^>]+>/g, '')).filter((t) => /원문/.test(t));
+  if (String(slug).slice(0, 10) >= SOURCE_SPEAKER_FROM && headSpeaker.length) {
+    problems.push({ rule: 'source-as-speaker', msg: `제목에 '원문' — ${headSpeaker.length}건. 제목은 주장을 쓰고, 누가 말했는지가 요점이면 이름과 날짜로 쓴다. 예: "${headSpeaker[0].trim().slice(0, 40)}"` });
+  }
   if (String(slug).slice(0, 10) >= SOURCE_SPEAKER_FROM && speaker.length > SOURCE_SPEAKER_MAX) {
     problems.push({ rule: 'source-as-speaker', msg: `원문을 주어로 세운 문장 (원문은, 원문이) — ${speaker.length}건, ${SOURCE_SPEAKER_MAX}건까지. 쓴 팀이나 사람을 주장이 시작하는 곳에 한 번 밝히고, 그 뒤는 사실로 쓴다` });
   }
