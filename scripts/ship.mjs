@@ -95,13 +95,17 @@ const isDraft = needs.length > 0 || blocking.length > 0 || unreviewed;
 // 3. 브랜치. README.md 와 index.html 은 생성물이라 작업 중에 다시 만든 것을 버린다(merge 뒤 main 에서 만든다).
 const current = sh('git', ['branch', '--show-current']).stdout.trim();
 const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
-const branch = current.startsWith(`doc/${slug}`) ? current : existing ? `doc/${slug}-fix-${stamp}` : `doc/${slug}`;
+// 앞선 ship 이 끝에 HEAD 를 떼어 두므로, 같은 worktree 에서 다시 부르면 current 가 비어 있다. 그때 HEAD 가 이 문서의
+// 열린 PR 브랜치 끝과 같으면 그 브랜치로 돌아간다(새 -fix- 브랜치와 두 번째 PR 을 만들지 않는다, #37).
+const reattach = !current && sh('git', ['branch', '-r', '--points-at', 'HEAD']).stdout.split('\n').map((r) => r.trim().replace(/^origin\//, ''))
+  .find((r) => r.startsWith(`doc/${slug}`));
+const branch = current.startsWith(`doc/${slug}`) ? current : reattach || (existing ? `doc/${slug}-fix-${stamp}` : `doc/${slug}`);
 const amend = current === branch && sh('git', ['log', '-1', '--format=%s']).stdout.trim() === run.commitSubject;
 const step = (c, a) => { const r = sh(c, a); if (r.status !== 0) die(`${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`); return r; };
 if (current !== branch) {
   step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
   const known = sh('git', ['rev-parse', '--verify', '-q', `refs/heads/${branch}`]).status === 0;
-  step('git', known ? ['switch', branch] : ['switch', '-c', branch, 'origin/main']);
+  step('git', reattach ? ['switch', '-C', branch] : known ? ['switch', branch] : ['switch', '-c', branch, 'origin/main']);
 }
 
 run.shippedAt = new Date().toISOString();
