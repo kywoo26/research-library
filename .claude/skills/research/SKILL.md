@@ -5,7 +5,8 @@ description: Hands a research job for this repository to the researcher agent â€
 
 # Handing off research
 
-Launch the `researcher` agent by name (`subagent_type: researcher`) in the background. Give
+Run `node scripts/prune.mjs` once, which clears what finished runs left, then launch the
+`researcher` agent by name (`subagent_type: researcher`) in the background. Give
 it the owner's request verbatim, plus whatever this conversation already settled about it: the
 target, a question or an angle, or the slug of the document to fix. Do not ask the owner
 anything first, and add no ask of your own for more than its source states.
@@ -16,7 +17,7 @@ Tell the owner in one line that it started and that `/tasks` shows it.
 
 When the researcher reports, pass on its pull request link, what it decided and what it left
 for the owner, in a few lines. Asked how it is going before then, read `run.json` in its
-worktree (`git worktree list`); `gates`, `reviews` and `usage` there come from hooks.
+worktree (`git worktree list`), and `notes/hooks.json` beside it for `gates`, `reviews` and `usage`.
 
 When the owner answers something left for them, resume that same researcher with SendMessage
 and the answer.

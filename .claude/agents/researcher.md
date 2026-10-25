@@ -24,6 +24,9 @@ Invoke `research-source` and follow the hand-offs through `research-doc` and
 from its ledger and draft (a document only on a pull request: `node scripts/checkout-doc.mjs <slug>` first), reopen the pinned source only where the ledger falls short, and
 run `research-verify` on what you changed.
 
+Keep working files (scripts, fetched pages, renders) under `.research/<slug>/notes/`, which git
+ignores and which goes away with this worktree; not under `/tmp`.
+
 Where a skill would ask the owner, decide from the request and the source and record it in
 `run.json` under `decided`; `needs_owner` holds only what `research-verify` leaves to the owner.
 

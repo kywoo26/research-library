@@ -18,6 +18,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { srcPath } from '../../../../scripts/lib/source-cache.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
@@ -100,7 +101,7 @@ if (argv.includes('--help') || argv.includes('-h')) {
   console.log('  --allow=rule,rule          규칙을 명시적으로 끈다');
   console.log('\n체크아웃 해결 순서 (repo):');
   console.log('  1. --repo owner/name=<path>');
-  console.log('  2. .research/<slug>/notes/checkouts.json 의 {"owner/name": "<path>"} (clone 할 때 researcher 가 적는다)');
+  console.log('  2. 원본 cache: sources.jsonl 의 repo 와 commit 으로 정해지는 자리 (scripts/source.mjs 가 받는다)');
   console.log('  3. $RESEARCH_CHECKOUT_DIR/<name>');
   console.log('  4. 못 찾으면 받아올 명령을 알려주고 차단한다 (자동으로 clone 하지 않는다)');
   console.log('\n원문 해결 순서 (paper):');
@@ -156,9 +157,6 @@ if (!target) {
 }
 const slug = target.replace(/\/+$/, '').split('/').pop();
 if (!evidenceDir) evidenceDir = join(ROOT, '.research', slug);
-// clone 한 곳은 기계마다 달라 원장에 넣지 않고 git 이 무시하는 notes/ 에 둔다. hook 과 ship 도 이것으로 찾는다.
-const checkoutsFile = join(ROOT, '.research', slug, 'notes', 'checkouts.json');
-const recordedCheckouts = (() => { try { return JSON.parse(readFileSync(checkoutsFile, 'utf8')); } catch { return {}; } })();
 
 // ---- 읽기 ----
 
@@ -234,7 +232,11 @@ const missingCheckouts = new Set();
 
 function resolveCheckout(src) {
   if (checkoutCache.has(src.id)) return checkoutCache.get(src.id);
-  let path = repoOverride.get(src.repo) || recordedCheckouts[src.repo] || null;
+  let path = repoOverride.get(src.repo) || null;
+  if (!path && src.commit) {
+    const p = srcPath(src.repo, src.commit, src.history_available === true);
+    if (p && existsSync(p)) path = p;
+  }
   if (!path && process.env.RESEARCH_CHECKOUT_DIR) {
     path = join(process.env.RESEARCH_CHECKOUT_DIR, src.repo.split('/').pop());
   }
@@ -697,8 +699,7 @@ if (missingCheckouts.size) {
   console.log('체크아웃을 찾을 수 없어 quote 대조를 건너뛴 저장소가 있다:');
   for (const repo of missingCheckouts) {
     console.log(`  ${repo}`);
-    console.log(`    --repo ${repo}=<path> 로 알려주거나, RESEARCH_CHECKOUT_DIR 를 설정하거나,`);
-    console.log(`    git clone --filter=blob:none https://github.com/${repo}.git`);
+    console.log(`    node scripts/source.mjs ${repo} <sources.jsonl 의 commit> 로 받거나, --repo ${repo}=<path> 로 알려준다`);
   }
   console.log('');
   add('quote-match', `체크아웃 없이 검증된 주장이 있다 (${[...missingCheckouts].join(', ')})`);
