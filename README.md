@@ -12,6 +12,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-10-25 | [Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법](https://kywoo26.github.io/research-library/research/2026-10-25-claude-code-effort-spending/) | 메모 |
 | 2026-10-19 | [Claude Code effort 단계를 작업에 맞춰 고르는 법](https://kywoo26.github.io/research-library/research/2026-10-19-claude-code-effort/) | 메모 |
 | 2026-10-14 | [rea MCP 서버가 에이전트의 reverse engineering에 더하는 것](https://kywoo26.github.io/research-library/research/2026-10-14-rea-reverse-engineer-anything/) | 오픈소스 분석 |
 | 2026-10-07 | [Meta의 organizational second brain이 전문가 교정을 지식 파일 편집으로 반영하는 방식](https://kywoo26.github.io/research-library/research/2026-10-07-meta-organizational-second-brain/) | 메모 |

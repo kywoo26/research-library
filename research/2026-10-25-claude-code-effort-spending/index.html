@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법</title>
+<meta name="description" content="effort 를 올리면 Claude 가 스스로 확인하고 혼자 정하는 일이 늘어난다. 숨은 edge case 는 줄고 모호한 요구를 틀리게 읽는 실패는 늘어난다는 Terminal-Bench 3.0 결과와, 단계를 고르는 기준">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법">
+<meta property="og:description" content="effort 를 올리면 Claude 가 스스로 확인하고 혼자 정하는 일이 늘어난다. 숨은 edge case 는 줄고 모호한 요구를 틀리게 읽는 실패는 늘어난다는 Terminal-Bench 3.0 결과와, 단계를 고르는 기준">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-25-claude-code-effort-spending/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   [[design-tokens]]  wikilink blue + redlink red on cool ink
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  --paper:      #eef0f5;
+  --card:       #ffffff;
+  --card-2:     #f6f8fb;
+  --ink:        #111620;
+  --ink-2:      #4d5666;
+  --muted:      #7c8698;
+  --rule:       #dde2ea;
+  --grid:       #e6eaf1;
+  --link:       #1f5fc4;   /* wikilink blue  · series 1 */
+  --link-soft:  #dbe6f9;
+  --redlink:    #b32424;   /* dangling link  · series 2 */
+  --redlink-soft:#f7dede;
+  --neutral-bar:#b9c2d1;
+  --shadow:     0 1px 2px rgba(17,22,32,.06), 0 8px 28px -14px rgba(17,22,32,.28);
+  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "D2Coding", "Nanum Gothic Coding", monospace;
+  --serif: "Iowan Old Style", Georgia, "Nanum Myeongjo", "Noto Serif KR", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper:      #0b0e13;
+    --card:       #151a22;
+    --card-2:     #1b2029;
+    --ink:        #eef1f6;
+    --ink-2:      #a4afc0;
+    --muted:      #7f8b9e;
+    --rule:       #262d38;
+    --grid:       #232935;
+    --link:       #4f92ee;
+    --link-soft:  #1c2c45;
+    --redlink:    #df5a5a;
+    --redlink-soft:#3a2023;
+    --neutral-bar:#3c4553;
+    --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:      #0b0e13;
+  --card:       #151a22;
+  --card-2:     #1b2029;
+  --ink:        #eef1f6;
+  --ink-2:      #a4afc0;
+  --muted:      #7f8b9e;
+  --rule:       #262d38;
+  --grid:       #232935;
+  --link:       #4f92ee;
+  --link-soft:  #1c2c45;
+  --redlink:    #df5a5a;
+  --redlink-soft:#3a2023;
+  --neutral-bar:#3c4553;
+  --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+}
+
+body { margin: 0; }
+
+/* ── deck shell ───────────────────────────────────────────── */
+.deck {
+  position: fixed; inset: 0;
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── index rail (the wiki _index.md) ──────────────────────── */
+.rail {
+  border-right: 1px solid var(--rule);
+  background: var(--card);
+  overflow-y: auto;
+  padding: 22px 0 20px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.rail-head {
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 20px 12px;
+}
+.rail-item {
+  display: grid; grid-template-columns: 24px 1fr; align-items: baseline; gap: 8px;
+  padding: 5px 20px;
+  font-size: 13px; color: var(--ink-2);
+  background: none; border: 0; text-align: left; width: 100%;
+  font-family: var(--sans); cursor: pointer;
+  border-left: 2px solid transparent;
+}
+.rail-item .n { font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rail-item:hover { background: var(--card-2); color: var(--ink); }
+.rail-item[aria-current="true"] { color: var(--link); border-left-color: var(--link); background: var(--card-2); font-weight: 600; }
+.rail-item[aria-current="true"] .n { color: var(--link); }
+.rail-sep { height: 1px; background: var(--rule); margin: 10px 20px; }
+
+/* ── stage & slides ───────────────────────────────────────── */
+.stage { position: relative; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: clamp(26px, 3.4vw, 54px) clamp(20px, 4vw, 60px) 108px;
+  opacity: 0; visibility: hidden;
+  transform: translateX(18px);
+  transition: opacity .32s ease, transform .32s ease, visibility .32s;
+}
+.slide[data-active="true"] { opacity: 1; visibility: visible; transform: none; }
+.slide-inner { max-width: 960px; margin: 0 auto; }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; transform: none; } }
+
+/* ── typography ───────────────────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  color: var(--link); margin: 0 0 10px;
+}
+.eyebrow::before { content: "[["; opacity: .45; }
+.eyebrow::after  { content: "]]"; opacity: .45; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 분리된다 */
+h1, h2, h3, .dek, p, ul.clean li, .bar-name, figcaption, .fig-title, .fig-sub, td, th { word-break: keep-all; }
+h1 { font-size: clamp(30px, 4.4vw, 50px); line-height: 1.14; letter-spacing: -.022em; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
+h2 { font-size: clamp(23px, 3vw, 32px); line-height: 1.2; letter-spacing: -.018em; font-weight: 750; margin: 0 0 8px; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 700; letter-spacing: -.005em; margin: 0 0 6px; }
+.dek { color: var(--ink-2); font-size: clamp(15px, 1.5vw, 17px); margin: 0 0 26px; max-width: 62ch; text-wrap: pretty; }
+p { margin: 0 0 12px; }
+strong { font-weight: 700; }
+.q {
+  font-family: var(--serif); font-size: clamp(19px, 2.3vw, 25px); line-height: 1.45;
+  font-style: italic; color: var(--ink); border-left: 3px solid var(--link);
+  padding: 2px 0 2px 20px; margin: 0 0 22px; max-width: 60ch;
+}
+.q cite { display: block; font-family: var(--mono); font-style: normal; font-size: 12px; color: var(--muted); margin-top: 10px; }
+/* 문장 안의 짧은 인용. 블록 인용 .q 와 같은 class 라 check-prose 가 둘 다 건너뛴다 */
+span.q { display: inline; font: inherit; font-style: normal; color: var(--ink-2); border: 0; padding: 0; margin: 0; max-width: none; }
+.wl { font-family: var(--mono); color: var(--link); font-size: .93em; }
+.wl-dead { font-family: var(--mono); color: var(--redlink); font-size: .93em; }
+
+/* ── cards / grids ────────────────────────────────────────── */
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 16px 18px; box-shadow: var(--shadow);
+}
+.card p:last-child { margin-bottom: 0; }
+.card .tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 8px;
+}
+.small { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.note {
+  font-size: 13px; color: var(--ink-2); background: var(--card-2);
+  border: 1px solid var(--rule); border-left: 3px solid var(--link);
+  border-radius: 0 8px 8px 0; padding: 11px 15px; margin: 16px 0 0;
+}
+.note.warn { border-left-color: var(--redlink); }
+.note b { color: var(--ink); }
+
+/* ── stat tiles ───────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin: 0 0 22px; }
+.stat { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+.stat .lab { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+.stat .val { font-size: 30px; font-weight: 780; letter-spacing: -.03em; line-height: 1.1; display: block; }
+.stat .val .u { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: 0; }
+.stat .sub { font-size: 12px; color: var(--ink-2); display: block; margin-top: 3px; }
+/* 핵심 한두 문장. 제목 아래에서 독자가 이 주장으로 무엇을 하는지 말한다. */
+.key { font-size: clamp(15px, 1.5vw, 17px); font-weight: 600; line-height: 1.55; color: var(--ink); margin: 0 0 22px; padding-left: 12px; border-left: 4px solid var(--link); max-width: 70ch; text-wrap: pretty; }
+/* 첨언. 계산 과정, 원문 문단 위치, 인용 원문, 조건의 세부. 기본은 접힘. */
+details.more { margin: 0 0 22px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px 14px; background: var(--card); color: var(--ink-2); font-size: 14px; }
+details.more summary { cursor: pointer; font-weight: 600; color: var(--muted); font-size: 13px; }
+details.more[open] summary { margin-bottom: 6px; }
+details.more p { margin: 8px 0; }
+/* 한 줄짜리 사실 목록. 항목마다 한 줄이 넘으면 첨언으로 보낸다. */
+ul.facts { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
+ul.facts li { display: grid; grid-template-columns: minmax(3.2em, max-content) 1fr; gap: 10px; font-size: 14.5px; color: var(--ink); line-height: 1.5; }
+ul.facts li .m { font-size: 12px; color: var(--muted); padding-top: 3px; }
+.stat.hero .val { color: var(--link); }
+.stat.bad .val { color: var(--redlink); }
+
+/* ── bar charts ───────────────────────────────────────────── */
+.figure { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 20px 14px; box-shadow: var(--shadow); margin: 0 0 16px; }
+.figure > figcaption { font-size: 12.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.fig-title { font-size: 14px; font-weight: 700; margin: 0 0 2px; }
+.fig-sub { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+
+.bars { display: grid; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: minmax(84px, 132px) 1fr minmax(42px, auto); align-items: center; gap: 10px; }
+.bar-name { font-size: 12.5px; color: var(--ink-2); text-align: right; overflow-wrap: anywhere; }
+.bar-row.is-hero .bar-name { color: var(--ink); font-weight: 700; }
+.bar-track {
+  position: relative; height: 15px; border-radius: 2px;
+  background-image: repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--grid) calc(25% - 1px) 25%);
+}
+.bar-track.g5 { background-image: repeating-linear-gradient(to right, transparent 0 calc(20% - 1px), var(--grid) calc(20% - 1px) 20%); }
+/* span 이라 display 를 주지 않으면 height/width 가 무시돼 막대가 렌더되지 않는다 */
+.bar { display: block; height: 100%; width: var(--w); background: var(--neutral-bar); border-radius: 0 4px 4px 0; }
+.bar.s1 { background: var(--link); }
+.bar.s2 { background: var(--redlink); }
+.bar-val { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: right; }
+.bar-row.is-hero .bar-val { color: var(--ink); font-weight: 700; }
+.bar-pair { display: grid; gap: 2px; }
+.bar-val.two { line-height: 1.5; font-size: 11.5px; }
+.bar-axis { display: grid; grid-template-columns: minmax(84px,132px) 1fr minmax(42px,auto); gap: 10px; margin-top: 8px; }
+.bar-axis .ticks { grid-column: 2; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+.legend i.s1 { background: var(--link); } .legend i.s2 { background: var(--redlink); } .legend i.sn { background: var(--neutral-bar); }
+
+/* ── tables ───────────────────────────────────────────────── */
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--card); box-shadow: var(--shadow); margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--card-2); }
+tbody td { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+tbody td:first-child { font-family: var(--sans); color: var(--ink-2); }
+tbody tr:last-child td { border-bottom: 0; }
+tr.hero td { background: var(--link-soft); color: var(--ink); font-weight: 700; }
+tr.hero td:first-child { color: var(--ink); }
+td.win { color: var(--link); font-weight: 700; }
+td.lose { color: var(--redlink); font-weight: 700; }
+/* 글이 든 표: 독자 상황별 표, 판단 표. 숫자 표의 오른쪽 정렬·줄바꿈 금지를 푼다 */
+table.prose-table th, table.prose-table td { text-align: left; white-space: normal; vertical-align: top; line-height: 1.5; font-size: 13.5px; }
+table.prose-table tbody td { font-family: var(--sans); font-variant-numeric: normal; }
+
+/* ── code / md sample ─────────────────────────────────────── */
+pre {
+  font-family: var(--mono); font-size: 12px; line-height: 1.62;
+  background: var(--card-2); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; margin: 0 0 14px; color: var(--ink-2);
+  tab-size: 2;
+}
+pre b { color: var(--ink); font-weight: 700; }
+pre .k { color: var(--link); }
+pre .r { color: var(--redlink); }
+pre .c { color: var(--muted); }
+
+/* ── paper figures (light-source PNGs; keep a white plate) ─ */
+.plate { background: #ffffff; border: 1px solid var(--rule); border-radius: 10px; padding: 10px; box-shadow: var(--shadow); }
+.plate img { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+/* ── svg charts ───────────────────────────────────────────── */
+.svgwrap { overflow-x: auto; }
+svg.chart { display: block; width: 100%; height: auto; min-width: 520px; }
+svg .grid-l { stroke: var(--grid); stroke-width: 1; }
+svg .axis-l { stroke: var(--rule); stroke-width: 1; }
+svg .tick { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+svg .lbl { fill: var(--ink-2); font-family: var(--sans); font-size: 12px; }
+svg .lbl-hi { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-weight: 700; }
+svg .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+svg .ln.dim { stroke: var(--neutral-bar); }
+svg .ln.s1 { stroke: var(--link); }
+svg .ln.s2 { stroke: var(--redlink); }
+svg .dot { stroke: var(--card); stroke-width: 2; }
+svg .dot.dim { fill: var(--neutral-bar); }
+svg .dot.s1 { fill: var(--link); }
+svg .dot.s2 { fill: var(--redlink); }
+svg .box { fill: var(--card-2); stroke: var(--rule); }
+svg .box-hi { fill: var(--link-soft); stroke: var(--link); }
+svg .arw { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .txt { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; font-weight: 650; }
+svg .txt-s { fill: var(--ink-2); font-family: var(--sans); font-size: 11px; }
+svg .arw.s1 { stroke: var(--link); stroke-width: 2; }
+svg .arw.s2 { stroke: var(--redlink); stroke-width: 2; }
+svg .val { fill: var(--ink); font-family: var(--mono); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+
+/* ── misc lists ───────────────────────────────────────────── */
+ul.clean { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+ul.clean li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; font-size: 14.5px; color: var(--ink-2); }
+ul.clean li .m { font-family: var(--mono); font-size: 12px; color: var(--link); line-height: 1.8; }
+ul.clean li .m.bad { color: var(--redlink); }
+ul.clean li b { color: var(--ink); }
+.src { display: grid; gap: 8px; font-size: 13.5px; }
+.src a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.src .t { color: var(--ink-2); }
+
+/* ── HUD ──────────────────────────────────────────────────── */
+.hud {
+  position: absolute; left: 224px; right: 0; bottom: 0;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px clamp(20px, 4vw, 60px);
+  background: linear-gradient(to top, var(--paper) 62%, transparent);
+  pointer-events: none;
+}
+.hud > * { pointer-events: auto; }
+.nav-btn {
+  font-family: var(--mono); font-size: 13px; color: var(--ink-2);
+  background: var(--card); border: 1px solid var(--rule); border-radius: 7px;
+  padding: 6px 13px; cursor: pointer; box-shadow: var(--shadow);
+}
+.nav-btn:hover:not(:disabled) { color: var(--link); border-color: var(--link); }
+.nav-btn:disabled { opacity: .35; cursor: default; }
+.counter { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1; height: 2px; background: var(--rule); border-radius: 2px; overflow: hidden; max-width: 340px; }
+.progress i { display: block; height: 100%; background: var(--link); width: 0; transition: width .32s ease; }
+.hint { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 3px; }
+
+/* ── responsive ───────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .deck { grid-template-columns: 1fr; }
+  .rail { display: none; }
+  .hud { left: 0; }
+  .g2, .g3 { grid-template-columns: 1fr; }
+  .bar-row, .bar-axis { grid-template-columns: minmax(70px, 96px) 1fr auto; }
+  .hint { display: none; }
+}
+/* ── article: 기본 읽기 방식. 장을 이어서 스크롤로 읽고 rail 은 목차가 된다. 덱은 토글. ── */
+body[data-mode="article"] .deck { position: static; inset: auto; min-height: 100vh; }
+body[data-mode="article"] .rail { position: sticky; top: 0; height: 100vh; box-sizing: border-box; }
+body[data-mode="article"] .stage { overflow: visible; }
+body[data-mode="article"] .slide {
+  position: static; inset: auto; opacity: 1; visibility: visible; transform: none; transition: none;
+  overflow: visible; padding-bottom: 40px; border-bottom: 1px solid var(--rule); scroll-margin-top: 8px;
+}
+body[data-mode="article"] .slide:last-child { border-bottom: 0; padding-bottom: 96px; }
+body[data-mode="article"] .hud { position: fixed; }
+body[data-mode="article"] #prev, body[data-mode="article"] #next, body[data-mode="article"] .hint { display: none; }
+
+@media print {
+  .deck { position: static; height: auto; grid-template-columns: 1fr; }
+  .rail, .hud { display: none; }
+  .stage { overflow: visible; }
+  .slide { position: static; opacity: 1; visibility: visible; transform: none; page-break-after: always; padding: 24px 0; }
+}
+
+/* ── 계보 바: 같은 연구 라인의 문서를 잇는다 ───────────── */
+.lineage {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 0 0 26px; padding: 10px 12px;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-family: var(--mono); font-size: 11.5px;
+}
+.lineage .lg {
+  color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+  margin-right: 4px; white-space: nowrap;
+}
+.lineage a, .lineage .self, .lineage .ext {
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--rule); text-decoration: none;
+  color: var(--ink-2); background: var(--card-2);
+}
+.lineage a:hover { color: var(--link); border-color: var(--link); }
+.lineage .self { color: var(--card); background: var(--link); border-color: var(--link); font-weight: 700; }
+.lineage .arrow { color: var(--muted); padding: 0 1px; }
+.lineage .ext { color: var(--muted); font-style: normal; }
+@media (max-width: 620px) { .lineage .lg { width: 100%; margin-bottom: 4px; } }
+
+/* 문서 간 이동 링크 */
+a.xref {
+  color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px;
+  font-weight: 600;
+}
+.note a { color: var(--link); text-underline-offset: 2px; }
+figcaption a { color: var(--link); text-underline-offset: 2px; }
+.card a { color: var(--link); text-underline-offset: 2px; }
+</style>
+</head>
+<body data-mode="article">
+<div class="deck">
+  <nav class="rail" aria-label="목차">
+    <div class="rail-head">_index.md</div>
+    <!-- 목차는 셸 스크립트가 장에서 만든다. 장의 data-label 이 목차 이름이다 -->
+  </nav>
+
+  <main class="stage" id="stage">
+
+  <!-- 01 -->
+  <section class="slide" data-active="true" data-label="표지">
+    <div class="slide-inner">
+      <p class="eyebrow">index</p>
+      <h1>Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법</h1>
+      <p>Claude Code 의 effort 는 한 작업에 계산을 얼마나 쓸지 모델에 알려 주는 다섯 단계 설정이다. 글쓴이 Thariq Shihipar 는 단계를 올리면 Claude 가 스스로 검증하고 edge case 를 시험하는 일과 혼자 내리는 판단이 함께 는다고 설명한다. 그가 실은 내부 벤치마크에서 높은 단계는 edge case 를 놓친 실패를 크게 줄였지만, 과제 설명을 달리 읽을 여지가 있을 때 틀린 해석을 고른 실패는 오히려 늘었다. 그래서 그는 사람이 결과를 보며 이끌 구현은 낮은 단계로, 검증은 높은 단계로 돌리기를 권한다.</p>
+      <p class="src">Claude Code 블로그(claude.dev)의 Engineering 글 「Using Claude Code: Spending your effort」(2026-09-25)다. 글쓴이 Thariq Shihipar 는 Claude 모델을 “우리 모델”이라 부르며 Anthropic 내부 실행 결과를 싣는다. 2026-10-25 에 읽은 판이고, Claude Code 와 Claude API 의 effort 공식 문서를 함께 읽었다.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="slide" data-label="요약">
+    <div class="slide-inner">
+      <p class="eyebrow">tl-dr</p>
+      <h2>단계를 고를 때 기억할 것</h2>
+      <p class="key">effort 는 Claude 가 얼마나 확인하고 얼마나 혼자 정할지를 바꾼다. 그래서 edge case 를 시험으로 찾을 수 있는 일에 높은 단계를 쓰고, 방향을 함께 잡는 일에는 낮은 단계로 빨리 돌린다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span>effort 는 정해진 토큰 상한으로 작동하지 않는다. 단계마다 생각할지, tool call 을 얼마나 할지, 결과를 얼마나 확인할지를 모델이 정하는 신호다. <a class="xref" href="#p4">원리</a></span></li>
+        <li><span class="m">2</span><span>원문 사례에서 높은 단계의 Claude 는 기준 구현이나 brute-force 풀이처럼 따로 맞춰 볼 대상을 만들어 결과를 비교했다. 낮은 단계는 한 번에 쓰고 예시 몇 개로 확인한 뒤 끝냈다. <a class="xref" href="#p5">사례</a></span></li>
+        <li><span class="m">3</span><span>Terminal-Bench 3.0 에서 Fable 5.1 을 low 에서 max 로 올리자 edge case 를 놓친 실패는 59건에서 24건으로 줄었다. 요구를 다른 뜻으로 읽은 실패는 25건에서 47건으로 늘었다. <a class="xref" href="#p7">실패 종류</a></span></li>
+        <li><span class="m">4</span><span>보안과 하드웨어 과제에서 단계를 올린 효과가 가장 컸고, 규칙을 따라 처리하는 운영 과제는 높은 단계에서도 22% 에 머물렀다. <a class="xref" href="#p8">분야</a></span></li>
+        <li><span class="m">5</span><span>글쓴이의 기준은 빠르게 주고받는 일 low, 보통의 기능 구현 medium, 검증이 중요한 일 high, 사람 없이 끝까지 맡기는 어려운 일 max 다. <a class="xref" href="#p10">고르는 기준</a></span></li>
+        <li><span class="m">6</span><span>Claude Code 에서는 <code>/effort</code> 로 대화 중에 바꾼다. 글쓴이는 최신 모델이 effort 를 바꿔도 prompt cache 를 깨지 않는다고 쓴다. 모델을 바꾸면 단계는 다시 고른다. <a class="xref" href="#p12">설정</a></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="slide" data-label="문제 정의">
+    <div class="slide-inner">
+      <p class="eyebrow">problem</p>
+      <h2>단계에 따라 몇 배씩 달라지는 시간과 토큰</h2>
+      <p class="key">effort 단계 하나로 같은 과제에 드는 시간과 토큰이 몇 배씩 달라진다. 어느 단계가 언제 그만한 값을 하는지 모르면 쉬운 일에 시간을 쓰거나, 어려운 일에서 edge case 를 놓친 결과를 받는다.</p>
+      <ul class="facts">
+        <li><span class="m">1.5분 / 67분</span><span>명세 없이 “운동 기록 앱을 만들어 줘”라고 했을 때 Opus 5.5 의 low 와 max 가 걸린 시간</span></li>
+        <li><span class="m">2분 / 33분</span><span>HTML sanitizer 과제에서 low 시도 하나와 high-effort 실행 하나가 걸린 시간</span></li>
+        <li><span class="m">약 43k / 약 276k</span><span>Terminal-Bench 3.0 에서 Opus 5.5 의 low 와 max 가 시도 하나에 쓴 토큰의 중앙값</span></li>
+        <li><span class="m">medium</span><span>Claude Code 에서 Opus 5.5 의 기본 단계. Sonnet 5.5 와 Haiku 5.5 도 medium 이고, Opus 4.7 은 xhigh, 그 밖의 모델은 high 에서 시작한다</span></li>
+      </ul>
+      <p>글쓴이는 effort 가 무엇이고 언제 어느 단계를 쓰는지 묻는 사용자 질문이 많아서 이 글을 썼다고 밝힌다. 답을 찾으려고 같은 과제를 여러 단계로 직접 돌려 보고, Terminal-Bench 3.0 결과를 과제별로 들여다봤다. 위의 값들은 서로 다른 과제와 측정에서 왔지만, 단계 하나가 시간과 토큰을 몇 배로 바꾼다는 점은 같다.</p>
+      <details class="more"><summary>첨언: 원문과 값의 출처</summary>
+        <p>블로그 첫 문단: <span class="q">“What is effort really, and when do you use which effort level? Why do we need effort at all?”</span> 토큰 값은 원문 FIG A 의 SVG 점 좌표를 축 눈금으로 환산한 근삿값이다. 시간은 원문 carousel 의 단계 표시(low(1.5 min) … max(67 min))와 html-js-filter 단락에서 옮겼다. 기본 단계는 Claude Code 문서 §Adjust effort level 이다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="slide" data-label="원리">
+    <div class="slide-inner">
+      <p class="eyebrow">mechanism</p>
+      <h2>effort 가 바꾸는 것</h2>
+      <p class="key">effort 는 이 작업에 계산을 얼마나 쓰길 바라는지 모델에 알려 주는 신호다. 단계를 올리면 Claude 는 더 자주 생각하고, tool call 을 더 하고, 스스로 확인하고 판단하는 일을 늘린다. 토큰 상한이 정해지는 것은 아니어서 낮은 단계에서도 충분히 어려운 문제에는 생각한다.</p>
+      <p>글쓴이는 effort 를 시간 약속에 빗댄다. 누군가 어떤 일을 12시간 내내 해 달라고 하면 정말 공들여 해 달라는 뜻으로 받아들인다. 같은 일을 1시간 안에 해 달라고 하면 요구에 맞는 가장 나은 판을 내고 이어서 고쳐 갈 것을 예상한다. Claude 도 어느 단계에서나 일을 합리적으로 하려 하지만, 높은 단계에서는 판단과 검증을 위해 혼자 움직이는 일이 늘어난다는 것이 그의 설명이다.</p>
+      <figure class="figure">
+        <p class="fig-title">세 자료가 같은 단계 변화를 각자 다른 층에서 설명한다</p>
+        <p class="fig-sub">세 자료가 각자 설명한 층을 한 그림에 모았다. 상자 아래 줄이 그 층을 설명한 자료다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 280" role="img" aria-label="effort 가 작업을 바꾸는 경로. 왼쪽의 effort 단계는 토큰 상한이 아니라 행동 신호다. 세 자료가 이 신호의 효과를 각자의 층에서 설명한다. Claude Code 문서가 말하는 생각할지와 얼마나 생각할지, API 문서가 말하는 tool call 의 수와 길이, 블로그가 말하는 검증과 edge case 시험과 자기 판단이다. 오른쪽 상자는 사례에서 드러난 작업 모양으로, 테스트를 한 번 더 돌리고 다른 방법으로 답을 맞춰 보고 사용자가 말하지 않은 부분을 스스로 정한다.">
+          <rect class="box" x="8" y="104" width="124" height="70" rx="8"/>
+          <text class="txt" x="20" y="130">effort 단계</text>
+          <text class="txt-s" x="20" y="148">토큰 상한이 아닌</text>
+          <text class="txt-s" x="20" y="164">행동 신호</text>
+          <path class="arw" d="M132 139 L150 139"/>
+          <path class="arw" d="M150 49 L150 229"/>
+          <path class="arw" d="M150 49 L170 49"/><path class="arw" d="M163 44 L170 49 L163 54"/>
+          <path class="arw" d="M150 139 L170 139"/><path class="arw" d="M163 134 L170 139 L163 144"/>
+          <path class="arw" d="M150 229 L170 229"/><path class="arw" d="M163 224 L170 229 L163 234"/>
+
+          <rect class="box" x="172" y="14" width="300" height="70" rx="8"/>
+          <text class="txt" x="184" y="38">생각할지, 얼마나 생각할지</text>
+          <text class="txt-s" x="184" y="56">Opus 5.5 와 Fable 계열은 thinking 을 못 끈다</text>
+          <text class="txt-s" x="184" y="73">Claude Code 문서 · adaptive reasoning</text>
+
+          <rect class="box" x="172" y="104" width="300" height="70" rx="8"/>
+          <text class="txt" x="184" y="128">tool call 의 수와 길이</text>
+          <text class="txt-s" x="184" y="146">모든 출력 토큰에 걸려 thinking 없이도 작동</text>
+          <text class="txt-s" x="184" y="163">API 문서</text>
+
+          <rect class="box" x="172" y="194" width="300" height="70" rx="8"/>
+          <text class="txt" x="184" y="218">검증, edge case 시험, 자기 판단</text>
+          <text class="txt-s" x="184" y="236">높은 단계에서 혼자 움직이는 일이 는다</text>
+          <text class="txt-s" x="184" y="253">블로그</text>
+
+          <path class="arw" d="M472 49 L492 49"/><path class="arw" d="M472 139 L492 139"/><path class="arw" d="M472 229 L492 229"/>
+          <path class="arw" d="M492 49 L492 229"/>
+          <path class="arw" d="M492 139 L526 139"/><path class="arw" d="M519 134 L526 139 L519 144"/>
+
+          <rect class="box-hi" x="528" y="84" width="224" height="110" rx="8"/>
+          <text class="txt" x="540" y="110">작업의 모양이 바뀐다</text>
+          <text class="txt-s" x="540" y="134">테스트를 한 번 더 돌린다</text>
+          <text class="txt-s" x="540" y="154">다른 방법으로 답을 맞춰 본다</text>
+          <text class="txt-s" x="540" y="174">말하지 않은 부분을 스스로 정한다</text>
+        </svg>
+        </div>
+        <figcaption>블로그 §What is effort?, Claude Code 문서 §Adjust effort level 과 §Extended thinking, API 문서 §How effort works 의 설명을 모아 그렸다. 원문에는 이 그림이 없다. 오른쪽 상자는 다음 장 사례에서 높은 단계가 한 일이고, 세 층 가운데 어느 층이 어느 행동을 낳는지는 원문이 나누지 않는다.</figcaption>
+      </figure>
+      <p>그래서 단계를 올린 결과는 답이 길어지는 데서 그치지 않고 작업의 모양이 바뀌는 데서 드러난다. 다음 장의 사례가 그 모양을 보여 준다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>블로그 §What is effort?: <span class="q">“At a high level, effort gives the model an approximation of how much compute you want it to spend on the task. It’s somewhat related to your modeling of the difficulty of the task.”</span> <span class="q">“Claude will always try and do your task reasonably, but higher effort will involve Claude taking more independent action for judgement and verification.”</span></p>
+        <p>Claude Code 문서 §Adjust effort level: <span class="q">“Effort levels control adaptive reasoning, which lets the model decide whether and how much to think on each step based on task complexity.”</span> §Extended thinking: <span class="q">“On these models, the model decides per step how much to think based on the effort level.”</span></p>
+        <p>Claude API 문서 §Effort levels: <span class="q">“Effort is a behavioral signal, not a strict token budget. At lower effort levels, Claude still thinks on sufficiently difficult problems, but thinks less than it would at higher effort levels for the same problem.”</span> §How effort works: <span class="q">“Because effort applies to every output token, it works with or without thinking. Lower effort also means fewer and terser tool calls.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="slide" data-label="사례 하나">
+    <div class="slide-inner">
+      <p class="eyebrow">case</p>
+      <h2>HTML sanitizer 과제를 low 와 high 로 돌렸을 때</h2>
+      <p class="key">html-js-filter 에서 Fable 5.1 은 low 로 다섯 번 중 한 번, xhigh 로 다섯 번 모두 통과했다. 두 실행은 필터를 다 쓴 뒤 무엇에 맞춰 확인했는지에서 갈렸다.</p>
+      <p>과제는 페이지에 JavaScript 를 몰래 넣는 모든 방법을 걸러 내는 HTML sanitizer 를 만드는 것이다. 걸러 내야 할 경우가 숨어 있어서, 예시 몇 개를 통과한 필터도 채점에서는 떨어지기 쉽다.</p>
+      <figure class="figure">
+        <p class="fig-title">high 실행은 초안 뒤에 확인 단계 다섯 개를 더 거쳤다</p>
+        <p class="fig-sub">블로그가 설명한 low 시도와, 글쓴이가 따라가 본 high-effort 실행 하나</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 230" role="img" aria-label="html-js-filter 과제의 두 실행 경로. 위쪽 low 시도는 약 2분 동안 필터를 한 번에 쓰고, 손으로 쓴 페이지 하나로 확인하고 끝난다. 아래쪽 high 실행은 약 33분 동안 초안을 쓴 뒤 초안을 적대적으로 검토하고, 설치된 parser 소스를 읽어 버그를 찾고, 정상 문서가 그대로 나오는지 여러 번 확인하고, 표준 XSS test suite 를 돌리고, 마지막으로 무작위 문서 fuzzer 를 작성한다.">
+          <text class="lbl-hi" x="8" y="20">low · 약 2분</text>
+          <rect class="box" x="8" y="32" width="150" height="54" rx="8"/>
+          <text class="txt" x="20" y="55">필터 작성</text>
+          <text class="txt-s" x="20" y="73">거의 한 번에</text>
+          <path class="arw" d="M158 59 L182 59"/><path class="arw" d="M175 54 L182 59 L175 64"/>
+          <rect class="box" x="184" y="32" width="170" height="54" rx="8"/>
+          <text class="txt" x="196" y="55">페이지 하나로 확인</text>
+          <text class="txt-s" x="196" y="73">손으로 쓴 예시 하나</text>
+          <path class="arw" d="M354 59 L378 59"/><path class="arw" d="M371 54 L378 59 L371 64"/>
+          <text class="lbl" x="384" y="63">끝 (통과 1/5)</text>
+
+          <text class="lbl-hi" x="8" y="122">high · 약 33분</text>
+          <rect class="box" x="8" y="134" width="96" height="62" rx="8"/>
+          <text class="txt" x="18" y="160">초안 작성</text>
+          <path class="arw" d="M104 165 L120 165"/><path class="arw" d="M113 160 L120 165 L113 170"/>
+          <rect class="box-hi" x="122" y="134" width="116" height="62" rx="8"/>
+          <text class="txt" x="132" y="160">적대적 검토</text>
+          <text class="txt-s" x="132" y="178">자기 초안을 공격</text>
+          <path class="arw" d="M238 165 L254 165"/><path class="arw" d="M247 160 L254 165 L247 170"/>
+          <rect class="box-hi" x="256" y="134" width="120" height="62" rx="8"/>
+          <text class="txt" x="266" y="160">parser 소스</text>
+          <text class="txt-s" x="266" y="178">설치본의 버그 확인</text>
+          <path class="arw" d="M376 165 L392 165"/><path class="arw" d="M385 160 L392 165 L385 170"/>
+          <rect class="box-hi" x="394" y="134" width="120" height="62" rx="8"/>
+          <text class="txt" x="404" y="160">정상 문서</text>
+          <text class="txt-s" x="404" y="178">입력 그대로 나오나</text>
+          <path class="arw" d="M514 165 L530 165"/><path class="arw" d="M523 160 L530 165 L523 170"/>
+          <rect class="box-hi" x="532" y="134" width="104" height="62" rx="8"/>
+          <text class="txt" x="542" y="160">XSS suite</text>
+          <text class="txt-s" x="542" y="178">표준 공격 모음</text>
+          <path class="arw" d="M636 165 L652 165"/><path class="arw" d="M645 160 L652 165 L645 170"/>
+          <rect class="box-hi" x="654" y="134" width="98" height="62" rx="8"/>
+          <text class="txt" x="664" y="160">fuzzer</text>
+          <text class="txt-s" x="664" y="178">무작위 문서</text>
+          <text class="txt-s" x="8" y="220">xhigh 에서 통과 5/5. 따라가 본 실행은 글쓴이가 high-effort run 이라 부른 하나다</text>
+        </svg>
+        </div>
+        <figcaption>블로그 §Higher effort levels help when there are many edge cases 의 서술을 단계로 나눠 그렸다. 원문에는 이 그림이 없다. 통과 횟수는 Fable 5.1 기준이고, 걸린 시간은 low 의 전형적인 시도와 high 실행 하나의 값이다.</figcaption>
+      </figure>
+      <p>Opus 5.5 로 돌린 다른 세 과제도 같은 모양이다. 낮은 단계는 답을 한 번 만들고 쉬운 예로 확인한 뒤 멈췄다. 높은 단계는 따로 맞춰 볼 대상을 만든 다음 그것과 비교했다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>과제</th><th>통과</th><th>낮은 단계에서 한 일</th><th>높은 단계에서 더 한 일</th></tr></thead>
+        <tbody>
+          <tr><td>mvcc-lsm-compaction<br>crash 보고로 저장 엔진 버그 고치기</td><td>low 0/5<br>xhigh 4/5</td><td>약 1분. 빌드하거나 재현하기 전에 코드를 고쳤고, 새 테스트가 원래 버그를 잡는지 확인하지 않았다</td><td>약 11분. crash 를 먼저 재현하고, compaction 을 하지 않는 기준 구현에 맞춰 무작위 테스트를 쓰고, 덜 된 수정에서 테스트가 실패하는지 확인했다</td></tr>
+          <tr><td>cli-2ph-simplex<br>Python 으로 선형계획 solver 만들기</td><td>low 0/5<br>high 5/5</td><td>한 번에 쓰고 작은 문제 몇 개로 확인한 뒤 약 10k 토큰에서 멈췄다. 큰 문제에서 느릴 수 있다고 경고만 하고 확인하지 않았다</td><td>따로 만든 brute-force solver 와 무작위 문제로 비교하고, 큰 문제의 시간을 재다가 너무 오래 걸리거나 죽는 경우를 만나 탐색을 다시 짰다</td></tr>
+          <tr><td>gsea-proteomics<br>여덟 처리 중 목표 조직과 닮은 것 찾기</td><td>low 0/5<br>high 4/5</td><td>그럴듯한 전처리 방법 하나로 분석하고 결과를 보고했다</td><td>전처리를 두 가지로 해 보고, 유의한 처리 목록이 바뀌는 것을 보고 원인을 파고든 뒤 맞는 쪽을 골랐다</td></tr>
+        </tbody>
+      </table></div>
+      <p>gsea-proteomics 에 대해 글쓴이는 사용자가 곁에 있었다면 Claude 가 전처리 방법을 물었을 수도 있다고 덧붙인다. 사람이 없을 때는 높은 단계가 두 방법을 직접 맞춰 보는 쪽으로 그 질문을 대신한다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>html-js-filter: <span class="q">“Fable 5.1 went from 1/5 at low to 5/5 at xhigh.”</span> <span class="q">“A typical attempt at low effort takes about 2 minutes. Each of these attempts wrote a filter in roughly one pass, then tested it against a single hand-written page.”</span> <span class="q">“A high-effort run finishes in about 33 minutes. In the run I traced, it adversarially reviewed its first draft, then read the installed parser’s source to check for bugs, ran many clean test cases until they gave the same output as the input, ran a standard XSS test suite, and finally, wrote a random-document fuzzer.”</span></p>
+        <p>mvcc-lsm-compaction: <span class="q">“At xhigh (about 11 minutes), Claude reproduced the crash first, wrote a randomized test against a reference that never compacts, and checked that its tests failed on half-finished fixes.”</span> gsea-proteomics: <span class="q">“If a user were in the loop, Claude may have asked the user about the way to set up the problem, but without a user in the loop, high effort does better.”</span></p>
+        <p>각주: <span class="q">“The worked examples come from individual runs, some at intermediate effort settings.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="slide" data-label="곡선">
+    <div class="slide-inner">
+      <p class="eyebrow">result-curve</p>
+      <h2>단계별 통과율과 토큰 곡선</h2>
+      <p class="key">Terminal-Bench 3.0 에서 Opus 5.5 와 Fable 5.1 은 단계를 올릴 때마다 통과율과 시도당 토큰이 함께 올랐다. Opus 5.5 는 low 36.6% 에서 max 65.7% 까지 오르는데 상승폭은 medium 이후 작아지고, high 에서 Fable 5.1 max(58.0%)와 비슷한 58.9% 를 토큰 절반으로 냈다.</p>
+      <figure class="figure">
+        <p class="fig-title">Opus 5.5 는 medium 까지 크게 오르고 그 위로는 완만하다</p>
+        <p class="fig-sub">Terminal-Bench 3.0, 과제 70개. 가로축은 시도당 토큰의 중앙값(log), 세로축은 통과한 시도의 비율. 점은 low, medium, high, xhigh, max 순</p>
+        <div class="legend"><span><i class="s1"></i>Opus 5.5</span><span><i class="s2"></i>Fable 5.1</span><span><i class="sn"></i>Opus 5, Fable 5</span></div>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 330" role="img" aria-label="Terminal-Bench 3.0 에서 effort 단계별 통과율과 시도당 토큰 중앙값. Opus 5.5 는 약 43k 토큰에서 36.6%, 약 78k 에서 54.6%, 약 103k 에서 58.9%, 약 180k 에서 62.6%, 약 276k 에서 65.7% 로 오른다. Fable 5.1 은 약 64k 에서 32.0% 부터 약 206k 에서 58.0% 까지 오른다. Opus 5 는 26.9% 에서 50.6% 로, Fable 5 는 22.6% 에서 43.4% 로 오르고 Fable 5 는 xhigh 와 max 가 43.4% 로 같다. 점선은 Opus 5.5 high 와 Fable 5.1 max 를 잇는다.">
+          <line class="grid-l" x1="70" y1="290" x2="720" y2="290"/><line class="grid-l" x1="70" y1="238" x2="720" y2="238"/><line class="grid-l" x1="70" y1="186" x2="720" y2="186"/><line class="grid-l" x1="70" y1="134" x2="720" y2="134"/><line class="grid-l" x1="70" y1="82" x2="720" y2="82"/><line class="grid-l" x1="70" y1="30" x2="720" y2="30"/>
+          <text class="tick" x="60" y="294" text-anchor="end">20%</text><text class="tick" x="60" y="242" text-anchor="end">30%</text><text class="tick" x="60" y="190" text-anchor="end">40%</text><text class="tick" x="60" y="138" text-anchor="end">50%</text><text class="tick" x="60" y="86" text-anchor="end">60%</text><text class="tick" x="60" y="34" text-anchor="end">70%</text>
+          <line class="axis-l" x1="70" y1="290" x2="720" y2="290"/>
+          <text class="tick" x="140" y="310" text-anchor="middle">50k</text><text class="tick" x="356" y="310" text-anchor="middle">100k</text><text class="tick" x="573" y="310" text-anchor="middle">200k</text><text class="tick" x="700" y="310" text-anchor="middle">300k</text>
+          <polyline class="ln dim" points="202,276.5 316,220.3 389,203.7 468,168.3 522,168.3"/>
+          <polyline class="ln dim" points="266,254.1 403,198 503,168.3 576,150.1 642,130.9"/>
+          <polyline class="ln s2" points="217,227.6 316,186 411,153.2 531,113.2 582,92.4"/>
+          <polyline class="ln s1" points="93,203.7 279,110.1 366,87.7 540,68.5 674,52.4"/>
+          <g><circle class="dot dim" cx="202" cy="276.5" r="4"/><circle class="dot dim" cx="316" cy="220.3" r="4"/><circle class="dot dim" cx="389" cy="203.7" r="4"/><circle class="dot dim" cx="468" cy="168.3" r="4"/><circle class="dot dim" cx="522" cy="168.3" r="4"/></g>
+          <g><circle class="dot dim" cx="266" cy="254.1" r="4"/><circle class="dot dim" cx="403" cy="198" r="4"/><circle class="dot dim" cx="503" cy="168.3" r="4"/><circle class="dot dim" cx="576" cy="150.1" r="4"/><circle class="dot dim" cx="642" cy="130.9" r="4"/></g>
+          <g><circle class="dot s2" cx="217" cy="227.6" r="5"/><circle class="dot s2" cx="316" cy="186" r="5"/><circle class="dot s2" cx="411" cy="153.2" r="5"/><circle class="dot s2" cx="531" cy="113.2" r="5"/><circle class="dot s2" cx="582" cy="92.4" r="5"/></g>
+          <g><circle class="dot s1" cx="93" cy="203.7" r="5"/><circle class="dot s1" cx="279" cy="110.1" r="5"/><circle class="dot s1" cx="366" cy="87.7" r="5"/><circle class="dot s1" cx="540" cy="68.5" r="5"/><circle class="dot s1" cx="674" cy="52.4" r="5"/></g>
+          <text class="lbl-hi" x="100" y="220">Opus 5.5 low 36.6%</text>
+          <text class="lbl-hi" x="340" y="74">high 58.9%</text>
+          <text class="lbl-hi" x="590" y="44">max 65.7%</text>
+          <text class="lbl" x="592" y="102">Fable 5.1 max 58.0%</text>
+          <text class="lbl" x="660" y="146">Opus 5</text>
+          <text class="lbl" x="530" y="186">Fable 5</text>
+          <path class="arw" d="M372 92 L574 92" stroke-dasharray="4 3"/>
+          <text class="txt-s" x="400" y="106">점수는 비슷하고 토큰은 절반</text>
+        </svg>
+        </div>
+        <figcaption>블로그 FIG A 를 다시 그렸다. 끝점과 Opus 5.5 high, Fable 5.1 max, Fable 5 의 43.4% 는 원문 그림의 설명문 값이고, 나머지 통과율과 모든 토큰 값은 원문 SVG 의 점 좌표를 축 눈금으로 환산한 근삿값이다. GPU 과제 4개는 빠졌다. Opus 5.5 는 약 3주 뒤에 응답 128k 토큰 상한, GitHub 와 PyPI 접근 없이 돌렸고, Opus 5 의 max 점은 effort-120 실행이다.</figcaption>
+      </figure>
+      <p>곡선이 꾸준히 오른다고 단계마다 같은 값을 하지는 않는다. Opus 5.5 의 점을 이어 보면 오르는 폭은 아래쪽 단계에서 크고 위로 갈수록 작아진다.</p>
+      <ul class="facts">
+        <li><span class="m">low→medium</span><span>약 35k 토큰을 더 써서 약 18%p 오른다</span></li>
+        <li><span class="m">medium→high</span><span>약 25k 토큰을 더 써서 약 4%p 오른다</span></li>
+        <li><span class="m">high→xhigh</span><span>약 77k 토큰을 더 써서 약 4%p 오른다</span></li>
+        <li><span class="m">xhigh→max</span><span>약 96k 토큰을 더 써서 약 3%p 오른다</span></li>
+      </ul>
+      <p>그림 좌표에서 읽은 근삿값이라 위쪽 세 구간의 차이끼리는 견줄 수 없고, low 에서 medium 으로 갈 때 가장 크게 오른다는 것만 분명하다. high 에서 max 까지 가면 토큰은 약 2.7배가 되고 통과율은 약 7%p 오른다. 그래서 실패 하나가 비싼 일, 예를 들어 보안 점검이나 운영 중인 코드의 버그 수정에서 고를 만하다.</p>
+      <details class="more"><summary>첨언: 계산과 원문</summary>
+        <p>단계 사이의 차이는 위 근삿값으로 계산했다. 원문에는 이 비교가 없다. 토큰은 SVG 좌표 환산값이라 한 자리까지만 믿을 만하다.</p>
+        <p>블로그 §Effort curves: <span class="q">“Fable 5.1 and Opus 5.5’s effort curves are our best yet: at each level, there is an uptick in benchmark scores and tokens consumed.”</span> FIG A 설명문: <span class="q">“Opus 5.5 at high matches Fable 5.1 at max (58.9% against 58.0%) on half the tokens. Fable 5 levels off at 43.4% from xhigh to max.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="slide" data-label="실패 종류">
+    <div class="slide-inner">
+      <p class="eyebrow">result-failure</p>
+      <h2>높은 단계가 줄인 실패와 늘린 실패</h2>
+      <p class="key">Fable 5.1 을 low 에서 max 로 올리자 edge case 를 놓친 실패는 59건에서 24건으로 줄었고, 접근을 잘못 잡은 실패는 133건에서 107건으로 덜 줄었다. 과제 설명이 다르게 읽힐 여지가 있을 때 테스트와 다른 해석을 고른 실패는 25건에서 47건으로 늘었다.</p>
+      <figure class="figure">
+        <p class="fig-title">edge case 를 놓친 실패는 세 모델 모두 줄고, 틀린 해석을 고른 실패는 세 모델 모두 늘었다</p>
+        <p class="fig-sub">FIG B 의 low 와 max 칸에서 그 실패로 분류된 시도 수. 회색 점이 low, 화살표 끝이 max 다</p>
+        <div class="legend"><span><i class="s1"></i>줄었다</span><span><i class="s2"></i>늘었다</span></div>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 305" role="img" aria-label="실패 종류별로 low 에서 max 로 갈 때의 건수 변화. edge case 를 놓친 실패는 Fable 5.1 이 59건에서 24건, Opus 5 가 63건에서 24건, Fable 5 가 86건에서 32건으로 줄어 화살표가 왼쪽을 향한다. 적힌 요구를 어긴 실패도 45건에서 26건, 53건에서 37건, 51건에서 38건으로 줄었다. 두 해석 중 틀린 쪽을 고른 실패만 25건에서 47건, 28건에서 45건, 31건에서 54건으로 늘어 화살표가 오른쪽을 향한다.">
+          <line class="grid-l" x1="150" y1="28" x2="150" y2="270"/><line class="grid-l" x1="313.3" y1="28" x2="313.3" y2="270"/><line class="grid-l" x1="476.7" y1="28" x2="476.7" y2="270"/><line class="grid-l" x1="640" y1="28" x2="640" y2="270"/>
+          <text class="tick" x="150" y="290" text-anchor="middle">0</text><text class="tick" x="313.3" y="290" text-anchor="middle">30</text><text class="tick" x="476.7" y="290" text-anchor="middle">60</text><text class="tick" x="640" y="290" text-anchor="middle">90건</text>
+          <text class="tick" x="752" y="20" text-anchor="end">low → max</text>
+
+          <text class="lbl-hi" x="8" y="20">edge case 를 놓침</text>
+          <text class="lbl" x="140" y="44" text-anchor="end">Fable 5.1</text><circle class="dot dim" cx="471.2" cy="40" r="4"/><path class="arw s1" d="M471.2 40 L281.7 40"/><path class="arw s1" d="M288.7 35 L280.7 40 L288.7 45"/><text class="val" x="752" y="44" text-anchor="end">59 → 24</text>
+          <text class="lbl" x="140" y="64" text-anchor="end">Opus 5</text><circle class="dot dim" cx="493" cy="60" r="4"/><path class="arw s1" d="M493 60 L281.7 60"/><path class="arw s1" d="M288.7 55 L280.7 60 L288.7 65"/><text class="val" x="752" y="64" text-anchor="end">63 → 24</text>
+          <text class="lbl" x="140" y="84" text-anchor="end">Fable 5</text><circle class="dot dim" cx="618.2" cy="80" r="4"/><path class="arw s1" d="M618.2 80 L325.2 80"/><path class="arw s1" d="M332.2 75 L324.2 80 L332.2 85"/><text class="val" x="752" y="84" text-anchor="end">86 → 32</text>
+
+          <text class="lbl-hi" x="8" y="110">접근을 잘못 잡음 › 적힌 요구를 어김</text>
+          <text class="lbl" x="140" y="134" text-anchor="end">Fable 5.1</text><circle class="dot dim" cx="395" cy="130" r="4"/><path class="arw s1" d="M395 130 L292.6 130"/><path class="arw s1" d="M299.6 125 L291.6 130 L299.6 135"/><text class="val" x="752" y="134" text-anchor="end">45 → 26</text>
+          <text class="lbl" x="140" y="154" text-anchor="end">Opus 5</text><circle class="dot dim" cx="438.6" cy="150" r="4"/><path class="arw s1" d="M438.6 150 L352.4 150"/><path class="arw s1" d="M359.4 145 L351.4 150 L359.4 155"/><text class="val" x="752" y="154" text-anchor="end">53 → 37</text>
+          <text class="lbl" x="140" y="174" text-anchor="end">Fable 5</text><circle class="dot dim" cx="427.7" cy="170" r="4"/><path class="arw s1" d="M427.7 170 L357.9 170"/><path class="arw s1" d="M364.9 165 L356.9 170 L364.9 175"/><text class="val" x="752" y="174" text-anchor="end">51 → 38</text>
+
+          <text class="lbl-hi" x="8" y="200">접근을 잘못 잡음 › 두 해석 중 틀린 쪽을 고름</text>
+          <text class="lbl" x="140" y="224" text-anchor="end">Fable 5.1</text><circle class="dot dim" cx="286.1" cy="220" r="4"/><path class="arw s2" d="M286.1 220 L404.9 220"/><path class="arw s2" d="M397.9 215 L405.9 220 L397.9 225"/><text class="val" x="752" y="224" text-anchor="end">25 → 47</text>
+          <text class="lbl" x="140" y="244" text-anchor="end">Opus 5</text><circle class="dot dim" cx="302.4" cy="240" r="4"/><path class="arw s2" d="M302.4 240 L394 240"/><path class="arw s2" d="M387 235 L395 240 L387 245"/><text class="val" x="752" y="244" text-anchor="end">28 → 45</text>
+          <text class="lbl" x="140" y="264" text-anchor="end">Fable 5</text><circle class="dot dim" cx="318.8" cy="260" r="4"/><path class="arw s2" d="M318.8 260 L443 260"/><path class="arw s2" d="M436 255 L444 260 L436 265"/><text class="val" x="752" y="264" text-anchor="end">31 → 54</text>
+        </svg>
+        </div>
+        <figcaption>블로그 FIG B 의 칸별 건수를 방향으로 다시 그렸다. 모델과 단계마다 시도는 368~370번이고, Opus 5 의 max 는 effort 이름이 max 인 실행이다. 실패 종류는 모델 판정이라 원문이 근사치라고 밝히므로, 칸 사이의 작은 차이보다 화살표의 방향을 본다. 시도 하나에는 실패 종류가 하나만 붙으므로, 늘어난 건수에는 다른 칸에서 옮겨 온 시도가 섞였을 수 있다. 통과 수와 나머지 하위 분류는 아래 표에 있다.</figcaption>
+      </figure>
+      <div class="tablewrap"><table>
+        <thead><tr><th>시도의 결과</th><th>Fable 5.1 low</th><th>max</th><th>Opus 5 low</th><th>max</th><th>Fable 5 low</th><th>max</th></tr></thead>
+        <tbody>
+          <tr class="hero"><td>통과</td><td>140</td><td>214</td><td>108</td><td>193</td><td>80</td><td>161</td></tr>
+          <tr><td>edge case 를 놓침 (합)</td><td>59</td><td class="win">24</td><td>63</td><td class="win">24</td><td>86</td><td class="win">32</td></tr>
+          <tr><td>└ 자기 테스트가 못 잡은 버그</td><td>40</td><td>14</td><td>38</td><td>17</td><td>59</td><td>11</td></tr>
+          <tr><td>접근을 잘못 잡음 (합)</td><td>133</td><td>107</td><td>140</td><td>118</td><td>150</td><td>139</td></tr>
+          <tr><td>└ 적힌 요구를 어김</td><td>45</td><td>26</td><td>53</td><td>37</td><td>51</td><td>38</td></tr>
+          <tr><td>└ 두 해석 중 틀린 쪽을 고름</td><td>25</td><td class="lose">47</td><td>28</td><td class="lose">45</td><td>31</td><td class="lose">54</td></tr>
+          <tr><td>└ 분야의 규칙을 틀림</td><td>32</td><td>24</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">모델과 단계마다 시도 368~370번. 실패 종류는 원문 그림의 분류를 옮겼다. “edge case 를 놓침”은 원문의 missed a case, “접근을 잘못 잡음”은 made the wrong call 이다. Opus 5 의 max 열은 effort 이름이 max 인 실행이다. 곡선 그림의 Opus 5 max 는 effort-120 실행이고, 그 실행으로 세면 놓친 edge case 는 63건에서 39건, 틀린 해석은 28건에서 41건이다. 규칙을 틀린 칸은 Fable 5.1 만 옮겼다.</p>
+      <p>edge case 를 놓친 실패에는 자기 테스트가 못 잡은 버그, 보이는 예시에만 맞춘 코드, 정확히 같지 않은 출력, 자기 환경에서만 돈 코드가 들어간다. 모두 더 꼼꼼히 시험하면 드러날 수 있는 실패이고, 높은 단계에서 세 모델 모두 크게 줄었다. 접근을 잘못 잡은 실패 안에서는 방향이 갈린다. 과제 설명에 적힌 요구를 어긴 실패는 줄었는데, 설명이 두 가지로 읽히는 과제에서 테스트와 다른 쪽을 고른 실패는 세 모델 모두 늘었다.</p>
+      <p>글쓴이는 이 칸을 따로 풀이하지 않는다. 높은 단계의 Claude 가 사용자를 대신해 더 많이 가정한다는 그의 관찰과 맞는 결과이기는 하다. 다만 시도 하나에는 실패 종류가 하나만 붙으므로, edge case 를 고친 시도가 다음 걸림돌인 해석 문제로 다시 분류되었을 수도 있다. 어느 쪽이든 요구가 모호한 일에서는 단계를 올려도 이 실패가 줄지 않았으므로, 명세를 채우는 쪽이 먼저다.</p>
+      <details class="more"><summary>첨언: 분류의 정의와 원문</summary>
+        <p>원문 그림의 분류 정의(같은 페이지의 차트 스크립트): <span class="q">“The brief allowed two readings. It chose the one the tests did not.”</span>(picked the wrong reading), <span class="q">“The right design with a real bug. Its own tests never hit the case that breaks it.”</span>(a bug its tests missed). 블로그 본문: <span class="q">“Overall, increasing effort tends to reduce failures due to missing edgecases (purple blocks), but does not fix when the model has the wrong approach (blue blocks).”</span> 그림 설명: <span class="q">“Each square is one attempt. Failure kinds come from a model judge and are approximate.”</span></p>
+        <p>Fable 5.1 의 값은 원문 화면에 보이는 low 와 max 칸이다. Opus 5 와 Fable 5 는 같은 그림의 다른 탭이고, 값은 페이지에 실린 차트 데이터에서 옮겼다. Opus 5 의 데이터에는 max 라는 이름이 붙은 실행이 둘 있어 effort 이름이 max 인 쪽을 썼다. 다른 하나(effort-120, 통과 178)도 놓친 edge case 39건, 틀린 해석 41건으로 방향이 같다. 원문 그림에 Opus 5.5 탭은 없다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="slide" data-label="분야">
+    <div class="slide-inner">
+      <p class="eyebrow">result-domain</p>
+      <h2>분야마다 다른 effort 의 값</h2>
+      <p class="key">Fable 5.1 에서 단계를 올린 효과가 가장 큰 분야는 하드웨어(34%→75%)와 보안(64%→87%)이다. 운영(12%→22%)과 미디어(18%→30%)는 높은 단계에서도 통과율이 낮게 머문다.</p>
+      <figure class="figure">
+        <p class="fig-title">검증이 값을 하는 분야에서 차이가 크다</p>
+        <p class="fig-sub">Fable 5.1, Terminal-Bench 3.0 분야별 통과율. 낮은 단계는 low 와 medium, 높은 단계는 위쪽 세 설정을 합쳤다</p>
+        <div class="legend"><span><i class="sn"></i>낮은 단계</span><span><i class="s1"></i>높은 단계</span></div>
+        <div class="bars">
+          <div class="bar-row is-hero"><span class="bar-name">하드웨어 (5)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:34%"></span></span><span class="bar-track"><span class="bar s1" style="--w:75%"></span></span></span><span class="bar-val two">34%<br>75%</span></div>
+          <div class="bar-row is-hero"><span class="bar-name">보안 (7)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:64%"></span></span><span class="bar-track"><span class="bar s1" style="--w:87%"></span></span></span><span class="bar-val two">64%<br>87%</span></div>
+          <div class="bar-row"><span class="bar-name">과학 (15)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:41%"></span></span><span class="bar-track"><span class="bar s1" style="--w:61%"></span></span></span><span class="bar-val two">41%<br>61%</span></div>
+          <div class="bar-row"><span class="bar-name">ML (13)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:54%"></span></span><span class="bar-track"><span class="bar s1" style="--w:73%"></span></span></span><span class="bar-val two">54%<br>73%</span></div>
+          <div class="bar-row"><span class="bar-name">소프트웨어 (20)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:43%"></span></span><span class="bar-track"><span class="bar s1" style="--w:56%"></span></span></span><span class="bar-val two">43%<br>56%</span></div>
+          <div class="bar-row"><span class="bar-name">미디어 (4)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:18%"></span></span><span class="bar-track"><span class="bar s1" style="--w:30%"></span></span></span><span class="bar-val two">18%<br>30%</span></div>
+          <div class="bar-row"><span class="bar-name">운영 (10)</span><span class="bar-pair"><span class="bar-track"><span class="bar" style="--w:12%"></span></span><span class="bar-track"><span class="bar s1" style="--w:22%"></span></span></span><span class="bar-val two">12%<br>22%</span></div>
+        </div>
+        <div class="bar-axis"><span class="ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></span></div>
+        <figcaption>블로그 FIG C 를 다시 그렸다. 괄호 안은 과제 수다. 분야가 작아서 원문이 낮은 두 설정과 높은 세 설정을 각각 합쳐 셌다. 원문은 운영 칸에 “Rulebook-style work stays low”라고 적었다.</figcaption>
+      </figure>
+      <p>글쓴이는 검증과 edge case 시험이 쓸모 있는 하드웨어, 코드 리뷰, 보안에서 높은 단계가 더 나은 결과를 냈다고 쓴다. 그림에 코드 리뷰 분야는 없지만, 하드웨어와 보안은 여기서도 가장 크게 올랐다. 개발자 일에 가장 가까운 소프트웨어 분야(20과제)는 43% 에서 56% 로 13%p 올랐다. 원문은 운영 칸에 규칙서형 업무는 낮게 머문다고만 적는다. 운영 과제는 회사의 월말 무역 통계 신고를 끝까지 처리하는 식이라, 확인을 더 해도 모델이 모르는 규칙은 채워지지 않기 때문으로 읽힌다. 이 풀이는 원문에 없다.</p>
+      <details class="more"><summary>첨언: 원문과 다른 모델</summary>
+        <p>같은 그림의 다른 탭에서 Opus 5 는 보안 53%→82%, 하드웨어 42%→68%, 운영 2%→13% 였고, Fable 5 의 미디어는 28% 에서 25% 로 내려갔다.</p>
+        <p>블로그 첫머리: <span class="q">“Extra effort gave better results in domains where verification and edgecase testing was more useful like hardware, code review, and security.”</span> 그림 설명: <span class="q">“Pass rate. Low effort pools each model's two lowest settings, top effort its three highest, since categories are small.”</span> Fable 5.1 의 낮은 단계는 low 와 medium, 높은 단계는 xhigh, effort-120, max 실행이다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="slide" data-label="명세와 effort">
+    <div class="slide-inner">
+      <p class="eyebrow">loop</p>
+      <h2>명세가 느슨할수록 커지는 단계별 차이</h2>
+      <p class="key">명세가 거의 없는 앱 만들기에서는 단계가 오를수록 만든 기능이 크게 늘고 Claude 가 대신 정한 것도 늘었다. 인터뷰로 만든 명세를 주자 단계별 결과가 비슷해졌다. 그래서 글쓴이는 자신이 얼마나 곁에서 이끌지를 단계를 고르는 기준으로 삼는다.</p>
+      <figure class="figure">
+        <p class="fig-title">명세를 주면 low 도 16분이 걸린다</p>
+        <p class="fig-sub">원문의 세 과제가 단계별로 걸린 시간. 위에서부터 원문이 명세가 적은 순으로 놓은 차례다. 가로축은 분(log)</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 230" role="img" aria-label="세 과제를 effort 단계별로 돌린 시간. 명세 없이 만든 운동 기록 앱은 low 1.5분, medium 4분, high 11분, max 67분이다. 가볍게 명세한 /config 메뉴 재설계는 low 1분, max 28분이다. 인터뷰로 만든 명세로 같은 앱을 만들자 low 16분, medium 22분, high 33분, max 79분으로, low 가 크게 늘어 네 점이 오른쪽에 모인다.">
+          <line class="grid-l" x1="210" y1="22" x2="210" y2="196"/><line class="grid-l" x1="334" y1="22" x2="334" y2="196"/><line class="grid-l" x1="470" y1="22" x2="470" y2="196"/><line class="grid-l" x1="594" y1="22" x2="594" y2="196"/><line class="grid-l" x1="730" y1="22" x2="730" y2="196"/>
+          <text class="tick" x="210" y="214" text-anchor="middle">1분</text><text class="tick" x="334" y="214" text-anchor="middle">3분</text><text class="tick" x="470" y="214" text-anchor="middle">10분</text><text class="tick" x="594" y="214" text-anchor="middle">30분</text><text class="tick" x="730" y="214" text-anchor="middle">100분</text>
+
+          <text class="txt" x="8" y="46">운동 기록 앱</text><text class="txt-s" x="8" y="62">명세 없이</text>
+          <line class="ln dim" x1="255.8" y1="48" x2="684.8" y2="48"/>
+          <circle class="dot dim" cx="255.8" cy="48" r="5"/><circle class="dot dim" cx="366.5" cy="48" r="4"/><circle class="dot dim" cx="480.7" cy="48" r="4"/><circle class="dot dim" cx="684.8" cy="48" r="5"/>
+          <text class="tick" x="255.8" y="34" text-anchor="middle">low</text><text class="tick" x="684.8" y="34" text-anchor="middle">max</text>
+          <text class="val" x="255.8" y="68" text-anchor="middle">1.5분</text><text class="val" x="366.5" y="68" text-anchor="middle">4분</text><text class="val" x="480.7" y="68" text-anchor="middle">11분</text><text class="val" x="684.8" y="68" text-anchor="middle">67분</text>
+
+          <text class="txt" x="8" y="104">/config 재설계</text><text class="txt-s" x="8" y="120">가볍게 명세, low 와 max 만 실림</text>
+          <line class="ln dim" x1="210" y1="106" x2="586.2" y2="106"/>
+          <circle class="dot dim" cx="210" cy="106" r="5"/><circle class="dot dim" cx="586.2" cy="106" r="5"/>
+          <text class="val" x="222" y="126">1분</text><text class="val" x="586.2" y="126" text-anchor="middle">28분</text>
+
+          <text class="txt" x="8" y="162">운동 기록 앱</text><text class="txt-s" x="8" y="178">인터뷰로 만든 명세, 여러 모델</text>
+          <line class="ln s1" x1="523.1" y1="164" x2="703.4" y2="164"/>
+          <circle class="dot s1" cx="523.1" cy="164" r="5"/><circle class="dot dim" cx="559" cy="164" r="4"/><circle class="dot dim" cx="604.8" cy="164" r="4"/><circle class="dot s1" cx="703.4" cy="164" r="5"/>
+          <text class="val" x="523.1" y="184" text-anchor="middle">16분</text><text class="val" x="559" y="184" text-anchor="middle">22분</text><text class="val" x="604.8" y="184" text-anchor="middle">33분</text><text class="val" x="703.4" y="184" text-anchor="middle">79분</text>
+        </svg>
+        </div>
+        <figcaption>원문 carousel 의 단계 표시와 /config 단락에서 걸린 시간을 옮겼다. 점은 왼쪽부터 low, medium, high, max 다. low 와 max 의 차이는 명세가 없을 때 65.5분, 명세를 주었을 때 63분으로 분 단위로는 비슷하다. 달라진 것은 low 가 1.5분에서 16분으로 늘어난 쪽이다. 두 차이는 이 문서가 계산했다. 시간은 결과물이 얼마나 달랐는지를 보여 주지 않는다. 명세를 준 결과물이 비슷했다는 것은 글쓴이의 서술이고, 명세 빌드는 원문이 여러 모델로 돌렸다고만 쓴다.</figcaption>
+      </figure>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>과제</th><th>달라진 것</th></tr></thead>
+        <tbody>
+          <tr><td>명세 없이 운동 기록 앱</td><td>low 는 기록과 단순한 그래프뿐이고, 단계가 오를수록 기능이 늘어 max 에는 heat chart 까지 있다</td></tr>
+          <tr><td>Claude Code 의 /config 메뉴 재설계</td><td>하위 메뉴와 나은 검색이라는 생각은 모두 같다. low 는 Claude Code 같지 않은 sketch, max 는 Claude Code 와 닮은 mockup 과 흐름별 walkthrough 다</td></tr>
+          <tr><td>인터뷰로 만든 명세로 같은 앱. 원문은 여러 모델로 돌렸다고 쓴다</td><td>디자인과 구현이 서로 비슷하고 세부만 다르다. max 는 몇 부분을 단순하게 다듬었다</td></tr>
+        </tbody>
+      </table></div>
+      <p>명세가 없을 때 높은 단계가 더 많이 만드는 것은 그만큼 사용자 대신 정하는 것이 많다는 뜻이다. 글쓴이는 낮은 단계가 빨리 출발점을 주고, 높은 단계는 일을 더 해 주지만 내 대신 더 많이 가정한다고 정리한다. /config 재설계에서 그는 max 의 다듬어진 결과보다 low 로 Claude 의 생각을 먼저 보는 쪽을 골랐다. 고쳐 가며 방향을 잡을 생각이면 low 가 훨씬 빨리 거기에 닿기 때문이다.</p>
+      <p>명세를 주면 low 도 16분이 걸린다. 할 일이 명세에 적혀 있으니 낮은 단계도 그만큼 일을 하고, 단계가 바꿀 여지는 세부로 줄어든 것으로 읽힌다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>§Takeaways: <span class="q">“For regular software engineering, particularly new feature work, the effort level depends a lot on how in the loop I want to be. Low effort allows Claude to respond quickly with a starting point, higher effort levels will get more work done but Claude will also make more assumptions on my behalf.”</span></p>
+        <p>/config: <span class="q">“For this particular task, I think I prefer using low effort to understand Claude’s vision.”</span> 명세 빌드: <span class="q">“I found that given this spec, the models behaved much more similarly.”</span> 결과 화면은 원문 carousel 의 캡처라 열지 않았고, 달라진 것은 글쓴이의 서술을 옮겼다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" data-label="고르는 기준">
+    <div class="slide-inner">
+      <p class="eyebrow">choose</p>
+      <h2>작업에 맞는 단계 고르기</h2>
+      <p class="key">글쓴이의 기준은 곁에서 빠르게 주고받는 일 low, 보통의 기능 구현 medium, 검증이 중요하거나 edge case 가 있는 일 high, 사람 없이 끝까지 맡기는 어려운 일 max 다. Claude Code 공식 문서도 같은 기준을 싣고, max 는 수확이 줄고 생각이 지나칠 수 있으니 넓게 쓰기 전에 시험해 보라고 덧붙인다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>지금 하는 일</th><th>단계</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>아이디어 내기, 첫 sketch, 이름 바꾸기처럼 결과를 하나씩 보고 다음을 정하는 일</td><td>low</td><td>글쓴이의 low(brainstorming, sketch, 쉬운 변경)와 문서의 low(이름 바꾸기). 출발점을 빨리 받고 방향은 사람이 잡는다</td></tr>
+          <tr><td>범위가 분명한 새 기능 구현</td><td>medium</td><td>글쓴이의 평소 작업 단계이자 Opus 5.5 의 기본값. Opus 5.5 곡선은 low 에서 medium 으로 갈 때 가장 크게 오른다</td></tr>
+          <tr><td>기존 코드베이스의 버그 수정, 검증이 중요한 일</td><td>high</td><td>글쓴이와 문서의 high. simplex 와 gsea 사례는 high 에서 비교 확인을 하며 통과했다</td></tr>
+          <tr><td>코드 리뷰, 보안 점검</td><td>high 이상</td><td>글쓴이가 높은 단계가 더 나았다고 꼽은 분야다. Fable 5.1 의 보안 과제는 높은 단계에서 64% 에서 87% 로 올랐다</td></tr>
+          <tr><td>오래 도는 agent 작업, 더 깊이 따져야 하는 일</td><td>xhigh</td><td>글쓴이의 기준표에는 없다. Claude Code 문서는 토큰을 더 쓰는 깊은 추론이라고 적고, API 문서는 30분 넘게 도는 agent 와 coding 작업을 예로 든다. html-js-filter 와 mvcc 는 xhigh 에서 통과했다</td></tr>
+          <tr><td>보안 취약점 찾기, 앱을 처음부터 만들고 검증까지 사람 없이 맡기는 일</td><td>max, 그 전에 xhigh 를 먼저 시험</td><td>글쓴이의 max. 문서는 수확 체감과 지나친 생각을 경고하고, Fable 5.1 의 실패 종류 데이터에서도 max 가 xhigh 보다 많이 통과하지 않았다(<a class="xref" href="#p13">한계</a>)</td></tr>
+          <tr><td>요구가 두 가지로 읽히는데 곁에 사람이 없는 일</td><td>단계보다 명세 먼저</td><td>높은 단계에서 틀린 해석을 고른 실패가 늘었다(<a class="xref" href="#p7">실패 종류</a>)</td></tr>
+        </tbody>
+      </table></div>
+      <p>단계를 올리는 값은 시간으로 치른다. 원문 사례에서 low 대비 sanitizer 는 2분에서 33분, mvcc 는 1분에서 11분, 명세 없는 앱은 1.5분에서 67분이 걸렸다.</p>
+      <p>글쓴이는 새 기능을 만들 때 쓰는 순서도 소개한다.</p>
+      <figure class="figure">
+        <p class="fig-title">구현은 low 로 빠르게 돌리고, 검증에서만 high 로 올린다</p>
+        <p class="fig-sub">글쓴이가 새 기능을 만들 때 쓰는 순서. 원문은 이것을 loop 라고 부른다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 190" role="img" aria-label="새 기능을 만드는 네 단계. 1 에서 Claude 에게 명세를 주고 빠진 세부를 글쓴이에게 묻게 한다. 2 에서 low 로 구현한다. 3 에서 사람이 요지를 맞게 잡았는지 검토한다. 필요하면 아래 줄의 되돌아가는 화살표를 따라 2 로 가서 low 로 다시 고친다. 그다음 4 에서 high 로 검증하고 테스트한다.">
+          <rect class="box" x="8" y="24" width="164" height="70" rx="8"/>
+          <text class="txt" x="20" y="50">1 명세 주기</text>
+          <text class="txt-s" x="20" y="68">빠진 세부를 Claude 가</text>
+          <text class="txt-s" x="20" y="84">나에게 묻게 한다</text>
+          <path class="arw" d="M172 59 L198 59"/><path class="arw" d="M191 54 L198 59 L191 64"/>
+          <rect class="box" x="200" y="24" width="164" height="70" rx="8"/>
+          <text class="txt" x="212" y="50">2 low 로 구현</text>
+          <text class="txt-s" x="212" y="68">빠르게 첫 판을 받는다</text>
+          <path class="arw" d="M364 59 L390 59"/><path class="arw" d="M383 54 L390 59 L383 64"/>
+          <rect class="box" x="392" y="24" width="164" height="70" rx="8"/>
+          <text class="txt" x="404" y="50">3 요지 검토</text>
+          <text class="txt-s" x="404" y="68">맞게 잡았는지 사람이 본다</text>
+          <path class="arw" d="M556 59 L582 59"/><path class="arw" d="M575 54 L582 59 L575 64"/>
+          <rect class="box-hi" x="584" y="24" width="168" height="70" rx="8"/>
+          <text class="txt" x="596" y="50">4 high 로 검증</text>
+          <text class="txt-s" x="596" y="68">검증하고 테스트한다</text>
+
+          <path class="arw" d="M474 94 L474 146 L282 146 L282 96"/><path class="arw" d="M277 103 L282 96 L287 103"/>
+          <text class="txt-s" x="300" y="166">필요하면 low 로 다시 고친다</text>
+        </svg>
+        </div>
+        <figcaption>블로그 §Takeaways 의 네 단계를 그렸다. 원문은 1단계의 effort 를 적지 않는다.</figcaption>
+      </figure>
+      <p>벤치마크는 단계를 고정해 돌렸으므로 이 순서 자체를 잰 결과는 없다. 앞의 결과에 비추어 읽으면 인터뷰가 해석이 갈릴 곳을 먼저 없애고, low 구현은 사람이 방향을 보는 동안 빠르게 돌고, edge case 를 찾는 일은 높은 단계가 잘하는 마지막 단계에 몰린다. 표의 medium 과 이 순서의 low 구현은 사람이 곁에 있는지로 갈린다고 보면 두 기준이 맞는다. 결과를 바로 보며 고칠 생각이면 low, 맡겨 두고 끝난 뒤에 볼 생각이면 medium 이다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>블로그 §When to use different effort levels in Claude Code: <span class="q">“Low: for when I want quick responses that are in the loop, e.g. brainstorming, sketching, easy changes”</span> <span class="q">“Medium: for most of my regular software engineering work, e.g. new feature implementation.”</span> <span class="q">“High: for work where verification is important or there are edge cases, e.g. fixing a bug in a brownfield codebase.”</span> <span class="q">“Max: When I want Claude to operate fully autonomously to solve difficult problems, e.g. end to end building and verification of an app, finding security vulnerabilities in critical software.”</span></p>
+        <p>Claude Code 문서 §Choose an effort level 의 max 행: <span class="q">“`max` may show diminishing returns and is prone to overthinking, so test before adopting it broadly”</span> xhigh 행: <span class="q">“Deeper reasoning at higher token spend. The default on Opus 4.7”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" data-label="다른 작업에 옮기기">
+    <div class="slide-inner">
+      <p class="eyebrow">predict</p>
+      <h2>원문에 없는 작업에 옮겨 보기</h2>
+      <p class="key">실패를 시험으로 찾을 수 있는지, 요구가 한 가지로 읽히는지, 모델이 모르는 규칙이 걸렸는지를 보면 원문에 없는 작업에서도 단계의 효과를 짐작할 수 있다. 시험으로 찾을 edge case 가 많으면 단계를 올리고, 요구가 모호하거나 규칙이 빠졌으면 단계를 올리기 전에 명세에 적는다.</p>
+      <figure class="figure">
+        <p class="fig-title">명세로 풀 문제인지 먼저 보고, 시험으로 찾을 문제일 때 단계를 올린다</p>
+        <p class="fig-sub">이 문서가 원문 결과에서 끌어낸 판단 순서다. 글쓴이의 말이 아니다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 236" role="img" aria-label="원문에 없는 작업에서 단계를 정하는 두 질문. 먼저 요구가 두 가지로 읽히거나 모델이 모르는 규칙이 걸렸는지 본다. 그렇다면 단계를 올리기 전에 명세에 적고, 적은 뒤에는 두 번째 질문으로 간다. 근거는 틀린 해석이 25건에서 47건으로 늘고 운영 분야가 12% 에서 22% 에 머문 결과다. 아니라면 바로 시험으로 찾을 edge case 가 많은지 본다. 많으면 high 이상으로 올리고, 근거는 놓친 edge case 가 59건에서 24건으로 준 결과다. 적으면 low 로 충분하다.">
+          <rect class="box" x="8" y="20" width="320" height="64" rx="8"/>
+          <text class="txt" x="20" y="46">요구가 두 가지로 읽히거나,</text>
+          <text class="txt" x="20" y="66">모델이 모르는 규칙이 걸렸나</text>
+          <path class="arw" d="M328 52 L398 52"/><path class="arw" d="M391 47 L398 52 L391 57"/>
+          <text class="txt-s" x="342" y="44">아니오</text>
+          <rect class="box" x="400" y="20" width="352" height="64" rx="8"/>
+          <text class="txt" x="412" y="57">시험으로 찾을 edge case 가 많나</text>
+
+          <path class="arw" d="M168 84 L168 146"/><path class="arw" d="M163 139 L168 146 L173 139"/>
+          <text class="txt-s" x="176" y="120">예</text>
+          <rect class="box" x="8" y="148" width="320" height="70" rx="8"/>
+          <text class="txt" x="20" y="174">단계를 올리기 전에 명세에 적는다</text>
+          <text class="txt-s" x="20" y="192">틀린 해석 25→47건</text>
+          <text class="txt-s" x="20" y="208">운영 분야 12%→22%</text>
+          <path class="arw" d="M328 183 L380 183 L380 72 L398 72"/><path class="arw" d="M391 67 L398 72 L391 77"/>
+          <text class="txt-s" x="334" y="176">적은 뒤</text>
+
+          <path class="arw" d="M490 84 L490 146"/><path class="arw" d="M485 139 L490 146 L495 139"/>
+          <text class="txt-s" x="498" y="120">예</text>
+          <rect class="box-hi" x="400" y="148" width="170" height="70" rx="8"/>
+          <text class="txt" x="412" y="174">high 이상으로 올린다</text>
+          <text class="txt-s" x="412" y="192">놓친 edge case</text>
+          <text class="txt-s" x="412" y="208">59→24건</text>
+
+          <path class="arw" d="M666 84 L666 146"/><path class="arw" d="M661 139 L666 146 L671 139"/>
+          <text class="txt-s" x="674" y="120">아니오</text>
+          <rect class="box" x="582" y="148" width="170" height="70" rx="8"/>
+          <text class="txt" x="594" y="174">low 로 충분하다</text>
+          <text class="txt-s" x="594" y="192">이름 하나 바꾸기</text>
+          <text class="txt-s" x="594" y="208">같은 일</text>
+        </svg>
+        </div>
+        <figcaption>결과 상자의 작은 글씨는 그 판단의 근거가 된 원문 결과다. 틀린 해석과 놓친 edge case 는 Fable 5.1 의 low 와 max 칸이고, 운영 분야는 낮은 두 설정과 높은 세 설정을 합친 통과율이다. 운영 분야가 낮게 머문 까닭을 모델이 모르는 규칙으로 읽은 것은 <a class="xref" href="#p8">분야</a> 장의 해석이다. 얼마나 올릴지는 <a class="xref" href="#p10">고르는 기준</a> 장의 표를 따른다. 아래 표는 이 순서를 네 작업에 옮겨 본 예다.</figcaption>
+      </figure>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>작업</th><th>예측</th><th>기대는 원문 결과</th><th>예측이 빗나갈 곳</th></tr></thead>
+        <tbody>
+          <tr><td>CSV parser 에 따옴표 escape 와 셀 안 줄바꿈 처리 넣기</td><td>high 이상이 값을 한다</td><td>html-js-filter, 놓친 edge case 의 감소</td><td>기존 테스트가 이미 그 경우를 덮고 있으면 low 도 테스트를 보고 맞춘다</td></tr>
+          <tr><td>사내 회계 규칙대로 월말 정산 스크립트 쓰기</td><td>단계를 올려도 덜 오른다. 규칙을 명세에 적는 것이 먼저다</td><td>운영 분야 12%→22%, 분야 규칙을 틀린 실패 32건→24건</td><td>규칙이 공개 표준이면 모델이 이미 알고 있을 수 있다</td></tr>
+          <tr><td>“대시보드를 좀 더 낫게” 한 줄 요청을 혼자 돌리기</td><td>높은 단계일수록 많이 만들지만 원하지 않은 해석을 고를 위험도 커진다</td><td>명세 없는 앱 빌드, 틀린 해석 25건→47건</td><td>취향이 걸린 결과는 Terminal-Bench 처럼 테스트로 채점되지 않아 맞고 틀림이 덜 분명하다</td></tr>
+          <tr><td>설정값 하나나 함수 이름 하나 바꾸기</td><td>low 로 충분하다</td><td>문서의 low 예시(이름 바꾸기)</td><td>그 이름이 문자열로 조립되어 쓰이는 곳이 있으면 숨은 edge case 가 있는 일이 된다</td></tr>
+        </tbody>
+      </table></div>
+      <p>표의 예측은 원문 결과에서 끌어낸 것이고 글쓴이가 한 말이 아니다. 근거가 된 Terminal-Bench 3.0 과제는 글쓴이 말대로 보통의 업무보다 훨씬 크고 야심 찬 과제다. 일상 작업에서도 통과율 차이가 이만큼 나는지는 원문으로 알 수 없으니, 표의 예측은 방향으로만 쓴다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>블로그 §How effort levels impact output on difficult tasks: <span class="q">“They are much more complicated than the average task I’d face.”</span> 분야 규칙을 틀린 실패(got the domain rule wrong)는 Fable 5.1 low 32건, max 24건이다. 정의: <span class="q">“Chose the wrong formula, threshold or convention for the field.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" data-label="Claude Code 설정">
+    <div class="slide-inner">
+      <p class="eyebrow">claude-code</p>
+      <h2>Claude Code 에서 단계를 바꾸고 남기는 곳</h2>
+      <p class="key"><code>/effort</code> 로 작업 중에도 단계를 바꿀 수 있고, 글쓴이는 최신 모델이 Claude Code 에서 단계를 바꿔도 prompt cache 를 깨지 않는다고 쓴다. 같은 단계 이름도 모델마다 실제 값이 달라서 모델을 바꾸면 단계도 다시 고른다.</p>
+      <figure class="figure">
+        <p class="fig-title">Claude Code 는 세 곳을 차례로 보고, 처음 정해진 단계를 쓴다</p>
+        <p class="fig-sub">Claude Code 문서 §Adjust effort level 의 결정 순서와 §Set the effort level 의 설정 방법</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 290" role="img" aria-label="Claude Code 가 세션의 effort 단계를 정하는 순서. 위에서부터 1 명시적 선택인 CLAUDE_CODE_EFFORT_LEVEL 환경 변수, --effort, 세션의 /effort 를 보고, 없으면 2 모델마다 저장한 단계나 effortLevel 키를 보고, 그것도 없으면 3 모델의 기본값을 쓴다. 오른쪽의 skill 과 subagent frontmatter 는 점선 화살표로 1 을 가리키며, 도는 동안 세션 단계를 덮지만 환경 변수는 덮지 못한다. /effort 에서 Enter 로 고른 단계는 실선 화살표를 따라 2 에 저장되고, s 로 고른 단계는 이번 세션에만 쓰인다. max 는 환경 변수로 정하지 않으면 이번 세션에만 쓰인다.">
+          <text class="tick" x="8" y="14">먼저 정해진 것이 쓰인다</text>
+          <rect class="box" x="8" y="24" width="420" height="62" rx="8"/>
+          <text class="txt" x="20" y="48">1 명시적 선택</text>
+          <text class="txt-s" x="20" y="68">CLAUDE_CODE_EFFORT_LEVEL, --effort, 세션의 /effort</text>
+          <path class="arw" d="M60 86 L60 110"/><path class="arw" d="M55 103 L60 110 L65 103"/>
+          <text class="txt-s" x="70" y="102">없으면</text>
+          <rect class="box" x="8" y="112" width="420" height="62" rx="8"/>
+          <text class="txt" x="20" y="136">2 저장한 설정</text>
+          <text class="txt-s" x="20" y="156">모델마다 저장한 단계나 settings 의 effortLevel 키</text>
+          <path class="arw" d="M60 174 L60 198"/><path class="arw" d="M55 191 L60 198 L65 191"/>
+          <text class="txt-s" x="70" y="190">없으면</text>
+          <rect class="box" x="8" y="200" width="420" height="76" rx="8"/>
+          <text class="txt" x="20" y="224">3 모델의 기본값</text>
+          <text class="txt-s" x="20" y="244">Opus 5.5, Sonnet 5.5, Haiku 5.5 는 medium</text>
+          <text class="txt-s" x="20" y="262">Opus 4.7 은 xhigh, 그 밖의 effort 지원 모델은 high</text>
+
+          <rect class="box-hi" x="476" y="24" width="276" height="62" rx="8"/>
+          <text class="txt" x="488" y="44">skill, subagent 의 effort</text>
+          <text class="txt-s" x="488" y="62">도는 동안 세션 단계를 덮는다</text>
+          <text class="txt-s" x="488" y="78">환경 변수는 못 덮는다</text>
+          <path class="arw" d="M476 55 L430 55" stroke-dasharray="4 3"/><path class="arw" d="M437 50 L430 55 L437 60"/>
+          <text class="txt-s" x="436" y="46">덮음</text>
+
+          <rect class="box" x="476" y="112" width="276" height="62" rx="8"/>
+          <text class="txt" x="488" y="136">/effort 로 고른 단계</text>
+          <text class="txt-s" x="488" y="156">Enter 나 단계 이름은 2 에 저장, s 는 이번 세션만</text>
+          <path class="arw" d="M476 143 L430 143"/><path class="arw" d="M437 138 L430 143 L437 148"/>
+          <text class="txt-s" x="436" y="134">저장</text>
+
+          <rect class="box" x="476" y="200" width="276" height="76" rx="8"/>
+          <text class="txt" x="488" y="224">max</text>
+          <text class="txt-s" x="488" y="244">환경 변수로 정하지 않으면 이번 세션만</text>
+          <text class="txt-s" x="488" y="262">settings 의 키는 max 를 받지 않는다</text>
+        </svg>
+        </div>
+        <figcaption>문서의 결정 순서를 그렸다. 1 안에서 환경 변수, --effort, /effort 가 서로 어느 쪽이 앞서는지는 이 그림이 정하지 않는다. 점선은 덮어쓰기, 실선은 저장되는 곳이다. s 로 이번 세션에만 쓰는 방법은 v2.1.257 이상에서 된다. 조직이 기본 모델에 기본 effort 를 정해 두었으면 그 모델에서는 그 단계가 3 의 기본값이 된다. 조직이나 사용자가 정한 effort 상한은 이 순서와 따로 단계를 제한한다.</figcaption>
+      </figure>
+      <ul class="facts">
+        <li><span class="m">모델 이동</span><span>문서는 Opus 5 에서 Opus 5.5 로 옮길 때 쓰던 단계를 가져오지 말고 medium 에서 시작하라고 한다. Anthropic 의 coding 과 지식 업무 평가에서 Opus 5.5 medium 이 Opus 5 high 와 같거나 나았다</span></li>
+        <li><span class="m">ultrathink</span><span>prompt 에 넣으면 그 턴만 더 깊이 생각하라는 지시가 붙는다. API 로 보내는 effort 는 그대로다</span></li>
+      </ul>
+      <p>대화 중에 단계를 바꾸는 비용이 작아서 앞 장의 순서를 한 대화 안에서 쓰기 쉽다. API 문서도 Fable 5.1, Opus 5.5, Opus 5 같은 모델은 메시지 단위로 단계를 바꿔 cache 를 지키고, 다른 모델은 cache 를 새로 시작한다고 설명한다. 다만 API 에서 메시지 단위 변경은 beta 기능이라 beta header 를 붙여야 한다. Claude Code 는 작업 중에 <code>/effort</code> 를 실행해도 받고, cache 경고가 뜨면 확인한 뒤 그 턴의 다음 요청부터 새 단계를 쓴다. 검증을 high 로 고정하고 싶다면 검증용 subagent 의 frontmatter 에 <code>effort: high</code> 를 적어 두는 방법도 있다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>블로그 첫 문단: <span class="q">“One of the best parts of our newest Claude models is how they respond to effort without breaking the prompt cache in Claude Code”</span></p>
+        <p>Claude Code 문서 §Adjust effort level: <span class="q">“`max` is the deepest reasoning level. Unless you set it through the `CLAUDE_CODE_EFFORT_LEVEL` environment variable, Claude Code applies `max` to the current session only.”</span> §Choose an effort level: <span class="q">“The effort scale is calibrated per model, so the same level name does not represent the same underlying value across models.”</span> <span class="q">“When you move from Opus 5 to Opus 5.5, start at `medium` rather than carrying over the level you used on Opus 5.”</span> §Use ultrathink: <span class="q">“The effort level sent to the API is unchanged.”</span></p>
+        <p>Claude API 문서 §Change effort mid-conversation: <span class="q">“A top-level change restarts the cache and, on Claude Fable 5.1, also steers the model less reliably: its earlier replies were written at the previous level, and it tends to stay consistent with them.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide" data-label="해석의 한계">
+    <div class="slide-inner">
+      <p class="eyebrow">critique</p>
+      <h2>이 결과를 옮겨 쓸 수 있는 범위</h2>
+      <p class="key">수치는 모두 Anthropic 내부 실행이고 Fable 5.1 은 제품의 안전 개입을 끈 상태였다. Opus 5.5 는 곡선 그림에만 있어서 실패 종류와 분야 분석은 다른 모델의 결과다. 자기 작업에 맞는 단계는 자기 작업으로 몇 번 돌려 보고 정한다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span><b>그림마다 다른 기준.</b> 곡선 그림은 과제 70개이고 Fable 5.1 low 가 약 32% 인데, 실패 종류 그림은 Fable 5.1 low 를 370번 중 140번(37.8%) 통과로 센다. 실패 종류 데이터에서 Fable 5.1 은 xhigh 217번, max 214번으로 max 가 낫지 않은데 곡선 그림은 max 를 위에 그린다. 그래서 Fable 5.1 에서 xhigh 와 max 중 무엇이 나은지는 원문으로 정해지지 않고, 문서의 max 경고대로 xhigh 부터 시험하는 편이 낫다.</span></li>
+        <li><span class="m">2</span><span><b>측정한 모델.</b> 결과가 있는 모델은 Opus 5.5, Fable 5.1, Opus 5, Fable 5 다. Sonnet 5.5 나 Haiku 5.5 에서 같은 모양이 나오는지는 원문에 없으므로, 그 모델을 쓴다면 자기 작업 몇 개로 단계를 바꿔 보고 정한다.</span></li>
+        <li><span class="m">3</span><span><b>내부 실행.</b> 과제당 5번씩 돌렸고, Fable 5.1 은 제품의 안전 개입을 끈 채 돌렸다. Claude 제품에서는 Fable 5.1 의 보안 요청 일부가 Opus 로 넘어가므로, 보안 과제의 수치를 제품에서 그대로 기대하기는 어렵다. 보안 과제는 인터넷 없이 돌려서 공개 리더보드와도 맞지 않는다.</span></li>
+        <li><span class="m">4</span><span><b>Opus 5.5 의 빈칸.</b> 실패 종류와 분야 그림에는 Fable 5.1, Opus 5, Fable 5 탭만 있다. Opus 5.5 에서 놓친 edge case 가 줄고 틀린 해석이 느는지는 사례 세 개로만 짐작할 수 있다.</span></li>
+        <li><span class="m">5</span><span><b>모델 판정.</b> 실패 종류는 다른 모델이 붙인 분류이고 원문이 근사치라고 밝힌다. 칸 사이의 작은 차이보다 세 모델에서 같은 방향인지를 보는 편이 안전하다.</span></li>
+        <li><span class="m">6</span><span><b>골라 온 사례.</b> 과제별 사례는 글쓴이가 low 에서 실패하고 높은 단계에서 통과한 과제를 골라 실행 하나씩 따라간 것이고, 일부는 중간 단계에서 나왔다. 높은 단계가 한 확인이 통과의 원인이라는 설명은 서술이고 통제된 비교는 아니다. 앱 빌드 실험은 글쓴이 한 사람의 예시이고 숫자로 남은 것은 걸린 시간뿐이다.</span></li>
+        <li><span class="m">7</span><span><b>작은 분야.</b> 분야별 과제는 4~20개라 미디어(4개)나 하드웨어(5개)는 과제 하나가 통과율을 크게 움직인다.</span></li>
+      </ul>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>각주: <span class="q">“these come from our own internal runs, 5 attempts per task, with our production safety interventions off for Fable 5.1; in Claude products, Fable 5.1’s safeguards hand some security requests to Opus.”</span> <span class="q">“The security tasks also ran without internet access, so the per-task counts here won’t line up with the public leaderboard or the launch post.”</span></p>
+        <p>37.8% 는 140 / 370 으로 계산했다. 원문에는 이 비율이 없다. 두 그림의 기준이 왜 다른지는 원문이 설명하지 않는다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide" data-label="읽은 범위">
+    <div class="slide-inner">
+      <p class="eyebrow">setup</p>
+      <h2>읽은 자료와 열지 않은 자료</h2>
+      <p class="key">블로그 글 전체와 그 안의 그림 세 개의 데이터, Claude Code 와 Claude API 의 effort 문서에서 단계와 설정을 다룬 절을 읽었다. 직접 Claude Code 로 단계를 비교해 돌리지는 않았으므로 시간과 통과율은 모두 원문의 값이다.</p>
+      <ul class="facts">
+        <li><span class="m">읽음</span><span>블로그 본문 전부, FIG A 의 설명문과 점 좌표, FIG B 와 FIG C 의 차트 데이터와 실패 분류 정의</span></li>
+        <li><span class="m">읽음</span><span>Claude Code 문서 Model configuration 의 effort 와 thinking 절, Claude API 문서 Effort 의 단계, tool use, thinking, 대화 중 변경 절</span></li>
+        <li><span class="m">안 염</span><span>앱 빌드 carousel 의 화면 캡처. 그래서 빌드 결과는 글쓴이의 서술로만 옮겼다</span></li>
+        <li><span class="m">안 염</span><span>Terminal-Bench 3.0 릴리스의 과제 목록. 과제 설명은 블로그에 적힌 대로다</span></li>
+        <li><span class="m">안 염</span><span>Claude Code 문서가 연결한 다른 블로그 글(모델과 effort 고르기)과 Opus 5.5 prompting guide 의 Calibrate effort 절. 자기 작업으로 단계를 재는 절차는 그쪽에 있다</span></li>
+      </ul>
+      <p>원문의 중심 그림인 FIG A 는 <a class="xref" href="#p6">곡선</a> 장에 다시 그렸다. FIG B 는 시도 하나를 네모 하나로 그린 그림이라 네모 대신 칸별 건수를 <a class="xref" href="#p7">실패 종류</a> 장의 표로 옮겼고, FIG C 는 <a class="xref" href="#p8">분야</a> 장의 막대로 옮겼다.</p>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section class="slide" data-label="출처">
+    <div class="slide-inner">
+      <p class="eyebrow">sources</p>
+      <h2>출처</h2>
+      <div class="src">
+        <p><a href="https://claude.dev/blog/spending-your-effort/">w1 · Using Claude Code: Spending your effort</a> <span class="t">Thariq Shihipar, Claude Code 블로그(claude.dev) Engineering, 2026-09-25. 2026-10-25 판. 이 문서의 중심 자료</span></p>
+        <p><a href="https://code.claude.com/docs/en/model-config">w2 · Model configuration</a> <span class="t">Anthropic 의 Claude Code 공식 문서. 2026-10-25 판. effort 의 기본값, 바꾸는 방법, ultrathink, thinking</span></p>
+        <p><a href="https://platform.claude.com/docs/en/build-with-claude/effort">w3 · Effort</a> <span class="t">Anthropic 의 Claude Platform 공식 문서(API). 2026-10-25 판. effort 의 작동 방식과 대화 중 변경</span></p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="hud">
+    <button class="nav-btn" id="prev" aria-label="이전 장">← 이전</button>
+    <button class="nav-btn" id="next" aria-label="다음 장">다음 →</button>
+    <span class="counter" id="counter">01 / 15</span>
+    <div class="progress" aria-hidden="true"><i id="progbar"></i></div>
+    <span class="hint">← → 키 · Space · Home / End</span>
+    <button class="nav-btn" id="mode" aria-label="읽기 방식 전환">덱으로 보기</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var slides  = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  // 목차가 비어 있으면 장에서 만든다. 이름은 data-label, 없으면 h2/h1 의 앞 14자.
+  // 장을 더하거나 이름을 바꿀 때 목차를 손으로 맞추지 않아도 되게 하려는 것이다.
+  var rail = document.querySelector(".rail");
+  if (rail && !rail.querySelector(".rail-item")) {
+    slides.forEach(function (s, k) {
+      var eb = (s.querySelector(".eyebrow") || {}).textContent || "";
+      if (k === 2 || /^\s*critique\s*$/.test(eb)) { var sep = document.createElement("div"); sep.className = "rail-sep"; rail.appendChild(sep); }
+      var h = s.querySelector("h2, h1");
+      var label = s.getAttribute("data-label") || (h ? h.textContent.replace(/\s+/g, " ").trim().slice(0, 14) : "");
+      var b = document.createElement("button");
+      b.className = "rail-item"; b.setAttribute("data-go", String(k));
+      var n = document.createElement("span"); n.className = "n"; n.textContent = (k + 1 < 10 ? "0" : "") + (k + 1);
+      var t = document.createElement("span"); t.textContent = label;
+      b.appendChild(n); b.appendChild(t); rail.appendChild(b);
+    });
+  }
+  var railBtn = Array.prototype.slice.call(document.querySelectorAll(".rail-item"));
+  var prev = document.getElementById("prev"), next = document.getElementById("next");
+  var counter = document.getElementById("counter"), progbar = document.getElementById("progbar");
+  var stage = document.getElementById("stage"), modeBtn = document.getElementById("mode");
+  var i = 0;
+  slides.forEach(function (s, k) { if (!s.id) { s.id = "p" + (k + 1); } });
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function isArticle() { return document.body.getAttribute("data-mode") !== "deck"; }
+  function mark(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    railBtn.forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
+    counter.textContent = pad(i + 1) + " / " + pad(slides.length);
+    progbar.style.width = ((i + 1) / slides.length * 100) + "%";
+    prev.disabled = (i === 0);
+    next.disabled = (i === slides.length - 1);
+  }
+  function show(n, updateHash) {
+    mark(n);
+    slides.forEach(function (s, k) {
+      s.setAttribute("data-active", k === i ? "true" : "false");
+      s.setAttribute("aria-hidden", k === i ? "false" : "true");
+      if (k === i) { s.scrollTop = 0; }
+    });
+    if (updateHash !== false) { try { history.replaceState(null, "", "#p" + (i + 1)); } catch (e) {} }
+  }
+  // article 에서는 장을 숨기지 않는다. 목차 클릭과 #pN 은 그 장으로 스크롤한다.
+  function go(n, updateHash) {
+    if (!isArticle()) { show(n, updateHash); return; }
+    mark(n);
+    slides.forEach(function (s) { s.setAttribute("data-active", "true"); s.setAttribute("aria-hidden", "false"); });
+    slides[i].scrollIntoView({ block: "start" });
+    if (updateHash !== false) { try { history.replaceState(null, "", "#p" + (i + 1)); } catch (e) {} }
+  }
+  function setMode(m) {
+    document.body.setAttribute("data-mode", m);
+    try { localStorage.setItem("rl-mode", m); } catch (e) {}
+    modeBtn.textContent = m === "deck" ? "이어 읽기" : "덱으로 보기";
+    go(i, false);
+  }
+  modeBtn.addEventListener("click", function () { setMode(isArticle() ? "deck" : "article"); });
+  prev.addEventListener("click", function () { go(i - 1); });
+  next.addEventListener("click", function () { go(i + 1); });
+  railBtn.forEach(function (b) {
+    b.addEventListener("click", function () { go(parseInt(b.getAttribute("data-go"), 10)); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (isArticle() || e.metaKey || e.ctrlKey || e.altKey) { return; }
+    var t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); show(i + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(i - 1); }
+    else if (e.key === "Home") { e.preventDefault(); show(0); }
+    else if (e.key === "End") { e.preventDefault(); show(slides.length - 1); }
+  });
+  var x0 = null, y0 = null;
+  stage.addEventListener("touchstart", function (e) {
+    x0 = e.changedTouches[0].clientX; y0 = e.changedTouches[0].clientY;
+  }, { passive: true });
+  stage.addEventListener("touchend", function (e) {
+    if (x0 === null || isArticle()) { x0 = null; return; }
+    var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.6) { show(dx < 0 ? i + 1 : i - 1); }
+    x0 = null; y0 = null;
+  }, { passive: true });
+  // article 에서 스크롤 위치를 목차에 반영한다.
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (!isArticle() || ticking) { return; }
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      ticking = false;
+      var line = window.innerHeight * 0.35, best = 0;
+      for (var k = 0; k < slides.length; k++) { if (slides[k].getBoundingClientRect().top <= line) { best = k; } }
+      if (best !== i) { mark(best); try { history.replaceState(null, "", "#p" + (best + 1)); } catch (e) {} }
+    });
+  }, { passive: true });
+  var saved = null;
+  try { saved = localStorage.getItem("rl-mode"); } catch (e) {}
+  document.body.setAttribute("data-mode", saved === "deck" ? "deck" : "article");
+  modeBtn.textContent = isArticle() ? "덱으로 보기" : "이어 읽기";
+  var m = /^#p(\d+)$/.exec(window.location.hash || "");
+  go(m ? parseInt(m[1], 10) - 1 : 0, false);
+})();
+</script>
+</body>
+</html>

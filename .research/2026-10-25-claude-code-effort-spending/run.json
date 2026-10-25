@@ -1,0 +1,157 @@
+{
+ "slug": "2026-10-25-claude-code-effort-spending",
+ "question": "Claude Code의 effort는 실제로 무엇을 바꾸며, 언제 어느 단계를 골라야 하는가?",
+ "slides": 15,
+ "evidenceCount": 107,
+ "claimsCount": 61,
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 27,
+   "rejected": 6,
+   "touched": 12,
+   "recheck": {
+    "hard": 2,
+    "wording": 0,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 2,
+   "applied": 2,
+   "rejected": 0,
+   "touched": 2,
+   "recheck": {
+    "hard": 0,
+    "wording": 0,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 3,
+   "kind": "visual.md 기준 도식 다시 그리기(소유자 요청)",
+   "touched": 6,
+   "applied": 9,
+   "rejected": 5,
+   "recheck": {
+    "hard": 0,
+    "wording": 0,
+    "badRejections": 0
+   }
+  }
+ ],
+ "stoppedBecause": "final recheck clean (round 3, 도식 수정)",
+ "decided": [
+  "앞선 시도(부모 프로세스 종료로 중단)의 두 디렉터리를 이 worktree 의 같은 경로로 복사해 이어 갔다. 원장의 세 출처는 notes/web/<id>.txt 의 sha256 이 sources.jsonl 의 text_sha256 과 일치함을 확인한 뒤 그 고정 사본으로 다시 열었다. 초안 index.html 은 비어 있는 scaffold 였으므로 본문은 새로 썼다",
+  "요청이 '무엇을 바꾸며, 언제 어느 단계를'이라 kind 를 explainer 로 두었다(앞선 시도가 scaffold 에 이미 기록). 원문에 없는 작업에 옮겨 보는 장(장 11)을 넣어 explainer 의 예측 과업을 맡겼다",
+  "slug 2026-10-25-claude-code-effort-spending 은 앞선 시도의 것을 그대로 썼다. 소유자 요청이 이 경로를 지정했다",
+  "중심 출처는 블로그 글(w1)이고, Claude Code 설정과 effort 의 작동 방식은 Claude Code 문서(w2)와 API 문서(w3)를 함께 읽어 채웠다. 저자 말과 문서 말을 장마다 구분해 귀속했다",
+  "FIG B 의 Opus 5 에는 max 라벨이 두 실행(effort-120 과 effort max)에 붙어 있어 표에는 effort max 행을 쓰고, 곡선 그림이 쓰는 effort-120 행의 값을 표 아래에 함께 밝혔다",
+  "FIG A 와 FIG B 가 Fable 5.1 의 같은 단계를 다른 값으로 센다(low 약 32% 대 140/370, xhigh 와 max 의 순서가 뒤집힘). 원문이 이유를 설명하지 않아 두 그림을 섞어 계산하지 않고, 한계 장 첫 항목과 단계 고르기 표의 'xhigh 먼저 시험'으로 옮겼다",
+  "글쓴이의 기준(medium 으로 기능 구현)과 그의 작업 순서(low 로 구현)가 엇갈려 보이는 점은 '사람이 곁에서 바로 볼 때 low, 맡겨 둘 때 medium'으로 맞추고 문서의 해석이라고 표시했다",
+  "렌즈 A 가 접어도 된다고 한 장 4 의 세 자료 목록, 장 12 의 ultrathink 와 frontmatter, 장 14 의 읽음/안 염 목록은 남겼다. explainer 는 원리를 보이는 곳에 둬야 하고, 장 12 와 14 는 독자가 실행하거나 범위를 확인할 때 쓰는 내용이다. tl-dr 과 장 .key 의 반복도 장으로 가는 링크 구실이라 두었다",
+  "블로그 글은 제품 발표가 아니라 reception 장을 두지 않았다",
+  "같은 원문으로 쓴 기존 문서 research/2026-10-19-claude-code-effort/ 와 그 .research/ 는 지시대로 열지 않았다",
+  "2026-10-25 수정: 소유자 요청대로 PR #12 브랜치(doc/2026-10-25-claude-code-effort-spending)에서 이어 작업했다. 이 브랜치는 #13 이전 main 위에 있어 바뀐 visual.md 는 origin/main 의 판을 읽고 따랐다",
+  "형태가 있는 장 여섯을 도식으로 다시 그렸다. 장 4 원리(세 자료가 설명한 층과 작업 모양, 상자와 화살표), 장 7 실패 종류(low→max 방향 화살표, 표는 남김), 장 9 명세와 effort(단계별 걸린 시간, log 축. 표에서는 시간 열을 뺐다), 장 10 고르는 기준(새 기능 순서를 되돌아가는 화살표가 있는 4단계 도식으로, 번호 목록 대신), 장 11 옮겨 보기(.key 의 판단을 두 질문의 분기 도식으로), 장 12 설정(Claude Code 문서의 effort 결정 순서 1→2→3, 사실 목록 네 줄 대신). 장 3, 6, 8, 13, 14 는 이미 그림이거나 형태가 없는 사실 목록·판단이라 두었다",
+  "장 12 도식을 맞게 그리려고 Claude Code 문서의 effort 결정 순서(§Adjust effort level 1~3)와 조직 기본 effort 예외, 상한을 새로 옮겼다(c58, c59, c61). 장 9 그림 설명의 분 단위 차이 65.5분과 63분은 문서가 계산했다(c56)",
+  "장 11 도식은 .key 가 묶은 대로 \"요구가 모호하거나 규칙이 빠졌나\"를 한 질문으로 두었다. 두 질문의 순서를 따로 지어내지 않으려는 것이다",
+  "렌즈 A 의 제안 가운데 장 7 표 접기, 장 11 상자의 수치 빼기, 장 12 마지막 문단 재구성, 장 10 표의 보안 두 행 구분, 장 4 도식을 목록으로 되돌리기는 받지 않았다. 앞의 넷은 도식이 아닌 내용 구성이라 소유자가 그대로 두라고 한 범위이고, 장 4 는 visual.md 가 형태가 있는 주장을 그림으로 두라고 한다"
+ ],
+ "needs_owner": [
+  {
+   "item": "같은 원문을 다룬 문서가 목록에 둘이 된다(2026-10-19-claude-code-effort 와 이 문서). build-index 가 둘 다 올렸다",
+   "options": [
+    "둘 다 둔다",
+    "비교한 뒤 하나를 내린다",
+    "이 문서를 받아들이고 기존 문서를 다음 PR 에서 정리한다"
+   ],
+   "pick": "비교한 뒤 하나를 내린다. 기존 문서를 열지 말라는 지시 때문에 researcher 는 두 문서를 견주지 않았다"
+  },
+  {
+   "item": "자기 작업으로 단계를 재는 절차가 없다. 렌즈 A 는 한계 장이 '자기 작업으로 돌려 보고 정한다'로 끝나는데 방법이 없다고 지적했다. 절차는 Opus 5.5 prompting guide 의 Calibrate effort 절과 Claude Code 문서가 연결한 블로그 글 'Choosing a Claude model and effort level in Claude Code' 에 있고, 둘 다 고정하지 않았다",
+   "options": [
+    "지금처럼 읽은 범위 장에 열지 않은 자료로만 적는다",
+    "두 페이지를 고정해 단계 재기 장을 하나 더한다"
+   ],
+   "pick": "두 페이지를 고정해 단계 재기 장을 하나 더한다. 코퍼스를 다시 여는 일이라 소유자 몫으로 남겼다"
+  },
+  {
+   "item": "렌즈 A 가 단계 고르기 표에 리팩터링, 원인 모르는 디버깅, 테스트 작성 같은 일상 작업 행이 없다고 했다. 원문은 이 작업들을 다루지 않아, 넣으면 근거 없는 행이 된다",
+   "options": [
+    "두고 넘어간다",
+    "원문 밖 자료를 더해 행을 만든다"
+   ],
+   "pick": "두고 넘어간다"
+  }
+ ],
+ "unverified": [
+  "부재 주장 1건(FIG B, FIG C 에 Opus 5.5 탭이 없다). 재실행할 검색 명령이 claims.jsonl c53 에 있다",
+  "행동 주장: Claude Code 의 /effort, s 키, max 세션 한정, frontmatter, cache 경고는 공식 문서에서 옮겼다. 실제 Claude Code 에서 돌려 보지는 않았다",
+  "callee 를 열지 않은 채 쓴 주장: 해당 없음(코드 저장소가 아니다)",
+  "FIG A 의 중간 점과 모든 토큰 값은 SVG 좌표를 축 눈금으로 환산한 근삿값이다. 원문 설명문에 있는 값은 36.6, 65.7, 58.9, 58.0, 43.4 다섯뿐이다",
+  "앱 빌드 carousel 의 화면 캡처는 열지 않았다. 빌드 결과는 글쓴이의 서술로만 옮겼다",
+  "archive.org 보관본이 없다. 2026-10-25T03:41Z 에 세 URL 모두 429 로 거절됐다(sources.jsonl). 고정 사본은 notes/web/ 에 커밋된다",
+  "최종 재확인에서 w2.txt 673행이 grep 표시로 생략되어 보였다는 메모가 있었다. 고정 사본을 Read 로 직접 열어 673행에 'matches or exceeds Opus 5 at `high` on coding and knowledge-work evaluations' 와 'start at `medium`' 이 그대로 있음을 확인했고, check-claims 도 c46 을 일치로 판정했다",
+  "2026-10-25 도식 수정 라운드: 새 도식은 모바일 폭에서 찍어 보지 않았다(svg 는 min-width 520px 에 가로 스크롤)"
+ ],
+ "unfixed": [],
+ "rendered": "render.mjs 로 headless Chrome 에서 15장을 찍어 도식을 고치기 전후 모두 열어 봤다. 장 4, 7, 9, 10, 11, 12 의 새 도식에서 글자 겹침, 상자 밖으로 나간 글자, 상자를 가로지르는 화살표가 없음을 확인했다. 모바일 폭(860px 미만)은 찍지 않았다",
+ "commitSubject": "Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법 문서를 더하다",
+ "commitBody": "Claude Code 의 effort 단계가 실제로 무엇을 바꾸고 언제 어느 단계를 고를지 설명하는 explainer 다. effort 를 올리면 Claude 가 스스로 확인하고 혼자 정하는 일이 늘어나서, 숨은 edge case 를 놓친 실패는 줄고 모호한 요구를 다른 뜻으로 읽은 실패는 늘어난다는 Terminal-Bench 3.0 결과를 다시 그렸다. 원문에 없는 작업에 옮겨 보는 장과 Claude Code 에서 단계를 바꾸고 남기는 설정을 함께 담았다. 원리, 실패 종류, 명세와 effort, 새 기능 순서, 판단 순서, 설정의 결정 순서는 도식으로 그렸다.\n\n출처:\n- Thariq Shihipar, \"Using Claude Code: Spending your effort\", Claude Code 블로그(claude.dev), 2026-09-25. https://claude.dev/blog/spending-your-effort/ (2026-10-25 고정 사본, text_sha256 56d2a172…)\n- Anthropic, Claude Code 문서 \"Model configuration\". https://code.claude.com/docs/en/model-config\n- Anthropic, Claude Platform 문서 \"Effort\". https://platform.claude.com/docs/en/build-with-claude/effort",
+ "finishedAt": "2026-10-25T08:16:44.250Z",
+ "reviews": [
+  {
+   "at": "2026-10-25T04:00:27.874Z",
+   "agent": "lens-numbers",
+   "sha": "cc17ce0c5f60b94a5ac74e2e3e9d1f5d67c0b8cd21042d965518b82a7be7d7a7"
+  },
+  {
+   "at": "2026-10-25T04:00:31.669Z",
+   "agent": "lens-reader",
+   "sha": "cc17ce0c5f60b94a5ac74e2e3e9d1f5d67c0b8cd21042d965518b82a7be7d7a7"
+  },
+  {
+   "at": "2026-10-25T04:06:56.497Z",
+   "agent": "recheck",
+   "sha": "3691f2ba360078a02fd4548e35862494181da1f27f196845c0481d8a4a4c427b"
+  },
+  {
+   "at": "2026-10-25T04:08:40.762Z",
+   "agent": "recheck",
+   "sha": "8c092555bf74f6b85e7950b5832655f9d1bb695b997a8ad67bb107897a1b8630"
+  },
+  {
+   "at": "2026-10-25T08:11:54.139Z",
+   "agent": "lens-numbers",
+   "sha": "278ae687838be5d3ccce0c293ac7f304503901533f8b7dbe3a0392fe0aac8124"
+  },
+  {
+   "at": "2026-10-25T08:11:58.066Z",
+   "agent": "lens-reader",
+   "sha": "278ae687838be5d3ccce0c293ac7f304503901533f8b7dbe3a0392fe0aac8124"
+  },
+  {
+   "at": "2026-10-25T08:15:16.163Z",
+   "agent": "recheck",
+   "sha": "28c99b14d813f95ae60c9013e9a27e2ca2e7ce5de66bbcdea79214b3aba592ce"
+  }
+ ],
+ "shippedAt": "2026-10-25T08:16:55.609Z",
+ "ship": {
+  "branch": "doc/2026-10-25-claude-code-effort-spending",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "28c99b14d813f95ae60c9013e9a27e2ca2e7ce5de66bbcdea79214b3aba592ce",
+  "unreviewed": false
+ }
+}
