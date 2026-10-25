@@ -105,9 +105,9 @@ archive URL beside the live one; both cost one call.
 
 ## 3. Shallow clone, and what it costs you
 
-Default to `git clone --filter=blob:none --depth 1`, and write where it went into
-`.research/<slug>/notes/checkouts.json` (`{"owner/name": "<path>"}`), where the gates look. Full history buys nothing for most
-documents. Record what you gave up: a shallow clone cannot support a claim about commit
+Get the checkout with `node scripts/source.mjs <owner/name> [<commit>]`, which pins the commit,
+fetches that one commit into a shared read-only cache outside every worktree, and prints the path;
+the gates find it from `sources.jsonl`. Full history buys nothing for most documents. Record what you gave up: a shallow clone cannot support a claim about commit
 frequency, contributor spread, release cadence or bus factor, because the data is not in
 the checkout. Set `history_available: false` and `check-claims.mjs` blocks those claims,
 filed as `kind:"history"`, instead of letting them through as plausible filler.
@@ -116,7 +116,7 @@ A shallow checkout looks like a young project (one commit, no tags), so check `.
 before writing anything about its age. A commit message can also say the upstream reset its history; that is a different fact and
 belongs in the document.
 
-If the document needs velocity claims, run `git fetch --unshallow` first and flip the flag.
+If the document needs velocity claims, add `--history` and flip the flag.
 `CHANGELOG.md` is often the better source anyway and survives a shallow clone.
 
 ## 4. Retrieval routes
@@ -158,7 +158,7 @@ no authority here.
 
 The mechanical risk lies in where the checkout sits. Keep it **outside your working
 directory**, so a harness cannot auto-discover `.claude/skills/` beneath it and load those
-skills as your own.
+skills as your own; `source.mjs` keeps it there.
 
 ## 6. Entering a paper
 

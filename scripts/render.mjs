@@ -15,7 +15,7 @@ const HELP = `사용법: node scripts/render.mjs research/<slug> [옵션]
 긴 장은 --tile 높이로 나눠 찍는다(읽는 모델이 큰 그림을 줄여 보지 않도록).
 
 옵션:
-  --out=<dir>     출력 위치. 기본은 /tmp/render-<slug>
+  --out=<dir>     출력 위치. 기본은 .research/<slug>/notes/render (git 이 무시하고 worktree 와 함께 지워진다)
   --scan          훑기 화면을 찍는다. 옛 셸은 표지와 요약은 그대로, 나머지 장은 eyebrow·h2·.key 만.
                   board 문서는 표지는 그대로, 나머지 장은 장 번호 줄·h2·.lead 만
   --width=<px>    창 너비. 기본 1280
@@ -39,7 +39,7 @@ const target = args.find((a) => !a.startsWith('--'));
 const file = target.endsWith('.html') ? target : join(target, 'index.html');
 if (!existsSync(file)) { console.error(`그런 문서가 없다: ${file}`); process.exit(1); }
 const slug = basename(target.endsWith('.html') ? resolve(target, '..') : target);
-const outdir = opt.out || `/tmp/render-${slug}`;
+const outdir = opt.out || join('.research', slug, 'notes', 'render');
 const WIDTH = Number(opt.width || 1280);
 const TILE = Number(opt.tile || 1200);
 
