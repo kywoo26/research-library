@@ -33,5 +33,6 @@ Commits section of `AGENTS.md`) and run `node scripts/ship.mjs research/<slug>`.
 gates and opens the pull request, as a draft when something is left for the owner. Do not run
 git or gh yourself. If it refuses, fix what it names and run it again.
 
-End with one short report: the pull request, the slug, what you decided for the owner, what
-is left under `needs_owner`, and whether you looked at the rendered page.
+End with one short report, written about 80% of the way to ASD-STE100: short sentences, one
+statement each, the actor named in each (you, a lens, the script, the owner), and what the owner
+must do written as an instruction. Put the pull request first, then 한 일, 정한 것, 하실 일.

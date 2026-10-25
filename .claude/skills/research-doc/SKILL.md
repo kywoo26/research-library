@@ -13,9 +13,9 @@ when_to_use: Invoked by the researcher agent after research-source, in the same 
 Read before writing:
 
 - `references/prose-ko.md`, always.
-- `references/specimens/<purpose>-chapter.html`, the one for this document's kind. It shows
-  the chapter grammar filled in; its length is an example, and your content sets yours.
-- `references/visual.md`, always: each chapter's form is chosen before its sentences.
+- `references/visual.md`, always: each chapter's board is chosen before its sentences.
+- `references/specimens/`, the cover and the chapters whose shapes yours take. They show the
+  grammar filled in; their length is an example, and your content sets yours.
 - `references/paper.md`, `references/oss.md` or `references/web.md`, by what the corpus is.
 - `.research/<slug>/notes/figures.md`, what the source drew or tabulated. Redraw what the
   reader needs.
@@ -44,7 +44,7 @@ the document says it is unpublished and what that means for the reader.
 
 The first screen decides whether the document gets read. A reader leaves it knowing what the
 subject is, what this research tells them, and whose material it rests on. Under the title,
-one short paragraph, about 280 characters without spaces (`cover-length`):
+one short paragraph, `p.answer`, at most 280 characters without spaces (`cover-length`):
 
 - what the subject is, in a sentence of its own, so a reader who has never heard of it can
   follow the next one;
@@ -54,7 +54,7 @@ one short paragraph, about 280 characters without spaces (`cover-length`):
   not become advice from the document;
 - the one mechanism sentence the message needs, and the one condition that most limits it.
 
-Numbers wait for those later sentences unless one number is the message, and side facts such as
+Numbers go on the flow cards unless one number is the message, and side facts such as
 popularity or dates stay off the cover.
 
 ```
@@ -71,26 +71,26 @@ and team, or the author and their role) and what kind of material it is, with th
 pinned. A repository slug alone does not tell the reader who is behind it. How much was read
 goes to the `setup` chapter.
 
-The steps of the mechanism go to the `tl-dr` chapter right after, whose points each take a
-sentence or two and do not restate the cover. A long answer packed into fewer, longer sentences
-is still long. How the document was made has no place on the first screen: no source-to-chapter
+Under `p.src`, the cover draws the document's argument as one flow board (`specimens/cover-flow.html`):
+as many stages as the argument has, typically from the cause to what the reader decides, each
+card linked to the chapter that shows it. Chapters off that path go in the `.toc` list under it,
+one line each with the fact the reader would go there for. How the document was made has no place on the first screen: no source-to-chapter
 mapping table, no reading method.
 
-Aim for twenty chapters or fewer; merge chapters a reader would read as one. The order
-follows the source or the research where that order carries meaning, and the `tl-dr` points
-link to the chapters that answer the reader's main questions.
+Merge chapters a reader would read as one. The order
+follows the source or the research where that order carries meaning.
 
 ## The spine
 
 `new-doc.mjs` lays out a starting set of middle chapters for the
-kind; rename them after their content (`nav-reward`, `result-cost`), merge or drop them.
+kind; rename them after their content (`data-label="곡선"`), merge or drop them. `data-role`
+names what a chapter does; `cover`, `critique` and `sources` are required.
 
-| Chapter (eyebrow) | Holds |
+| Chapter (`data-role`) | Holds |
 |---|---|
-| `index` | The title and the one-paragraph answer |
-| `tl-dr` | The points to do or remember, each in a sentence or two |
+| `cover` | The title, the answer, the source line, the argument flow and the list of other chapters |
 | the kind's middle | `references/paper.md`, `references/oss.md` and `references/web.md` say how each fills |
-| `result-*` | Results, redrawn from the source's own charts and tables (`visual.md` §The source's own figures) |
+| `result` | Results, redrawn from the source's own charts and tables (`visual.md` §The source's own figures) |
 | `critique` | Limits, with attribution, stated once: what is self-reported, unconfirmed or unread, and what that means for the reader |
 | `setup` | Near the end and short: what was read, what was run, what was left unopened |
 | `sources` | Sources |
@@ -111,48 +111,42 @@ same string in `meta.json` `title`, `<title>`, `og:title` and the cover `h1`.
 
 ## The chapter grammar
 
-The default reading form is continuous: `<body data-mode="article">`, chapters flowing under
-a contents list, with a deck toggle that pages the same chapters. Write for the continuous
-form and keep the markup valid for both.
-
-A chapter is `<section class="slide">`. Inside it, in this order:
+The shell (`<html data-format="board">`) numbers the chapters and builds the contents. A
+chapter is `<section class="slide" data-role="…" data-label="…">`, and inside it, in order:
 
 ```
-.eyebrow        short topical label
-h2              a short title naming what the chapter holds (thinking을 끄던 코드)
-.key            the claim a scanning reader needs, in one or two sentences. Keep a condition
-                here only when the claim is false without it; narrower conditions go to the
-                body. The only place the claim is stated; the body supports it
-body            the form references/visual.md picks: a figure, a diff, a table, a fact list
-                with one line per item, or paragraphs for a claim with no shape
-details.more    첨언: the source's own words, the derivation, the setting in full. Folded
-.note           optional. One sentence, when it changes what the reader does next
+h2            the claim, one sentence (Opus 5.5 의 통과율은 low 에서 medium 으로 갈 때 가장 크게 오른다)
+p.lead        at most two sentences: the condition the claim needs, and how to read the body
+body          the board visual.md picks; every number the chapter uses is here
+ul.notes      optional. One line each: provenance, a value read off coordinates, what is missing
+p.so          optional. 그래서: what follows for the reader
+details.orig  optional. The source's own words behind the claims, folded
 ```
 
-The visible text carries the claim and what the reader needs to act on it. **The fold takes
-no claim the visible text has not already made.** What each kind keeps visible differs:
+The visible part carries the claim and what the reader needs to act on it. **The fold takes no
+claim the visible part has not already made.** What each kind keeps visible:
 
-| Kind | Visible before the fold | Specimen |
-|---|---|---|
-| walkthrough | the diff, the result codes, one paragraph of what to check with it | `references/specimens/walkthrough-chapter.html` |
-| explainer | how the principle works, a figure, one case in numbers, where it stops holding | `references/specimens/explainer-chapter.html` |
-| comparison | the call with its condition, a table of situations, the numbers that move the call, how to back out | `references/specimens/comparison-chapter.html` |
+| Kind | Visible |
+|---|---|
+| walkthrough | the diff or the path, the result codes, what to check with it |
+| explainer | the mechanism as a board, one case in numbers, where it stops holding |
+| comparison | the call with its condition, the reader's situations on a ruler or in a table, the numbers that move the call, how to back out |
 
-An explainer chapter keeps its mechanism visible, because the reader cannot predict from a
-summary. A walkthrough chapter puts the diff first. Older documents call the `.key` slot
-`.dek`.
+Documents before the board shell use an `.eyebrow`, `.key` and `details.more`; leave them in
+that grammar when you fix one.
 
 ## Quoting the source
 
-The body says in Korean what the source says and names who says it; the source's own words
-go in the fold, inside `.q`, `.wl` or `<cite>`. A source sentence reworded into Korean with
+The visible text says in Korean what the source says and names who says it; the source's own
+words go in the fold, inside `.q`, `.wl` or `<cite>`. A source sentence reworded into Korean with
 nobody named is the source's claim wearing yours, and an English passage in the middle of a
-Korean paragraph stops the reader.
+Korean paragraph stops the reader. In a trace the quoted line is the hop itself, so it stays
+visible in the `<pre>` with its locator.
 
 ```html
 ✓ <p>migration guide 는 between_tools 가 low, medium, high 에서만 받아들여지고 xhigh 나
   max 에서는 400 을 낸다고 설명한다. 그래서 effort 를 high 이하로 둔다.</p>
-  <details class="more"><summary>첨언: 원문</summary><p>guide 「Turn off up-front
+  <details class="orig"><summary>원문</summary><p>guide 「Turn off up-front
   thinking」: <span class="q">“It's accepted at low, medium, and high effort. At xhigh or
   max, it returns a 400 error.”</span></p></details>
 ✗ <p>between_tools 는 low, medium, high 에서 받고 xhigh 나 max 에서는 400 을 낸다.</p>
@@ -161,21 +155,19 @@ Korean paragraph stops the reader.
 ## Calculations the source did not make
 
 Overlaying two tables to build a comparison the source never printed is allowed and often
-the most useful thing in the document. Label it in the caption (`논문에는 이 비교가 없다`),
+the most useful thing in the document. Label it in a note (`논문에는 이 비교가 없다`),
 so a reader who looks for it in the original does not come up empty.
 
 ## Producing the file
 
-`new-doc.mjs` stamps the shell from `assets/deck-shell.html`, and the shell builds the contents
-rail from the chapters (`data-label` on a section names it). A document stamped before that
-shell carries its own hand-written `.rail-item` list; there, add and renumber the items with
-the chapters, and do not delete them, or the rail goes empty. Define colors as CSS custom
-properties that components reference, so dark mode is not a second copy of every component,
-and give anything wide `overflow-x: auto`.
+`new-doc.mjs` stamps the shell from `assets/deck-shell.html`; write chapters into its `<main>`
+and leave the shell's CSS and script as they are. Ids are unique across the document. A
+document stamped before an older shell carries its own hand-written `.rail-item` list; there,
+add and renumber the items with the chapters, and do not delete them, or the rail goes empty.
 
 ## The read pass
 
-Once `check-doc.mjs` and `check-prose.mjs` pass and `build-index.mjs` has run, read the
+Once `check-doc.mjs`, `check-prose.mjs` and `render.mjs` pass and `build-index.mjs` has run, read the
 document once from the first screen down, as the reader would, against the passages in
 `prose-ko.md`. This read is the one place prose is judged for its own sake.
 

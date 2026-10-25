@@ -1,0 +1,20 @@
+<!-- 견본: 절차. 번호 단계와 되돌아가는 화살표(아래로 돌아간다), 그리고 p.so -->
+<section class="slide" data-role="procedure" data-label="만드는 순서">
+  <h2>글쓴이는 검증 단계에서만 effort 를 high 로 올린다</h2>
+  <p class="lead">글쓴이가 새 기능을 만들 때 쓰는 순서다. 원문은 이것을 loop 라고 부른다.</p>
+  <div class="board" data-cols="1|2|3|4" aria-label="새 기능을 만드는 네 단계. 명세를 주고, low 로 구현하고, 사람이 요지를 검토한 뒤 필요하면 low 구현으로 되돌아가고, 마지막에 high 로 검증한다">
+    <div class="card" id="l1" data-col="1"><b>① 명세 주기</b><p>빠진 세부를 Claude 가 나에게 묻게 한다</p><p class="ev">원문은 이 단계의 effort 를 적지 않는다</p></div>
+    <div class="card" id="l2" data-col="2"><b>② low 로 구현</b><p>빠르게 첫 판을 받는다</p></div>
+    <div class="card t-person" id="l3" data-col="3"><b>③ 요지 검토</b><p>맞게 잡았는지 사람이 본다</p></div>
+    <div class="card t-key" id="l4" data-col="4"><b>④ high 로 검증</b><p>검증하고 테스트한다</p></div>
+    <span class="edge" data-from="l1" data-to="l2"></span>
+    <span class="edge" data-from="l2" data-to="l3"></span>
+    <span class="edge" data-from="l3" data-to="l4"></span>
+    <span class="edge" data-from="l3" data-to="l2">필요하면 low 로 다시 고친다</span>
+  </div>
+  <ul class="notes"><li>블로그 §Takeaways 의 네 단계다. 벤치마크는 단계를 고정해 돌렸으므로 이 순서 자체를 잰 결과는 없다.</li></ul>
+  <p class="so">구현을 맡겨 두고 끝난 뒤에 볼 생각이라면 low 보다 medium 이 맞다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>블로그 첫머리: <span class="q">“For normal software engineering, I’m running a loop of getting the model to interview me then implementing on low effort, reviewing what it built, and then running verification on high effort.”</span></p>
+  </details>
+</section>

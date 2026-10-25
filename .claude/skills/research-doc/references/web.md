@@ -14,9 +14,8 @@ the vendor's order; pick the chapters by the kind and let that order go.
 | trace | One path through the page: each hop with a verbatim quote and its `§Heading` | walkthrough |
 | comparison | The alternative the page itself sets against its subject | comparison |
 | `setup` | The pages and sections read, and in one line the linked sub-pages left unopened with the chapter they would deepen. `retrieved_at` and archive links stay in `sources.jsonl` | all |
-| `result-*` | The page's own charts and tables, redrawn; values from the chart's `aria-label`, the SVG text or the table, never estimated from bar length | all |
+| `result` | The page's own charts and tables, redrawn (`visual.md` §The source's own figures) | all |
 | `critique` | What the page does not say, separated from what you inferred; a vendor's numbers marked as the vendor's | all |
-| reception | What practitioners contested or confirmed, as who said what when, each re-fetched from its API and pinned; only reactions that change how a claim of the page reads, with the chapter they change | all, for an announcement |
 
 ## Locators and the fixed copy
 
@@ -34,8 +33,8 @@ comment's text, author and time, and pin each comment used as its own `web` sour
 `notes/web/<id>.txt` copy. A post you cannot fetch yourself does not go in; a subagent's
 summary of one is hearsay. A reaction is a statement, not a fact: write who said what and
 when, check it against the page and its linked documents, and attach what you found as the
-condition. Keep only reactions that change how a claim of the page reads, and say which
-chapter they change.
+condition. Keep only reactions that change how a claim of the page reads, and put each next to
+the claim it changes as a `.card.react` (`visual.md`); reactions get no chapter of their own.
 
 ## Limits specific to a live page
 
