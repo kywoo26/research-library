@@ -13,8 +13,8 @@ These passages are the target. They are illustrative: the topic and length come 
 document, the way the sentences move comes from here.
 
 A first screen. The title says what the whole document is about, one paragraph answers the
-question, a line under it says whose material it is, and a few points say what to do or
-remember.
+question, and a line under it says whose material it is. The flow board under them is in
+`specimens/cover-flow.html`.
 
 > **Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳**
 >
@@ -25,11 +25,6 @@ remember.
 > 뒤에야 화면이 조용해지거나 청구액이 늘어난 것을 알게 된다.
 >
 > Anthropic 공식 문서의 Sonnet 5.5 migration guide와 What's new 페이지다.
->
-> - thinking을 끄던 코드는 `between_tools`로 바꾸고 effort를 high 이하로 둔다.
-> - tool_choice의 any와 tool은 auto와 `strict: true`로 옮긴다.
-> - tool call 사이 메모를 화면에 보여 주던 코드는 beta 헤더와 `display: "updates"`를 켜야 메모가 다시 보인다.
-> - effort는 작업 종류별 시작값에서 다시 잰다.
 
 An explanatory paragraph. It starts from what the reader already knows, says what changed and
 why it matters, and links each step to the next.
@@ -47,10 +42,10 @@ A limit, stated once and tied to what the reader can do about it.
 > 전이다. 옮기기 전에 스테이징에서 대표 요청을 한 번씩 보내 보면 이 목록이 실제 응답과
 > 맞는지 바로 확인할 수 있다.
 
-Chapter titles. Short, naming what the chapter holds.
+Chapter headings. One sentence each, saying what is true; the short name goes in `data-label`.
 
-> 모델 ID만 바꾸면 생기는 일 / thinking을 끄던 코드 / tool_choice를 강제하던 코드 / computer use
-> tool 교체 / 조용해지는 tool call 사이 메모 / 늘어난 거절 부류 / effort 다시 재기 / 옮기는 순서
+> thinking을 끄던 코드는 Sonnet 5.5에서 400을 받는다 / 강제 tool_choice는 auto와 strict로 옮긴다 /
+> tool call 사이 메모는 기본 설정에서 빈 thinking 블록으로 온다 / effort는 이름이 같아도 쓰는 양이 다르다
 
 ## Principles
 
@@ -59,7 +54,11 @@ facts has to build the chain of cause alone.
 
 **Link causes with connectives** (그래서, ~인데, ~므로, 예를 들어). A run of short declaratives
 leaves the reader assembling the logic; one sentence packing several facts between commas
-leaves them parsing. One idea per sentence, joined to the next by its reason.
+leaves them parsing.
+
+**Write about 80% of the way to ASD-STE100.** One statement per sentence; name who acts
+(원문, 글쓴이, 모델, 독자) in the active voice; one term keeps one meaning; what the reader should
+do is an instruction. The connective that carries the reason stays: that is the other 20%.
 
 **Keep one caveat where it changes what the reader does, and tie it to that action.**
 Everything else unknown, unread or self-reported goes once into the limits chapter. A caveat
@@ -75,22 +74,19 @@ claim, and without it the claim is false. This survives every rewrite.
 **Unpack noun chains and English-order modifiers into clauses, and say it literally.** Korean
 puts modifiers before the noun, so a stacked modifier cannot be parsed; a chain joined by `·`
 or `의` hands the reader the particles to fill in. Metaphor and emphasis words (`중요한
-전환점`, `~을 시사한다`) tell the reader how to feel instead of what changed. Repeat a term
-rather than varying it.
+전환점`, `~을 시사한다`) tell the reader how to feel instead of what changed.
 
 ## Choose the form by the shape of the content
 
-The passages above are prose, and prose is one form among several. Pick the form from what
-the content is:
+What `visual.md` leaves in text takes its form from the content:
 
-- A chain where each step leads to the next: sentences joined by their reasons, as in the
-  explanatory passage above.
+- An argument where each reason leads to the next: sentences joined by those reasons, as in
+  the explanatory passage above.
 - Three or more items of the same kind side by side (differences, conditions, settings,
   things to do): a list, one short sentence per item. Strung into a paragraph they read as an
   enumeration the reader has to count and hold.
 - Several things compared on the same attributes: a table.
-- A flow, a loop, or two requirements that cannot both be met: a figure, or numbered steps
-  when the reader follows them in order (`visual.md`).
+- A shape (parts, steps, a loop, options along a level): a board (`visual.md`).
 
 Say a thing once in a chapter. When a table holds the cases, the paragraphs around it explain
 what the table cannot show; they do not walk through the same cases again.
@@ -144,6 +140,6 @@ neighbours it turns into when one form is avoided:
 - a run of sentences ending in absence or negation
 - the document talking about itself (`이 문서는`, `이 장에서는`, `이 대응은 이 문서가 만든 것이고`)
 
-`check-doc.mjs` blocks the heading forms in titles, `h2` and `.key`. In the body they are
-review findings, read in context: a contrast that corrects what the reader actually believes
+Keep all of them out of headings; `check-doc.mjs` blocks the ones it can count. In the body they
+are review findings, read in context: a contrast that corrects what the reader actually believes
 stays.

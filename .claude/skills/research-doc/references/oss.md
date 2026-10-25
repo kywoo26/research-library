@@ -14,7 +14,7 @@ reader has to do with it, and the adoption checks below belong to the comparison
 | comparison | The alternative someone would otherwise reach for | comparison |
 | trace | One request through the code, every hop with a quote and a `file:line` | walkthrough |
 | `setup` | Commit SHA, files read, directories not opened, whether the clone was shallow | all |
-| `result-*` | What the code does; benchmarks only if the project publishes them, marked self-reported | all |
+| `result` | What the code does; benchmarks only if the project publishes them, marked self-reported | all |
 | `critique` | Code not read, README-versus-code discrepancies, what reading alone cannot establish | all |
 | adoption call | adopt / trial / assess / hold, with the grounds and the cost of keeping it running | comparison |
 
@@ -54,9 +54,9 @@ per hop, stitched together by you. Too narrow is a single-function trace that te
 nothing, and too wide is a grand traversal with invented middle steps, which is worse
 because it is confidently wrong. Both pass every gate.
 
-The source is already text, so `<pre>` and tables absorb everything and the document never
-draws its own architecture; a kernel, a state machine, a request path and a retry loop all
-have shapes (`visual.md`).
+A failure to avoid: because the source is already text, `<pre>` and tables absorb everything
+and the document never draws the architecture. A kernel, a state machine, a request path and a
+retry loop all have shapes (`visual.md`).
 
 **Write locators relative to the repository root.** Verification runs
 `git show <commit>:<path>`, so when the interesting code sits several levels down, the path

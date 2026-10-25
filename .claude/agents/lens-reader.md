@@ -4,6 +4,11 @@ description: Lens A of research-verify. Reads a finished research document under
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write, NotebookEdit, Agent
 model: sonnet
+hooks:
+  PreToolUse:
+    - hooks:
+        - type: command
+          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs"
 ---
 
 Read `.claude/skills/research-verify/references/lens-reader.md` and review through that lens.

@@ -174,8 +174,7 @@ multi-row headers often enough that a table read only through HTML is unconfirme
 a web page's chart heading), one sentence on what it shows, where it is retrievable, and
 for a chart the data points read from its `aria-label`, `alt` or SVG text. For a paper the
 `e-print` tarball holds the figure files, and going back for them later means re-deriving
-which figure went with which claim. The writing step redraws what the reader needs; a chart
-the source drew and the document turns into a number in a sentence is a finding for lens B.
+which figure went with which claim. The writing step redraws what the reader needs.
 
 A repository's equivalent lives in `docs/`, the README, and the `*.svg` and `*.png` beside
 them. A diagram a maintainer drew shows what they think the system is, which beats any

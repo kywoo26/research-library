@@ -80,6 +80,9 @@ available, say that. Passing the static gate and rendering correctly are differe
 the `<!-- docs:start -->` … `<!-- docs:end -->` block in `README.md`. Manual edits vanish
 on the next build.
 
+**Show a structure or a flow to the owner as a drawing first**: a Mermaid block in a report
+or a PR, an HTML page under `_scratch/` when it is larger.
+
 **Commit and push only when asked.** When to commit and when to publish is decided at the
 time, not by procedure.
 Handing off research to the `research` skill is that request for its own branch, push and pull request.

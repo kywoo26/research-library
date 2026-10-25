@@ -17,7 +17,7 @@ different numbers.
 
 ## What to sweep
 
-Body text, table cells, figure captions, SVG `aria-label` attributes and stat cards: every
+Body text, cards, table cells, notes, `aria-label` attributes and chart data tables: every
 place a number appears. The `aria-label` restates a chart's values as prose, so it drifts
 from the body easily. For each number, check five things.
 
@@ -39,7 +39,7 @@ baseline beside it, and percent against percentage points needs the right word.
 ## Places that need extra attention
 
 - Calculations the source did not make. A comparison built by overlaying two tables must say
-  so in the caption. If it does, redo the arithmetic yourself; if it does not, that is a
+  so in its note or figcaption. If it does, redo the arithmetic yourself; if it does not, that is a
   finding, since the reader will hunt for it in the original.
 - Charts. Do bar lengths and line positions match the table, and does the `aria-label` prose
   match both?

@@ -4,6 +4,11 @@ description: Re-check after a research-verify fix round. Re-reads only the chapt
 tools: Read, Grep, Glob, Bash, WebFetch
 disallowedTools: Edit, Write, NotebookEdit, Agent
 model: sonnet
+hooks:
+  PreToolUse:
+    - hooks:
+        - type: command
+          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs"
 ---
 
 You re-read a research document after its author fixed findings; you are not reviewing the

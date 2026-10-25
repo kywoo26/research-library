@@ -40,7 +40,7 @@ const hasClaims = existsSync(claims) && readFileSync(claims, 'utf8').split('\n')
 const gates = {};
 for (const [name, a] of [['check-doc', ['scripts/check-doc.mjs', `research/${slug}`]], ['check-prose', ['scripts/check-prose.mjs', `research/${slug}`]],
   ...(hasClaims ? [['check-claims', ['.claude/skills/research-verify/scripts/check-claims.mjs', `research/${slug}`]]] : [])]) {
-  const r = sh('node', a);
+  const r = sh('node', name === 'check-claims' ? [...a, ...selfRepo()] : a);
   gates[name] = r.status === 0;
   if (r.status !== 0) die(`${name} 가 막았다\n${tail(r.stdout + r.stderr)}`);
 }
@@ -51,9 +51,10 @@ const sha = createHash('sha256').update(readFileSync(docPath)).digest('hex');
 const lastReview = (run.reviews || []).at(-1);
 const unreviewed = lastReview && lastReview.sha !== sha;
 const autoSwitch = (run.modelSwitches || []).filter((m) => m.source === 'auto');
-const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, x.default && `researcher 의 기본값: ${x.default}`].filter(Boolean).join(' — ')));
+const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question ?? x.item ?? x.text, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, (x.default ?? x.pick) && `researcher 의 추천: ${x.default ?? x.pick}`].filter(Boolean).join(' — ')));
 const needs = asList(run.needs_owner), unfixed = asList(run.unfixed);
-const isDraft = needs.length > 0 || unfixed.length > 0 || unreviewed || autoSwitch.length > 0;
+if (autoSwitch.length) die(`모델이 저절로 바뀐 채 쓰였다(${autoSwitch.map((m) => `${m.from} → ${m.to}`).join(', ')}). 바뀐 모델이 쓴 문서는 내보내지 않는다`);
+const isDraft = needs.length > 0 || unfixed.length > 0 || unreviewed;
 
 // 3. 브랜치. README.md 와 index.html 은 생성물이라 HEAD 에서 만든 것을 버리고 origin/main 위에서 다시 만든다.
 sh('git', ['fetch', '-q', 'origin', 'main']);
@@ -119,10 +120,11 @@ ${list(unfixed)}
 - 게이트(이 스크립트가 돌렸다): ${Object.entries(gates).map(([k, v]) => `${k} ${v ? '통과' : '막힘'}`).join(', ')}
 - 렌즈·재검증 호출 ${(run.reviews || []).length}회${unreviewed ? '. 마지막 재검증 뒤 문서가 바뀌었다' : ''}
 - 렌더링: ${run.rendered || '기록 없음'}
-${autoSwitch.length ? autoSwitch.map((m) => `- 모델이 저절로 바뀌었다: ${m.from} → ${m.to} (${m.at})`).join('\n') + '\n' : ''}- 토큰과 모델별 사용량은 실행이 끝날 때 hook 이 .research/${slug}/run.json 의 usage 에 남긴다(이 커밋 뒤)
+- 도식이 든 본문 장: ${figureShare(docPath)}
+- 토큰과 모델별 사용량은 실행이 끝날 때 hook 이 .research/${slug}/run.json 의 usage 에 남긴다(이 커밋 뒤)
 ${isDraft ? '\n위의 이유로 draft 로 열었다.\n' : ''}
 🤖 Generated with [Claude Code](https://claude.com/claude-code)`;
-const existingPr = sh('gh', ['pr', 'view', branch, '-R', repo, '--json', 'url', '-q', '.url']);
+const existingPr = sh('gh', ['pr', 'list', '-R', repo, '--head', branch, '--state', 'open', '--json', 'url', '-q', '.[0].url']);
 if (existingPr.status === 0 && existingPr.stdout.trim()) {
   step('gh', ['pr', 'edit', branch, '-R', repo, '--body', body]);
   if (isDraft) sh('gh', ['pr', 'ready', branch, '-R', repo, '--undo']);
@@ -130,4 +132,19 @@ if (existingPr.status === 0 && existingPr.stdout.trim()) {
 } else {
   const pr = step('gh', ['pr', 'create', '-R', repo, '--base', 'main', '--head', branch, '--title', run.commitSubject, '--body', body, ...(isDraft ? ['--draft'] : [])]);
   console.log(`PR: ${pr.stdout.trim().split('\n').pop()}${isDraft ? ' (draft)' : ''}`);
+}
+
+// 이 저장소 자체를 출처로 삼은 문서는 check-claims 가 체크아웃을 찾도록 지금 작업 트리를 넘긴다.
+function selfRepo() {
+  const name = sh('git', ['remote', 'get-url', 'origin']).stdout.trim().replace(/\.git$/, '').split(/[/:]/).slice(-2).join('/');
+  const sources = readFileSync(join('.research', slug, 'sources.jsonl'), 'utf8');
+  return sources.includes(`"repo": "${name}"`) || sources.includes(`"repo":"${name}"`) ? ['--repo', `${name}=${process.cwd()}`] : [];
+}
+
+// 표지·요약·출처 같은 고정 장을 뺀 본문 장 가운데 그림(svg, img)이 든 장의 비율. 막지 않고 보이기만 한다.
+function figureShare(path) {
+  const FIXED = /data-(?:label|role)="(index|cover|tl-dr|setup|sources|critique)"|<p class="eyebrow">(index|tl-dr|setup|sources|critique)</;
+  const body = readFileSync(path, 'utf8').split(/<section\s+class="slide/).slice(1).filter((s) => !FIXED.test(s.slice(0, s.indexOf('>'))) && !FIXED.test(s));
+  const drawn = body.filter((s) => /<svg|<img|class="board|class="plot|class="ladder/.test(s)).length;
+  return `${drawn}/${body.length}${body.length ? ` (${Math.round((drawn * 100) / body.length)}%)` : ''}`;
 }
