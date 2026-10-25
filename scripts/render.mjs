@@ -16,12 +16,20 @@ const HELP = `사용법: node scripts/render.mjs research/<slug> [옵션]
 
 옵션:
   --out=<dir>     출력 위치. 기본은 /tmp/render-<slug>
-  --scan          표지와 요약은 그대로, 나머지 장은 eyebrow·h2·.key 만 남긴 훑기 화면을 찍는다
+  --scan          훑기 화면을 찍는다. 옛 셸은 표지와 요약은 그대로, 나머지 장은 eyebrow·h2·.key 만.
+                  board 문서는 표지는 그대로, 나머지 장은 장 번호 줄·h2·.lead 만
   --width=<px>    창 너비. 기본 1280
   --tile=<px>     한 장의 최대 높이. 기본 1200
 
+  --dark          board 문서: 다크 모드로도 찍는다
+
 manifest.json 에는 장마다 제목, 높이, 가로로 넘치는 요소 수(scrollers)가 들어간다. 페이지 전체가
 가로로 넘치면 overflowX 가 true 다. 연속 읽기 모드가 없는 옛 덱 셸은 장을 하나씩 띄워 찍는다.
+
+board 문서(<html data-format="board">)는 1280 과 390 두 너비로 찍는다(--width 를 주면 그 너비만).
+그림 이름은 w1280-chNN-K.png, w390-chNN-K.png 이고 다크는 w1280-dark-… 다. 셸이 스스로 잰 배치
+문제(window.__layout.warnings: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸)와 가로 넘침을 너비마다
+manifest.json 의 runs 에 적고, 하나라도 있으면 1 로 끝난다. 게이트처럼 쓴다.
 브라우저는 ~/.cache/ms-playwright 의 chrome-headless-shell 을 찾는다(npx playwright install chromium).`;
 
 const args = process.argv.slice(2);
@@ -79,6 +87,58 @@ const tiles = async (x, y, w, h, prefix) => {
   }
   return names;
 };
+
+// ---- board 문서: 두 너비로 찍고 셸의 배치 검사를 읽는다 ----
+if (/<html\b[^>]*\sdata-format=["']board["']/i.test(readFileSync(file, 'utf8'))) {
+  await send('Page.enable');
+  const widths = opt.width ? [WIDTH] : [1280, 390];
+  const themes = opt.dark ? ['light', 'dark'] : ['light'];
+  const manifest = { file, shell: 'board', tile: TILE, scan: Boolean(opt.scan), runs: [] };
+  let pictures = 0;
+  for (const theme of themes) for (const w of widths) {
+    await send('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 600 });
+    await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
+    const loaded = new Promise((ok) => waiters.push({ method: 'Page.loadEventFired', ok }));
+    await send('Page.navigate', { url: 'file://' + resolve(file) });
+    await loaded;
+    let state = null;
+    for (let k = 0; k < 60; k++) {
+      state = await evalJSON(`return window.__layout ? { done: window.__layout.done, warnings: window.__layout.warnings.slice() } : null`);
+      if (state && state.done) break;
+      await sleep(100);
+    }
+    const warnings = state ? state.warnings : ['셸 스크립트가 돌지 않았다 (window.__layout 없음)'];
+    if (state && !state.done) warnings.push('셸 배치가 끝나지 않았다 (window.__layout.done 이 false)');
+    if (opt.scan) {
+      await evalJSON(`const st = document.createElement('style');
+        st.textContent = 'section.slide:not([data-role="cover"]) > *:not(h2):not(.lead):not(.chno){display:none!important}';
+        document.head.appendChild(st); return 0;`);
+    }
+    const chapters = await evalJSON(`return [...document.querySelectorAll('section.slide')].map((s, i) => {
+      const r = s.getBoundingClientRect(), h2 = s.querySelector('h2');
+      return { n: i + 1, title: (h2 ? h2.textContent : i === 0 ? '표지' : '').trim().replace(/\\s+/g, ' '),
+               x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height,
+               scrollers: [...s.querySelectorAll('*')].filter((e) => e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflowX !== 'visible').length };
+    })`);
+    const overflowX = await evalJSON(`return document.documentElement.scrollWidth > document.documentElement.clientWidth`);
+    if (overflowX) warnings.push('페이지가 가로로 넘친다');
+    const prefix = `w${w}${theme === 'dark' ? '-dark' : ''}`;
+    const run = { width: w, theme, warnings, overflowX, chapters: [] };
+    for (const c of chapters) {
+      const names = await tiles(c.x, c.y, c.w, c.h, `${prefix}-ch${String(c.n).padStart(2, '0')}`);
+      pictures += names.length;
+      run.chapters.push({ n: c.n, title: c.title, height: Math.round(c.h), scrollers: c.scrollers, tiles: names });
+    }
+    manifest.runs.push(run);
+  }
+  writeFileSync(join(outdir, 'manifest.json'), JSON.stringify(manifest, null, 1));
+  const bad = manifest.runs.filter((r) => r.warnings.length);
+  console.log(`${outdir}: board 셸, ${manifest.runs.map((r) => `${r.width}${r.theme === 'dark' ? ' dark' : ''}`).join(' · ')}, 장 ${manifest.runs[0].chapters.length}개, 그림 ${pictures}장`);
+  for (const r of bad) for (const x of r.warnings) console.log(`  [${r.width}${r.theme === 'dark' ? ' dark' : ''}] ${x}`);
+  if (bad.length) console.log('배치 문제가 있다. 판의 칸과 화살표, 상자 글의 길이를 고친 뒤 다시 찍는다.');
+  ws.close();
+  done(bad.length ? 1 : 0);
+}
 
 await send('Page.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 900, deviceScaleFactor: 1, mobile: false });

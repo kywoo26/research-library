@@ -51,7 +51,7 @@ const sha = createHash('sha256').update(readFileSync(docPath)).digest('hex');
 const lastReview = (run.reviews || []).at(-1);
 const unreviewed = lastReview && lastReview.sha !== sha;
 const autoSwitch = (run.modelSwitches || []).filter((m) => m.source === 'auto');
-const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, x.default && `researcher 의 기본값: ${x.default}`].filter(Boolean).join(' — ')));
+const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question ?? x.item ?? x.text, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, (x.default ?? x.pick) && `researcher 의 추천: ${x.default ?? x.pick}`].filter(Boolean).join(' — ')));
 const needs = asList(run.needs_owner), unfixed = asList(run.unfixed);
 if (autoSwitch.length) die(`모델이 저절로 바뀐 채 쓰였다(${autoSwitch.map((m) => `${m.from} → ${m.to}`).join(', ')}). 바뀐 모델이 쓴 문서는 내보내지 않는다`);
 const isDraft = needs.length > 0 || unfixed.length > 0 || unreviewed;
@@ -143,8 +143,8 @@ function selfRepo() {
 
 // 표지·요약·출처 같은 고정 장을 뺀 본문 장 가운데 그림(svg, img)이 든 장의 비율. 막지 않고 보이기만 한다.
 function figureShare(path) {
-  const FIXED = /data-label="(index|tl-dr|setup|sources|critique)"|<p class="eyebrow">(index|tl-dr|setup|sources|critique)</;
-  const body = readFileSync(path, 'utf8').split(/<section\s+class="slide/).slice(1).filter((s) => !FIXED.test(s));
-  const drawn = body.filter((s) => /<svg|<img/.test(s)).length;
+  const FIXED = /data-(?:label|role)="(index|cover|tl-dr|setup|sources|critique)"|<p class="eyebrow">(index|tl-dr|setup|sources|critique)</;
+  const body = readFileSync(path, 'utf8').split(/<section\s+class="slide/).slice(1).filter((s) => !FIXED.test(s.slice(0, s.indexOf('>'))) && !FIXED.test(s));
+  const drawn = body.filter((s) => /<svg|<img|class="board|class="plot|class="ladder/.test(s)).length;
   return `${drawn}/${body.length}${body.length ? ` (${Math.round((drawn * 100) / body.length)}%)` : ''}`;
 }

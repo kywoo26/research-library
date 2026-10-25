@@ -1,0 +1,28 @@
+<!-- 견본: 표지. 답 문단, 출처 줄, 논증 흐름 판, 흐름 밖 장의 목록. 장 번호 칩은 셸이 href 에서 만든다 -->
+<section class="slide" data-role="cover" data-label="표지">
+  <h1>Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법</h1>
+  <p class="answer">effort 는 한 작업에 계산을 얼마나 쓸지 모델에 알려 주는 다섯 단계 설정이다. 단계를 올리면 Claude 는 더 많이 확인하고 더 많이 혼자 정한다. 그래서 edge case 를 놓친 실패는 크게 줄지만, 과제 설명을 달리 읽을 여지가 있으면 틀린 해석을 고른 실패는 오히려 늘었다. 글쓴이는 사람이 결과를 보며 이끌 구현은 낮은 단계로, 검증은 높은 단계로 돌리기를 권한다.</p>
+  <p class="src">Claude Code 블로그(claude.dev)의 Engineering 글 「Using Claude Code: Spending your effort」(2026-09-25)다. 글쓴이 Thariq Shihipar 는 Claude 모델을 “우리 모델”이라 부르며 Anthropic 내부 실행 결과를 싣는다. 2026-10-25 에 읽은 판이고, Claude Code 와 Claude API 의 effort 공식 문서를 함께 읽었다.</p>
+  <div class="board flow" data-cols="신호|행동|결과|판단" aria-label="effort 단계는 행동 신호이고, 올리면 Claude 가 더 확인하고 더 혼자 정한다. 그 결과 놓친 edge case 는 줄고 틀린 해석은 늘어서, 검증과 맡길 일은 high 이상, 곁에서 볼 일은 low 로 돌린다">
+    <a class="card" id="f-sig" href="#p4" data-col="신호" data-center><b>effort 단계는 행동 신호다</b><p>이 작업에 계산을 얼마나 쓰길 바라는지 모델에 알린다. 토큰 상한은 정하지 않는다</p></a>
+    <a class="card" id="f-act" href="#p5" data-col="행동" data-center><b>올리면 Claude 가 더 확인하고 더 혼자 정한다</b><p>기준 구현이나 brute-force 풀이처럼 따로 맞춰 볼 대상을 만들어 결과를 비교했다</p></a>
+    <a class="card t-good" id="f-down" href="#p7" data-col="결과"><b>edge case 를 놓친 실패는 줄었다</b><span class="big">59 → 24<small>건</small></span><p>Fable 5.1, low → max</p></a>
+    <a class="card t-bad" id="f-up" href="#p7" data-col="결과"><b>틀린 해석을 고른 실패는 늘었다</b><span class="big">25 → 47<small>건</small></span><p>Fable 5.1, low → max</p></a>
+    <a class="card" id="f-high" href="#p10" data-col="판단"><b>검증하거나 사람 없이 맡길 일은 high 이상</b><p>버그 수정, 코드 리뷰, 보안 점검, 끝까지 맡기는 일</p></a>
+    <a class="card" id="f-low" href="#p10" data-col="판단"><b>곁에서 보며 이끌 일은 low</b><p>요구가 두 가지로 읽히면 단계보다 명세를 먼저 채운다</p></a>
+    <span class="edge" data-from="f-sig" data-to="f-act"></span>
+    <span class="edge" data-from="f-act" data-to="f-down"></span>
+    <span class="edge" data-from="f-act" data-to="f-up"></span>
+    <span class="edge" data-from="f-down" data-to="f-high"></span>
+    <span class="edge" data-from="f-up" data-to="f-low"></span>
+  </div>
+  <div class="toc">
+    <p class="toc-h">논증 밖에서 더 보는 장</p>
+    <ul>
+      <li><span class="g">재 본 값</span><a href="#p6">6 · 곡선</a><span class="f">Opus 5.5: low 36.6% → max 65.7%</span></li>
+      <li><span class="g">옮기기</span><a href="#p11">11 · 다른 작업에 옮기기</a><span class="f">시험으로 찾을 edge case 가 많으면 단계를 올린다</span></li>
+      <li><span class="g">설정</span><a href="#p12">12 · Claude Code 설정</a><span class="f"><code>/effort</code> 로 대화 중에 바꾼다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 해석의 한계</a><span class="f">수치는 모두 Anthropic 내부 실행이다</span></li>
+    </ul>
+  </div>
+</section>

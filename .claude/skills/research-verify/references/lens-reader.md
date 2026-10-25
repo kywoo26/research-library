@@ -13,11 +13,11 @@ Document: `{DOC_PATH}`
 
 ## 1. The first pass: only what a scanning reader sees
 
-Before reading the body, read only the title, the cover paragraph, the `tl-dr` chapter, every
-`h2` and every `.key`. Print them without the body:
+Before reading the body, read only what a scanning reader sees: the cover in full, then each
+chapter's `h2` and `.lead` (`.key` in older documents). The script prints exactly that:
 
 ```bash
-node -e "const h=require('fs').readFileSync(process.argv[1],'utf8');const t=(x)=>x.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();const s=h.split(/<section\s+class=\"slide/).slice(1);s.slice(0,2).forEach(x=>console.log(t(x.replace(/<details[\s\S]*?<\/details>/g,''))));for(const m of h.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>|<p class=\"key\"[^>]*>([\s\S]*?)<\/p>/g))console.log(t(m[1]||m[2]))" {DOC_PATH}
+node scripts/doc-text.mjs {DOC_PATH} --scan
 ```
 
 Then write down, in Korean:
@@ -30,9 +30,8 @@ Then write down, in Korean:
 
 Now read the document end to end, as the reader would, and compare with what you wrote. Each
 place where the first pass got the point wrong or missed it is a finding, located at the
-title, `h2` or `.key` that misled you. A cover that walks through the mechanism's steps, or
-says what the `tl-dr` points say again, is a finding too: the cover answers, the points
-detail. So is a cover whose paragraph never says what the research means for the reader,
+title, `h2` or `.lead` that misled you. A cover paragraph that walks through the mechanism's steps
+is a finding too: the paragraph answers, and the flow under it shows the path. So is a cover whose paragraph never says what the research means for the reader,
 one that gives a source's recommendation in the document's own voice, and a source line
 that leaves you unable to say who produced the material.
 
@@ -44,7 +43,7 @@ that leaves you unable to say who produced the material.
 | `explainer` | take a case the source never shows and predict what the mechanism does |
 | `walkthrough` | find the code or request field you would change, and follow the path to it |
 
-If `purpose` is absent, infer the task from the `tl-dr` chapter and say which you took. Report
+If `purpose` is absent, infer the task from the cover and say which you took. Report
 what stopped you, and the sentence that should have let you.
 
 ## 4. What you could skip
@@ -52,8 +51,7 @@ what stopped you, and the sentence that should have let you.
 Name the chapters, paragraphs and caveats you read without needing them for the task: process
 talk, repeated qualifiers, outside material nobody asked for, a chapter that says what another
 already said, sentences carrying what has a shape (parts, steps, a loop, options side by side,
-a quantity) or parallel items, where a figure, list or table would show them, a chapter that says the same thing in a paragraph, a table and a
-paragraph again. Say for each whether it can go, belongs in a fold, or needs another form.
+a quantity) or parallel items, where a board, list or table would show them. Say for each whether it can go, belongs in a fold, or needs another form.
 Report too a claim that appears only inside a fold, and the forms listed in
 `../../research-doc/references/prose-ko.md` §Forms readers take as machine-written where
 they cost you the point, by location.
@@ -75,7 +73,7 @@ confidence and tag it 고쳐야 or 판단.
 첫 화면만 보고 잡은 답: (한 문장)
 
 ## 첫 화면에서 놓친 것
-- 위치(제목, 장 N 의 h2 나 .key): 무엇을 잘못 잡았나, 실제로는 무엇인가
+- 위치(제목, 장 N 의 h2 나 .lead): 무엇을 잘못 잡았나, 실제로는 무엇인가
 
 ## 과업을 막는 것
 - 항목: 왜 필요한가, 문서 어디에 없는가
