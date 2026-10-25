@@ -232,7 +232,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <section class="slide" data-role="cover" data-label="표지">
   <h1>Claude Code effort 단계가 바꾸는 것과 단계를 고르는 법</h1>
   <p class="answer">Claude Code 의 effort 는 Claude 가 한 요청에 들일 일의 양을 정하는 설정이다. 단계를 올리면 Claude 는 파일을 더 읽고 더 검증하고 혼자 더 판단한 뒤에 돌아온다. 그래서 높은 단계에서 놓친 edge case 는 크게 줄지만, 잘못된 판단은 덜 줄고 문제를 다르게 해석한 실패는 오히려 늘었다. Anthropic 문서는 Opus 5.5 에서 기본값 medium 으로 시작해 자기 평가로 여러 단계를 재 보라고 권한다.</p>
-  <p class="src">Anthropic 사람이 쓴 Claude Code 글 둘과 공식 문서 한 절이다. Claude Code 블로그의 Thariq Shihipar 글 「Spending your effort」(2026-09-25), Claude Code 팀 Lydia Hallie 의 「Choosing a Claude model and effort level in Claude Code」(2026-07-07), Claude Platform 문서 「Prompting Claude Opus 5.5」의 Calibrate effort 절이다. 2026-10-25 에 받은 사본 기준이다.</p>
+  <p class="src">Anthropic 사람이 쓴 Claude Code 글 둘과 Anthropic 공식 문서 셋이다. 글은 Claude Code 블로그의 Thariq Shihipar 글 「Spending your effort」(2026-09-25)와 Claude Code 팀 Lydia Hallie 의 「Choosing a Claude model and effort level in Claude Code」(2026-07-07)다. 문서는 Claude Platform 의 「Prompting Claude Opus 5.5」 Calibrate effort 절과 「Effort」, Claude Code 의 「Model configuration」 중 effort 를 다룬 절들이다. 2026-10-25 에 받은 사본 기준이다.</p>
   <div class="board flow" data-cols="원리|효과|고르기|재기" data-lanes="1" aria-label="effort 는 한 요청에 들일 일의 양을 정하고, 그 일은 주로 검증이라 놓친 경우는 크게 줄고 잘못된 판단은 덜 준다. 그래서 단계는 검증이 얼마나 필요한지와 사람이 루프에 있는지로 고르고, 마지막 결정은 자기 작업에서 잰 결과로 한다">
     <a class="card" id="f-1" href="#p2" data-col="원리"><b>effort 는 한 요청에 들일 일의 양이다</b><p>읽는 파일, 돌리는 테스트, 되묻기 전에 가는 단계 수까지 바뀐다</p></a>
     <a class="card" id="f-2" href="#p3" data-col="효과"><b>높은 단계는 놓친 경우를 크게 줄인다</b><p>Fable 5.1 low → max 에서 놓친 경우 59 → 24건, 잘못된 판단 133 → 107건</p></a>
@@ -250,7 +250,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
       <li><span class="g"></span><a href="#p6">6 · 명세의 양</a><span class="f">명세를 자세히 주면 단계 사이의 결과물 차이가 줄어든다</span></li>
       <li><span class="g">비용</span><a href="#p7">7 · 단계 이름과 토큰</a><span class="f">같은 이름의 단계도 모델마다 생각하는 양이 다르다</span></li>
       <li><span class="g">범위</span><a href="#p10">10 · 한계</a><span class="f">숫자는 모두 Anthropic 내부 실행이고 실패 분류는 model judge 의 근사치다</span></li>
-      <li><span class="g"></span><a href="#p11">11 · 읽은 범위</a><span class="f">공식 문서는 Calibrate effort 절과 그 앞 절까지 읽었다</span></li>
+      <li><span class="g"></span><a href="#p11">11 · 읽은 범위</a><span class="f">공식 문서 셋은 effort 를 다룬 절을 읽었다</span></li>
     </ul>
   </div>
   </section>
@@ -436,22 +436,27 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <h2>같은 이름의 단계도 모델마다 생각하는 양이 다르다</h2>
   <p class="lead">effort 는 토큰 사용을 늘리거나 줄이지만 상한을 두지는 않는다. 단계 이름도 모델이 바뀌면 다른 양을 뜻한다.</p>
   <div class="board" data-cols="단계 이름|토큰|상한" data-lanes="1" aria-label="같은 단계 이름이 모델마다 다른 양의 생각을 뜻하고, 단계를 올리면 시도당 토큰이 늘며, 실제로 응답을 끊는 상한은 max_tokens 하나다">
-    <div class="card" id="n-name" data-col="단계 이름"><b>이름이 같아도 양이 다르다</b><p>Opus 5.5 는 같은 단계에서 Opus 5 보다 턴마다 더 생각하고, xhigh 와 max 에서 특히 그렇다</p><p class="ev">Prompting Claude Opus 5.5 §Calibrate effort</p></div>
+    <div class="card" id="n-name" data-col="단계 이름"><b>이름이 같아도 양이 다르다</b><p>Opus 5.5 는 같은 단계에서 Opus 5 보다 턴마다 더 생각하는 경향이 있다. Prompting 문서는 xhigh 와 max 에서 특히 그렇다고 적는다</p><p class="ev">Prompting Claude Opus 5.5 §Calibrate effort, Claude Code 문서 §Choose an effort level</p></div>
     <div class="card t-key" id="n-tok" data-col="토큰"><b>Fable 5.1, 시도당 median 73k → 222k 토큰</b><p>Terminal-Bench 3.0 에서 low 와 max 의 차이로, 약 3배다</p><p class="ev">Thariq 그림 B</p></div>
-    <div class="card t-warn" id="n-cap" data-col="상한"><b>응답을 끊는 상한은 max_tokens 뿐이다</b><p>thinking 도 max_tokens 에 들어가므로, API 를 직접 쓰면 충분히 크게 잡는다</p><p class="ev">Hallie §Effort, model, and token consumption, 공식 문서 §Calibrate effort</p></div>
+    <div class="card t-warn" id="n-cap" data-col="상한"><b>응답을 끊는 상한은 max_tokens 뿐이다</b><p>max_tokens 는 thinking 과 응답 글을 합친 출력 전체의 상한이다. API 를 직접 쓰면 높은 단계에서 크게 잡는다. 에이전트 코딩의 긴 턴에는 Opus 5.5 의 최댓값 128,000 이 Anthropic 시험에서 잘 맞았다</p><p class="ev">Hallie, effort 문서의 Opus 5.5 절, Prompting 문서 §Calibrate effort</p></div>
     <span class="edge" data-from="n-name" data-to="n-tok"></span>
     <span class="edge" data-from="n-tok" data-to="n-cap"></span>
   </div>
   <ul class="notes">
     <li>약 3배는 원문의 두 median 을 나눠 계산했다(222 ÷ 73). 원문에는 이 비율이 없다.</li>
-    <li>공식 문서는 에이전트 코딩의 긴 턴에 Opus 5.5 의 최댓값인 128,000 max_tokens 가 Anthropic 시험에서 잘 맞았다고 적는다.</li>
+    <li>effort 문서는 effort 가 thinking 뿐 아니라 응답 글과 tool call 까지 모든 출력 토큰에 걸린다고 적는다. 낮은 단계에서는 tool call 도 적고 짧아진다.</li>
+    <li>같은 문서는 effort 를 엄격한 토큰 예산으로 보지 않고 행동 신호라고 부른다. 그래서 낮은 단계에서도 Claude 는 충분히 어려운 문제에서 생각하고, 같은 문제의 높은 단계보다 덜 생각한다.</li>
+    <li>effort 문서에 따르면 Opus 5 와 그 전 Opus 의 API 기본값은 high 이고 Opus 5.5 는 medium 이다. 그래서 effort 를 빼고 보내던 요청은 Opus 5.5 에서 한 단계 낮게 돈다.</li>
     <li>Thariq 의 그림 A 에서 Opus 5.5 high 는 Fable 5.1 max 와 비슷한 통과율(58.9% 대 58.0%)을 절반의 토큰으로 냈다.</li>
   </ul>
-  <p class="so">그래서 Opus 5 에서 쓰던 단계를 Opus 5.5 에 그대로 옮기면 턴이 길어지고 출력 토큰이 늘 수 있다. 모델을 바꾸면 단계를 다시 잰다.</p>
+  <p class="so">그래서 Opus 5 에서 명시하던 단계 이름을 Opus 5.5 에 그대로 옮기면 턴이 길어지고 출력 토큰이 늘 수 있다. 반대로 effort 를 빼고 보내던 요청은 한 단계 낮은 medium 으로 돈다. 어느 쪽이든 모델을 바꾸면 단계를 다시 잰다.</p>
   <details class="orig"><summary>원문</summary>
     <p>Prompting Claude Opus 5.5 §Calibrate effort: <span class="q">“At a given level, Claude Opus 5.5 tends to think more per turn than Claude Opus 5, especially at `xhigh` and `max`.”</span></p>
     <p>같은 절: <span class="q">“Effort level names don't correspond to the same amount of thinking across models”</span></p>
     <p>Hallie §Effort, model, and token consumption: <span class="q">“effort shapes token consumption but doesn't limit it. The only hard cap in the system is max_tokens”</span></p>
+    <p>effort 문서 §How effort works: <span class="q">“Because effort applies to every output token, it works with or without thinking. Lower effort also means fewer and terser tool calls.”</span></p>
+    <p>같은 절: <span class="q">“Effort is a behavioral signal, not a strict token budget.”</span></p>
+    <p>effort 문서 §Recommended effort levels for Claude Opus 5.5: <span class="q">“Claude Opus 5.5 supports all five effort levels, and `medium` is the default (Claude Opus 5 and earlier Opus models default to `high`, so a request that omits `effort` runs one level lower than it did on Claude Opus 5).”</span></p>
   </details>
   </section>
 
@@ -468,7 +473,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <div class="card t-quiet" data-lane="문서의 조건" data-col="low"><b>생각을 줄이려면 단계를 먼저 내린다</b><p>비용과 지연이 프롬프트 지시보다 확실하게 준다</p><p class="ev">공식 문서 §Calibrate effort</p></div>
   </div>
   <ul class="notes">
-    <li>Thariq 의 경험칙에는 xhigh 가 없다. 그림과 사례에는 xhigh 실행이 나온다.</li>
+    <li>Thariq 의 경험칙에는 xhigh 가 없다. 그림과 사례에는 xhigh 실행이 나온다. effort 문서는 30분이 넘고 토큰 예산이 수백만 단위인 에이전트 작업과 코딩 작업을 xhigh 의 전형적인 용도로 든다. 이 용도와 아래 줄의 조건을 합치면, 그런 긴 일에서 high 와 xhigh 를 함께 재 보고 향상이 보일 때만 xhigh 를 남긴다.</li>
     <li>Thariq 이 새 기능에 쓰는 루프는 명세를 주고 빠진 것을 인터뷰하게 한 뒤, low 로 구현하고 검토하며 고치고, high 로 검증하고 시험한다.</li>
     <li>Hallie 는 단계를 과제마다 바꾸기보다 하는 일의 종류에 맞춘 일반적인 선호로 정하라고 권한다. Thariq 은 과제에 따라, 대화 중에도 /effort 로 바꿔 보라고 권한다.</li>
   </ul>
@@ -486,7 +491,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <p class="lead">공식 문서의 Calibrate effort 절과 Hallie 의 진단 질문을 한 절차로 이었다. 단계의 순서는 두 글을 엮은 것이고, 원문에 이 순서로 나오지는 않는다.</p>
   <div class="board" data-cols="1|2|3|4|5" data-lanes="1|2" aria-label="맥락을 먼저 점검하고, 기본값 medium 을 명시한 채 자기 평가로 여러 단계를 돌린다. 실패를 덜 시도한 것과 덜 아는 것으로 가르고, 덜 시도했으면 단계를 올려 다시 재고, 덜 알았으면 모델을 바꾼다. 품질 향상이 잰 값으로 확인된 일에만 높은 단계를 남긴다">
     <div class="card t-person" id="s1" data-col="1" data-lane="2"><b>① 맥락부터 본다</b><p>프롬프트가 모호한지, 맞는 tool 과 skill 이 연결됐는지, CLAUDE.md 와 과제 범위가 맞는지</p><p class="ev">Hallie §What to change when Claude gets it wrong</p></div>
-    <div class="card" id="s2" data-col="2" data-lane="2"><b>② medium 을 명시하고 여러 단계를 돌린다</b><p>Opus 5 에서 쓰던 단계를 그대로 옮기지 않는다</p><p class="ev">공식 문서 §Calibrate effort</p></div>
+    <div class="card" id="s2" data-col="2" data-lane="2"><b>② medium 을 명시하고 여러 단계를 돌린다</b><p>Opus 5 에서 쓰던 단계를 그대로 옮기지 않는다</p><p class="ev">공식 문서 §Calibrate effort, effort 문서 §Recommended effort levels for Claude Opus 5.5</p></div>
     <div class="card t-key" id="s3" data-col="3" data-lane="2"><b>③ 실패를 둘로 가른다</b><p>덜 시도했는가, 덜 알았는가</p><p class="ev">Hallie §What to change when Claude gets it wrong</p></div>
     <div class="card t-good" id="s4" data-col="4" data-lane="2"><b>④ 덜 시도했으면 단계를 올린다</b><p>파일을 건너뛰거나 테스트를 돌리지 않았거나 다시 확인하지 않은 경우</p><p class="ev">Hallie §Effort</p></div>
     <div class="card t-warn" id="s5" data-col="4" data-lane="1"><b>④ 덜 알았으면 모델을 바꾼다</b><p>맥락을 다 갖고 분명히 시도했는데도 틀린 경우</p><p class="ev">Hallie, Key takeaways</p></div>
@@ -500,20 +505,26 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   </div>
   <ul class="notes">
     <li>③ 에서 실패를 가를 때 Thariq 의 그림 B 분류를 함께 쓸 수 있다. 테스트가 놓친 버그는 단계를 올리면 많이 줄었고, 잘못 고른 해석은 늘었다.</li><li>공식 문서는 몇 번 돌릴지 정하지 않는다. Thariq 의 통과 횟수는 과제마다 5번 시도한 값이고, 그의 그림은 통과율을 시도당 토큰과 함께 그린다.</li><li>공식 문서는 Opus 5.5 medium 이 Opus 5 high 와 같거나 넘었다고 적고, 여러 코딩 평가에서는 low 도 그 결과에 가까이 가면서 비용이 훨씬 적었다고 적는다. 그렇다면 잴 때 medium 아래 단계도 함께 돌려 볼 만하다.</li>
-    <li>Claude Code 에서는 /effort 로 대화 중에도 단계를 바꾼다. Thariq 은 최신 모델이 Claude Code 에서 단계를 바꿔도 prompt cache 를 깨지 않는다고 적는다.</li>
-    <li>API 에서는 최상위 effort 값을 요청 사이에 바꾸면 prompt cache 가 무효가 된다. 공식 문서는 캐시를 지키는 메시지별 effort 변경(beta)을 쓰라고 하고, 바꾼 값은 다음 변경까지 이어진다.</li>
+    <li>Claude Code 문서에 따르면 Claude Code 에서도 Opus 5.5 의 기본 단계는 medium 이다. 다만 환경 변수, 실행 옵션, /effort 로 고른 값, Opus 5.5 에 따로 저장된 값이 있으면 그 값이 먼저 적용된다. 사용자 설정 파일의 예전 최상위 effortLevel 키는 Opus 5.5 에 적용되지 않는다. 그래서 재기 전에 /effort status 로 지금 적용된 단계를 확인한다.</li>
+    <li>같은 문서에 따르면 내 기계의 대화형 세션에서 /effort 뒤에 low, medium, high, xhigh 를 적으면 그 단계가 이후 세션의 기본값으로 저장된다. max 와 -p 실행에서 고른 값은 그 세션에만 적용된다. 그래서 잴 때는 /effort slider 에서 s 를 눌러 이 세션에만 적용한다(v2.1.257 이상).</li>
+    <li>Thariq 은 최신 모델이 Claude Code 에서 단계를 바꿔도 prompt cache 를 깨지 않는다고 적는다. Claude Code 문서는 /effort 로 단계를 바꿀 때 cache 경고가 뜰 수 있다고 적고, 어느 경우에 뜨는지는 연결된 prompt caching 문서로 넘긴다. 단계마다 새 세션에서 같은 과제를 돌리면 대화 중 변경이 없으므로, cache 차이가 단계 비교에 섞이지 않는다(원문에 없는 귀결).</li>
+    <li>API 에서는 최상위 effort 값을 요청 사이에 바꾸면 prompt cache 가 무효가 된다. effort 문서는 Opus 5.5 에서 메시지별 effort 변경(beta)을 쓰라고 한다. content 가 빈 role: "system" 메시지에 새 단계를 output_config.effort 로 담고, beta header mid-conversation-output-config-2026-07-01 을 붙인다.</li>
+    <li>effort 문서는 그 메시지 앞의 대화가 바뀌지 않으므로 캐시된 prefix 가 그대로 맞는다고 설명한다. 바꾼 단계는 다음 변경까지 이어진다.</li>
   </ul>
   <p class="so">평가 세트가 없다면 같은 과제를 두 단계에서 여러 번씩 돌려 실패를 ③ 의 두 종류로 나눠 보는 것부터 시작한다. 덜 시도한 실패가 높은 단계에서 꾸준히 사라지고 늘어난 토큰과 시간을 감당할 만하면, 그 일의 기본 단계를 한 단계 올린다.</p>
   <details class="orig"><summary>원문</summary>
     <p>공식 문서 §Calibrate effort: <span class="q">“Start at `medium`, the default on Claude Opus 5.5 (Claude Opus 5 defaults to `high`), set it explicitly, and test several levels against your own evals rather than carrying over the setting you used on Claude Opus 5.”</span></p>
     <p>Hallie §What to change when Claude gets it wrong: <span class="q">“If you're increasing effort on a task that shouldn't need it, the fix is often upstream, in your context, your CLAUDE.md, or how the task is scoped.”</span></p>
     <p>Hallie §Effort: Claude didn’t try hard enough: <span class="q">“Pick a higher effort level if Claude got it wrong by skipping a file, not running the tests, or not double-checking its work.”</span></p>
+    <p>Claude Code 문서 §Adjust effort level: <span class="q">“`s` in the `/effort` slider or the `/model` picker: apply the level to this session only. Requires Claude Code v2.1.257 or later”</span></p>
+    <p>effort 문서 §Per-message effort (beta): <span class="q">“Add a `role: "system"` message with empty `content` and the new level in `output_config.effort`.”</span></p>
+    <p>같은 절: <span class="q">“The new level then holds until a later message changes it. Everything before that message is unchanged, so the cached prefix still matches.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="critique" data-label="한계">
   <h2>숫자는 Anthropic 내부 실행이라 자기 작업에서 다시 재야 한다</h2>
-  <p class="lead">세 글 모두 Anthropic 사람이 쓴 글이고, 숫자는 Anthropic 의 실행에서 나왔다. 아래는 그 숫자를 자기 결정에 쓸 때 걸리는 조건이다.</p>
+  <p class="lead">다섯 자료 모두 Anthropic 이 낸 글과 문서이고, 숫자는 Anthropic 의 실행에서 나왔다. 아래는 그 숫자를 자기 결정에 쓸 때 걸리는 조건이다.</p>
   <ul class="points">
     <li><b>내부 실행과 꺼 둔 안전 장치</b>Thariq 의 숫자는 과제마다 5번 시도한 내부 실행이고, Fable 5.1 은 운영 안전 개입을 끈 채 돌렸다. 공개 leaderboard 나 출시 글의 값과 맞지 않으니, 두 값을 섞어 비교하지 않는다.</li>
     <li><b>model judge 의 실패 분류</b>그림 B 의 실패 종류는 model judge 가 붙인 근사치다. 자기 작업의 실패는 직접 읽고 가른다.</li>
@@ -521,26 +532,30 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li><b>조건이 다른 Opus 5.5 실행</b>그림 A 의 Opus 5.5 는 약 3주 뒤에 응답 128k 토큰 제한과 GitHub·PyPI 접근 없이 돌렸다. 다른 모델과의 차이 일부는 이 조건에서 왔을 수 있다.</li>
     <li><b>Opus 5.5 이전의 글</b>Hallie 의 글은 2026-07-07 에 나왔고 예로 든 모델은 Opus 4.8 과 4.7 이다. 기본값을 쓰라는 권고는 기본값이 medium 으로 내려간 Opus 5.5 에서 다시 확인한다.</li>
     <li><b>그림만으로 읽은 곡선</b>Hallie 의 토큰 곡선 그림은 설명용이고 실측이 아니라고 캡션에 적혀 있다. 7배라는 값도 한 예시 그림의 캡션이다.</li>
-    <li><b>Claude Code 의 단계 목록</b>세 글은 Claude Code 의 /effort 가 어떤 단계를 받는지 나열하지 않는다. 쓰는 버전의 /effort 에서 xhigh 를 고를 수 있는지 직접 확인한다.</li>
+    <li><b>Claude Code 의 단계 목록</b>Claude Code 문서는 Opus 5.5, Sonnet 5.5, Opus 5, Opus 4.8, Opus 4.7, Fable 5.1 등의 /effort 가 low, medium, high, xhigh, max 다섯 단계를 받는다고 적는다. Opus 4.6 과 Sonnet 4.6 에는 xhigh 가 없고, 모델이 받지 않는 단계를 고르면 그 아래에서 가장 높은 단계로 돈다. 조직이나 자기 설정의 effort 상한이 있으면 그 위 단계는 /effort 목록에 나오지 않는다. 그래서 xhigh 가 보이지 않으면 먼저 모델이 xhigh 를 받는지 보고, 그다음 조직 상한과 maxEffortLevel 설정을 본다.</li>
   </ul>
   <details class="orig"><summary>원문</summary>
     <p>Thariq 각주 1: <span class="q">“these come from our own internal runs, 5 attempts per task, with our production safety interventions off for Fable 5.1”</span></p>
     <p>Hallie: <span class="q">“Curves are for illustration purposes only, shown for a single task simple enough to be accomplished quickly by both models. They do not represent real benchmark data.”</span></p>
+    <p>Claude Code 문서 §Adjust effort level: <span class="q">“If you set a level the active model does not support, Claude Code falls back to the highest supported level at or below the one you set. For example, `xhigh` runs as `high` on Opus 4.6.”</span></p>
+    <p>Claude Code 문서 §Organization effort limits: <span class="q">“Levels above the cap aren't offered in the `/effort` picker, and naming a higher level with `--effort` or `/effort` runs at the cap instead.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="setup" data-label="읽은 범위">
-  <h2>블로그 글 둘은 전문을, 공식 문서는 effort 절까지 읽었다</h2>
-  <p class="lead">그림은 HTML 에 글자로 남은 값만 옮겼다. 링크된 effort 문서는 열지 않았다.</p>
+  <h2>블로그 글 둘은 전문을, 공식 문서 셋은 effort 를 다룬 절을 읽었다</h2>
+  <p class="lead">그림은 HTML 에 글자로 남은 값만 옮겼다. Claude Code 의 동작은 문서에서 읽었고 Claude Code 를 실행해 보지는 않았다.</p>
   <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료. 열지 않은 것마다 얕아진 장을 적었다">
     <div class="card" data-col="읽음"><b>Spending your effort 전문</b><p>그림 A·B·C 의 aria-label 과 SVG 글자</p></div>
     <div class="card" data-col="읽음"><b>Choosing a Claude model and effort level 전문</b><p>그림은 캡션만</p></div>
     <div class="card" data-col="읽음"><b>Prompting Claude Opus 5.5</b><p>머리말, Capabilities relevant to prompting, Calibrate effort</p></div>
-    <div class="card t-quiet" data-col="열지 않음"><b>effort 문서의 권장 단계 절과 메시지별 변경 절</b><p class="ev">7장과 9장의 API 설명이 얕다</p></div>
+    <div class="card" data-col="읽음"><b>Effort</b><p>단계 표, Opus 5.5 권장 단계, tool use 와 thinking, 대화 중 변경, best practices</p></div>
+    <div class="card" data-col="읽음"><b>Claude Code Model configuration</b><p>Adjust effort level, Organization effort limits, fallback 뒤의 단계</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>Claude Code 의 prompt caching 문서</b><p class="ev">9장이 cache 경고가 뜨는 조건을 다루지 않는다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>그림 A 의 점 좌표와 그림 B·C 의 다른 모델 탭</b><p class="ev">5장과 3장이 Fable 5.1 만 다룬다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>빌드 예시 화면</b><p class="ev">6장은 본문 설명과 시간만 쓴다</p></div>
   </div>
-  <ul class="notes"><li>공식 문서의 나머지 절(thinking 끄기, 무인 실행, 진행 보고 등)은 effort 단계 선택과 거리가 있어 읽지 않았다.</li></ul>
+  <ul class="notes"><li>Prompting Claude Opus 5.5 의 나머지 절(thinking 끄기, 무인 실행, 진행 보고 등)은 effort 단계 선택과 거리가 있어 읽지 않았다.</li><li>Effort 문서의 다른 모델별 권장 단계 절은 훑기만 했고, Model configuration 의 effort 밖 절(모델 alias, 확장 context 등)은 읽지 않았다.</li></ul>
   </section>
 
   <section class="slide" data-role="sources" data-label="출처">
@@ -549,6 +564,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li><a href="https://claude.dev/blog/spending-your-effort/">w1 · Using Claude Code: Spending your effort</a> <span class="t">Anthropic 의 Thariq Shihipar, Claude Code 블로그 Engineering, 2026-09-25 게시. 2026-10-25 사본</span></li>
     <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5">w2 · Prompting Claude Opus 5.5, §Calibrate effort</a> <span class="t">Anthropic 의 Claude Platform 공식 문서. 2026-10-25 사본</span></li>
     <li><a href="https://claude.com/resources/articles/claude-model-and-effort-level-in-claude-code">w3 · Choosing a Claude model and effort level in Claude Code</a> <span class="t">Anthropic Claude Code 팀의 Lydia Hallie, 2026-07-07 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://platform.claude.com/docs/en/build-with-claude/effort">w4 · Effort</a> <span class="t">Anthropic 의 Claude Platform 공식 문서. 2026-10-25 사본</span></li>
+    <li><a href="https://code.claude.com/docs/en/model-config">w5 · Model configuration, effort 를 다룬 절들</a> <span class="t">Anthropic 의 Claude Code 공식 문서. 2026-10-25 사본</span></li>
   </ul>
   </section>
 
