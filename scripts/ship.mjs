@@ -51,7 +51,12 @@ const sha = createHash('sha256').update(readFileSync(docPath)).digest('hex');
 const lastReview = (run.reviews || []).at(-1);
 const unreviewed = lastReview && lastReview.sha !== sha;
 const autoSwitch = (run.modelSwitches || []).filter((m) => m.source === 'auto');
-const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question ?? x.item ?? x.text, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, (x.default ?? x.pick) && `researcher 의 추천: ${x.default ?? x.pick}`].filter(Boolean).join(' — ')));
+const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => {
+  if (typeof x === 'string') return x;
+  const head = x.question ?? x.item ?? x.text ?? (x.what && (x.choice ? `${x.what}: ${x.choice}` : x.what));
+  const parts = [head, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, (x.default ?? x.pick) && `researcher 의 추천: ${x.default ?? x.pick}`, x.why && `이유: ${x.why}`].filter(Boolean);
+  return parts.length ? parts.join(' — ') : Object.values(x).filter((v) => typeof v === 'string').join(' — ');
+});
 const needs = asList(run.needs_owner), unfixed = asList(run.unfixed);
 if (autoSwitch.length) die(`모델이 저절로 바뀐 채 쓰였다(${autoSwitch.map((m) => `${m.from} → ${m.to}`).join(', ')}). 바뀐 모델이 쓴 문서는 내보내지 않는다`);
 const isDraft = needs.length > 0 || unfixed.length > 0 || unreviewed;
@@ -66,7 +71,8 @@ const amend = current === branch && sh('git', ['log', '-1', '--format=%s']).stdo
 const step = (c, a) => { const r = sh(c, a); if (r.status !== 0) die(`${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`); return r; };
 if (current !== branch) {
   step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
-  step('git', ['switch', '-c', branch, 'origin/main']);
+  const known = sh('git', ['rev-parse', '--verify', '-q', `refs/heads/${branch}`]).status === 0;
+  step('git', known ? ['switch', branch] : ['switch', '-c', branch, 'origin/main']);
 }
 
 // 4. seq 는 저장소에 넣은 순서다. 새 문서가 그사이 들어온 문서와 겹치면 뒤로 옮긴다. 고치는 문서는 그대로 둔다.
@@ -127,12 +133,15 @@ ${isDraft ? '\n위의 이유로 draft 로 열었다.\n' : ''}
 const existingPr = sh('gh', ['pr', 'list', '-R', repo, '--head', branch, '--state', 'open', '--json', 'url', '-q', '.[0].url']);
 if (existingPr.status === 0 && existingPr.stdout.trim()) {
   step('gh', ['pr', 'edit', branch, '-R', repo, '--body', body]);
-  if (isDraft) sh('gh', ['pr', 'ready', branch, '-R', repo, '--undo']);
+  sh('gh', ['pr', 'ready', branch, '-R', repo, ...(isDraft ? ['--undo'] : [])]);
   console.log(`PR 갱신: ${existingPr.stdout.trim()}`);
 } else {
   const pr = step('gh', ['pr', 'create', '-R', repo, '--base', 'main', '--head', branch, '--title', run.commitSubject, '--body', body, ...(isDraft ? ['--draft'] : [])]);
   console.log(`PR: ${pr.stdout.trim().split('\n').pop()}${isDraft ? ' (draft)' : ''}`);
 }
+
+// 끝난 실행의 worktree 가 브랜치를 쥐고 있으면, 같은 PR 을 고치는 다음 실행이 그 브랜치로 바꾸지 못한다.
+sh('git', ['switch', '-q', '--detach']);
 
 // 이 저장소 자체를 출처로 삼은 문서는 check-claims 가 체크아웃을 찾도록 지금 작업 트리를 넘긴다.
 function selfRepo() {

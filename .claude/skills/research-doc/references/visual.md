@@ -37,7 +37,7 @@ loop closes. If the sentence will not come, the board has no claim in it.
 
 A bold name, one to three short lines, then a gray `.ev` line with the evidence: whose claim,
 which section, which run. `card-length` blocks prose poured into a card. A number card names
-its subject and unit (`Fable 5.1 low → max, 59 → 24건`), because claims are extracted from the
+its subject and unit (`Qux v2, p99 지연 120 → 85ms`), because claims are extracted from the
 card's text without the board around it.
 
 Tones mean the same thing in every document: `t-key` the card the chapter argues for (one per board), `t-good` what improves,

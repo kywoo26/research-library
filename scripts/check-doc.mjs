@@ -40,6 +40,8 @@ const PROCESS_NARRATION = [
 // 다시 쓰이므로 날짜로 가를 수 없다. 표시 없이 쓸 수 있는 마지막 날은 2026-10-25 다.
 const BOARD_FROM = '2026-10-26';
 const MAX_LEAD_SENTENCES = 2;
+// 장 제목은 주장 한 문장이다. 길어지면 주장 둘이 한 줄에 들어가 있거나 lead 의 말이 올라온 것이다.
+const MAX_H2_CHARS = 45;
 // 상자는 이름, 한두 줄, 근거 줄이다. 상자 안에 문단이 들어가면 판이 글 벽이 된다.
 const CARD_TITLE = 50, CARD_LINE = 120, CARD_LINES = 4;
 const BOARD_CARDS = 14, BOARD_EDGES = 8;
@@ -89,6 +91,7 @@ const RULES = {
   'board-format': `${BOARD_FROM} 이후 문서는 board 셸(<html data-format="board">)로 쓰였는가`,
   'chapter-roles': 'board 문서: 첫 장이 data-role="cover" 이고 data-role="critique" 와 data-role="sources" 장이 있는가 (eyebrow-set 대신)',
   'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신)`,
+  'h2-length': `board 문서: 장 제목(h2)이 공백 뺀 ${MAX_H2_CHARS}자 이하인가 (sources 장은 빼고 센다)`,
   'board-refs': 'board 문서: 상자의 data-col/data-lane 이 판의 data-cols/data-lanes 안에 있는가, .edge 의 data-from/data-to 가 같은 판의 상자 id 인가, 판에 aria-label 이 있는가, id 가 문서 안에서 겹치지 않는가',
   'card-length': `board 문서: 상자 제목(b)이 공백 뺀 ${CARD_TITLE}자, 줄(p, li) 하나가 ${CARD_LINE}자 이하이고, 줄이 ${CARD_LINES}개 이하인가. 문단은 상자에 넣지 않는다`,
   'board-size': `board 문서: 판 하나에 상자 ${BOARD_CARDS}개, 화살표 ${BOARD_EDGES}개, 주장 상자(t-key) 1개 이하인가`,
@@ -233,7 +236,12 @@ function checkBoardDoc(html, meta, add) {
       return;
     }
     const lacks = [];
-    if (!/<h2\b/.test(s)) lacks.push('h2');
+    const h2 = /<h2\b[^>]*>([\s\S]*?)<\/h2>/.exec(s);
+    if (!h2) lacks.push('h2');
+    else if (roles[k] !== 'sources') {
+      const chars = textOf(h2[1]).replace(/\s/g, '').length;
+      if (chars > MAX_H2_CHARS) add('h2-length', `${n}장 h2 「${textOf(h2[1]).slice(0, 40)}…」 이 공백 뺀 ${chars}자다 (상한 ${MAX_H2_CHARS}). 주장 하나만 남기고 나머지는 p.lead 나 판으로 보낸다`);
+    }
     if (roles[k] !== 'sources') {
       const lead = /<p\b[^>]*class="[^"]*\blead\b[^"]*"[^>]*>([\s\S]*?)<\/p>/.exec(s);
       if (!lead) lacks.push('p.lead');

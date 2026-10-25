@@ -1,24 +1,18 @@
-<!-- 견본: 경로 추적(walkthrough). 하나의 경로를 <pre> 로 끝까지 따라가고, 원문 위치(§)는 trace 안에 보이게 둔다 -->
-<section class="slide" data-role="trace" data-label="단계가 정해지는 곳">
-  <h2>Claude Code 는 세 곳을 차례로 보고 처음 정해진 effort 단계를 쓴다</h2>
-  <p class="lead">세션의 단계는 아래 순서로 정해진다. skill 과 subagent 의 frontmatter 는 도는 동안 그 결과를 덮는다.</p>
-  <pre><span class="c">// Claude Code 문서 §Adjust effort level. 위에서부터 보고 처음 정해진 것을 쓴다</span>
-<b>1 명시적 선택</b>    CLAUDE_CODE_EFFORT_LEVEL · --effort · 세션의 /effort
-  └ 없으면
-<b>2 저장한 설정</b>    모델마다 저장한 단계 · settings 의 effortLevel 키
-  └ 없으면
-<b>3 모델의 기본값</b>  Opus 5.5 · Sonnet 5.5 · Haiku 5.5 → medium
-                 Opus 4.7 → xhigh, 그 밖의 effort 지원 모델 → high
+<!-- 견본: 경로 추적. 2026-09-30 claude-sonnet-5-5-migration. 바꿀 코드를 diff 로 따라가고, 원문 위치(§)는 trace 안에 보이게 둔다 -->
+<section class="slide" data-role="trace" data-label="thinking">
+  <h2>Sonnet 5.5 에서 thinking 을 끄던 요청은 between_tools 로 바꾼다</h2>
+  <p class="lead">Sonnet 5.5 는 thinking 을 끄는 disabled 를 받지 않는다. migration guide 의 예제는 그 자리에 between_tools 를 쓰고 effort 를 함께 낮춘다.</p>
+  <pre><span class="c"># migration guide §Turn off up-front thinking 의 Before → After</span>
+<span class="r">- thinking={"type": "disabled"},</span>          <span class="c"># Sonnet 5.5 에서 400</span>
+<span class="k">+ thinking={"type": "between_tools"},</span>
+<span class="r">- output_config={"effort": "xhigh"},</span>
+<span class="k">+ output_config={"effort": "high"},</span>       <span class="c"># between_tools 는 low · medium · high 만</span>
 
-<span class="c">// §Set the effort level</span>
-skill · subagent frontmatter 의 effort   도는 동안 세션 단계를 덮는다. 환경 변수는 못 덮는다
-<span class="c">// §Adjust effort level</span>
-/effort 에서 Enter                       2 에 저장한다
-/effort 에서 s                           이번 세션에만 쓴다 (v2.1.257 이상)
-max                                      환경 변수로 정하지 않으면 이번 세션에만 쓴다</pre>
-  <ul class="notes"><li>1 안의 셋 사이 순서는 이 trace 가 정하지 않는다.</li></ul>
+<span class="c"># 같은 절. between_tools 와 함께 보내면 400 인 것</span>
+display · budget_tokens · block_binding
+대화 중간에 메시지마다 바꾼 output_config.effort</pre>
+  <ul class="notes"><li>Sonnet 5 로 fallback 된 between_tools 요청은 거기서 disabled 로 돈다.</li></ul>
   <details class="orig"><summary>원문</summary>
-    <p>§Adjust effort level: <span class="q">“Claude Code resolves the session's effort level in this order, taking the first that applies:”</span> <span class="q">“3. The model's default effort: `high` on every model that supports effort, except that Opus 5.5, Sonnet 5.5, and Haiku 5.5 default to `medium`, Opus 4.7 defaults to `xhigh`”</span></p>
-    <p>§Set the effort level: <span class="q">“Frontmatter effort applies when that skill or subagent is active, overriding the session level but not the environment variable.”</span></p>
+    <p>§Turn off up-front thinking: <span class="q">“It's accepted at <code>low</code>, <code>medium</code>, and <code>high</code> effort. At <code>xhigh</code> or <code>max</code>, it returns a 400 error.”</span> <span class="q">“<code>between_tools</code> takes no other field: <code>display</code>, <code>budget_tokens</code>, or <code>block_binding</code> sent with it returns a 400 error.”</span></p>
   </details>
 </section>

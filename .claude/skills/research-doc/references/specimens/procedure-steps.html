@@ -1,20 +1,19 @@
-<!-- 견본: 절차. 번호 단계와 되돌아가는 화살표(아래로 돌아간다), 그리고 p.so -->
-<section class="slide" data-role="procedure" data-label="만드는 순서">
-  <h2>글쓴이는 검증 단계에서만 effort 를 high 로 올린다</h2>
-  <p class="lead">글쓴이가 새 기능을 만들 때 쓰는 순서다. 원문은 이것을 loop 라고 부른다.</p>
-  <div class="board" data-cols="1|2|3|4" aria-label="새 기능을 만드는 네 단계. 명세를 주고, low 로 구현하고, 사람이 요지를 검토한 뒤 필요하면 low 구현으로 되돌아가고, 마지막에 high 로 검증한다">
-    <div class="card" id="l1" data-col="1"><b>① 명세 주기</b><p>빠진 세부를 Claude 가 나에게 묻게 한다</p><p class="ev">원문은 이 단계의 effort 를 적지 않는다</p></div>
-    <div class="card" id="l2" data-col="2"><b>② low 로 구현</b><p>빠르게 첫 판을 받는다</p></div>
-    <div class="card t-person" id="l3" data-col="3"><b>③ 요지 검토</b><p>맞게 잡았는지 사람이 본다</p></div>
-    <div class="card t-key" id="l4" data-col="4"><b>④ high 로 검증</b><p>검증하고 테스트한다</p></div>
-    <span class="edge" data-from="l1" data-to="l2"></span>
-    <span class="edge" data-from="l2" data-to="l3"></span>
-    <span class="edge" data-from="l3" data-to="l4"></span>
-    <span class="edge" data-from="l3" data-to="l2">필요하면 low 로 다시 고친다</span>
+<!-- 견본: 절차. 2026-08-28 opsharness-self-evolving-rca. 번호 단계와 되돌아가는 화살표(아래로 돌아간다) -->
+<section class="slide" data-role="procedure" data-label="자가진화">
+  <h2>게이트에 걸린 제안은 evolver 로 돌아가 최대 세 번 다시 시도한다</h2>
+  <p class="lead">진단이 끝난 세션에서 제안을 만들고, 이중 게이트를 넘은 것만 승격한다. 세 번째 라운드에도 넘지 못하면 폐기한다.</p>
+  <div class="board" data-cols="1|2|3|4" aria-label="OpsHarness 자가진화. 사용자 피드백으로 라벨을 붙이고, 제안을 합성하고, inner 와 outer 게이트를 거쳐 승격한다. 게이트에 걸리면 실패 케이스를 negative 로 받아 합성 단계로 되돌아간다">
+    <div class="card t-person" id="o1" data-col="1"><b>① 라벨</b><p>진단이 끝나면 사용자가 thumbs-up · thumbs-down 과 실제 root cause 를 붙인다</p><p class="ev">§V-A</p></div>
+    <div class="card" id="o2" data-col="2"><b>② 제안 합성</b><p>맞은 실행의 공통점과 틀린 실행의 교정을 원자 제안으로 만든다</p><p class="ev">§V-B</p></div>
+    <div class="card t-key" id="o3" data-col="3"><b>③ 이중 게이트</b><p>inner 는 원본 케이스에서 정확도나 비용의 엄격한 개선, outer 는 보류 testbed 에서 비후퇴</p><p class="ev">§V-C</p></div>
+    <div class="card t-good" id="o4" data-col="4"><b>④ 승격</b><p>두 게이트를 넘은 제안만 승격된다</p></div>
+    <span class="edge" data-from="o1" data-to="o2"></span>
+    <span class="edge" data-from="o2" data-to="o3"></span>
+    <span class="edge" data-from="o3" data-to="o4"></span>
+    <span class="edge" data-from="o3" data-to="o2">실패 케이스를 negative 로, 최대 3라운드</span>
   </div>
-  <ul class="notes"><li>블로그 §Takeaways 의 네 단계다. 벤치마크는 단계를 고정해 돌렸으므로 이 순서 자체를 잰 결과는 없다.</li></ul>
-  <p class="so">구현을 맡겨 두고 끝난 뒤에 볼 생각이라면 low 보다 medium 이 맞다.</p>
+  <ul class="notes"><li>진화 루프는 무감독이 아니다. 사람이 케이스마다 정답을 대 줘야 돈다.</li></ul>
   <details class="orig"><summary>원문</summary>
-    <p>블로그 첫머리: <span class="q">“For normal software engineering, I’m running a loop of getting the model to interview me then implementing on low effort, reviewing what it built, and then running verification on high effort.”</span></p>
+    <p>Section 5.3: <span class="q">“If a gate fails, the proposal returns to the evolver, which refines it with the failing cases as fresh negatives and retries, up to three rounds.”</span></p>
   </details>
 </section>

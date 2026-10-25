@@ -1,53 +1,48 @@
-<!-- 견본: 결과. 표에서 그린 선 그림과 막대 그림, 주장 상자에 붙는 원문 밖 반응의 자리. 그림의 출처는 figcaption, 판의 출처는 ul.notes -->
-<section class="slide" data-role="result" data-label="곡선">
-  <h2>Opus 5.5 의 통과율은 medium 위에서 오르는 폭이 작아진다</h2>
-  <p class="lead">Terminal-Bench 3.0 에서 단계를 올릴 때마다 통과율과 시도당 토큰이 함께 올랐다. Opus 5.5 high 는 Fable 5.1 max 와 비슷한 점수를 토큰 절반으로 냈다.</p>
+<!-- 견본: 결과. 2026-09-30 claude-opus-5-5-introduction. 표에서 그린 선과 막대. 그림의 출처는 figcaption 에 둔다 -->
+<section class="slide" data-role="result" data-label="Coding 차트">
+  <h2>Opus 5.5 medium 이 Opus 5 max 를 0.19배 비용으로 넘는다</h2>
+  <p class="lead">Terminal-Bench 4.0 에서 Opus 5.5 는 다섯 effort 모두 같은 단계의 Opus 5 보다 점수가 높았다. 같은 effort 끼리 견줘도 비용은 모두 낮았다.</p>
   <div class="split">
     <div class="panel">
       <figure class="plot">
-        <p class="fig-title">단계별 통과율과 시도당 토큰</p>
-        <p class="fig-sub">Terminal-Bench 3.0, 과제 70개. 가로축은 시도당 토큰의 중앙값(log), 점은 왼쪽부터 low, medium, high, xhigh, max</p>
-        <table class="plot-data" data-series="0" data-x="2" data-y="3" data-xlog data-emph="Opus 5.5|Fable 5.1" data-ref="op-high fa-max" data-ref-label="점수는 비슷, 토큰은 절반">
-          <thead><tr><th>모델</th><th>단계</th><th>시도당 토큰</th><th>통과율</th></tr></thead>
+        <p class="fig-title">Terminal-Bench 4.0 의 점수와 시도당 비용</p>
+        <p class="fig-sub">가로축은 시도당 비용(log), 점은 왼쪽부터 low, medium, high, xhigh, max</p>
+        <table class="plot-data" data-series="0" data-x="2" data-y="3" data-xlog data-emph="Opus 5.5|Opus 5" data-ref="o55-med o5-max" data-ref-label="비용 0.19배">
+          <thead><tr><th>모델</th><th>effort</th><th>시도당 비용</th><th>점수</th></tr></thead>
           <tbody>
-            <tr data-label="Opus 5.5 low 36.6%"><td>Opus 5.5</td><td>low</td><td>약 43k</td><td>36.6%</td></tr>
-            <tr><td>Opus 5.5</td><td>medium</td><td>약 78k</td><td>약 54.6%</td></tr>
-            <tr id="op-high" data-label="high 58.9%"><td>Opus 5.5</td><td>high</td><td>약 103k</td><td>58.9%</td></tr>
-            <tr><td>Opus 5.5</td><td>xhigh</td><td>약 180k</td><td>약 62.6%</td></tr>
-            <tr data-label="max 65.7%"><td>Opus 5.5</td><td>max</td><td>약 276k</td><td>65.7%</td></tr>
-            <tr><td>Fable 5.1</td><td>low</td><td>약 64k</td><td>약 32.0%</td></tr>
-            <tr><td>Fable 5.1</td><td>medium</td><td>약 88k</td><td>약 40.0%</td></tr>
-            <tr><td>Fable 5.1</td><td>high</td><td>약 119k</td><td>약 46.3%</td></tr>
-            <tr><td>Fable 5.1</td><td>xhigh</td><td>약 175k</td><td>약 54.0%</td></tr>
-            <tr id="fa-max" data-label="Fable 5.1 max 58.0%"><td>Fable 5.1</td><td>max</td><td>약 206k</td><td>58.0%</td></tr>
+            <tr><td>Opus 5.5</td><td>low</td><td>$1.29</td><td>38.5%</td></tr>
+            <tr id="o55-med" data-label="Opus 5.5 medium 57.6%"><td>Opus 5.5</td><td>medium</td><td>$2.94</td><td>57.6%</td></tr>
+            <tr><td>Opus 5.5</td><td>high</td><td>$3.88</td><td>64.2%</td></tr>
+            <tr><td>Opus 5.5</td><td>xhigh</td><td>$7.35</td><td>66.4%</td></tr>
+            <tr><td>Opus 5.5</td><td>max</td><td>$11.24</td><td>64.8%</td></tr>
+            <tr><td>Opus 5</td><td>low</td><td>$4.25</td><td>28.5%</td></tr>
+            <tr><td>Opus 5</td><td>medium</td><td>$7</td><td>41.2%</td></tr>
+            <tr><td>Opus 5</td><td>high</td><td>$10.64</td><td>47.0%</td></tr>
+            <tr><td>Opus 5</td><td>xhigh</td><td>$13.48</td><td>50.6%</td></tr>
+            <tr id="o5-max" data-label="Opus 5 max 52.3%"><td>Opus 5</td><td>max</td><td>$15.83</td><td>52.3%</td></tr>
           </tbody>
         </table>
-        <figcaption>블로그 FIG A 를 다시 그렸다. 끝점과 Opus 5.5 high, Fable 5.1 max 는 원문 그림의 설명문 값이고, 나머지는 원문 SVG 의 점 좌표를 축 눈금으로 환산한 근삿값이다.</figcaption>
+        <figcaption>원문 차트 Terminal-Bench 4.0 Accuracy vs Cost 의 aria-label 값이다. 같은 차트의 다른 모델 셋은 뺐다.</figcaption>
       </figure>
     </div>
     <div class="panel">
       <figure class="plot">
-        <p class="fig-title">Opus 5.5 에서 단계를 하나 올릴 때 오른 폭</p>
-        <table class="plot-data" data-kind="bars" data-cat="0" data-y="1" data-emph="low → medium">
-          <thead><tr><th>구간</th><th>통과율</th><th>더 쓴 토큰</th></tr></thead>
+        <p class="fig-title">같은 effort 에서 Opus 5.5 의 비용은 Opus 5 의 몇 배인가</p>
+        <table class="plot-data" data-kind="bars" data-cat="0" data-y="1" data-emph="medium">
+          <thead><tr><th>effort</th><th>비용 비율</th></tr></thead>
           <tbody>
-            <tr><td>low → medium</td><td>+18%p</td><td>약 35k</td></tr>
-            <tr><td>medium → high</td><td>+4%p</td><td>약 25k</td></tr>
-            <tr><td>high → xhigh</td><td>+4%p</td><td>약 77k</td></tr>
-            <tr><td>xhigh → max</td><td>+3%p</td><td>약 96k</td></tr>
+            <tr><td>low</td><td>0.30배</td></tr>
+            <tr><td>medium</td><td>0.42배</td></tr>
+            <tr><td>high</td><td>0.36배</td></tr>
+            <tr><td>xhigh</td><td>0.55배</td></tr>
+            <tr><td>max</td><td>0.71배</td></tr>
           </tbody>
         </table>
-        <figcaption>왼쪽 그림의 근삿값으로 이 문서가 계산했다. 위쪽 세 구간끼리는 견줄 수 없고, low → medium 이 가장 크다는 것만 분명하다.</figcaption>
+        <figcaption>왼쪽 그림의 시도당 비용을 나눈 값으로 이 문서가 계산했다. 원문에는 이 비율이 없다.</figcaption>
       </figure>
     </div>
   </div>
-  <div class="board dense" data-cols="1|2" aria-label="high 에서 max 까지 가는 값과 그것을 고를 만한 일">
-    <div class="card t-warn" id="hm-cost" data-col="1"><b>Opus 5.5 를 high 에서 max 로 올리면</b><p>토큰은 약 2.7배가 되고, 통과율은 약 7%p 오른다</p></div>
-    <div class="card react" data-on="hm-cost"><span class="who">자리 예시 · effort 원문에는 외부 반응이 없다</span><p>누가, 어디서, 언제 이 주장에 무엇이라고 했는지 한 줄</p><p class="check"><span class="verdict open">자리</span>그 말을 원문과 맞춰 본 결과 한 줄</p></div>
-    <div class="card t-key" id="hm-use" data-col="2"><b>실패 하나가 비싼 일에서 고를 만하다</b><p>보안 점검, 운영 중인 코드의 버그 수정</p></div>
-    <span class="edge" data-from="hm-cost" data-to="hm-use"></span>
-  </div>
   <details class="orig"><summary>원문</summary>
-    <p>FIG A 설명문: <span class="q">“Opus 5.5 at high matches Fable 5.1 at max (58.9% against 58.0%) on half the tokens. Fable 5 levels off at 43.4% from xhigh to max.”</span></p>
+    <p>각주 1: <span class="q">“Terminal-Bench 4.0: The standard error is ±2.6 pts for Claude Opus 5.5 and ±1.6–2 pts for the other Claude models.”</span></p>
   </details>
 </section>
