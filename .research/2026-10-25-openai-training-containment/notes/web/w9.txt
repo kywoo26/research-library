@@ -1,0 +1,2 @@
+[50216866] aesthesia 2026-10-23T23:39:23.000Z depth=2 points=None
+There may come a point where they decide they need to do that. As it stands, it appears that they believe they can get the necessary level of security without physical air-gapping, which is likely substantially more costly (especially in terms of iteration speed).

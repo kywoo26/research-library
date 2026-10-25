@@ -1,0 +1,2 @@
+[50216357] betterunix2 2026-10-23T22:40:46.000Z depth=2 points=None
+I am unconvinced.  Why can't they just set up workstations on the airgapped network to run and monitor their experiments?

@@ -1,0 +1,3 @@
+[50216032] dist-epoch 2026-10-23T22:08:40.000Z depth=1 points=None
+> These agents found several ways to chain vulnerabilities into VM escapes.  Where these issues affected open-source components we use, we're contributing the corresponding patches back to the underlying projects, including fixes to software components like Kata Containers, gVisor, and Moby/Docker. We have also disclosed numerous other vulnerabilities that have not yet been made public.
+Ok, so we have a number of non-public yet VM escapes. Not sure it's the greatest idea letting everyone know they exist.

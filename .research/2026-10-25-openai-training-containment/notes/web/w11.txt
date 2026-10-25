@@ -1,0 +1,2 @@
+[50215860] aesthesia 2026-10-23T21:50:31.000Z depth=3 points=None
+It's not hard to imagine that two agents that share model weights might naturally settle on the same protocol, even without needing to communicate beforehand. Besides, this is a red-teaming exercise meant to surface potential vulnerabilities. You want to test your defenses in scenarios where the attacker has advantage in order to make sure they're sufficiently robust.
