@@ -1,0 +1,9 @@
+{
+  "title": "teamai-cli 가 팀의 agent 설정을 git 저장소와 PR 로 나눠 주는 방식",
+  "date": "2026-10-25",
+  "seq": 40,
+  "summary": "teamai-cli 는 팀의 agent 설정을 PR 로 올리고 세션 시작 pull 로 내려받는다. pull 은 멤버가 고친 사본을 남기고 push 는 팀 변경을 덮을 때 경고만 하므로, 팀 저장소의 PR 리뷰가 배포 승인 자리에 선다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "explainer"
+}
