@@ -55,12 +55,19 @@ html { scroll-behavior:smooth; }
 body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
 /* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
 h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
-.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px; padding:8px 28px; font-size:13px; color:var(--muted);
-  background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--rule); }
-.topbar a { color:var(--s1); text-decoration:none; font-weight:600; }
-.topbar .now { color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.topbar { --top:46px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:8px; height:var(--top); padding:0 20px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:saturate(1.4) blur(8px); -webkit-backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--rule); }
+.topbar > a:first-child { color:var(--s1); text-decoration:none; font-weight:700; padding:5px 8px; margin-left:-8px; border-radius:7px; }
+.topbar > a:first-child:hover { background:color-mix(in srgb, var(--s1) 10%, transparent); }
+.topbar .now { flex:1 1 auto; min-width:0; display:flex; align-items:baseline; gap:8px; color:var(--ink-2); white-space:nowrap; overflow:hidden; }
+.topbar .now-n { font:600 11.5px var(--mono); color:var(--s1); }
+.topbar .now-l { font-weight:700; color:var(--ink); }
+.topbar .now-h { min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--muted); }
+.topbar .now-h::before { content:"· "; }
+.topbar .now-h:empty { display:none; }
 main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
-section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:40px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:45px; }
+section.slide > h1[tabindex], section.slide > h2[tabindex] { outline:none; }
 section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
 .chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
 h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
@@ -205,9 +212,87 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 .toc a[href]:hover { color:var(--s1); text-decoration:underline; }
 .toc .f { color:var(--muted); font-size:12.5px; }
 
+/* ── 목차: 셸이 장에서 만든다. 넓은 화면(≥1400px)은 왼쪽 rail, 그보다 좁으면 위 막대의 목차 단추가 여는 sheet ──
+   점이 이어진 선이 문서의 순서다. 채운 점은 표지 흐름 판이 가리키는 장, 빈 점은 표지 목록의 장이고 그 무리 이름이 머리말이 된다.
+   선은 지금 읽는 장까지 s1 로 찬다. */
+.tb-btn { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; height:30px; min-width:30px; padding:0 8px;
+  border:1px solid transparent; border-radius:7px; background:none; color:var(--ink-2); font:600 13px var(--sans); cursor:pointer; text-decoration:none; }
+.tb-btn:hover { background:color-mix(in srgb, var(--ink) 7%, transparent); color:var(--ink); }
+.tb-btn[aria-disabled="true"] { opacity:.35; pointer-events:none; }
+.tb-toc { border-color:var(--rule); background:var(--card); }
+.tb-toc::before { content:""; width:13px; height:10px; background:linear-gradient(currentColor 0 0) top/100% 2px no-repeat, linear-gradient(currentColor 0 0) center/70% 2px no-repeat, linear-gradient(currentColor 0 0) bottom/85% 2px no-repeat; background-position:left top, left center, left bottom; }
+.tb-steps { flex:none; display:flex; gap:2px; margin-left:auto; }
+.tb-step { padding:0; width:30px; }
+.tb-step::before { content:""; width:7px; height:7px; border:solid currentColor; border-width:2px 2px 0 0; transform:translateY(2px) rotate(-45deg); }
+.tb-step[rel="next"]::before { transform:translateY(-2px) rotate(135deg); }
+.tb-progress { position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--s1); transform-origin:left; transform:scaleX(0); pointer-events:none; }
+
+.toc-head { display:flex; align-items:baseline; gap:8px; padding:0 10px 10px; }
+.toc-title { font-size:12px; font-weight:800; letter-spacing:.06em; color:var(--ink); }
+.toc-count { font:600 11px var(--mono); color:var(--muted); }
+ol.toc-list, ol.toc-list ol { list-style:none; margin:0; padding:0; }
+ol.toc-list { position:relative; }
+ol.toc-list::before, .toc-fill { content:""; position:absolute; left:16px; top:16px; width:2px; margin-left:-1px; border-radius:1px; background:var(--rule); }
+ol.toc-list::before { bottom:16px; }
+.toc-fill { height:0; background:var(--s1); transition:height .25s ease; }
+.ti > a { position:relative; display:grid; grid-template-columns:22px minmax(0,1fr); column-gap:6px; padding:6px 10px 6px 32px; border-radius:8px;
+  color:var(--ink-2); text-decoration:none; font-size:13.5px; line-height:20px; }
+.ti > a::before { content:""; position:absolute; z-index:1; left:12px; top:12px; width:8px; height:8px; border-radius:50%; box-sizing:border-box;
+  background:var(--paper); border:1.5px solid var(--dim); transition:transform .2s ease, background-color .2s ease, border-color .2s ease; }
+.ti.is-flow > a::before { background:var(--ink-2); border-color:var(--ink-2); }
+.ti.is-past > a::before { border-color:var(--s1); }
+.ti.is-flow.is-past > a::before { background:var(--s1); }
+.ti > a:hover { background:color-mix(in srgb, var(--ink) 6%, transparent); color:var(--ink); }
+.ti-n { font:600 11px/20px var(--mono); color:var(--muted); font-variant-numeric:tabular-nums; }
+.ti-l { display:block; font-weight:600; word-break:keep-all; overflow-wrap:break-word; }
+.ti-h { font-size:12px; line-height:1.45; color:var(--muted); font-weight:400; margin:2px 0 1px; word-break:keep-all; overflow-wrap:break-word;
+  overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.rail .ti:not([data-cur]) .ti-h { display:none; }
+.ti[data-cur] > a { background:color-mix(in srgb, var(--s1) 11%, transparent); color:var(--ink); }
+.ti[data-cur] .ti-l { color:var(--k-ink); font-weight:700; }
+.ti[data-cur] .ti-n { color:var(--s1); }
+.ti[data-cur] > a::before { background:var(--card); border:2.5px solid var(--s1); transform:scale(1.35); box-shadow:0 0 0 3px color-mix(in srgb, var(--s1) 22%, transparent); }
+.tg-h { display:block; padding:12px 10px 3px 60px; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--muted); }
+.toc-key { display:flex; flex-wrap:wrap; gap:4px 14px; margin:14px 10px 0; padding-top:10px; border-top:1px solid var(--rule); font-size:11.5px; color:var(--muted); }
+.toc-key span::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:0; box-sizing:border-box; border:1.5px solid var(--dim); background:var(--paper); }
+.toc-key .k-flow::before { background:var(--ink-2); border-color:var(--ink-2); }
+
+.rail { display:none; }
+@media (min-width: 1400px) {
+  body { display:grid; grid-template-columns:272px minmax(0,1fr); }
+  .topbar { grid-column:1 / -1; }
+  .rail { display:block; grid-column:1; align-self:start; position:sticky; top:46px; height:calc(100vh - 46px); overflow-y:auto; overscroll-behavior:contain;
+    padding:22px 12px 40px 14px; border-right:1px solid var(--rule); scrollbar-width:thin; scrollbar-color:var(--rule) transparent; }
+  main { grid-column:2; width:100%; }
+  .tb-toc { display:none; }
+}
+
+dialog.toc-sheet { padding:0; margin:0; border:0; color:var(--ink); background:var(--paper); overflow:hidden;
+  position:fixed; inset:0 auto 0 0; width:min(400px, 92vw); max-width:none; height:100%; max-height:none; border-right:1px solid var(--rule);
+  box-shadow:0 10px 40px rgba(0,0,0,.22); }
+dialog.toc-sheet::backdrop { background:rgba(13,17,23,.42); backdrop-filter:blur(2px); }
+dialog.toc-sheet[open] { animation:sheet-in .2s ease-out; }
+@keyframes sheet-in { from { transform:translateX(-24px); opacity:0; } }
+.sheet-in { display:flex; flex-direction:column; height:100%; }
+.sheet-head { flex:none; display:flex; align-items:center; gap:8px; height:46px; padding:0 10px 0 24px; border-bottom:1px solid var(--rule); }
+.sheet-head .toc-title { font-size:13px; }
+.sheet-x { margin-left:auto; }
+.sheet-body { flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:14px 12px 28px; }
+.toc-sheet .ti-h { display:-webkit-box; -webkit-line-clamp:2; }
+html { scrollbar-gutter:stable; }   /* sheet 가 열려 스크롤을 잠가도 막대 자리가 남아 판이 다시 그려지지 않는다 */
+html:has(dialog.toc-sheet[open]) { overflow:hidden; }
+
 /* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
 @media (max-width: 760px) {
-  .topbar { padding:8px 16px; }
+  .topbar { padding:0 10px 0 16px; gap:6px; }
+  .topbar .now-h { display:none; }
+  dialog.toc-sheet { inset:auto 0 0 0; width:100%; height:auto; max-height:86dvh; border-right:0; border-top:1px solid var(--rule); border-radius:16px 16px 0 0; }
+  dialog.toc-sheet[open] { animation-name:sheet-up; }
+  .sheet-in { height:auto; max-height:86dvh; }
+  .sheet-head { position:relative; height:52px; padding-top:6px; }
+  .sheet-head::before { content:""; position:absolute; left:50%; top:7px; width:36px; height:4px; margin-left:-18px; border-radius:2px; background:var(--rule); }
+  .ti > a { padding-top:9px; padding-bottom:9px; }
+  .ti > a::before { top:15px; }
   main { padding:0 14px 80px; }
   section.slide { padding:36px 0 26px; }
   .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
@@ -222,7 +307,9 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   .toc a { white-space:normal; }
   .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
 }
-@media print { .topbar { display:none; } section.slide { break-inside:avoid-page; } }
+@keyframes sheet-up { from { transform:translateY(40px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { dialog.toc-sheet[open] { animation:none; } .toc-fill, .ti > a::before { transition:none; } }
+@media print { .topbar, .rail, dialog.toc-sheet { display:none !important; } body { display:block; } section.slide { break-inside:avoid-page; } }
 </style>
 </head>
 <body>
@@ -680,6 +767,7 @@ v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
    board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
    plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
    좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   목차  : 장에서 만든 rail(≥1400px)과 sheet(그보다 좁을 때 위 막대의 목차 단추), 위 막대의 지금 장·이전/다음·읽은 만큼
    스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
    render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
 (function () {
@@ -717,12 +805,177 @@ v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
       a.insertBefore(c, a.firstChild);
     }
   });
-  var now = document.querySelector('.topbar .now');
-  if (now && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { var h = e.target.querySelector('h1,h2'); now.textContent = h ? h.textContent : ''; } });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    secs.forEach(function (s) { io.observe(s); });
+  var nav = buildNav();
+
+  /* ── 목차: rail 과 sheet 는 같은 목록이다. 장 번호, data-label, h2 를 장에서 읽는다 ──
+     무리: 표지 흐름 판의 상자가 가리키는 장은 흐름(채운 점), 표지 목록(.toc)의 장은 그 줄의 span.g 가 무리 이름이고
+     빈 span.g 는 앞 줄의 무리를 잇는다. 지금 장은 읽는 선(위 막대 아래 30%)을 지난 마지막 장이다.
+     장으로 옮겨 가는 길은 모두 #pN 링크라 주소와 뒤로 가기가 브라우저의 것 그대로다 */
+  function buildNav() {
+    var bar = document.querySelector('.topbar');
+    if (!bar || !secs.length) return null;
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var clean = function (t) { return (t || '').replace(/\s+/g, ' ').trim(); };
+    var info = secs.map(function (s, k) {
+      var h = s.querySelector('h1,h2');
+      return { s: s, h: h, n: String(k + 1).padStart(2, '0'), label: clean(s.getAttribute('data-label')) || clean(h && h.textContent) || ('장 ' + (k + 1)), claim: clean(h && h.textContent), flow: false, group: '' };
+    });
+    var byId = function (href) { var t = document.getElementById((href || '').slice(1)); return t ? secs.indexOf(t) : -1; };
+    var cover = secs[0].getAttribute('data-role') === 'cover' ? secs[0] : null;
+    if (cover) {
+      $$('.board a[href^="#p"]', cover).forEach(function (a) { var i = byId(a.getAttribute('href')); if (i > 0) info[i].flow = true; });
+      var last = '';
+      $$('.toc li', cover).forEach(function (li) {
+        var a = li.querySelector('a[href^="#p"]'), g = li.querySelector('.g'), i = a ? byId(a.getAttribute('href')) : -1;
+        if (g && clean(g.textContent)) last = clean(g.textContent);
+        if (i > 0 && !info[i].flow) info[i].group = last;
+      });
+    }
+    var hasFlow = info.some(function (x) { return x.flow; }), hasRest = info.some(function (x, k) { return k > 0 && !x.flow; });
+    function list(withKey) {
+      var ol = el('ol', 'toc-list'), fill = el('i', 'toc-fill'), items = [], sub = null, cur = null;
+      fill.setAttribute('aria-hidden', 'true'); ol.appendChild(fill);
+      info.forEach(function (x, k) {
+        var li = el('li', 'ti' + (x.flow || k === 0 ? ' is-flow' : '')), a = el('a');
+        a.href = '#' + x.s.id; if (x.claim && x.claim !== x.label) a.title = x.claim;
+        a.appendChild(el('span', 'ti-n', x.n));
+        var t = el('span', 'ti-t'); t.appendChild(el('span', 'ti-l', x.label));
+        if (x.claim && x.claim !== x.label) t.appendChild(el('span', 'ti-h', x.claim));
+        a.appendChild(t); li.appendChild(a); items.push(li);
+        if (x.group && !x.flow) {
+          if (cur !== x.group) { var g = el('li', 'tg'); g.appendChild(el('span', 'tg-h', x.group)); sub = el('ol'); g.appendChild(sub); ol.appendChild(g); cur = x.group; }
+          sub.appendChild(li);
+        } else { cur = null; ol.appendChild(li); }
+      });
+      var box = document.createDocumentFragment();
+      var head = el('div', 'toc-head'); head.appendChild(el('span', 'toc-title', '목차')); head.appendChild(el('span', 'toc-count', secs.length + '장'));
+      if (withKey) box.appendChild(head);
+      box.appendChild(ol);
+      if (hasFlow && hasRest) { var key = el('p', 'toc-key'); key.setAttribute('aria-hidden', 'true'); key.appendChild(el('span', 'k-flow', '표지 흐름의 장')); key.appendChild(el('span', '', '더 보는 장')); box.appendChild(key); }
+      return { box: box, ol: ol, fill: fill, items: items };
+    }
+
+    // 넓은 화면의 rail
+    var railNav = el('nav', 'rail'); railNav.setAttribute('aria-label', '목차');
+    var R = list(true); railNav.appendChild(R.box);
+    bar.parentNode.insertBefore(railNav, bar.nextSibling);
+
+    // 좁은 화면의 sheet. 모달 dialog 라 초점이 안에 갇히고 Esc 가 닫는다
+    var dlg = el('dialog', 'toc-sheet'); dlg.id = 'toc-sheet'; dlg.setAttribute('aria-label', '목차');
+    var inner = el('div', 'sheet-in'), sh = el('div', 'sheet-head'), x = el('button', 'tb-btn sheet-x', '닫기');
+    x.type = 'button';
+    sh.appendChild(el('span', 'toc-title', '목차')); sh.appendChild(el('span', 'toc-count', secs.length + '장')); sh.appendChild(x);
+    var body = el('div', 'sheet-body'), sheetNav = el('nav'); sheetNav.setAttribute('aria-label', '목차');
+    var S = list(false); sheetNav.appendChild(S.box); body.appendChild(sheetNav);
+    inner.appendChild(sh); inner.appendChild(body); dlg.appendChild(inner); document.body.appendChild(dlg);
+
+    // 위 막대: 지도 · 목차 단추 · 지금 장 · 이전/다음 · 읽은 만큼의 선
+    var now = bar.querySelector('.now') || bar.appendChild(el('span', 'now'));
+    now.textContent = '';
+    var nowN = now.appendChild(el('span', 'now-n')), nowL = now.appendChild(el('span', 'now-l')), nowH = now.appendChild(el('span', 'now-h'));
+    var btn = el('button', 'tb-btn tb-toc', '목차'); btn.type = 'button';
+    btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-controls', 'toc-sheet'); btn.setAttribute('aria-expanded', 'false');
+    bar.insertBefore(btn, now);
+    var steps = el('span', 'tb-steps'), prev = el('a', 'tb-btn tb-step'), next = el('a', 'tb-btn tb-step');
+    prev.rel = 'prev'; next.rel = 'next'; steps.appendChild(prev); steps.appendChild(next); bar.appendChild(steps);
+    var prog = el('i', 'tb-progress'); prog.setAttribute('aria-hidden', 'true'); bar.appendChild(prog);
+
+    var wide = window.matchMedia('(min-width: 1400px)');
+    var cur = -1, pin = -1;
+    var setStep = function (a, k, word) {
+      if (k < 0 || k >= info.length) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.setAttribute('aria-label', word + ' 장 없음'); a.removeAttribute('title'); return; }
+      a.href = '#' + info[k].s.id; a.removeAttribute('aria-disabled');
+      var t = word + ' 장: ' + info[k].n + ' · ' + info[k].label; a.setAttribute('aria-label', t); a.title = t;
+    };
+    var fillTo = function (L) {
+      var li = L.items[cur]; if (!li || !li.offsetParent) return;
+      var a = li.firstChild, top = parseFloat(getComputedStyle(a, '::before').top) || 12;
+      L.fill.style.height = Math.max(0, a.getBoundingClientRect().top - L.ol.getBoundingClientRect().top + top + 4 - 16) + 'px';
+    };
+    var keepVisible = function () {
+      var li = R.items[cur]; if (!li || !wide.matches) return;
+      var r = li.getBoundingClientRect(), box = railNav.getBoundingClientRect();
+      if (r.top < box.top + 48) railNav.scrollTop += r.top - box.top - 48;
+      else if (r.bottom > box.bottom - 48) railNav.scrollTop += r.bottom - box.bottom + 48;
+    };
+    function setCurrent(k) {
+      if (k === cur) return;
+      cur = k;
+      [R, S].forEach(function (L) {
+        L.items.forEach(function (li, i) {
+          var a = li.firstChild;
+          if (i === k) { li.setAttribute('data-cur', ''); a.setAttribute('aria-current', 'location'); } else { li.removeAttribute('data-cur'); a.removeAttribute('aria-current'); }
+          li.classList.toggle('is-past', i < k);
+        });
+        fillTo(L);
+      });
+      var x2 = info[k];
+      nowN.textContent = x2.n; nowL.textContent = x2.label; nowH.textContent = x2.claim !== x2.label ? x2.claim : '';
+      setStep(prev, k - 1, '이전'); setStep(next, k + 1, '다음');
+      keepVisible();
+    }
+    var topOf = function () { return bar.getBoundingClientRect().bottom; };
+    function pick() {
+      var de = document.documentElement, vh = window.innerHeight;
+      var p = de.scrollHeight - vh > 0 ? Math.min(1, Math.max(0, window.scrollY / (de.scrollHeight - vh))) : 1;
+      prog.style.transform = 'scaleX(' + p + ')';
+      if (pin >= 0) {
+        var r = secs[pin].getBoundingClientRect();
+        if (r.top < vh && r.bottom > topOf() + 8) { setCurrent(pin); return; }
+        pin = -1;
+      }
+      // 읽는 선은 위 막대 아래 30% 다. 마지막 장이 그 선까지 올라오지 못하는 문서는 끝에 가까울수록 선을 내려,
+      // 맨 끝에서 마지막 장이 되고 그 앞의 짧은 장들도 차례로 지금 장이 된다
+      var r = Math.max(0, de.scrollHeight - vh - window.scrollY), base = topOf() + Math.min(vh * 0.3, 260);
+      var line = Math.max(base, secs[secs.length - 1].getBoundingClientRect().top - 2 * r + 1), k = 0;
+      for (var i = 0; i < secs.length; i++) { if (secs[i].getBoundingClientRect().top <= line) k = i; else break; }
+      setCurrent(k);
+    }
+    var raf = 0;
+    var schedule = function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; pick(); }); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', function () { cur = -1; schedule(); if (wide.matches && dlg.open) dlg.close(); });
+    // 손으로 굴리면 링크로 고른 장의 고정을 푼다
+    var touched = false, unpin = function () { pin = -1; touched = true; };
+    window.addEventListener('wheel', unpin, { passive: true });
+    window.addEventListener('touchstart', unpin, { passive: true });
+    window.addEventListener('keydown', function (e) { if (/^(Arrow(Up|Down)|Page(Up|Down)|Home|End| )$/.test(e.key) && !dlg.open) unpin(); });
+    var fromHash = function () { touched = true; var i = byId(location.hash); if (i >= 0) { pin = i; setCurrent(i); } schedule(); };
+    window.addEventListener('hashchange', fromHash);
+
+    // sheet 열고 닫기. 닫으면 초점은 단추로 돌아온다(장을 고른 경우에는 그 장의 제목으로 간다)
+    var open = function () {
+      if (dlg.open) return;
+      dlg.showModal(); btn.setAttribute('aria-expanded', 'true');
+      cur = -1; pick();
+      var li = S.items[cur];
+      if (li) { li.firstChild.focus(); var r = li.getBoundingClientRect(), b = body.getBoundingClientRect(); body.scrollTop += r.top - b.top - b.height / 3; }
+    };
+    btn.addEventListener('click', open);
+    x.addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('close', function () { btn.setAttribute('aria-expanded', 'false'); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    S.ol.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return;
+      e.preventDefault();
+      var i = byId(a.getAttribute('href'));
+      dlg.close();
+      if (i < 0) return;
+      if (location.hash === a.getAttribute('href')) { pin = i; secs[i].scrollIntoView({ block: 'start' }); setCurrent(i); }
+      else location.hash = a.getAttribute('href');
+      if (info[i].h) { info[i].h.setAttribute('tabindex', '-1'); info[i].h.focus({ preventScroll: true }); }
+    });
+
+    var start = byId(location.hash);
+    if (start >= 0) setCurrent(start); else pick();
+    return {
+      // 판과 그림이 다 그려진 뒤: 주소의 장으로 다시 맞추고(그 사이 위 장들의 높이가 바뀐다) 채움 선을 다시 잰다
+      settle: function () {
+        var how = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+        if (start >= 0 && !touched && how !== 'reload' && how !== 'back_forward') { secs[start].scrollIntoView({ block: 'start', behavior: 'instant' }); pin = start; }
+        cur = -1; pick();
+      }
+    };
   }
 
   /* ── board: 칸 배치 ── */
@@ -1048,7 +1301,7 @@ v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
   };
   var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
   layout();
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); window.__layout.done = true; });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); if (nav) nav.settle(); window.__layout.done = true; });
 })();
 </script>
 </body>

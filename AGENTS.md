@@ -57,6 +57,7 @@ node scripts/check-prose.mjs research/<slug>     # gate on the Korean prose
 node scripts/build-index.mjs                     # regenerate the listing
 node scripts/render.mjs research/<slug>          # chapter screenshots in headless Chrome
 node scripts/doc-text.mjs research/<slug>        # the document as reading-order text
+node scripts/restamp-shell.mjs --all            # put the current shell into board documents
 
 node .claude/skills/research-verify/scripts/check-claims.mjs research/<slug>
 ```
