@@ -36,7 +36,7 @@ prohibition is the weakest form a rule can take, and the weakness does not show 
 review, because a reader asked whether a prohibition helps says yes.
 
 **Where the chain goes next, in its own section.** A skill that hands to another names the
-file, says whether to keep or break the context, and says when its own step is done. Folded
+skill and says to invoke it, says whether to keep or break the context, and says when its own step is done. Folded
 into a paragraph it reads as a suggestion, and the chain stops at whichever skill buried it.
 
 ## Posture

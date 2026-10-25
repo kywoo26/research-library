@@ -1,0 +1,133 @@
+#!/usr/bin/env node
+// 문서 하나를 브랜치, 커밋, push, PR 로 내보낸다. researcher 가 마지막에 부른다.
+//   node scripts/ship.mjs research/<slug>
+// git 과 PR 은 모델이 아니라 이 스크립트가 한다. 게이트를 먼저 돌려 막히면 내보내지 않고, 사람이 정할 것이
+// 남았거나 재검증 뒤에 문서가 바뀌었거나 모델이 저절로 바뀌었으면 draft 로 연다.
+
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { join, basename } from 'node:path';
+import { createHash } from 'node:crypto';
+
+const HELP = `사용법: node scripts/ship.mjs research/<slug>
+
+.research/<slug>/run.json 에서 읽는 것:
+  commitSubject, commitBody   필수. AGENTS.md 의 Commits 규칙대로
+  decided                     researcher 가 소유자 대신 정한 것 (kind, 질문 등)
+  needs_owner                 소유자가 정할 것. 하나라도 있으면 draft
+  unverified, unfixed         검증하지 못한 것, 확인했지만 고치지 못한 것. unfixed 가 있으면 draft
+  rendered                    렌더링한 화면을 봤는지 한 줄
+  reviews, modelSwitches      hook 이 남긴 것. 마지막 재검증 뒤 문서가 바뀌었거나 자동 전환이 있으면 draft
+
+새 문서는 doc/<slug>, 이미 main 에 있는 문서를 고치면 doc/<slug>-fix-<날짜시각> 브랜치로 연다.
+같은 브랜치에서 다시 부르면 그 커밋을 고쳐 쓴다(문서 하나에 커밋 하나).`;
+
+const arg = process.argv[2];
+if (!arg || arg === '--help' || arg === '-h') { console.log(HELP); process.exit(arg ? 0 : 1); }
+const slug = basename(arg.replace(/\/$/, ''));
+const sh = (c, a) => spawnSync(c, a, { encoding: 'utf8' });
+const tail = (s, n = 6) => (s || '').trim().split('\n').slice(-n).join('\n');
+const die = (msg) => { console.error(`ship 하지 않았다: ${msg}`); process.exit(1); };
+const runPath = join('.research', slug, 'run.json');
+const docPath = join('research', slug, 'index.html');
+if (!existsSync(docPath)) die(`${docPath} 가 없다. 저장소 루트에서 부른다`);
+const run = existsSync(runPath) ? JSON.parse(readFileSync(runPath, 'utf8')) : {};
+if (!run.commitSubject || !run.commitBody) die('run.json 에 commitSubject 와 commitBody 가 없다');
+
+// 1. 게이트
+const claims = join('.research', slug, 'claims.jsonl');
+const hasClaims = existsSync(claims) && readFileSync(claims, 'utf8').split('\n').some((l) => l.trim().startsWith('{'));
+const gates = {};
+for (const [name, a] of [['check-doc', ['scripts/check-doc.mjs', `research/${slug}`]], ['check-prose', ['scripts/check-prose.mjs', `research/${slug}`]],
+  ...(hasClaims ? [['check-claims', ['.claude/skills/research-verify/scripts/check-claims.mjs', `research/${slug}`]]] : [])]) {
+  const r = sh('node', a);
+  gates[name] = r.status === 0;
+  if (r.status !== 0) die(`${name} 가 막았다\n${tail(r.stdout + r.stderr)}`);
+}
+if (!hasClaims) die('claims.jsonl 이 비었다. 검증을 거치지 않은 문서다');
+
+// 2. draft 판정
+const sha = createHash('sha256').update(readFileSync(docPath)).digest('hex');
+const lastReview = (run.reviews || []).at(-1);
+const unreviewed = lastReview && lastReview.sha !== sha;
+const autoSwitch = (run.modelSwitches || []).filter((m) => m.source === 'auto');
+const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x) => (typeof x === 'string' ? x : [x.question, x.options && `선택지: ${[].concat(x.options).join(' / ')}`, x.default && `researcher 의 기본값: ${x.default}`].filter(Boolean).join(' — ')));
+const needs = asList(run.needs_owner), unfixed = asList(run.unfixed);
+const isDraft = needs.length > 0 || unfixed.length > 0 || unreviewed || autoSwitch.length > 0;
+
+// 3. 브랜치. README.md 와 index.html 은 생성물이라 HEAD 에서 만든 것을 버리고 origin/main 위에서 다시 만든다.
+sh('git', ['fetch', '-q', 'origin', 'main']);
+const existing = sh('git', ['cat-file', '-e', `origin/main:research/${slug}/meta.json`]).status === 0;
+const current = sh('git', ['branch', '--show-current']).stdout.trim();
+const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+const branch = current.startsWith(`doc/${slug}`) ? current : existing ? `doc/${slug}-fix-${stamp}` : `doc/${slug}`;
+const amend = current === branch && sh('git', ['log', '-1', '--format=%s']).stdout.trim() === run.commitSubject;
+const step = (c, a) => { const r = sh(c, a); if (r.status !== 0) die(`${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`); return r; };
+if (current !== branch) {
+  step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
+  step('git', ['switch', '-c', branch, 'origin/main']);
+}
+
+// 4. seq 는 저장소에 넣은 순서다. 새 문서가 그사이 들어온 문서와 겹치면 뒤로 옮긴다. 고치는 문서는 그대로 둔다.
+if (!existing) {
+  const metaPath = join('research', slug, 'meta.json');
+  const text = readFileSync(metaPath, 'utf8');
+  const own = JSON.parse(text).seq;
+  let max = 0;
+  for (const n of readdirSync('research')) {
+    if (n === slug) continue;
+    try { const s = JSON.parse(readFileSync(join('research', n, 'meta.json'), 'utf8')).seq; if (Number.isInteger(s) && s > max) max = s; } catch {}
+  }
+  if (!(Number.isInteger(own) && own > max)) writeFileSync(metaPath, text.replace(/"seq":\s*\d+/, `"seq": ${max + 1}`));
+}
+
+run.shippedAt = new Date().toISOString();
+run.ship = { branch, draft: isDraft, gates, docSha: sha, unreviewed: !!unreviewed };
+writeFileSync(runPath, JSON.stringify(run, null, 1) + '\n');
+step('node', ['scripts/build-index.mjs']);
+step('node', ['scripts/check-doc.mjs', `research/${slug}`]);
+step('git', ['add', `research/${slug}`, `.research/${slug}`, 'README.md', 'index.html']);
+step('git', amend ? ['commit', '-q', '--amend', '--no-edit']
+  : ['commit', '-q', '-m', run.commitSubject, '-m', `${run.commitBody.replace(/\n*Co-Authored-By:.*$/gim, '')}\n\nCo-Authored-By: Claude <noreply@anthropic.com>`]);
+step('git', ['push', '-q', ...(amend ? ['--force-with-lease'] : []), '-u', 'origin', branch]);
+
+// 5. PR
+const head = sh('git', ['rev-parse', 'HEAD']).stdout.trim();
+const remote = sh('git', ['remote', 'get-url', 'origin']).stdout.trim().replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/');
+const repo = remote.split('/').slice(-2).join('/');
+const ogUrl = (readFileSync(docPath, 'utf8').match(/property="og:url" content="([^"]+)"/) || [])[1] || '';
+const list = (xs) => (xs.length ? xs.map((x) => `- ${x}`).join('\n') : '- (없음)');
+const body = `문서: ${remote}/blob/${head}/research/${slug}/index.html
+
+merge 뒤 주소: ${ogUrl}
+
+${run.commitBody.replace(/\n*Co-Authored-By:.*$/gim, '')}
+
+## researcher 가 대신 정한 것
+${list(asList(run.decided))}
+
+## 사람이 정할 것
+${list(needs)}
+
+## 검증하지 못한 것
+${list(asList(run.unverified))}
+
+## 확인했지만 고치지 못한 것
+${list(unfixed)}
+
+## 실행 기록
+- 게이트(이 스크립트가 돌렸다): ${Object.entries(gates).map(([k, v]) => `${k} ${v ? '통과' : '막힘'}`).join(', ')}
+- 렌즈·재검증 호출 ${(run.reviews || []).length}회${unreviewed ? '. 마지막 재검증 뒤 문서가 바뀌었다' : ''}
+- 렌더링: ${run.rendered || '기록 없음'}
+${autoSwitch.length ? autoSwitch.map((m) => `- 모델이 저절로 바뀌었다: ${m.from} → ${m.to} (${m.at})`).join('\n') + '\n' : ''}- 토큰과 모델별 사용량은 실행이 끝날 때 hook 이 .research/${slug}/run.json 의 usage 에 남긴다(이 커밋 뒤)
+${isDraft ? '\n위의 이유로 draft 로 열었다.\n' : ''}
+🤖 Generated with [Claude Code](https://claude.com/claude-code)`;
+const existingPr = sh('gh', ['pr', 'view', branch, '-R', repo, '--json', 'url', '-q', '.url']);
+if (existingPr.status === 0 && existingPr.stdout.trim()) {
+  step('gh', ['pr', 'edit', branch, '-R', repo, '--body', body]);
+  if (isDraft) sh('gh', ['pr', 'ready', branch, '-R', repo, '--undo']);
+  console.log(`PR 갱신: ${existingPr.stdout.trim()}`);
+} else {
+  const pr = step('gh', ['pr', 'create', '-R', repo, '--base', 'main', '--head', branch, '--title', run.commitSubject, '--body', body, ...(isDraft ? ['--draft'] : [])]);
+  console.log(`PR: ${pr.stdout.trim().split('\n').pop()}${isDraft ? ' (draft)' : ''}`);
+}
