@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Stop hook. 손대고 있는 문서가 있으면 게이트를 돌려 run.json 에 남기고, 막히면 세션이 끝나지 못하게 한다.
+// Stop hook. 손대고 있는 문서가 있으면 게이트를 돌려 notes/hooks.json 에 남기고, 막히면 세션이 끝나지 못하게 한다.
 // 게이트 결과가 에이전트의 "통과했다"가 아니라 스크립트가 본 사실이 되게 하려는 것이다.
 // 같은 실패로 한 번 더 멈추려 하면 놓아 주고 사용자에게 알린다. 고칠 수 없는 실패에 세션이 맴돌지 않게.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { readInput, repoRoot, docsInProgress, updateRun } from './docs.mjs';
+import { readInput, repoRoot, docsInProgress, updateHooks } from './docs.mjs';
 
 const input = readInput();
 const root = repoRoot(input.cwd);
@@ -28,7 +28,7 @@ for (const slug of slugs) {
     if (r.status !== 0) failures.push(`${slug} ${name}:\n${results[name].tail}`);
   }
   const usage = input.agent_transcript_path ? tokenUsage(input.agent_transcript_path) : null;
-  updateRun(root, slug, (run) => {
+  updateHooks(root, slug, (run) => {
     run.gates = { at: new Date().toISOString(), session: input.session_id || null, results };
     if (usage) run.usage = usage;
   });

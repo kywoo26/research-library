@@ -20,5 +20,3 @@ jobs:
         run: node scripts/check-prose.mjs
       - name: check-prose tests
         run: node scripts/test/check-prose.test.mjs
-      - name: build-index is a no-op on a clean tree
-        run: node scripts/build-index.mjs && git diff --exit-code -- index.html README.md

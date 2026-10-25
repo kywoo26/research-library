@@ -167,7 +167,7 @@ add and renumber the items with the chapters, and do not delete them, or the rai
 
 ## The read pass
 
-Once `check-doc.mjs`, `check-prose.mjs` and `render.mjs` pass and `build-index.mjs` has run, read the
+Once `check-doc.mjs`, `check-prose.mjs` and `render.mjs` pass, read the
 document once from the first screen down, as the reader would, against the passages in
 `prose-ko.md`. This read is the one place prose is judged for its own sake.
 

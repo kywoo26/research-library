@@ -156,8 +156,9 @@ Re-run the machine checks after fixing, and have the `recheck` agent re-read the
 edits touched. Stop when a round turns up no new must-fix item; two rounds at most. After the
 last round's fixes `recheck` reads the touched chapters once more, and what it finds goes under
 `unfixed` rather than into another edit, so no change ships that only the author has read.
-Wording findings from a re-check are recorded and left alone: each pass rewrites the document
-toward the gate and away from the reader. Record in `run.json` `rendered` (whether you looked
+Record each as `{"item", "meaning"}`: `meaning: true` when the sentence says what the source does
+not, which keeps the pull request a draft; `false` for wording, recorded and left alone, because
+each pass rewrites the document toward the gate and away from the reader. Record in `run.json` `rendered` (whether you looked
 at the rendered page after the fixes), `unverified` and `unfixed`.
 
 **A fact lens A reports missing goes into the chapter whose claim it supports**, as a

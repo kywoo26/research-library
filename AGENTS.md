@@ -78,7 +78,7 @@ available, say that. Passing the static gate and rendering correctly are differe
 
 **Do not hand-edit generated files.** `build-index.mjs` writes the root `index.html` and
 the `<!-- docs:start -->` … `<!-- docs:end -->` block in `README.md`. Manual edits vanish
-on the next build.
+on the next build. A document's pull request leaves them out; main rebuilds them after the merge.
 
 **Show a structure or a flow to the owner as a drawing first**: a Mermaid block in a report
 or a PR, an HTML page under `_scratch/` when it is larger.

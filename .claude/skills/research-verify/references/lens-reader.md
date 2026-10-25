@@ -51,7 +51,8 @@ what stopped you, and the sentence that should have let you.
 Name the chapters, paragraphs and caveats you read without needing them for the task: process
 talk, repeated qualifiers, outside material nobody asked for, a chapter that says what another
 already said, sentences carrying what has a shape (parts, steps, a loop, options side by side,
-a quantity) or parallel items, where a board, list or table would show them. Say for each whether it can go, belongs in a fold, or needs another form.
+a quantity) or parallel items, where a board, list or table would show them. A chapter the document's kind requires (cover,
+critique, setup, sources) is not one to cut. Say for each whether it can go, belongs in a fold, or needs another form.
 Report too a claim that appears only inside a fold, and the forms listed in
 `../../research-doc/references/prose-ko.md` §Forms readers take as machine-written where
 they cost you the point, by location.

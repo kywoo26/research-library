@@ -105,7 +105,8 @@ archive URL beside the live one; both cost one call.
 
 ## 3. Shallow clone, and what it costs you
 
-Default to `git clone --filter=blob:none --depth 1`. Full history buys nothing for most
+Default to `git clone --filter=blob:none --depth 1`, and write where it went into
+`.research/<slug>/notes/checkouts.json` (`{"owner/name": "<path>"}`), where the gates look. Full history buys nothing for most
 documents. Record what you gave up: a shallow clone cannot support a claim about commit
 frequency, contributor spread, release cadence or bus factor, because the data is not in
 the checkout. Set `history_available: false` and `check-claims.mjs` blocks those claims,
