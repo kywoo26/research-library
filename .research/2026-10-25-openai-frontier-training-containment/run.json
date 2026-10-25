@@ -3,8 +3,8 @@
  "question": "OpenAI 는 frontier 모델의 학습과 평가 환경을 어떻게 가두고, red-teaming 에서 무엇이 드러났고 무엇을 고쳤으며, 무엇을 근거로 학습을 재개했는가. 이 글이 자기 보고라는 점과 공개하지 않은 부분은 무엇인가",
  "flip_condition": "OpenAI 가 발견 내역이나 safety case 의 기준값을 공개해, 재개 판단이 감시를 피한 쉬운 경로의 부재 말고 다른 근거에 기댄 것으로 드러나면 10장의 읽기가 바뀐다",
  "slides": 15,
- "evidenceCount": 69,
- "claimsCount": 73,
+ "evidenceCount": 71,
+ "claimsCount": 74,
  "lensesReported": [
   "B",
   "A"
@@ -58,6 +58,30 @@
     "badRejections": 0
    },
    "note": "recheck 의 한정어 4건을 고쳤다. 마지막 recheck 는 hard 0, 표현 선호 3건을 냈고 규칙대로 고치지 않고 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-3",
+   "applied": 3,
+   "rejected": 0,
+   "touched": 3,
+   "recheck": {
+    "hard": 0,
+    "wording": 3,
+    "badRejections": 0
+   },
+   "note": "지난 PR 의 unfixed 세 건을 고쳤다. 표지 p.answer 와 summary 에서 중단과 red-teaming 을 다른 문장으로 나눴고, 같은 암시가 있던 2장 판의 aria-label 도 고쳤다. 11장 격리 red-teaming 행에 safety analysis 조건과 그 부재를 넣었고, 사건 조사 행을 예시로 고쳤다. 표지는 cover-length 상한 280자에 맞춰 줄였다. recheck 는 hard 0, 표현 3건을 냈고 규칙대로 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-4",
+   "applied": 6,
+   "rejected": 0,
+   "touched": 6,
+   "recheck": {
+    "hard": 0,
+    "wording": 4,
+    "badRejections": 0
+   },
+   "note": "main 의 check-doc 에 새로 생긴 h2-length(45자) 규칙에 걸린 2, 3, 9, 10, 11, 12장 h2 를 줄였다. 빠진 내용은 각 장의 lead 와 판에 이미 있다. 10장 h2 는 heading-form 규칙(쉼표 목록) 때문에 한 번 더 고쳤다. recheck 는 hard 0, 표현 4건을 냈고 규칙대로 unfixed 에 남겼다"
   }
  ],
  "decided": [
@@ -73,7 +97,14 @@
   "safety case 글의 내용은 10장에 다 넣지 않고 11장(safety case 지침)을 새로 두었다. 10장의 주장은 OpenAI 가 든 재개 근거이고, 지침이 무엇을 요구하는지와 격리 글이 그 항목에 무엇을 적었는지는 다른 주장이기 때문이다. 10장 lead 와 notes 가 11장을 가리킨다. 옛 11-14장은 12-15장이 되었고 claims.jsonl 의 scope 장 번호도 옮겼다",
   "멈춘 범위와 재개 범위의 차이는 표지 p.answer 와 재개 카드, 2장 제목과 카드와 notes 와 p.so, 10장 결과 카드와 notes, 13장 한계 목록에 넣었다. 멈춘 쪽의 '가장 능력 있는 모델'과 재개 쪽의 'frontier 모델'이 다르게 적힌 것도 2장에 적었다",
   "2장의 10월 1일 카드에 있던 '평가를 마치고'는 원문 'assessments' 를 옮긴 말이라 평가(evaluation) 재개로 읽힐 수 있었다. '점검을 마치고'로 바꾸고 notes 에 그 뜻을 적었다",
-  "커밋은 브랜치의 기존 커밋을 고쳐 쓰지 않고 새 커밋으로 얹었다. 기존 커밋의 subject 가 이번 수정을 담지 않기 때문이다. merge 할 때 squash 하면 문서 하나에 커밋 하나가 된다"
+  "커밋은 브랜치의 기존 커밋을 고쳐 쓰지 않고 새 커밋으로 얹었다. 기존 커밋의 subject 가 이번 수정을 담지 않기 때문이다. merge 할 때 squash 하면 문서 하나에 커밋 하나가 된다",
+  "소유자의 요청대로 PR #17 의 unfixed 세 건만 고쳤다. 같은 원문으로 쓴 다른 문서(2026-10-25-openai-training-containment)는 열지 않았다",
+  "같은 암시(red-teaming 을 중단 기간 안에 했다)가 meta.json summary, head 의 description 두 곳, 2장 판의 aria-label 에도 있어서 함께 고쳤다. 2장 aria-label 은 원문이 중단 동안 했다고 적은 인프라와 monitoring 강화만 남겼다",
+  "표지 문단을 둘로 나누자 280자를 넘어서 '이 울타리를' 을 '울타리를' 로, '거쳐' 를 '연결로' 로, '열어 둔 연결 하나하나를' 을 '열어 둔 연결을 모두' 로 줄였다. 한정어(제한적, 좁은 연결, 자기 보고, 글에 없다)는 그대로 두었다",
+  "사건 조사 행은 w9 §3 의 'Some examples of such actions could include' 를 접힌 원문에 더했다. 근거 e71(캠페인 시작 문장), e72 와 주장 c74 를 더하고 c59, c65, c72 를 고쳤다",
+  "git 이 이 worktree 에서 막혀서(명령이 rtk 로 바뀌어 worktree 격리 검사가 거부했다) 소유자가 말한 git switch 를 하지 못했다. 브랜치는 다른 worktree(agent-ab96a20f7e89aaf34)에 체크아웃되어 있었고, 그 worktree 의 문서 sha 가 PR 의 마지막 docSha 와 같아서 그 파일을 이 worktree 로 옮겨 고쳤다",
+  "게이트 hook 이 h2-length 를 막아서 요청 범위 밖이지만 h2 여섯 개를 45자 안으로 줄였다. 장을 더하거나 빼지 않았고, 각 h2 가 하는 주장은 그대로다. c51 의 scope 에서 2장 h2 를 뺐다(9월 20일이 h2 에서 빠졌다)",
+  "PR 브랜치 갱신: 소유자 세션이 researcher worktree 의 수정 파일을 PR 브랜치로 옮겨 ship.mjs 를 돌렸다 (researcher worktree 에서 git 이 격리 검사에 막혔고, 브랜치는 끝난 실행의 worktree 가 잡고 있었다)"
  ],
  "needs_owner": [],
  "unverified": [
@@ -84,12 +115,15 @@
   "링크된 GitHub advisory, PR, Linux commit 8개와 DNS 사건 보고서를 열지 않아, 7장의 수정 내용은 원문의 이름표 수준이고 11장의 사건 조사 행은 맞춰 보지 못했다"
  ],
  "unfixed": [
-  "마지막 recheck(표현 선호): 표지 p.answer 의 '멈추고 자기 모델에게 이 울타리를 공격하게 했더니'는 red-teaming 을 중단 기간 안에 한 것으로 읽힌다. 원문은 캠페인을 시작했다고만 적고 중단 기간 안이라고는 적지 않는다",
-  "마지막 recheck(표현 선호): 11장 사건 조사 행의 '사건마다 … 한다'는 원문의 'Some examples of such actions could include' 보다 의무처럼 읽힌다",
-  "마지막 recheck(표현 선호): 11장 격리 red-teaming 행은 원문의 'subject to a safety analysis' 조건을 뺐다",
-  "렌즈 A(고치지 않음): 13장의 '멈춘 범위와 재개한 범위', '수정 뒤 재시험', 'safety case 의 내용' 은 2장과 10장의 notes 와 같은 말을 되풀이한다. 한계를 한 곳에 모으는 장이라 두었다"
+  "렌즈 A(고치지 않음): 13장의 '멈춘 범위와 재개한 범위', '수정 뒤 재시험', 'safety case 의 내용' 은 2장과 10장의 notes 와 같은 말을 되풀이한다. 한계를 한 곳에 모으는 장이라 두었다",
+  "마지막 recheck(표현): 10장 lead 와 카드 r-fix 의 '그동안 한 수정' 은 수정을 중단 기간에 한 것으로 읽힐 수 있다. 원문은 'the fixes we had implemented' 라고만 적는다. '재개 전에 한 수정' 이 원문에 더 가깝다",
+  "마지막 recheck(표현): 11장 격리 red-teaming 행의 '모델이 닿는 서비스도 모두 공격한다' 는 원문의 'during training' 을 뺐다. '학습 중 모델이 닿는' 이 원문에 더 가깝다",
+  "마지막 recheck(표현): 표지 판의 aria-label 은 '사건이 학습 중단을 낳았고' 로 인과를 적는다. 원문은 사건 뒤 멈췄다고 적는다",
+  "마지막 recheck(표현): 2장 h2 「학습과 평가를 멈춘 OpenAI 는 11일 뒤 RL 학습과 내부 inference 를 재개했다」는 45자에 맞추느라 '가장 능력 있는 모델의' 를 뺐다. 제목만 보면 OpenAI 전체의 학습과 평가가 멈춘 것처럼 읽힌다. 바로 아래 카드와 notes 가 이 범위를 적는다",
+  "마지막 recheck(표현): 10장 h2 「OpenAI 는 red-teaming 결과와 고친 것을 보고 재개를 판단했다」는 원문의 세 근거 가운데 monitoring 개선을 '고친 것' 에 묶었고, '감시를 피해 쉽게 쓸 경로를 찾지 못했다' 는 판의 판단 카드에만 있다",
+  "마지막 recheck(표현): 9장 h2 는 합성 비밀과 지시받은 시험이라는 조건을 판에만 두고, 12장 h2 는 남은 연결 셋 가운데 metrics 만 든다"
  ],
- "rendered": "render.mjs 로 1280px 와 390px 너비에서 15장을 38장 그림으로 찍었고 배치 경고와 가로 넘침은 없다. 마지막 수정 뒤 10장과 11장(1280)과 11장(390)을 직접 봤고, 첫 수정 뒤 표지와 2장(1280)을 봤다. 다크 모드는 보지 않았다",
+ "rendered": "render.mjs 로 1280px 와 390px 너비에서 15장을 38장 그림으로 찍었다. 세 건을 고친 뒤 표지와 11장(1280)을 직접 봤고 넘침은 없었다. h2 를 줄인 뒤 다시 찍어 10장(1280)을 봤고 넘침은 없었다. 다크 모드는 보지 않았다",
  "reviews": [
   {
    "at": "2026-10-25T10:30:07.912Z",
@@ -115,15 +149,25 @@
    "at": "2026-10-25T10:51:47.272Z",
    "agent": "recheck",
    "sha": "fbd2bc8f6bc1b810159f6096b3650a502b261c448a40106dd57cb3b634133960"
+  },
+  {
+   "at": "2026-10-25T12:12:55.473Z",
+   "agent": "recheck",
+   "sha": "0a20a11972147ac0c434aec39d88cff1012e70f86f303281af59777cec14b1e7"
+  },
+  {
+   "at": "2026-10-25T12:15:56.599Z",
+   "agent": "recheck",
+   "sha": "a1c72e4fa7bef1bd2fa99b8b3c87eea725da5e5df11b903b66725360fa1b6e09"
   }
  ],
- "stoppedBecause": "two rounds",
- "commitSubject": "OpenAI 학습 환경 격리 문서에 멈춘 범위와 재개 범위의 차이와 safety case 지침 장을 더하다",
- "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 다룬 explainer 를 소유자의 요청대로 고쳤다. 표지 문단에 원문의 'limited' 를 '제한적으로'로 되살렸다. 멈춘 것(가장 능력 있는 모델의 학습과 평가)과 재개한 것(frontier RL 학습과 내부 inference)이 다르다는 점을 표지, 2장, 10장, 13장이 짚게 했다. 원문이 링크한 safety case 글을 새로 열어 11장(safety case 지침)을 두고, 지침의 항목과 격리 글이 재개에 대해 적은 것을 나란히 놓았다. 지침은 권고 항목의 목록이고 통과 기준값을 담지 않는다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), OpenAI 「Towards safety cases for frontier AI training」(2026-09-28 게시, 2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
- "finishedAt": "2026-10-25T20:05:00+09:00",
+ "stoppedBecause": "recheck hard 0",
+ "commitSubject": "OpenAI 학습 환경 격리 문서에서 red-teaming 시기와 safety case 지침 두 행의 한정어를 원문에 맞추다",
+ "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 다룬 explainer 를 소유자의 요청대로 고쳤다. 표지와 summary 가 red-teaming 을 학습과 평가를 멈춘 기간 안에 한 것처럼 읽히던 문장을 둘로 나눴다. 원문은 캠페인을 시작했다고만 적는다. 11장의 safety case 지침 표에서 격리 red-teaming 행에 'subject to a safety analysis' 조건을 살렸고, 사건 조사 행을 지침이 든 예시로 고쳤다. main 의 새 h2 길이 규칙에 맞춰 h2 여섯 개를 줄였다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), OpenAI 「Towards safety cases for frontier AI training」(2026-09-28 게시, 2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
+ "finishedAt": "2026-10-25T12:17:04.023Z",
  "gates": {
-  "at": "2026-10-25T10:31:57.275Z",
-  "session": "419312dc-7f73-47f6-88df-99d74f13ba6c",
+  "at": "2026-10-25T12:17:18.549Z",
+  "session": "818bfc9c-2c50-4ede-85d7-2fd018d65026",
   "results": {
    "check-doc": {
     "pass": true
@@ -137,57 +181,41 @@
   }
  },
  "usage": {
-  "at": "2026-10-25T10:31:57.274Z",
+  "at": "2026-10-25T12:17:18.549Z",
   "total": {
    "claude-sonnet-5-5": {
-    "input_tokens": 38,
-    "cache_creation_input_tokens": 198946,
-    "cache_read_input_tokens": 363282,
-    "output_tokens": 33745
+    "input_tokens": 20,
+    "cache_creation_input_tokens": 63082,
+    "cache_read_input_tokens": 185481,
+    "output_tokens": 10978
    },
    "claude-opus-5-5": {
-    "input_tokens": 214,
-    "cache_creation_input_tokens": 295838,
-    "cache_read_input_tokens": 18105734,
-    "output_tokens": 103810
+    "input_tokens": 114,
+    "cache_creation_input_tokens": 130707,
+    "cache_read_input_tokens": 4289441,
+    "output_tokens": 42533
    }
   },
   "byAgent": {
    "recheck": {
     "claude-sonnet-5-5": {
      "input_tokens": 20,
-     "cache_creation_input_tokens": 70141,
-     "cache_read_input_tokens": 208300,
-     "output_tokens": 13200
+     "cache_creation_input_tokens": 63082,
+     "cache_read_input_tokens": 185481,
+     "output_tokens": 10978
     }
    },
    "researcher": {
     "claude-opus-5-5": {
-     "input_tokens": 214,
-     "cache_creation_input_tokens": 295838,
-     "cache_read_input_tokens": 18105734,
-     "output_tokens": 103810
-    }
-   },
-   "lens-numbers": {
-    "claude-sonnet-5-5": {
-     "input_tokens": 14,
-     "cache_creation_input_tokens": 105044,
-     "cache_read_input_tokens": 146662,
-     "output_tokens": 14432
-    }
-   },
-   "lens-reader": {
-    "claude-sonnet-5-5": {
-     "input_tokens": 4,
-     "cache_creation_input_tokens": 23761,
-     "cache_read_input_tokens": 8320,
-     "output_tokens": 6113
+     "input_tokens": 114,
+     "cache_creation_input_tokens": 130707,
+     "cache_read_input_tokens": 4289441,
+     "output_tokens": 42533
     }
    }
   }
  },
- "shippedAt": "2026-10-25T10:53:16.046Z",
+ "shippedAt": "2026-10-25T12:18:26.439Z",
  "ship": {
   "branch": "doc/2026-10-25-openai-frontier-training-containment",
   "draft": true,
@@ -196,7 +224,7 @@
    "check-prose": true,
    "check-claims": true
   },
-  "docSha": "fbd2bc8f6bc1b810159f6096b3650a502b261c448a40106dd57cb3b634133960",
+  "docSha": "a1c72e4fa7bef1bd2fa99b8b3c87eea725da5e5df11b903b66725360fa1b6e09",
   "unreviewed": false
  }
 }

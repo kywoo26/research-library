@@ -67,3 +67,5 @@
 {"id": "e68", "source": "w9", "locator": "§2. Operational guidelines", "quote": "or to disable the monitor from within RL training, evaluation, or an internal deployment", "why": "monitoring 을 끌 수 없게 하는 항목의 범위"}
 {"id": "e69", "source": "w9", "locator": "§3. Investigations of misalignment incidents", "quote": "Incident-derived evals should be created as “regression tests,” to ensure future models do not exhibit propensity for misalignment on very similar incidents.", "why": "사건 조사 절의 regression test"}
 {"id": "e70", "source": "w9", "locator": "§3. Investigations of misalignment incidents", "quote": "Public disclosures: Investigation results, postmortems, and operational changes should be shared with the public following the conclusion of the investigation.", "why": "사건 조사 결과 공개"}
+{"id":"e71","source":"w1","locator":"첫머리","quote":"we launched a high-compute red-teaming campaign to probe weaknesses in our infrastructure.","why":"캠페인을 시작했다고만 적고 중단 기간 안이라고는 적지 않는다"}
+{"id":"e72","source":"w9","locator":"§3. Investigations of misalignment incidents","quote":"Some examples of such actions could include:","why":"사건 조사 항목은 할 수 있는 일의 예이고 의무로 적지 않는다"}
