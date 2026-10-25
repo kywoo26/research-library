@@ -1,6 +1,6 @@
 {
  "slug": "2026-10-25-decision-models-for-local-jev",
- "question": "2026-10-25 기준으로 로컬에서 돌릴 수 있는 Jev 대안(판단과 확률을 내는 open 구현과 모델)에는 무엇이 있고, 어떤 리더보드로 비교되며, 로컬에서 쓰려면 무엇을 골라야 하는가",
+ "question": "2026-10-25 기준으로 로컬에서 돌릴 수 있는 Jev 대안(판단과 확률을 내는 open 구현과 모델)에는 무엇이 있고, 어떤 리더보드로 비교되며, 로컬에서 쓰려면 무엇을 골라야 하는가. 추가로 후보의 한국어 성능과 한국어용 모델을 고르는 기준, 상용 Jev 의 공개된 구조와 추정, open 진영의 구조는 무엇인가",
  "flipCondition": "후보가 Jev Decision Index 의 비공개 시험에서 Jev 1.14 와 0.9점 안에 들지 못하거나, 라이선스가 상용 운영을 막거나, 요청 형식·질문 격리가 기존 Jev 클라이언트와 맞지 않으면 그 GPU 칸의 판정이 바뀐다",
  "decided": [
   "문서 종류는 comparison 으로 정했다. 요청이 '무엇을 골라야 하는지'를 묻기 때문이다.",
@@ -11,24 +11,31 @@
   "GPU 메모리 칸(CPU, 16GB, 24~48GB, 80GB 이상)은 bf16 가중치 크기(파라미터 x 2바이트)에 여유를 더해 정했다. 문서에 이 조사의 판단이라고 밝혔다.",
   "1위 GLiDE 1.2 를 첫 추천으로 두지 않았다. Fastino Community License 가 연 매출 1천만 달러 초과 기업의 상용 운영에 별도 계약을 요구하기 때문이다.",
   "slug 는 check-doc 의 title-subject 규칙에 맞춰 2026-10-25-local-jev-alternatives 에서 2026-10-25-decision-models-for-local-jev 로 new-doc.mjs rename 했다.",
-  "owner 의 이번 실행 지시대로 ship.mjs 를 돌리지 않았고 push 와 PR 도 하지 않았다.",
-  "Hugging Face 출처 14개를 kind=web 으로 기록했다. 게이트 hook 은 RESEARCH_CHECKOUT_DIR 없이 돌아서 repo 체크아웃을 찾지 못한다. 그래서 커밋을 담은 resolve URL 에서 받은 바이트를 notes/web/<id>.txt 로 고정했다. repo 와 commit 은 같은 줄에 남겼다. 보드의 한 줄 JSON(3.1MB)은 인용 주변 ±200자만 발췌했고 원본 sha256 을 file_sha256 에 적었다."
+  "Hugging Face 출처 14개를 kind=web 으로 기록했다. 게이트 hook 은 RESEARCH_CHECKOUT_DIR 없이 돌아서 repo 체크아웃을 찾지 못한다. 그래서 커밋을 담은 resolve URL 에서 받은 바이트를 notes/web/<id>.txt 로 고정했다. repo 와 commit 은 같은 줄에 남겼다. 보드의 한 줄 JSON(3.1MB)은 인용 주변 ±200자만 발췌했고 원본 sha256 을 file_sha256 에 적었다.",
+  "2026-10-25 수정 실행: owner 요청(원문 인용) «추가 조사 두 가지를 더해: (1) 로컬 Jev 대안들의 한국어 성능 … (2) 상용 Jev(TypeSafe)의 아키텍처로 예상되는 것과, open 진영 대안들이 지향하는 아키텍처» 에 따라 장 넷(3 Jev 구조, 4 open 구조, 10 한국어 평가, 11 한국어 고르기)을 더했다. 기존 장은 번호 참조, 12장 노트 하나, 13장 항목 둘, 14장, 15장만 고쳤다.",
+  "owner 결정(원문 인용) «run.json 의 needs_owner 중 유지 이력과 Artificial Analysis 보드는 네 권고대로 넣지 않는 것으로 정한다. 한국어 표본 측정 권고는 (1)로 대신한다.» 에 따라 두 항목은 (a) 그대로 두었고, 한국어 측정 항목은 10장과 11장으로 대신해 needs_owner 에서 뺐다.",
+  "owner 지시대로 research/2026-09-23-jev-open-source-ecosystem 과 그 브랜치는 열지 않았다. research/2026-09-21-jev-system-one 의 원장(sources, evidence)은 어떤 TypeSafe 페이지에 구조 진술이 있는지 찾는 데만 썼다. 그 원장의 web 출처에는 고정 사본과 sha 가 없어서, 필요한 TypeSafe 출시 글, AI primer, archerhume 글을 2026-10-25 판으로 다시 받아 w-ts-launch, w-ts-primer, w-archer 로 고정했다. 출시 글의 문구는 9월 원장의 인용과 조금 달라졌다('2 stage-system' → 'two-stage system').",
+  "상용 Jev 구조는 TypeSafe 공식 자료(공개), archerhume 의 API probe 관찰(관찰), 그 글의 추론(추정) 세 칸으로 갈라 적었다. 외부 추정 출처로는 공개 근거와 관찰과 추론을 스스로 나눠 쓴 archerhume 글 하나만 썼다.",
+  "한국어 공개 평가는 보드 methodology.json(한국어 0건), 후보 카드 13개(한국어 0건), Laya BENCHMARKS.md, backbone 카드 넷(Qwen3.5-9B, Qwen3.5-27B, Qwen3.8-27B, Gemma-4-31B-it)과 웹 검색으로 찾았다. 모델별 한국어 숫자는 Laya 다국어판의 MASSIVE 100문항뿐이라 표에 '없음'으로 밝혔다.",
+  "한국어 모델 선택 기준은 이 조사가 세운 것으로 표시했고, 근거는 보드의 실행 규칙(자르지 않음, 선택지 유지, 기본 prompt, 재시도 없음, 미응답=오답), Laya 카드의 언어별 보정 권고와 크메르어 사례, Kev 카드의 paired bootstrap 과 coverage 지표, TypeSafe 의 비영어 권고다. 100문항 ±0.10 은 이항 근사로 계산했다고 문서에 밝혔다.",
+  "owner 지시대로 git 이 막혀 /usr/bin/git 으로 이 worktree 안에서만 브랜치를 바꿨다(git switch -C doc/2026-10-25-decision-models-for-local-jev origin/doc/2026-10-25-decision-models-for-local-jev)."
  ],
- "needs_owner": [
-  "lens A 가 후보의 유지 이력(릴리스 주기, 관리자 수, 이슈 응답)을 요구했다. 지금은 9장에 '보지 않았다'는 한계로만 적었다. 선택지: (a) 그대로 둔다, (b) 후보 저장소의 커밋 이력과 Discussions 를 열어 유지 장을 추가한다. 내 선택은 (a)다. 저장소가 모두 한 달 남짓이라 이력이 판단을 바꾸기 어렵다.",
-  "Artificial Analysis Decision Index 의 점수표는 JavaScript 로 그려져 정적 사본에 값이 없다. 선택지: (a) 방법론만 둔다, (b) headless 렌더로 값을 받아 hosted 비교를 한 장 추가한다. 내 선택은 (a)다. 로컬 선택이라는 질문에는 쓰이지 않는다.",
-  "한국어 업무 성능은 자료가 없다. 실제 도입 전에 owner 의 한국어 표본으로 elephant-1(또는 mammoth-1)과 Jev 1.14 를 함께 재는 실행이 필요하다. 이 문서 범위 밖이다."
- ],
+ "needs_owner": [],
  "unverified": [
   "모델을 하나도 실행하지 않았다. 메모리·설치 조건은 각 model card 의 설명이고 지연은 보드가 RTX PRO 6000 에서 잰 값이다.",
   "각 모델의 서빙 코드(engine.py, serve.patch, knowline_server.py, pplx_decider 패키지 등)는 열지 않았다. 6장의 질문 처리 방식은 카드의 설명이다.",
   "mammoth-1 과 elephant-1 이 한 요청의 질문끼리 서로 보는지 확인하지 못했다(카드에 없음).",
   "보드의 비공개 시험은 운영자 밖에서 확인할 수 없다.",
-  "Kev 27B 와 pplx-decider flash 카드는 앞부분만, StartLux 9B, Laya, Clef-flash 는 라이선스 머리말만 읽었다.",
-  "Artificial Analysis 점수표 값은 읽지 못했다."
+  "Artificial Analysis 점수표 값은 읽지 못했다.",
+  "pplx-decider flash 카드는 앞부분만, Clef-flash 는 머리말과 Model 절만, StartLux 9B 는 머리말과 How it answers 절만 읽었다. GLiDE, Clef-flash, Jeffan-31b 의 학습 방법은 읽지 않아 4장 표에 비워 두었다.",
+  "3장의 관찰 값은 archerhume 글에 적힌 값이다. 글의 evidence bundle(원 요청 기록)은 열지 않았고, 관찰은 jev-1.13.0 에 대한 것이라 Jev 1.14 에서 같은지 모른다.",
+  "Laya 의 언어별 값은 BENCHMARKS.md 표에서 옮겼고 결과 JSON(research/results/*.json)과 대조하지 않았다.",
+  "한국어 평가를 찾는 웹 검색(2026-10-25, WebSearch: 'Jev decision model Korean evaluation benchmark', 'Jev 한국어 성능 TypeSafe decision model')은 고정 사본이 없다. 검색 결과에 모델별 한국어 숫자가 없었다는 것은 이 기록으로만 남는다. 결과 중 discuss.pytorch.kr 의 글(12095)은 Decision Index 0.2.1 시점에 카드에 ko 를 적은 모델이 둘(Metask-Jev-4B, LFM2.5-2.6B-RLCD)이라고 적지만, 둘 다 이 문서의 후보 밖이고 한국어 점수는 아니라서 문서에 넣지 않았다.",
+  "한국어 표본 측정은 하지 않았다. 11장은 측정 순서이고 결과가 아니다.",
+  "pplx-decider 와 Jeffan-31b 의 라이선스는 README 에서 옮겼고 LICENSE 파일은 열지 않았다."
  ],
  "unfixed": [],
- "rendered": "render.mjs 로 1280px 과 390px 화면을 찍어 표지, 4장 막대 그림, 6장 표(390px), 8장 판단 판을 눈으로 확인했다. 배치 경고 없음(첫 렌더의 390px 가로 넘침은 표를 tablewrap 으로 감싸 고쳤다).",
+ "rendered": "render.mjs 로 1280px 과 390px 화면을 찍어 마지막 수정 뒤 표지 흐름 판(3줄, 화살표 8개), 3장 공개·관찰·추정 판, 4장 표, 10장 표와 막대 그림, 11장 절차 판(390px 한 줄 배치)을 눈으로 확인했다. 배치 경고 없음.",
  "lensesReported": [
   "B",
   "A"
@@ -56,12 +63,40 @@
     "wording": 0,
     "badRejections": 0
    }
+  },
+  {
+   "round": 3,
+   "applied": 15,
+   "rejected": 6,
+   "touched": 7,
+   "recheck": {
+    "hard": 1,
+    "wording": 3,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 4,
+   "applied": 4,
+   "rejected": 0,
+   "touched": 4,
+   "recheck": {
+    "hard": 0,
+    "wording": 0,
+    "badRejections": 0
+   }
   }
  ],
  "rejected": [
   "lens A: 3장의 Artificial Analysis 칸을 접으라는 제안. owner 질문이 '어떤 리더보드로 비교되는지'를 묻기 때문에 남겼다.",
   "lens A: 9장의 '카드와 실제 접근' 항목을 7장으로 옮기라는 제안. 확인 시점에 기댄 관찰이라 한계 장에 두었다.",
-  "lens A: 7장의 bf16 크기 계산 노트를 빼라는 제안. 8장 GPU 칸의 근거라 남겼다."
+  "lens A: 7장의 bf16 크기 계산 노트를 빼라는 제안. 8장 GPU 칸의 근거라 남겼다.",
+  "lens A (수정 실행): 표지 흐름에서 11장 카드를 12장 앞으로 옮기거나 12→11 화살표를 두라는 제안. 흐름 판의 화살표가 이미 8개(상한)이고, 11장은 한국어 줄의 판단 단계로 12장과 나란히 놓인 것이 장의 역할과 맞아 그대로 두었다.",
+  "lens A (수정 실행): 10장 표의 '공개된 한국어 평가' 열을 지우고 한 문장으로 줄이라는 제안. owner 가 '모델별로 옮기고, 없으면 없다고 밝혀'라고 요청해 모델별 '없음'을 남겼다.",
+  "lens A (수정 실행): 4장 표의 학습과 보정 열을 접으라는 제안. Jev 의 RLCD 와 open 쪽 학습 방식을 견주는 근거라 남겼다.",
+  "lens A (수정 실행): 13장의 '유지 이력', 'MIT 표기' 항목을 접으라는 제안. owner 가 유지 이력은 권고대로 한계 항목으로 두기로 정했고, MIT 표기는 도입 판단의 조건이라 남겼다.",
+  "lens A (수정 실행): 12장 .lead 에 elephant-1 의 16,384 token 한도를 올리라는 제안. 12장 카드와 11장 노트(길이 한도)에 이미 있고 이번 수정 범위 밖이라 그대로 두었다.",
+  "lens A (수정 실행): 11장 ⑤ 근거(Laya 0.32B encoder 의 보정 효과)가 27B decoder 에 옮겨지는지 밝히라는 제안. ⑤는 보정을 하라는 절차이고 효과 크기를 약속하지 않아 그대로 두었다."
  ],
  "stoppedBecause": "dry",
  "after_last_recheck": [],
@@ -82,8 +117,8 @@
   }
  },
  "commitSubject": "로컬에서 돌리는 Jev 대안 decision model 비교 문서 추가",
- "commitBody": "TypeSafe Jev 를 로컬에서 대신할 open-weight decision model 을 비교한다.\nJev Decision Index 0.4.1 의 비공개 시험 Full score 를 크기별로 견주고, 요청 형식과\n질문 격리, GPU 메모리, 라이선스를 겹쳐 GPU 칸별로 시험할 모델을 고른다.\n\n출처:\n- huggingface.co/spaces/multimodalart/jev-decision-index @ 0b5ecaf (데이터 2026-10-22)\n- model card: fastino/GLiDE, tattrongvu/Jeffan-31b-1710, baselabs/mammoth-1,\n  baselabs/elephant-1, perplexity-ai/pplx-decider-v1.2 와 flash-v1.2, jaredpalmer/kev-27b,\n  PelaAI/KnowLine-4B-Gen5.5, startlux-models/StartLux-Decision-v1.1-9B-Instant,\n  knowledgator/gliclass-v4-edge, OmniJev/OneJev1.6-0.8B, convaiinnovations/laya,\n  Cloudflare/clef-flash (모두 커밋 고정)\n- TypeSafe 문서 Models, Introduction 과 Artificial Analysis Decision Index 방법론\n  (2026-10-25 사본)",
- "finishedAt": "2026-10-25T21:40:00+09:00",
+ "commitBody": "TypeSafe Jev 를 로컬에서 대신할 open-weight decision model 을 비교한다.\nJev Decision Index 0.4.1 의 비공개 시험 Full score 를 크기별로 견주고, 요청 형식과\n질문 격리, GPU 메모리, 라이선스를 겹쳐 GPU 칸별로 시험할 모델을 고른다.\n상용 Jev 구조는 TypeSafe 가 공개한 것과 외부 probe 의 관찰, 추정을 갈라 적고,\nopen 상위권의 backbone 과 readout 을 견준다. 후보의 한국어 공개 평가를 모델별로\n옮기고(Laya 다국어판 밖에는 없다), 한국어 표본으로 재서 고르는 순서를 세운다.\n\n출처:\n- huggingface.co/spaces/multimodalart/jev-decision-index @ 0b5ecaf (데이터 2026-10-22)\n- model card: fastino/GLiDE, tattrongvu/Jeffan-31b-1710, baselabs/mammoth-1,\n  baselabs/elephant-1, perplexity-ai/pplx-decider-v1.2 와 flash-v1.2, jaredpalmer/kev-27b,\n  PelaAI/KnowLine-4B-Gen5.5, startlux-models/StartLux-Decision-v1.1-9B-Instant,\n  knowledgator/gliclass-v4-edge, OmniJev/OneJev1.6-0.8B, convaiinnovations/laya,\n  Cloudflare/clef-flash (모두 커밋 고정)\n- backbone card: Qwen/Qwen3.5-9B, Qwen/Qwen3.5-27B, Qwen/Qwen3.8-27B, google/gemma-4-31B-it\n- NandhaKishorM/laya BENCHMARKS.md @ 7a77439\n- TypeSafe 문서 Models, Introduction, AI primer 와 출시 글, archerhume 의\n  'Jev’s Architecture Unmasked', Artificial Analysis Decision Index 방법론 (2026-10-25 사본)",
+ "finishedAt": "2026-10-25T23:30:00+09:00",
  "reviews": [
   {
    "at": "2026-10-25T12:29:02.451Z",
@@ -104,6 +139,26 @@
    "at": "2026-10-25T12:36:06.478Z",
    "agent": "recheck",
    "sha": "c7b2be8a20b5450e9662bae8e9c770fc6e251eb5744bde540f2abfe858161101"
+  },
+  {
+   "at": "2026-10-25T13:03:40.788Z",
+   "agent": "lens-numbers",
+   "sha": "0bf042396c4962025ec9a658071265de6225534f5c2e16b0377516bd4c50cf3a"
+  },
+  {
+   "at": "2026-10-25T13:03:46.556Z",
+   "agent": "lens-reader",
+   "sha": "0bf042396c4962025ec9a658071265de6225534f5c2e16b0377516bd4c50cf3a"
+  },
+  {
+   "at": "2026-10-25T13:09:14.334Z",
+   "agent": "recheck",
+   "sha": "6431758467828e3cd186e52315960407f2621c6b4089706c3ec15b073de12fba"
+  },
+  {
+   "at": "2026-10-25T13:13:10.244Z",
+   "agent": "recheck",
+   "sha": "444dd250b48cd9e7d4b034a8120e7014086cbd82612e61bb9ee7345f6ced23e4"
   }
  ],
  "usage": {
@@ -156,5 +211,17 @@
     }
    }
   }
+ },
+ "shippedAt": "2026-10-25T13:14:44.657Z",
+ "ship": {
+  "branch": "doc/2026-10-25-decision-models-for-local-jev",
+  "draft": false,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "444dd250b48cd9e7d4b034a8120e7014086cbd82612e61bb9ee7345f6ced23e4",
+  "unreviewed": false
  }
 }

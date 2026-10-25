@@ -230,16 +230,18 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 <main>
   <section class="slide" data-role="cover" data-label="표지">
   <h1>로컬에서 돌리는 Jev 대안 decision model 고르기</h1>
-  <p class="answer">Jev는 TypeSafe가 API로만 제공하는 decision model이라, 로컬에서 쓰려면 open-weight 모델로 바꿔야 한다. 커뮤니티 보드 Jev Decision Index의 비공개 시험 점수에서 Jev 1.14와 같거나 높은 모델은 9B인 elephant-1을 빼면 모두 25B 이상이고, 5B 이하는 4점 넘게 낮다. 이 조사의 판단으로는 GPU가 24GB 이상이면 elephant-1을, 80GB 이상이면 mammoth-1을 먼저 시험한다. 96GB GPU가 있으면 Jeffan-31b도 후보다.</p>
-  <p class="src">커뮤니티 리더보드 Jev Decision Index 0.4.1의 2026-10-22 데이터가 중심이다. Hugging Face 계정 multimodalart가 운영하고 TypeSafe와는 관계가 없다고 밝힌다. 여기에 후보를 낸 Fastino, Baseten의 Base Labs, Perplexity, PelaAI, Jared Palmer 등의 model card와 TypeSafe 공식 문서를 더했다. 모두 2026-10-25에 받은 판이다.</p>
-  <div class="board flow" data-cols="출발|비교 기준|결과|조건|판단" data-lanes="1|2" data-read="rows" aria-label="Jev는 로컬에서 돌릴 수 없으므로 open-weight 후보를 Jev Decision Index의 비공개 시험 점수로 견주고, 크기별 점수와 요청 형식, 라이선스를 겹쳐 GPU 메모리별로 시험할 모델을 고른다">
+  <p class="answer">Jev는 TypeSafe가 API로만 제공하고 backbone도 밝히지 않은 decision model이라, 로컬에서 쓰려면 open-weight 모델로 바꿔야 한다. 커뮤니티 보드 Jev Decision Index에서 Jev 1.14 이상인 open 모델은 9B인 elephant-1을 빼면 모두 25B 이상의 decoder backbone이다. 이 조사의 판단으로는 GPU가 24GB 이상이면 elephant-1을, 80GB 이상이면 mammoth-1을 먼저 시험한다. 보드와 후보 카드에 한국어 점수가 없으므로, 한국어 업무는 자기 표본으로 다시 재서 고른다.</p>
+  <p class="src">커뮤니티 리더보드 Jev Decision Index 0.4.1의 2026-10-22 데이터가 중심이다. Hugging Face 계정 multimodalart가 운영하고 TypeSafe와는 관계가 없다고 밝힌다. 여기에 후보를 낸 Fastino, Baseten의 Base Labs, Perplexity, PelaAI, Jared Palmer 등의 model card, TypeSafe 공식 문서와 출시 글, Jev API를 밖에서 시험한 개인 블로그 archerhume의 글, Laya의 언어별 측정표를 더했다. 모두 2026-10-25에 받은 판이다.</p>
+  <div class="board flow" data-cols="출발|비교 기준|결과|조건|판단" data-lanes="1|2|3" data-read="rows" aria-label="Jev는 로컬에서 돌릴 수 없으므로 open-weight 후보를 Jev Decision Index의 비공개 시험 점수로 견주고, 크기별 점수와 요청 형식, 라이선스를 겹쳐 GPU 메모리별로 시험할 모델을 고른다. 한국어 점수는 보드에 없어서 아래 줄은 한국어 표본으로 다시 재는 단계로 이어진다">
     <a class="card" id="f-jev" href="#p2" data-col="출발" data-lane="1..2" data-center><b>Jev는 hosted API로만 쓴다</b><p>모든 계정이 같은 가중치를 쓰고 내려받을 수 없다</p></a>
-    <a class="card" id="f-board" href="#p3" data-col="비교 기준" data-lane="1..2" data-center><b>비공개 시험의 Full score로 견준다</b><p>open 모델을 RTX PRO 6000 한 장에서 같은 요청으로 돌린다</p></a>
-    <a class="card" id="f-size" href="#p4" data-col="결과" data-lane="1"><b>Jev 이상인 행은 거의 25B 이상</b><p>40개 중 15B 미만은 elephant-1 하나</p></a>
-    <a class="card t-warn" id="f-card" href="#p5" data-col="결과" data-lane="2"><b>카드의 점수는 다른 판의 값이다</b><p>표의 1B 이하 모델은 새 영역 시험에서 10점 안팎이다</p></a>
-    <a class="card" id="f-contract" href="#p6" data-col="조건" data-lane="1"><b>질문 처리와 요청 형식이 다르다</b><p>pplx-decider v1.2는 질문끼리 서로 본다</p></a>
-    <a class="card" id="f-cost" href="#p7" data-col="조건" data-lane="2"><b>메모리와 라이선스가 후보를 줄인다</b><p>GLiDE와 StartLux는 상용 조건이 붙는다</p></a>
-    <a class="card t-good" id="f-pick" href="#p8" data-col="판단" data-lane="1..2" data-center><b>24GB면 elephant-1, 80GB면 mammoth-1</b><p>자기 데이터로 정답률과 ECE를 다시 잰다</p></a>
+    <a class="card" id="f-board" href="#p5" data-col="비교 기준" data-lane="1..2" data-center><b>비공개 시험의 Full score로 견준다</b><p>open 모델을 RTX PRO 6000 한 장에서 같은 요청으로 돌린다</p></a>
+    <a class="card" id="f-size" href="#p6" data-col="결과" data-lane="1"><b>Jev 이상인 행은 거의 25B 이상</b><p>40개 중 15B 미만은 elephant-1 하나</p></a>
+    <a class="card t-warn" id="f-card" href="#p7" data-col="결과" data-lane="2"><b>카드의 점수는 다른 판의 값이다</b><p>표의 1B 이하 모델은 새 영역 시험에서 10점 안팎이다</p></a>
+    <a class="card" id="f-contract" href="#p8" data-col="조건" data-lane="1"><b>질문 처리와 요청 형식이 다르다</b><p>pplx-decider v1.2는 질문끼리 서로 본다</p></a>
+    <a class="card" id="f-cost" href="#p9" data-col="조건" data-lane="2"><b>메모리와 라이선스가 후보를 줄인다</b><p>GLiDE와 StartLux는 상용 조건이 붙는다</p></a>
+    <a class="card t-warn" id="f-ko" href="#p10" data-col="조건" data-lane="3"><b>한국어 공개 점수는 거의 없다</b><p>Laya 다국어판의 의도 분류 100문항이 전부다</p></a>
+    <a class="card t-good" id="f-pick" href="#p12" data-col="판단" data-lane="1..2" data-center><b>24GB면 elephant-1, 80GB면 mammoth-1</b><p>자기 데이터로 정답률과 ECE를 다시 잰다</p></a>
+    <a class="card" id="f-kom" href="#p11" data-col="판단" data-lane="3"><b>한국어는 영어 짝 문항과 함께 잰다</b><p>보드 규칙대로 돌리고 언어별 ECE를 본다</p></a>
     <span class="edge" data-from="f-jev" data-to="f-board"></span>
     <span class="edge" data-from="f-board" data-to="f-size"></span>
     <span class="edge" data-from="f-board" data-to="f-card"></span>
@@ -247,13 +249,16 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <span class="edge" data-from="f-card" data-to="f-cost"></span>
     <span class="edge" data-from="f-contract" data-to="f-pick"></span>
     <span class="edge" data-from="f-cost" data-to="f-pick"></span>
+    <span class="edge" data-from="f-ko" data-to="f-kom"></span>
   </div>
   <div class="toc">
     <p class="toc-h">논증 밖에서 더 보는 장</p>
     <ul>
-      <li><span class="g">범위</span><a href="#p9">9 · 한계</a><span class="f">보드 하나, 운영자 한 명의 결과이고 순위는 며칠 사이에도 바뀐다</span></li>
-      <li><span class="g"></span><a href="#p10">10 · 읽은 범위</a><span class="f">model card와 보드 데이터만 읽었고 모델은 돌리지 않았다</span></li>
-      <li><span class="g"></span><a href="#p11">11 · 출처</a><span class="f">고정한 커밋과 받은 시각</span></li>
+      <li><span class="g">구조</span><a href="#p3">3 · Jev 구조</a><span class="f">TypeSafe는 출력 방식과 질문 격리, 학습법 이름만 밝혔고 backbone은 외부 추정이다</span></li>
+      <li><span class="g"></span><a href="#p4">4 · open 구조</a><span class="f">Jev보다 높은 open 모델은 모두 decoder이고 34개가 Gemma-4-31B나 Qwen3.8-27B 기반이다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">보드 하나, 운영자 한 명의 결과이고 순위는 며칠 사이에도 바뀐다</span></li>
+      <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">model card와 보드 데이터, 공개 글만 읽었고 모델은 돌리지 않았다</span></li>
+      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">고정한 커밋과 받은 시각</span></li>
     </ul>
   </div>
   </section>
@@ -274,10 +279,75 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li>TypeSafe 문서는 Jev 1.14를 2026-10-14부터 제공한다고 적는다. 영어가 주 학습 언어이고 정확도도 영어에서 가장 높다고 밝힌다.</li>
     <li>ECE는 모델이 고른 답에 준 확률과 실제 정답률의 차이를 구간별로 평균한 값이고 작을수록 좋다. 보드는 정오가 갈리는 벤치마크에서 요청 6개 중 1개를 뽑아 재며, Jev 1.14의 값은 31개 벤치마크로 계산됐다.</li>
   </ul>
-  <p class="so">그래서: 로컬 후보를 고를 때 점수 하나만 보면 Jev 클라이언트가 기대하던 동작을 놓친다. 요청 형식과 질문 격리는 6장에서 후보별로 다시 본다.</p>
+  <p class="so">그래서: 로컬 후보를 고를 때 점수 하나만 보면 Jev 클라이언트가 기대하던 동작을 놓친다. 요청 형식과 질문 격리는 8장에서 후보별로 다시 본다.</p>
   <details class="orig"><summary>원문</summary>
     <p>TypeSafe Models §Customizing Jev: <span class="q">“It is trained with RLCD to return calibrated decisions, and the same weights serve every account.”</span></p>
     <p>TypeSafe Introduction: <span class="q">“Every question is evaluated in parallel and in isolation against the same state in one go.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="architecture" data-label="Jev 구조">
+  <h2>Jev의 내부 구조는 출력 방식까지만 공개됐다</h2>
+  <p class="lead">TypeSafe는 출력 방식과 질문 처리, 학습 방법의 이름을 밝힌다. backbone은 API를 밖에서 시험한 개인 글이 causal decoder, 아마 sparse MoE로 추정할 뿐이라서, 아래 판은 공개와 관찰과 추정을 칸으로 나눈다.</p>
+  <div class="board dense" data-cols="TypeSafe가 밝힌 것|밖에서 관찰한 것|관찰에서 나온 추정" data-lanes="출력|질문과 state|학습|backbone" aria-label="Jev의 출력, 질문 처리, 학습, backbone을 줄로 놓고 TypeSafe가 밝힌 것, archerhume 글이 API로 관찰한 것, 그 관찰에서 나온 추정을 칸으로 나눈다. 공개 칸은 출력과 질문 격리에서 가장 구체적이고, backbone 줄의 내용은 대부분 추정 칸에 있다">
+    <div class="card t-key" data-col="TypeSafe가 밝힌 것" data-lane="출력"><b>모든 확률을 한 번에 낸다</b><p>token을 하나씩 생성하지 않고 선택지 확률을 병렬로 낸다</p><p>선택지는 255개까지 받고, 많으면 개별 점수를 매긴 뒤 다시 고르는 2단계로 처리한다</p><p class="ev">TypeSafe 출시 글</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="질문과 state"><b>state를 한 번 읽고 질문은 격리한다</b><p>모든 질문을 같은 state에 대해 병렬로, 서로 격리해 평가한다</p><p class="ev">TypeSafe Models, Introduction</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="학습"><b>pretrained LM을 RLCD로 후학습한다</b><p>글 대신 결정과 보정된 확률을 내도록 학습하고, 모든 계정에 같은 가중치를 쓴다</p><p class="ev">TypeSafe AI primer, Models</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="backbone"><b>새 model architecture라고만 쓴다</b><p>읽은 공식 문서와 출시 글에 base model의 이름과 크기가 없다</p><p class="ev">TypeSafe 출시 글</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="출력"><b>output_tokens는 생성 기록이 아니다</b><p>예/아니오 질문에서 공통 4, 답마다 15, 질문 이름 길이를 더한 값과 정확히 맞는다</p><p>선택지를 하나 더하면 기존 두 선택지의 확률 비가 바뀐다</p><p class="ev">archerhume §1, §4</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="질문과 state"><b>질문 사이로 정보가 건너가지 않는다</b><p>옆 질문에 넣은 비밀 코드를 고를 확률은 0.00이었고, state에 넣자 0.90~0.92가 됐다</p><p>입력 token은 질문 하나에 268, 둘에 276으로 질문별 몫이 더해진다</p><p class="ev">archerhume §2</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="backbone"><b>tokenizer가 공개된 것과 맞지 않는다</b><p>token 수가 공개 tokenizer 192개 어느 것과도 일치하지 않았다. 가장 가까운 Qwen도 415개 시험 중 348개만 같았다</p><p class="ev">archerhume §3</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="출력"><b>마지막 위치 head나 pointer식 scorer</b><p>두 readout 모두 관찰과 맞고, 글쓴이는 어느 쪽인지 정하지 못했다</p><p class="ev">archerhume §4</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="질문과 state"><b>state의 KV cache를 질문 갈래가 함께 읽는다</b><p>공통 prefix의 KV cache에 질문별 causal suffix를 잇는 구현을 가장 자연스럽다고 본다</p><p class="ev">archerhume §2</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="학습"><b>결과 기반 objective로 readout까지 맞춘다</b><p>글쓴이는 실제 recipe가 공개되지 않았다고 적고, 이 학습법은 자기 제안이라고 밝힌다</p><p class="ev">archerhume §5</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="backbone"><b>causal decoder, 아마 sparse MoE</b><p>실험으로는 decoder와 encoder를 가를 수 없어서 decoder를 가정한다</p><p>약 30k token을 약 160ms에 처리한 속도가 활성 10B 안팎의 MoE와 맞는다고 계산한다</p><p class="ev">archerhume §3, §6</p></div>
+  </div>
+  <ul class="notes">
+    <li>archerhume 글은 2026-09-17에 jev-1.13.0을 early-access 계정 하나로 시험한 결과다. Jev 1.14에서도 같은 관찰이 나오는지는 확인되지 않았다.</li>
+    <li>글쓴이는 MoE가 측정이 아닌 추론이라고 적는다. dense 모델로 바꿔도 질문 격리와 readout에 대한 나머지 추정은 그대로라고 쓴다.</li>
+    <li>모든 계정에 같은 가중치를 쓰므로 고객별 fine-tuning은 없다. 업무에 맞추는 수단은 요청의 state와 질문뿐이다.</li>
+  </ul>
+  <p class="so">그래서: 로컬 대안이 Jev와 같은 내부 구조인지는 확인할 수 없다. 후보는 TypeSafe가 공개한 계약인 질문 격리와 모든 선택지의 확률, 보정을 맞추는지로 본다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>TypeSafe 출시 글: <span class="q">“We built a new stack entirely focused on automation: with a new model architecture, parallel sampler for maximum efficiency, and training method we call Reinforcement Learning for Calibrated Decisions (RLCD).”</span></p>
+    <p>TypeSafe 출시 글 §Wikiracing: <span class="q">“Jev supports a cardinality up to 255. For the higher cardinality choices, we do a two-stage system of scoring independently then making an explicit choice, hence the occasional slowdown.”</span></p>
+    <p>TypeSafe Models: <span class="q">“Jev ingests the state once and evaluates every question against it in parallel.”</span></p>
+    <p>archerhume 도입부: <span class="q">“This is clearly all quite speculative, so I’ll try and be as clear as possible around what evidence was published by TypeSafe, what was observed in experiments, and whats inferred from them.”</span></p>
+    <p>archerhume §6: <span class="q">“Specialised hardware could let a dense model match the speed, and benchmark scores may overstate how much knowledge the model holds, so this remains an inference, not a measurement.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="architecture" data-label="open 구조">
+  <h2>Jev보다 높은 open 모델 40개는 모두 decoder backbone이다</h2>
+  <p class="lead">보드는 228행 중 190행을 autoregressive, 30행을 encoder로 분류하고, Jev 1.14보다 높은 40행은 모두 autoregressive다. 표의 decoder 후보들은 글을 생성하지 않고 선택지 확률을 읽으며, 맨 아래 두 행은 견주기 위한 encoder다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>backbone</th><th>state와 질문을 읽는 방식</th><th>확률을 읽는 곳</th><th>카드가 적은 학습과 보정</th></tr></thead>
+    <tbody>
+      <tr><td>GLiDE 1.2</td><td>Qwen3.8-27B 수정판</td><td>질문마다 state 전체를 따로 forward</td><td>255-way readout</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>Kev 27B</td><td>Qwen3.8-27B, prefill만 쓴다</td><td>state를 한 번 계산해 cache하고, 질문은 각자 그 뒤에 잇는다</td><td>pointer head: 선택지 끝 token과 질문 끝 token을 비교</td><td>전체 fine-tune, temperature 1.32 하나</td></tr>
+      <tr><td>mammoth-1, elephant-1</td><td>Qwen3.5-27B, Qwen3.5-9B</td><td>공통 prefix를 한 번 prefill, full-attention 층에 block-bidirectional mask</td><td>선택지마다 확률</td><td>cross-entropy에 Brier 항, 학습한 "모름" 선택지</td></tr>
+      <tr><td>pplx-decider v1.2</td><td>Qwen3.8-27B</td><td>요청 전체를 한 sequence로 읽고, full-attention 층은 noncausal</td><td>질문마다 marker 위치의 [255, 5120] head</td><td>보드 벤치마크의 training split 포함</td></tr>
+      <tr><td>StartLux 9B</td><td>Qwen3.5-9B</td><td>질문마다 prompt 하나, full-attention 층에서 prompt를 양방향으로 읽음</td><td>마지막 위치의 선택지 글자 logit</td><td>약 270만 예제 fine-tune 뒤 170만 예제 adapter</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>Qwen3.5-4B</td><td>질문마다 forward</td><td>선택지 label token의 확률</td><td>LoRA SFT 두 개를 평균, temperature 1.50</td></tr>
+      <tr><td>Clef-flash</td><td>Qwen3.5-9B</td><td>작은 transformer head가 state의 근거를 질문으로 보낸다</td><td>모든 질문의 선택지를 함께 점수</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>Gemma-4-31B-it</td><td>질문을 하나씩 읽는다</td><td>한 번의 forward에서 선택지 확률</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>GLiClass v4 edge</td><td>DeBERTa-v3-large encoder</td><td>label과 본문을 함께</td><td>선택지 logit의 softmax</td><td>지도학습, PPO식 강화학습, 보정기</td></tr>
+      <tr><td>Laya</td><td>ModernBERT-large encoder</td><td>모든 질문을 한 forward로</td><td>선택지마다 [MASK] 위치 점수</td><td>proper scoring rule을 보상으로 쓰는 강화학습</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li>autoregressive는 보드가 붙인 분류 이름이고, backbone이 decoder라는 뜻이다. 표의 decoder 후보도 추론 때 글을 생성하지 않는다.</li>
+    <li>Jev 1.14보다 높은 40행의 base는 Gemma-4-31B 계열이 18개, Qwen3.8-27B가 16개, 그 밖이 6개다. encoder 30행의 최고점은 GLiClass v4 edge의 31.21, diffusion 4행의 최고점은 49.53이다. 보드 meta의 base_model과 technique로 센 값이며 보드는 이 집계를 싣지 않는다.</li>
+    <li>GLiDE와 pplx-decider의 255행 readout은 Jev가 공개한 선택지 한도와 같은 크기다. Kev의 pointer head와 공통 state cache는 3장의 추정과 같은 모양이다. 두 대응은 이 조사가 맞춰 본 것이고, 3장의 추정 자체가 jev-1.13.0을 밖에서 시험해 얻은 추론이라 근거가 한 단계 더 약하다.</li>
+    <li>이 표는 2026-10-22 데이터 하나의 상위권 모양이다. 시간에 따른 추세는 보지 않았다.</li>
+  </ul>
+  <p class="so">그래서: Jev보다 높은 open 모델은 9B인 elephant-1을 빼면 25B 이상 decoder backbone을 쓰고, 질문을 읽는 방식과 readout은 모델마다 다르다. 6장이 보이듯 점수는 크기와 함께 움직이므로, 이 자료로는 어떤 readout이 더 나은지 가를 수 없다. CPU용 encoder는 빠르지만 이 보드에서는 Jev 점수의 절반 수준에 머문다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>kev-27b README: <span class="q">“| Model type | Decision model: a causal language-model backbone run prefill-only, with a pointer head over the options |”</span></p>
+    <p>mammoth-1 README: <span class="q">“- **Objective**: cross-entropy plus a Brier calibration term (λ = 1), with a trained "I don't know" option.”</span></p>
+    <p>pplx-decider-v1.2 README: <span class="q">“This is the native decision-checkpoint layout: a `Qwen3_5Model` backbone plus `readout.safetensors`, a BF16 `[255, 5120]` decision head.”</span></p>
+    <p>StartLux-Decision-v1.1-9B-Instant README: <span class="q">“In the full-attention layers, one in four, prompt tokens also attend to later prompt tokens, so the state is read with the question in view, while the linear-attention layers stay causal.”</span></p>
+    <p>laya README §Training: <span class="q">“The policy reports a distribution; exploration adds zero-mean Gaussian noise to the logits; the reward is a strictly proper scoring rule (log + spherical, plus ranked probability score for ordinal questions).”</span></p>
   </details>
   </section>
 
@@ -295,7 +365,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li>0.4.1판(2026-10-21)은 새 영역 비공개 과제를 더 어렵게 바꿨다. 그래서 그 전 판의 숫자와 바로 견줄 수 없다.</li>
     <li>보드의 README는 Hugging Face 계정 multimodalart가 비공식으로 운영하며 TypeSafe와 관계가 없다고 적는다.</li>
   </ul>
-  <p class="so">그래서: 로컬 후보는 Jev Decision Index의 Full score로 고르고, 시험 내용이 공개되지 않는다는 점은 9장의 한계로 둔다.</p>
+  <p class="so">그래서: 로컬 후보는 Jev Decision Index의 Full score로 고르고, 시험 내용이 공개되지 않는다는 점은 13장의 한계로 둔다.</p>
   <details class="orig"><summary>원문</summary>
     <p>methodology.json changelog v0.4: <span class="q">“Public benchmarks are still run and shown next to every model, but they no longer count toward the Full score: the ranking rests entirely on tests nobody can train on.”</span></p>
     <p>AA methodology §Decision Models: <span class="q">“We send the state and questions to the model's decision API.”</span></p>
@@ -427,6 +497,87 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   </details>
   </section>
 
+  <section class="slide" data-role="result" data-label="한국어 평가">
+  <h2>후보의 한국어 공개 평가는 Laya 다국어판 하나뿐이다</h2>
+  <p class="lead">보드가 공개한 벤치마크 목록에는 한국어 시험이 없고, 후보 카드도 한국어 점수를 싣지 않는다. 읽은 범위와 웹 검색에서 찾은 한국어 숫자는 보드에 없는 Laya 다국어판이 의도 분류 100문항으로 잰 값이 전부다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>카드나 문서가 적은 언어</th><th>공개된 한국어 평가</th></tr></thead>
+    <tbody>
+      <tr><td>Jev 1.14</td><td>영어가 주 학습 언어이고, CJK는 처리하지만 같은 수준은 아니다</td><td>없음</td></tr>
+      <tr><td>mammoth-1, elephant-1</td><td>en</td><td>없음</td></tr>
+      <tr><td>StartLux 9B</td><td>en</td><td>없음</td></tr>
+      <tr><td>Kev 27B</td><td>English. 영어 밖 언어는 쓰임 범위 밖으로 적는다</td><td>없음</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>영어 밖 입력에서 품질이 낮다</td><td>없음</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>영어, 중국어 간체와 번체</td><td>없음</td></tr>
+      <tr><td>GLiClass v4 edge</td><td>en. 다른 언어에서는 품질이 낮다</td><td>없음</td></tr>
+      <tr><td>GLiDE 1.2, pplx-decider v1.2와 flash</td><td>카드에 언어 항목이 없다</td><td>없음</td></tr>
+      <tr><td>Laya 다국어판 (0.32B)</td><td>100개 넘는 언어</td><td>MASSIVE 의도 분류 20지선다 100문항, 정답률 0.470, ECE 0.311</td></tr>
+    </tbody>
+  </table></div>
+  <figure class="plot">
+    <p class="fig-title">Laya의 MASSIVE 의도 분류 정답률, 20지선다</p>
+    <p class="fig-sub">언어마다 100문항이다. 무작위로 고르면 0.05다</p>
+    <table class="plot-data" data-kind="bars" data-cat="0" data-y="1" data-emph="다국어판, 한국어" data-max="1">
+      <thead><tr><th>checkpoint와 언어</th><th>정답률</th></tr></thead>
+      <tbody>
+        <tr><td>영어판, 영어</td><td>0.820</td></tr>
+        <tr><td>다국어판, 영어</td><td>0.710</td></tr>
+        <tr><td>다국어판, 한국어</td><td>0.470</td></tr>
+        <tr><td>영어판, 한국어</td><td>0.110</td></tr>
+      </tbody>
+    </table>
+    <figcaption>Laya 저장소 BENCHMARKS.md(커밋 7a77439)의 51개 언어 표에서 en과 ko 행을 옮겼다. Laya 개발사가 직접 잰 값이다.</figcaption>
+  </figure>
+  <ul class="notes">
+    <li>보드 벤치마크 가운데 영어 밖 자료를 섞은 것은 Amazon ESCI의 스페인어, 일본어 상품 질의와 iSarcasmEval의 아랍어 task 둘이다. 한국어 자료는 없다.</li>
+    <li>Laya의 값은 후보 선택에 바로 쓸 수 없다. 보드에 없는 0.32B encoder의 값이기 때문이다. 다만 영어판이 한국어에서 0.110으로 무작위(0.05)의 약 2배에 그친다는 점은, 영어로만 학습한 decision 모델이 한국어에서 크게 떨어질 수 있다는 한 사례로 읽는다.</li>
+    <li>Laya 다국어판은 보드에 오르지 않았다. 보드의 Laya 행은 영어판(0.42B)이고 Full score는 9.21이다.</li>
+    <li>100문항의 정답률 0.470은 95% 구간이 약 ±0.10이다. 이항 분포로 근사한 계산이며 원문에는 없다.</li>
+    <li>backbone 카드를 보면 Qwen3.5는 201개 언어와 방언을, Gemma 4는 140개 넘는 언어의 pretrain과 35개 넘는 언어의 기본 지원을 적는다. Qwen3.8-27B 카드는 언어 범위를 적지 않는다. backbone이 한국어를 읽더라도, 카드에 언어를 영어로만 적은 decision 모델에 한국어 판단이 얼마나 남는지는 카드로 알 수 없다.</li>
+  </ul>
+  <p class="so">그래서: 6장의 순위와 12장의 GPU별 판단은 한국어 시험이 없는 보드에서 나왔다. 비공개 시험의 언어도 공개되지 않았으므로, 한국어 업무에는 그대로 옮기지 말고 11장의 순서로 다시 잰다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>TypeSafe Models §Language support: <span class="q">“Other languages, including CJK scripts, are handled but not equally well; test on your own content before relying on Jev for a non-English workload, and pay close attention to Confidence when routing.”</span></p>
+    <p>kev-27b README §Out of scope: <span class="q">“States longer than 65,536 tokens, languages other than English, and hardware smaller than an 80 GB-class GPU or a Mac with about 96 GB of memory (see Limitations).”</span></p>
+    <p>Laya BENCHMARKS.md: <span class="q">“| `ko` | 0.110 | 0.470 | +0.360 | 0.680 | 0.311 |”</span></p>
+    <p>보드 methodology.json, Amazon ESCI: <span class="q">“638,016 source test pairs (us 425,762, es 93,347, jp 118,907;”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="procedure" data-label="한국어 고르기">
+  <h2>한국어 업무 모델은 같은 문항의 영어판과 함께 재서 고른다</h2>
+  <p class="lead">아래 순서는 보드의 실행 규칙과 카드의 보정 권고를 한국어 업무에 옮겨 이 조사가 세운 것이다. 영어판 짝을 함께 재면 점수가 낮은 원인이 업무의 난도인지 언어인지 가를 수 있다.</p>
+  <div class="board" data-cols="1|2|3|4|5|6" aria-label="한국어 업무 모델을 고르는 순서. 후보를 줄이고, 한국어 문항과 영어 짝 문항을 만들고, 보드 규칙대로 돌리고, 언어별로 정답률과 ECE를 재고, 한국어 표본으로 보정한 뒤 고른다. 기준에 못 미치면 후보를 줄이는 단계로 돌아간다">
+    <div class="card" id="k1" data-col="1"><b>① 후보를 줄인다</b><p>12장의 GPU 칸에서 둘 이상 고른다</p><p>영어 밖 언어를 범위 밖으로 적은 Kev 27B는 뒤로 미룬다</p><p class="ev">12장 판단, Kev 카드</p></div>
+    <div class="card" id="k2" data-col="2"><b>② 표본을 만든다</b><p>실제 업무의 한국어 요청에 정답을 붙이고, 사람이 검토한 영어 번역을 짝으로 둔다</p><p>질문 유형마다 수백 문항을 모은다. 100문항이면 정답률 하나의 구간이 ±0.10이다</p><p class="ev">이 조사의 계산</p></div>
+    <div class="card" id="k3" data-col="3"><b>③ 보드 규칙대로 돌린다</b><p>요청을 자르지 않고 선택지도 줄이지 않는다. 각 모델의 기본 prompt와 readout을 쓴다</p><p>틀린 답은 다시 묻지 않고, 답하지 못한 요청은 오답으로 센다</p><p class="ev">보드 methodology rules</p></div>
+    <div class="card t-key" id="k4" data-col="4"><b>④ 언어별로 잰다</b><p>정답률, ECE, Brier를 한국어와 영어로 따로 낸다</p><p>확률 임계값 이상을 자동 처리할 때의 처리 비율과 오류율을 함께 본다</p><p class="ev">보드 calibration, Kev 카드의 coverage 지표</p></div>
+    <div class="card" id="k5" data-col="5"><b>⑤ 한국어로 보정한다</b><p>표본을 둘로 나눠 한쪽으로 질문 유형과 선택지 수마다 temperature를 맞추고, 다른 쪽으로 확인한다</p><p>Laya 다국어판은 이 방식으로 평균 ECE가 0.314에서 0.106이 됐다</p><p class="ev">Laya 카드 Honest Limits</p></div>
+    <div class="card t-good" id="k6" data-col="6"><b>⑥ 고른다</b><p>보정 뒤 한국어 오류율이 기준선 안에 드는 가장 작은 모델을 고른다</p><p>기준선은 Jev 1.14나, Jev를 쓸 수 없으면 지금 그 판단을 하는 방식(사람이나 기존 모델)의 같은 표본 오류율로 둔다</p><p class="ev">이 조사의 판단</p></div>
+    <span class="edge" data-from="k1" data-to="k2"></span>
+    <span class="edge" data-from="k2" data-to="k3"></span>
+    <span class="edge" data-from="k3" data-to="k4"></span>
+    <span class="edge" data-from="k4" data-to="k5"></span>
+    <span class="edge" data-from="k5" data-to="k6"></span>
+    <span class="edge" data-from="k6" data-to="k1">기준 미달</span>
+  </div>
+  <ul class="notes">
+    <li>확률만 보고 자동 처리를 정하면 언어를 못 읽는 모델을 걸러내지 못한다. Laya 영어판은 크메르어에서 정답률 0.000에 confidence 0.952를 냈다고 Laya 카드가 적는다.</li>
+    <li>한국어 문서는 길이 한도를 먼저 센다. elephant-1은 학습 길이를 넘는 요청을 자르지 않고 거부하므로, 후보의 tokenizer로 표본의 token 수를 미리 잰다.</li>
+    <li>후보 둘을 견줄 때는 정답률 두 개의 구간을 따로 보지 말고, 같은 문항으로 짝지어 차이의 구간을 낸다. Kev 27B 카드가 같은 문항의 95% paired bootstrap으로 구간을 내는 방식이 그 예다.</li>
+    <li>확률로 자동 처리를 나누지 않고 답만 쓰는 업무라면 ⑤를 건너뛰고, ⑥에서 한국어 정답률이 기준선 이상인 가장 작은 모델을 고른다. ECE와 보정은 확률 임계값을 쓸 때 필요하다.</li>
+    <li>질문 격리가 필요한 업무라면 8장의 질문 순서 바꾸기 시험도 한국어 표본으로 한다.</li>
+    <li>TypeSafe도 영어 밖 업무는 자기 내용으로 먼저 시험하고 routing에서 confidence를 주의해 보라고 권한다. Jev API를 쓸 수 있다면 같은 표본으로 Jev 1.14를 재서 기준선으로 둔다.</li>
+  </ul>
+  <p class="so">그래서: 한국어 업무에서는 보드 점수로 후보를 줄이고, 이 측정 결과로 모델을 정한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>보드 methodology.json rules: <span class="q">“Every request is sent whole. A model whose context window cannot hold a prompt records that request as unsupported; it is never shortened to fit.”</span></p>
+    <p>보드 methodology.json rules: <span class="q">“Transient transport errors retry up to twice; a valid wrong answer is never retried.”</span></p>
+    <p>laya README §Honest Limits: <span class="q">“Refitting one temperature per (question type, option count) moves mean ECE 0.466 → 0.081 (laya) and 0.314 → 0.106 (laya-multilingual). Do this on your own data before trusting the probabilities.”</span></p>
+    <p>laya README: <span class="q">“The English checkpoint collapses on non-Latin scripts (Khmer scores 0.000 accuracy at 0.952 confidence). Because the model stays confident while being wrong, confidence gating cannot save you.”</span></p>
+  </details>
+  </section>
+
   <section class="slide" data-role="adopt" data-label="도입 판단">
   <h2>24GB GPU면 elephant-1, 80GB면 mammoth-1부터 시험한다</h2>
   <p class="lead">아래 판단은 보드의 Full score에 카드의 라이선스와 실행 조건을 겹쳐 이 조사가 내린 것이다. 1위 GLiDE 1.2를 먼저 두지 않은 이유는 라이선스 조건이고, 어느 모델이든 자기 데이터로 정답률과 ECE를 다시 재서 확률 임계값을 정한다.</p>
@@ -440,9 +591,10 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <div class="card t-quiet" data-col="GPU 80GB 이상" data-lane="조건이 맞으면"><b>GLiDE 1.2, Kev 27B</b><p>GLiDE는 71.52로 1위지만 라이선스 조건이 붙는다. Kev 27B는 59.56에 ECE 0.0218이고 질문을 격리한다</p><p class="ev">보드, 각 카드</p></div>
   </div>
   <ul class="notes">
-    <li>GPU 칸은 bf16 가중치 크기에 여유를 더해 이 조사가 나눈 것이다. 카드가 적은 GPU 조건은 7장 표에 있다.</li>
+    <li>GPU 칸은 bf16 가중치 크기에 여유를 더해 이 조사가 나눈 것이다. 카드가 적은 GPU 조건은 9장 표에 있다.</li>
     <li>state가 8,192 token을 넘으면 Jeffan-31b의 카드 한도를 넘으므로 mammoth-1을 고른다.</li>
-    <li>pplx-decider v1.2(67.98, Apache-2.0)도 80GB 칸의 후보다. 다만 질문끼리 서로 보는 방식이 Jev와 달라서 기존 요청을 그대로 옮기려면 6장의 권고대로 나눠 보내야 한다.</li>
+    <li>pplx-decider v1.2(67.98, Apache-2.0)도 80GB 칸의 후보다. 다만 질문끼리 서로 보는 방식이 Jev와 달라서 기존 요청을 그대로 옮기려면 8장의 권고대로 나눠 보내야 한다.</li>
+    <li>이 판의 칸 배치는 한국어 시험이 없는 보드의 점수로 정했다. 한국어 업무라면 같은 GPU 칸의 '먼저'와 '조건이 맞으면' 후보를 11장의 순서로 함께 재고 그 결과로 바꾼다.</li>
   </ul>
   <p class="so">그래서: 되돌리기 쉬운 길은 Jev 요청 형식을 유지하는 것이다. GLiDE, Kev, KnowLine 카드는 /v1/systemone을 낸다고 적으므로 base URL을 바꿔 시험하고, 응답 필드가 Jev와 같은지는 첫 요청에서 확인한다. 나머지 모델은 state와 question을 옮기는 adapter를 둔다.</p>
   <details class="orig"><summary>원문</summary>
@@ -460,8 +612,9 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li><b>빠르게 바뀌는 순위</b>Jeffan-31b 카드는 10-21 기준 1위라고 적지만 10-22 데이터에서는 GLiDE 1.2가 1위다. 고를 때마다 보드의 최신 데이터를 다시 받는다.</li>
     <li><b>돌려 보지 않은 모델</b>메모리와 설치 조건은 각 카드의 설명이고 지연은 보드의 RTX PRO 6000 값이다. 자기 GPU에서 같은 요청으로 다시 잰다.</li>
     <li><b>양자화</b>GLiDE 카드는 양자화본을 검증하지 않았다고 적는다. 24GB보다 작은 GPU에 맞추려고 양자화하면 정답률과 ECE를 다시 잰다.</li>
-    <li><b>언어</b>Jev는 영어에서 가장 정확하다고 TypeSafe가 밝힌다. 한국어 업무라면 후보와 Jev를 한국어 표본으로 함께 잰다.</li>
-    <li><b>카드와 실제 접근</b>GLiDE와 pplx-decider 카드는 토큰이나 private 저장소 접근이 필요하다고 적는다. 2026-10-25에 토큰 없이 가중치 파일을 요청하자 두 저장소 모두 내려받기 주소로 넘어갔다.</li>
+    <li><b>한국어 성능</b>후보와 Jev의 한국어 점수는 이 조사가 재지 않았고, 공개된 값은 Laya 다국어판의 100문항뿐이다. 도입 전에 11장의 순서로 자기 한국어 표본에서 잰다.</li>
+    <li><b>구조 추정</b>3장의 관찰과 추정은 archerhume 글쓴이가 2026-09-17에 jev-1.13.0을 계정 하나로 시험한 결과다. TypeSafe가 확인한 내용이 아니고, Jev 1.14에서 같은지도 모른다. 구조를 근거로 설계를 정하지 말고 공개된 계약으로 정한다.</li>
+    <li><b>카드와 실제 접근</b>GLiDE와 pplx-decider 카드는 토큰이나 private 저장소 접근이 필요하다고 적는다. 2026-10-25에 토큰 없이 가중치 파일을 요청하자 두 저장소 모두 내려받기 주소로 넘어갔다. 지금은 받을 수 있지만 카드의 접근 조건이 다시 걸릴 수 있으므로, trial 전에 가중치를 내부 저장소에 받아 두고 9장의 라이선스 조건을 확인한다.</li>
     <li><b>유지 이력</b>후보의 릴리스 주기와 관리자 수, 이슈 응답은 보지 않았다. Jeffan-31b처럼 개인 계정이 낸 첫 릴리스도 있으므로 trial 기간에 저장소의 커밋과 토론 응답을 함께 본다.</li>
     <li><b>MIT 표기</b>mammoth-1과 elephant-1은 저장소에 LICENSE 파일이 없고 카드 머리말에만 mit라고 적혀 있다. 법무 검토가 필요하면 Baseten에 확인한다.</li>
   </ul>
@@ -474,16 +627,18 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 
   <section class="slide" data-role="setup" data-label="읽은 범위">
   <h2>보드 데이터와 model card를 읽었고 모델은 돌리지 않았다</h2>
-  <p class="lead">보드는 Space 커밋 0b5ecaf의 데이터 파일을, 후보는 각 Hugging Face 저장소의 고정 커밋에서 README와 라이선스를 읽었다. 가중치는 받지 않았다.</p>
+  <p class="lead">보드는 Space 커밋 0b5ecaf의 데이터 파일을, 후보는 각 Hugging Face 저장소의 고정 커밋에서 README와 라이선스를 읽었다. 가중치는 받지 않았고 한국어 표본도 돌리지 않았다.</p>
   <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료, 그리고 열지 않아 얕아진 장">
     <div class="card" data-col="읽음"><b>Jev Decision Index</b><p>README, data/index.json, data/methodology.json</p></div>
-    <div class="card" data-col="읽음"><b>후보 13개 저장소</b><p>README, GLiDE와 pplx-decider와 Jeffan의 LICENSE</p></div>
-    <div class="card" data-col="읽음"><b>TypeSafe와 AA 문서</b><p>Models, Introduction, AA 방법론</p></div>
-    <div class="card t-quiet" data-col="열지 않음"><b>각 모델의 서빙 코드</b><p class="ev">6장의 질문 처리는 카드의 설명이다</p></div>
-    <div class="card t-quiet" data-col="열지 않음"><b>AA 점수표</b><p class="ev">JavaScript로 그려져 받은 사본에 값이 없다. 3장은 방법론만 다룬다</p></div>
+    <div class="card" data-col="읽음"><b>후보 13개 저장소</b><p>README, GLiDE의 LICENSE</p></div>
+    <div class="card" data-col="읽음"><b>TypeSafe와 AA 문서</b><p>Models, Introduction, AI primer, 출시 글, AA 방법론</p></div>
+    <div class="card" data-col="읽음"><b>구조와 언어 자료</b><p>archerhume 글, Laya BENCHMARKS.md, Qwen3.5-9B, Qwen3.5-27B, Qwen3.8-27B, Gemma-4-31B-it 카드</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>각 모델의 서빙 코드</b><p class="ev">8장의 질문 처리와 4장의 구조는 카드의 설명이다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>archerhume의 근거 묶음</b><p class="ev">3장의 관찰은 글에 적힌 값이고 원 기록과 대조하지 않았다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>AA 점수표</b><p class="ev">JavaScript로 그려져 받은 사본에 값이 없다. 5장은 방법론만 다룬다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>보드의 vision 판과 영역별 세부</b><p class="ev">이미지 입력 비교는 하지 않았다</p></div>
   </div>
-  <ul class="notes"><li>Kev 27B와 pplx-decider flash 카드는 앞부분만, StartLux, Laya, Clef-flash는 라이선스 머리말만 읽었다.</li></ul>
+  <ul class="notes"><li>pplx-decider flash 카드는 앞부분만, Clef-flash는 머리말과 Model 절만, StartLux는 머리말과 답하는 방식 절만 읽었다. Kev 27B와 Laya 카드는 이번에 끝까지 읽었고, GLiClass 카드는 앞부분과 학습, 한계 절을 읽었다. GLiDE, Clef-flash, Jeffan-31b의 학습 방법은 읽은 범위에 없어서 4장 표에 비워 두었다.</li><li>pplx-decider와 Jeffan-31b의 라이선스는 README의 머리말과 본문에서 옮겼고 LICENSE 파일은 열지 않았다.</li><li>Jev와 후보의 한국어 평가는 2026-10-25에 웹 검색으로도 찾았고, 위 Laya 값 밖의 숫자는 찾지 못했다.</li></ul>
   </section>
 
   <section class="slide" data-role="sources" data-label="출처">
@@ -506,6 +661,14 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <li><a href="https://docs.typesafe.ai/models.md">w-ts-models · TypeSafe Models</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
     <li><a href="https://docs.typesafe.ai/introduction.md">w-ts-intro · TypeSafe Introduction</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
     <li><a href="https://artificialanalysis.ai/methodology/decision-index">w-aa-meth · Artificial Analysis Decision Index methodology</a> <span class="t">Artificial Analysis, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://docs.typesafe.ai/introduction/machine-learning-primer.md">w-ts-primer · TypeSafe AI primer</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">w-ts-launch · Introducing System One Models &amp; Jev</a> <span class="t">TypeSafe 창업자 Diogo Almeida의 출시 글, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://archerhume.com/posts/jevs-architecture-unmasked">w-archer · Jev’s Architecture Unmasked</a> <span class="t">개인 블로그 archerhume의 2026-09-17 essay, jev-1.13.0 API probe, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://github.com/NandhaKishorM/laya/blob/7a77439b0923d6efe00052d50a7f787840bfce98/BENCHMARKS.md">r-laya-bench · Laya BENCHMARKS.md</a> <span class="t">Convai Innovations의 Laya 저장소, 커밋 7a77439</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.5-9B/tree/c202236235762e1c871ad0ccb60c8ee5ba337b9a">r-qwen35-9b · Qwen/Qwen3.5-9B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 c202236</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.5-27B/tree/fc05daec18b0a78c049392ed2e771dde82bdf654">r-qwen35-27b · Qwen/Qwen3.5-27B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 fc05dae</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.8-27B/tree/1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0">r-qwen38-27b · Qwen/Qwen3.8-27B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 1d4bf0f</span></li>
+    <li><a href="https://huggingface.co/google/gemma-4-31B-it/tree/842da3794eaa0b77d5f08bae87a17459d91ff475">r-gemma4-31b · google/gemma-4-31B-it</a> <span class="t">Google DeepMind, 커밋 842da37</span></li>
     <li><a href="../2026-09-21-jev-system-one/">Jev System One: 문장 대신 판단과 확률을 반환하는 모델</a> <span class="t">Jev 자체를 다룬 이 저장소의 앞선 문서</span></li>
   </ul>
   </section>
