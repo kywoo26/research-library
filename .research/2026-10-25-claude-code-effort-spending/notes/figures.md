@@ -106,3 +106,17 @@ FIG C caption: Pass rate. Low effort pools each model's two lowest settings, top
 - FIG C data | Operations | 10 tasks | Fable 5 | low effort 3% (3/100) | top effort 11% (17/150)
 - FIG C task | Security | Strip JavaScript from HTML to prevent XSS | Fable 5.1 low 2/10 top 14/15 | Opus 5 low 2/10 top 14/15 | Fable 5 low 0/10 top 9/15
 - FIG C task | Science | Run GSEA on up-regulated tissue proteins | Fable 5.1 low 1/10 top 10/15 | Opus 5 low 3/10 top 6/15 | Fable 5 low 8/10 top 9/15
+
+# 원문 w5 (블로그 「Choosing a Claude model and effort level in Claude Code」) 의 그림
+
+모두 이미지라 열지 않았다. alt 는 비어 있고, figcaption 만 옮긴다. 처리는 모두 '이름'이다.
+
+- w5 figure | request assembly | Everything Claude Code has gets packed into one API request. On the server, the text is tokenized before it ever reaches the model.
+- w5 figure | effort paths | Same prompt, two effort levels. The high effort path generates roughly 7x more tokens to reach a higher confidence answer.
+- w5 figure | heuristic | Two questions, one fallback. Use the heuristic to pick a starting point, not a hard rule.
+- w5 figure | routine curve | Curves are for illustration purposes only, shown for a single task simple enough to be accomplished quickly by both models. They do not represent real benchmark data.
+- w5 figure | hard curve | Curves are for illustration purposes only, shown for a single task hard enough to stretch both models. They do not represent real benchmark data.
+
+# 원문 w4 (Prompting Claude Opus 5.5) 
+
+그림이 없다.
