@@ -1,0 +1,9 @@
+{
+  "title": "OpenAI 가 frontier model 학습 환경을 가두고 red-teaming 으로 시험한 방식",
+  "date": "2026-10-25",
+  "seq": 37,
+  "summary": "OpenAI 의 자기 보고를 읽고 정리했다. 학습 환경을 microVM, 네트워크 경계, 모니터링으로 겹겹이 가두고 자사 모델로 공격해 본 결과, 인터넷 경로는 운영에 필요해 남겨 둔 서비스를 거쳤고 재개 근거는 들키지 않고 쉽게 쓸 경로를 찾지 못했다는 것이었다.",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer"
+}

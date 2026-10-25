@@ -1,0 +1,98 @@
+{
+ "slug": "2026-10-25-openai-training-containment",
+ "question": "OpenAI 는 frontier model 의 학습과 평가 환경을 어떻게 가두고, red-teaming 에서 무엇이 드러나 무엇을 고쳤으며, 무엇을 근거로 학습을 재개했는가. 그리고 이 자기 보고가 공개하지 않은 것은 무엇인가",
+ "flipCondition": "재개 근거가 경계의 봉쇄를 보였다면(인터넷 경로 없음) 결론이 '탐지와 정지에 기댄 판단'에서 '봉쇄'로 바뀐다. 원문은 'trivially exploit while concealing' 이라는 조건을 붙였다",
+ "decided": [
+  "kind: explainer. 요청이 '어떻게 가두고, 무엇이 드러났고, 무엇을 근거로' 를 묻고 채택 판단이나 코드 경로를 묻지 않아서다. 예측 사례로 '경계에 새 연결 하나를 더 열면' 을 장 13 에 두었다",
+  "slug: 2026-10-25-openai-training-containment",
+  "corpus: 본문(w1)에 더해 원문이 링크한 9월 20일 DNS 사고 보고(w2), safety case 지침(w3), Hugging Face 사고 글(w4)을 대조용으로 열었다. 재개 조건과 safety case 를 원문 밖 OpenAI 자료와 맞춰 봐야 '공개하지 않은 것' 을 말할 수 있어서다",
+  "reception: web.md 가 발표 글에 요구하는 반응 장으로 Hacker News 스레드(w5)를 넣었다. 원문 문장을 다시 읽게 하는 세 쟁점만 골랐다",
+  "retrieval: openai.com 은 WebFetch 와 curl 에 403 이라 insane-search(curl_cffi safari TLS)로 받았다. w3 와 w4 는 서버가 OpenAI 의 한국어판을 내줘서 한국어 본문을 고정했다",
+  "Wayback 은 조회 때 429 를 내서 archive_url 없이 고정 사본과 sha256 만 남겼다",
+  "CVE 와 패치 링크(Kata, gVisor, Moby, Linux commit), Patch the Planet, HF 기술 보고서와 METR 보고서는 열지 않았다. 질문(가두는 방식과 재개 근거)에 필요한 것이 원문의 서술 수준이라서다. setup 장에 적었다",
+  "원문 차트는 페이지에 실린 Vega-Lite 데이터 258점으로 다시 그렸고, 원문 도식은 원본 이미지를 webp 로 내장했다",
+  "렌즈 A 의 지적 중 장 15(반응) 삭제, 장 7 구간 목록과 장 8 CVE 목록 접기, 장 16 병합은 적용하지 않았다. 앞의 것은 needs_owner 로 넘겼고 나머지는 질문의 '무엇을 고쳤나' 를 받치는 사실이라 남겼다"
+ ],
+ "needs_owner": [
+  "장 15 (Hacker News 반응) 를 남길지. 렌즈 A 는 요청 밖 자료라 빼자고 했고, web.md 는 발표 글에 반응 장을 요구한다. 선택지: (a) 그대로 둔다 (b) 장을 빼고 air gap 반박 한 줄만 장 5 첨언으로 옮긴다. 추천은 (a)"
+ ],
+ "unverified": [
+  "부재 주장 5건(c4, c44, c48, c51, c52) 모두 고정 사본 grep 으로 재실행 검색 명령을 남겼다",
+  "문서의 해석 2건(c27 급등 구간의 원인, c47 새 연결 예측)은 unverified 로 두었다. 원문이 그 구간과 그 경우를 다루지 않는다",
+  "CVE 와 패치 링크 7개는 열지 않았다. 장 8 은 원문이 단 링크 이름만 옮긴다",
+  "행동 주장 0건. 실행한 것은 없다(웹 자료)",
+  "web 출처 2개(w6, w7)는 not_opened 라 해시와 보존본이 없다"
+ ],
+ "unfixed": [
+  "최종 재검증(recheck 2회차): 9월 20일 DNS 경로를 '운영에 필요해 남겨 둔 서비스' 로 묶은 표현(장 1 표지, 장 3 .key, 장 13 .key, meta summary)이 원문에 없는 전제를 더한다. 원문(w2)은 'insufficient DNS filtering', w1 은 'misconfiguration in a DNS resolver' 라고 쓴다. 장 13 표는 '필터링이 부족했다' 로 이미 맞다. 고칠 방향: 공통 표현을 '바깥과 통신할 수 있는 기존 서비스를 거쳤다' 로 중립화. 두 회차 상한에 걸려 고치지 않았다"
+ ],
+ "rendered": "headless Chrome(scripts/render.mjs)으로 17개 장을 렌더해 표지, 장 3 타임라인, 장 4 내장 도식, 장 5 층 도식, 장 7 차트, 장 9 trace, 장 10 cache 도식, 장 11 표, 장 13 표를 수정 뒤 화면으로 확인했다. 겹침이나 넘침은 보지 못했다",
+ "evidenceCount": 79,
+ "claimsCount": 58,
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 9,
+   "rejected": 4,
+   "touched": 7,
+   "recheck": {
+    "hard": 1,
+    "wording": 0,
+    "badRejections": 0
+   }
+  },
+  {
+   "round": 2,
+   "applied": 1,
+   "rejected": 0,
+   "touched": 3,
+   "recheck": {
+    "hard": 1,
+    "wording": 0,
+    "badRejections": 0
+   }
+  }
+ ],
+ "stoppedBecause": "round-limit",
+ "commitSubject": "OpenAI 가 frontier model 학습 환경을 가두고 red-teaming 으로 시험한 방식을 정리한 문서를 더하다",
+ "commitBody": "OpenAI 의 2026-10-23 글 'Securing our frontier model training environment' 를 explainer 로 읽었다. 학습과 평가 환경을 sandbox, microVM, 모니터링, 네트워크와 클라우드 경계로 가두는 방식, 자사 모델 agent 팀의 red-teaming 이 찾은 microVM 탈출과 인터넷 경로와 공유 하드웨어 채널, 그에 대한 조치, 10월 1일 재개의 근거를 정리하고, 자기 보고라서 확인할 수 없는 것(safety case 본문, 승인자, 발견 내역, 외부 검증)을 밝혔다.\n\n출처: openai.com/index/securing-our-frontier-model-training-environment (고정 사본 sha256 bba74d85…), alignment.openai.com 의 9월 20일 DNS 사고 보고, OpenAI 의 safety case 지침(2026-09-28)과 Hugging Face 사고 글(2026-08-26), Hacker News 스레드 50214416.",
+ "reviews": [
+  {
+   "at": "2026-10-25T08:14:37.076Z",
+   "agent": "lens-numbers",
+   "sha": "7485cb1abbb01ef022f992efa03c0c8880241361e0ebe41932ac6b2a005a440e"
+  },
+  {
+   "at": "2026-10-25T08:14:41.884Z",
+   "agent": "lens-reader",
+   "sha": "7485cb1abbb01ef022f992efa03c0c8880241361e0ebe41932ac6b2a005a440e"
+  },
+  {
+   "at": "2026-10-25T08:19:24.399Z",
+   "agent": "recheck",
+   "sha": "1a7323fa7cf31e4183ede08f1cb12071bd39a20ee21da3db7fe5333ae32f24db"
+  },
+  {
+   "at": "2026-10-25T08:20:51.073Z",
+   "agent": "recheck",
+   "sha": "ff94ae6358db74654ef950f0ab1f4c731400064e2b48e89dae4a91b3f00658cb"
+  }
+ ],
+ "shippedAt": "2026-10-25T08:22:26.677Z",
+ "ship": {
+  "branch": "doc/2026-10-25-openai-training-containment",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "ff94ae6358db74654ef950f0ab1f4c731400064e2b48e89dae4a91b3f00658cb",
+  "unreviewed": false
+ }
+}

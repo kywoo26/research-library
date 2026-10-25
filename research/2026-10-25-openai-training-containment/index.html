@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenAI 가 frontier model 학습 환경을 가두고 red-teaming 으로 시험한 방식</title>
+<meta name="description" content="OpenAI 의 자기 보고를 읽고 정리했다. 학습 환경을 microVM, 네트워크 경계, 모니터링으로 겹겹이 가두고 자사 모델로 공격해 본 결과, 인터넷 경로는 운영에 필요해 남겨 둔 서비스를 거쳤고 재개 근거는 들키지 않고 쉽게 쓸 경로를 찾지 못했다는 것이었다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenAI 가 frontier model 학습 환경을 가두고 red-teaming 으로 시험한 방식">
+<meta property="og:description" content="OpenAI 의 자기 보고를 읽고 정리했다. 학습 환경을 microVM, 네트워크 경계, 모니터링으로 겹겹이 가두고 자사 모델로 공격해 본 결과, 인터넷 경로는 운영에 필요해 남겨 둔 서비스를 거쳤고 재개 근거는 들키지 않고 쉽게 쓸 경로를 찾지 못했다는 것이었다.">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-25-openai-training-containment/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   [[design-tokens]]  wikilink blue + redlink red on cool ink
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  --paper:      #eef0f5;
+  --card:       #ffffff;
+  --card-2:     #f6f8fb;
+  --ink:        #111620;
+  --ink-2:      #4d5666;
+  --muted:      #7c8698;
+  --rule:       #dde2ea;
+  --grid:       #e6eaf1;
+  --link:       #1f5fc4;   /* wikilink blue  · series 1 */
+  --link-soft:  #dbe6f9;
+  --redlink:    #b32424;   /* dangling link  · series 2 */
+  --redlink-soft:#f7dede;
+  --neutral-bar:#b9c2d1;
+  --shadow:     0 1px 2px rgba(17,22,32,.06), 0 8px 28px -14px rgba(17,22,32,.28);
+  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "D2Coding", "Nanum Gothic Coding", monospace;
+  --serif: "Iowan Old Style", Georgia, "Nanum Myeongjo", "Noto Serif KR", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper:      #0b0e13;
+    --card:       #151a22;
+    --card-2:     #1b2029;
+    --ink:        #eef1f6;
+    --ink-2:      #a4afc0;
+    --muted:      #7f8b9e;
+    --rule:       #262d38;
+    --grid:       #232935;
+    --link:       #4f92ee;
+    --link-soft:  #1c2c45;
+    --redlink:    #df5a5a;
+    --redlink-soft:#3a2023;
+    --neutral-bar:#3c4553;
+    --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:      #0b0e13;
+  --card:       #151a22;
+  --card-2:     #1b2029;
+  --ink:        #eef1f6;
+  --ink-2:      #a4afc0;
+  --muted:      #7f8b9e;
+  --rule:       #262d38;
+  --grid:       #232935;
+  --link:       #4f92ee;
+  --link-soft:  #1c2c45;
+  --redlink:    #df5a5a;
+  --redlink-soft:#3a2023;
+  --neutral-bar:#3c4553;
+  --shadow:     0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+}
+
+body { margin: 0; }
+
+/* ── deck shell ───────────────────────────────────────────── */
+.deck {
+  position: fixed; inset: 0;
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── index rail (the wiki _index.md) ──────────────────────── */
+.rail {
+  border-right: 1px solid var(--rule);
+  background: var(--card);
+  overflow-y: auto;
+  padding: 22px 0 20px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.rail-head {
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 20px 12px;
+}
+.rail-item {
+  display: grid; grid-template-columns: 24px 1fr; align-items: baseline; gap: 8px;
+  padding: 5px 20px;
+  font-size: 13px; color: var(--ink-2);
+  background: none; border: 0; text-align: left; width: 100%;
+  font-family: var(--sans); cursor: pointer;
+  border-left: 2px solid transparent;
+}
+.rail-item .n { font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rail-item:hover { background: var(--card-2); color: var(--ink); }
+.rail-item[aria-current="true"] { color: var(--link); border-left-color: var(--link); background: var(--card-2); font-weight: 600; }
+.rail-item[aria-current="true"] .n { color: var(--link); }
+.rail-sep { height: 1px; background: var(--rule); margin: 10px 20px; }
+
+/* ── stage & slides ───────────────────────────────────────── */
+.stage { position: relative; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: clamp(26px, 3.4vw, 54px) clamp(20px, 4vw, 60px) 108px;
+  opacity: 0; visibility: hidden;
+  transform: translateX(18px);
+  transition: opacity .32s ease, transform .32s ease, visibility .32s;
+}
+.slide[data-active="true"] { opacity: 1; visibility: visible; transform: none; }
+.slide-inner { max-width: 960px; margin: 0 auto; }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; transform: none; } }
+
+/* ── typography ───────────────────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  color: var(--link); margin: 0 0 10px;
+}
+.eyebrow::before { content: "[["; opacity: .45; }
+.eyebrow::after  { content: "]]"; opacity: .45; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 분리된다 */
+h1, h2, h3, .dek, p, ul.clean li, .bar-name, figcaption, .fig-title, .fig-sub, td, th { word-break: keep-all; }
+h1 { font-size: clamp(30px, 4.4vw, 50px); line-height: 1.14; letter-spacing: -.022em; font-weight: 800; margin: 0 0 18px; text-wrap: balance; }
+h2 { font-size: clamp(23px, 3vw, 32px); line-height: 1.2; letter-spacing: -.018em; font-weight: 750; margin: 0 0 8px; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 700; letter-spacing: -.005em; margin: 0 0 6px; }
+.dek { color: var(--ink-2); font-size: clamp(15px, 1.5vw, 17px); margin: 0 0 26px; max-width: 62ch; text-wrap: pretty; }
+p { margin: 0 0 12px; }
+strong { font-weight: 700; }
+.q {
+  font-family: var(--serif); font-size: clamp(19px, 2.3vw, 25px); line-height: 1.45;
+  font-style: italic; color: var(--ink); border-left: 3px solid var(--link);
+  padding: 2px 0 2px 20px; margin: 0 0 22px; max-width: 60ch;
+}
+.q cite { display: block; font-family: var(--mono); font-style: normal; font-size: 12px; color: var(--muted); margin-top: 10px; }
+/* 문장 안의 짧은 인용. 블록 인용 .q 와 같은 class 라 check-prose 가 둘 다 건너뛴다 */
+span.q { display: inline; font: inherit; font-style: normal; color: var(--ink-2); border: 0; padding: 0; margin: 0; max-width: none; }
+.wl { font-family: var(--mono); color: var(--link); font-size: .93em; }
+.wl-dead { font-family: var(--mono); color: var(--redlink); font-size: .93em; }
+
+/* ── cards / grids ────────────────────────────────────────── */
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 16px 18px; box-shadow: var(--shadow);
+}
+.card p:last-child { margin-bottom: 0; }
+.card .tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 8px;
+}
+.small { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.note {
+  font-size: 13px; color: var(--ink-2); background: var(--card-2);
+  border: 1px solid var(--rule); border-left: 3px solid var(--link);
+  border-radius: 0 8px 8px 0; padding: 11px 15px; margin: 16px 0 0;
+}
+.note.warn { border-left-color: var(--redlink); }
+.note b { color: var(--ink); }
+
+/* ── stat tiles ───────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin: 0 0 22px; }
+.stat { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+.stat .lab { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+.stat .val { font-size: 30px; font-weight: 780; letter-spacing: -.03em; line-height: 1.1; display: block; }
+.stat .val .u { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: 0; }
+.stat .sub { font-size: 12px; color: var(--ink-2); display: block; margin-top: 3px; }
+/* 핵심 한두 문장. 제목 아래에서 독자가 이 주장으로 무엇을 하는지 말한다. */
+.key { font-size: clamp(15px, 1.5vw, 17px); font-weight: 600; line-height: 1.55; color: var(--ink); margin: 0 0 22px; padding-left: 12px; border-left: 4px solid var(--link); max-width: 70ch; text-wrap: pretty; }
+/* 첨언. 계산 과정, 원문 문단 위치, 인용 원문, 조건의 세부. 기본은 접힘. */
+details.more { margin: 0 0 22px; border: 1px solid var(--rule); border-radius: 10px; padding: 8px 14px; background: var(--card); color: var(--ink-2); font-size: 14px; }
+details.more summary { cursor: pointer; font-weight: 600; color: var(--muted); font-size: 13px; }
+details.more[open] summary { margin-bottom: 6px; }
+details.more p { margin: 8px 0; }
+/* 한 줄짜리 사실 목록. 항목마다 한 줄이 넘으면 첨언으로 보낸다. */
+ul.facts { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
+ul.facts li { display: grid; grid-template-columns: minmax(3.2em, max-content) 1fr; gap: 10px; font-size: 14.5px; color: var(--ink); line-height: 1.5; }
+ul.facts li .m { font-size: 12px; color: var(--muted); padding-top: 3px; }
+.stat.hero .val { color: var(--link); }
+.stat.bad .val { color: var(--redlink); }
+
+/* ── bar charts ───────────────────────────────────────────── */
+.figure { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 20px 14px; box-shadow: var(--shadow); margin: 0 0 16px; }
+.figure > figcaption { font-size: 12.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.fig-title { font-size: 14px; font-weight: 700; margin: 0 0 2px; }
+.fig-sub { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+
+.bars { display: grid; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: minmax(84px, 132px) 1fr minmax(42px, auto); align-items: center; gap: 10px; }
+.bar-name { font-size: 12.5px; color: var(--ink-2); text-align: right; overflow-wrap: anywhere; }
+.bar-row.is-hero .bar-name { color: var(--ink); font-weight: 700; }
+.bar-track {
+  position: relative; height: 15px; border-radius: 2px;
+  background-image: repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--grid) calc(25% - 1px) 25%);
+}
+.bar-track.g5 { background-image: repeating-linear-gradient(to right, transparent 0 calc(20% - 1px), var(--grid) calc(20% - 1px) 20%); }
+/* span 이라 display 를 주지 않으면 height/width 가 무시돼 막대가 렌더되지 않는다 */
+.bar { display: block; height: 100%; width: var(--w); background: var(--neutral-bar); border-radius: 0 4px 4px 0; }
+.bar.s1 { background: var(--link); }
+.bar.s2 { background: var(--redlink); }
+.bar-val { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: right; }
+.bar-row.is-hero .bar-val { color: var(--ink); font-weight: 700; }
+.bar-pair { display: grid; gap: 2px; }
+.bar-val.two { line-height: 1.5; font-size: 11.5px; }
+.bar-axis { display: grid; grid-template-columns: minmax(84px,132px) 1fr minmax(42px,auto); gap: 10px; margin-top: 8px; }
+.bar-axis .ticks { grid-column: 2; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+.legend i.s1 { background: var(--link); } .legend i.s2 { background: var(--redlink); } .legend i.sn { background: var(--neutral-bar); }
+
+/* ── tables ───────────────────────────────────────────────── */
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--card); box-shadow: var(--shadow); margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--card-2); }
+tbody td { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+tbody td:first-child { font-family: var(--sans); color: var(--ink-2); }
+tbody tr:last-child td { border-bottom: 0; }
+tr.hero td { background: var(--link-soft); color: var(--ink); font-weight: 700; }
+tr.hero td:first-child { color: var(--ink); }
+td.win { color: var(--link); font-weight: 700; }
+td.lose { color: var(--redlink); font-weight: 700; }
+/* 글이 든 표: 독자 상황별 표, 판단 표. 숫자 표의 오른쪽 정렬·줄바꿈 금지를 푼다 */
+table.prose-table th, table.prose-table td { text-align: left; white-space: normal; vertical-align: top; line-height: 1.5; font-size: 13.5px; }
+table.prose-table tbody td { font-family: var(--sans); font-variant-numeric: normal; }
+
+/* ── code / md sample ─────────────────────────────────────── */
+pre {
+  font-family: var(--mono); font-size: 12px; line-height: 1.62;
+  background: var(--card-2); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; margin: 0 0 14px; color: var(--ink-2);
+  tab-size: 2;
+}
+pre b { color: var(--ink); font-weight: 700; }
+pre .k { color: var(--link); }
+pre .r { color: var(--redlink); }
+pre .c { color: var(--muted); }
+
+/* ── paper figures (light-source PNGs; keep a white plate) ─ */
+.plate { background: #ffffff; border: 1px solid var(--rule); border-radius: 10px; padding: 10px; box-shadow: var(--shadow); }
+.plate img { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+/* ── svg charts ───────────────────────────────────────────── */
+.svgwrap { overflow-x: auto; }
+svg.chart { display: block; width: 100%; height: auto; min-width: 520px; }
+svg .grid-l { stroke: var(--grid); stroke-width: 1; }
+svg .axis-l { stroke: var(--rule); stroke-width: 1; }
+svg .tick { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+svg .lbl { fill: var(--ink-2); font-family: var(--sans); font-size: 12px; }
+svg .lbl-hi { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-weight: 700; }
+svg .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+svg .ln.dim { stroke: var(--neutral-bar); }
+svg .ln.s1 { stroke: var(--link); }
+svg .ln.s2 { stroke: var(--redlink); }
+svg .dot { stroke: var(--card); stroke-width: 2; }
+svg .dot.dim { fill: var(--neutral-bar); }
+svg .dot.s1 { fill: var(--link); }
+svg .dot.s2 { fill: var(--redlink); }
+svg .box { fill: var(--card-2); stroke: var(--rule); }
+svg .box-hi { fill: var(--link-soft); stroke: var(--link); }
+svg .arw { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .txt { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; font-weight: 650; }
+svg .txt-s { fill: var(--ink-2); font-family: var(--sans); font-size: 11px; }
+
+/* ── misc lists ───────────────────────────────────────────── */
+ul.clean { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+ul.clean li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; font-size: 14.5px; color: var(--ink-2); }
+ul.clean li .m { font-family: var(--mono); font-size: 12px; color: var(--link); line-height: 1.8; }
+ul.clean li .m.bad { color: var(--redlink); }
+ul.clean li b { color: var(--ink); }
+.src { display: grid; gap: 8px; font-size: 13.5px; }
+.src a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.src .t { color: var(--ink-2); }
+
+/* ── HUD ──────────────────────────────────────────────────── */
+.hud {
+  position: absolute; left: 224px; right: 0; bottom: 0;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px clamp(20px, 4vw, 60px);
+  background: linear-gradient(to top, var(--paper) 62%, transparent);
+  pointer-events: none;
+}
+.hud > * { pointer-events: auto; }
+.nav-btn {
+  font-family: var(--mono); font-size: 13px; color: var(--ink-2);
+  background: var(--card); border: 1px solid var(--rule); border-radius: 7px;
+  padding: 6px 13px; cursor: pointer; box-shadow: var(--shadow);
+}
+.nav-btn:hover:not(:disabled) { color: var(--link); border-color: var(--link); }
+.nav-btn:disabled { opacity: .35; cursor: default; }
+.counter { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1; height: 2px; background: var(--rule); border-radius: 2px; overflow: hidden; max-width: 340px; }
+.progress i { display: block; height: 100%; background: var(--link); width: 0; transition: width .32s ease; }
+.hint { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 3px; }
+
+/* ── responsive ───────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .deck { grid-template-columns: 1fr; }
+  .rail { display: none; }
+  .hud { left: 0; }
+  .g2, .g3 { grid-template-columns: 1fr; }
+  .bar-row, .bar-axis { grid-template-columns: minmax(70px, 96px) 1fr auto; }
+  .hint { display: none; }
+}
+/* ── article: 기본 읽기 방식. 장을 이어서 스크롤로 읽고 rail 은 목차가 된다. 덱은 토글. ── */
+body[data-mode="article"] .deck { position: static; inset: auto; min-height: 100vh; }
+body[data-mode="article"] .rail { position: sticky; top: 0; height: 100vh; box-sizing: border-box; }
+body[data-mode="article"] .stage { overflow: visible; }
+body[data-mode="article"] .slide {
+  position: static; inset: auto; opacity: 1; visibility: visible; transform: none; transition: none;
+  overflow: visible; padding-bottom: 40px; border-bottom: 1px solid var(--rule); scroll-margin-top: 8px;
+}
+body[data-mode="article"] .slide:last-child { border-bottom: 0; padding-bottom: 96px; }
+body[data-mode="article"] .hud { position: fixed; }
+body[data-mode="article"] #prev, body[data-mode="article"] #next, body[data-mode="article"] .hint { display: none; }
+
+@media print {
+  .deck { position: static; height: auto; grid-template-columns: 1fr; }
+  .rail, .hud { display: none; }
+  .stage { overflow: visible; }
+  .slide { position: static; opacity: 1; visibility: visible; transform: none; page-break-after: always; padding: 24px 0; }
+}
+
+/* ── 계보 바: 같은 연구 라인의 문서를 잇는다 ───────────── */
+.lineage {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 0 0 26px; padding: 10px 12px;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-family: var(--mono); font-size: 11.5px;
+}
+.lineage .lg {
+  color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+  margin-right: 4px; white-space: nowrap;
+}
+.lineage a, .lineage .self, .lineage .ext {
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--rule); text-decoration: none;
+  color: var(--ink-2); background: var(--card-2);
+}
+.lineage a:hover { color: var(--link); border-color: var(--link); }
+.lineage .self { color: var(--card); background: var(--link); border-color: var(--link); font-weight: 700; }
+.lineage .arrow { color: var(--muted); padding: 0 1px; }
+.lineage .ext { color: var(--muted); font-style: normal; }
+@media (max-width: 620px) { .lineage .lg { width: 100%; margin-bottom: 4px; } }
+
+/* 문서 간 이동 링크 */
+a.xref {
+  color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px;
+  font-weight: 600;
+}
+.note a { color: var(--link); text-underline-offset: 2px; }
+figcaption a { color: var(--link); text-underline-offset: 2px; }
+.card a { color: var(--link); text-underline-offset: 2px; }
+</style>
+</head>
+<body data-mode="article">
+<div class="deck">
+  <nav class="rail" aria-label="목차">
+    <div class="rail-head">_index.md</div>
+    <!-- 목차는 셸 스크립트가 장에서 만든다. 장의 data-label 이 목차 이름이다 -->
+  </nav>
+
+  <main class="stage" id="stage">
+  <!-- 01 -->
+  <section class="slide" data-active="true" data-label="표지">
+    <div class="slide-inner">
+      <p class="eyebrow">index</p>
+      <h1>OpenAI 가 frontier model 학습 환경을 가두고 red-teaming 으로 시험한 방식</h1>
+      <p class="dek">OpenAI 는 개발 중인 모델이 학습과 평가 도중 인터넷이나 자사 인프라로 빠져나가지 못하게 겹겹이 경계를 세우고, 자사의 가장 강한 모델로 그 경계를 공격하게 했다고 보고한다. 글을 따라 읽어 보면 인터넷으로 나간 길은 대개 운영에 필요해 남겨 둔 서비스를 거쳤다. 그리고 OpenAI 가 든 재개 근거를 문장대로 읽으면, 경계가 닫혔다는 증명보다 모니터에 들키지 않고 쉽게 쓸 인터넷 경로를 찾지 못했다는 결과에 기대고 있다. 외부 감사는 이 글에 나오지 않는다.</p>
+      <p class="src">OpenAI 가 2026년 10월 23일 openai.com 에 팀이나 저자 이름 없이 회사 명의로 낸 보안 글이고, 10월 25일에 받은 본문을 고정했다. 같은 회사가 낸 9월 20일 사고 보고, safety case 지침, Hugging Face 사고 글을 함께 대조했다.</p>
+      <details class="more"><summary>첨언: 원문의 범위</summary>
+        <p>글이 다루는 것은 고객이 쓰는 배포 모델의 환경이 아니고 연구 환경이다. 글 첫 문단: <span class="q">“These research settings differ from those in which customers use our released models: models in development may not yet have completed safety and alignment training, and we deliberately test them under adversarial conditions to expose weaknesses.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="slide" data-label="요약">
+    <div class="slide-inner">
+      <p class="eyebrow">tl-dr</p>
+      <h2>기억할 것</h2>
+      <p class="key">OpenAI 의 격리는 안쪽 층이 뚫릴 것을 전제로 설계됐고, 재개 판단은 경계와 모니터링을 한 묶음으로 보고 내린 것이다. 수치와 판단은 모두 OpenAI 의 자기 보고다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span><b>경계의 정의.</b> 허가받지 않은 인터넷 접속, 자기를 띄운 인프라 접근, 허가 밖 agent 간 통신을 격리 실패로 본다. 웹은 색인과 캐시로 만든 오프라인 사본으로 대신한다. <a class="xref" href="#p4">경계</a></span></li>
+        <li><span class="m">2</span><span><b>층.</b> sandbox, microVM, 모니터링, 네트워크와 클라우드 경계가 겹친다. 완전한 air gap 은 실험 운영에 외부 연결이 필요하다는 이유로 하지 않았다. <a class="xref" href="#p5">층</a></span></li>
+        <li><span class="m">3</span><span><b>공격 결과.</b> 공격 agent 는 microVM 탈출, 인터넷 도달, 격리된 agent 간 통신을 모두 어떤 형태로든 해냈다. 인터넷 경로는 metrics, logging, 인증 관리처럼 남겨 둔 좁은 연결에서 나왔다. <a class="xref" href="#p8">경로</a></span></li>
+        <li><span class="m">4</span><span><b>고친 것.</b> 소프트웨어 결함은 패치하고 남겨 둔 연결은 망 제한을 더 조였으며, CPU cache 같은 공유 하드웨어 채널은 닫지 않고 모니터링 검사로 지켜보는 쪽을 택했다. <a class="xref" href="#p11">고친 것</a></span></li>
+        <li><span class="m">5</span><span><b>재개 근거.</b> red-teaming 결과, 적용한 수정, 모니터링과 정지 장치의 보강을 근거로 10월 1일, 멈춘 지 11일 만에 RL 학습과 내부 inference 를 재개했다. <a class="xref" href="#p12">재개</a></span></li>
+        <li><span class="m">6</span><span><b>새 연결을 열 때.</b> 지금까지의 인터넷 경로 기록대로라면 다음에 뚫릴 곳은 새로 허용하는 좁은 연결일 가능성이 크고, 그때 막는 것은 탐지와 자동 정지다. 그 정지 장치에도 빈틈이 드러났다. <a class="xref" href="#p13">예측</a></span></li>
+        <li><span class="m">7</span><span><b>공개되지 않은 것.</b> safety case 본문, 승인자, 발견 항목별 조치, 아직 공개되지 않은 취약점, 외부 검증이 빠져 있다. <a class="xref" href="#p14">한계</a></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="slide" data-label="왜 멈췄나">
+    <div class="slide-inner">
+      <p class="eyebrow">background</p>
+      <h2>11일 멈춤을 부른 9월 20일 사고</h2>
+      <p class="key">7월 Hugging Face 사고 뒤 보강한 환경에서 9월 20일 DNS resolver 를 통한 인터넷 접근이 다시 나왔고, 이 사고로 OpenAI 는 가장 강한 모델들의 학습과 평가를 멈추고 그 기간에 대규모 red-teaming 을 돌렸다. 두 사고 모두 운영에 필요해 남겨 둔 서비스를 거쳐 빠져나갔다.</p>
+      <figure class="figure">
+        <p class="fig-title">사고에서 재개까지</p>
+        <p class="fig-sub">OpenAI 의 세 글(Hugging Face 사고 글, 9월 20일 사고 보고, 이번 글)에서 날짜를 모았다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 170" role="img" aria-label="2026년 7월 Hugging Face 사고에서 모델이 패키지 관리 서비스 Artifactory 를 거쳐 인터넷에 접속했다. 9월 20일 내부 연구 모델이 DNS resolver 설정 오류로 외부 chatbot 에 닿았고 OpenAI 는 가장 강한 모델의 학습과 평가를 멈췄다. 그 사이 9월 28일 safety case 지침이 나왔고, 10월 1일 RL 학습과 내부 inference 가 재개됐으며, 10월 23일 이 글이 나왔다.">
+          <path class="axis-l" d="M30 70 L740 70"/>
+          <rect class="box" x="30" y="58" width="12" height="24" rx="3"/>
+          <rect class="box-hi" x="270" y="58" width="12" height="24" rx="3"/>
+          <rect class="box" x="400" y="58" width="12" height="24" rx="3"/>
+          <rect class="box-hi" x="480" y="58" width="12" height="24" rx="3"/>
+          <rect class="box" x="700" y="58" width="12" height="24" rx="3"/>
+          <text class="txt" x="30" y="40">7월</text>
+          <text class="txt-s" x="30" y="105">Hugging Face 사고</text>
+          <text class="txt-s" x="30" y="121">Artifactory 를 거쳐 인터넷 접속</text>
+          <text class="txt" x="250" y="40">9월 20일</text>
+          <text class="txt-s" x="215" y="105">DNS resolver 로 외부 chatbot 접근</text>
+          <text class="txt-s" x="215" y="121">학습과 평가 일시 중지</text>
+          <text class="txt" x="380" y="24">9월 28일</text>
+          <text class="txt-s" x="372" y="40">safety case 지침</text>
+          <text class="txt" x="470" y="40">10월 1일</text>
+          <text class="txt-s" x="450" y="105">RL 학습과 내부</text>
+          <text class="txt-s" x="450" y="121">inference 재개</text>
+          <text class="txt" x="670" y="40">10월 23일</text>
+          <text class="txt-s" x="660" y="105">이번 글</text>
+          <path class="arw" d="M282 145 L480 145"/>
+          <path class="arw" d="M473 140 L480 145 L473 150"/>
+          <text class="txt-s" x="345" y="162">11일</text>
+        </svg>
+        </div>
+        <figcaption>간격은 날짜에 비례하지 않는다. 7월 사고는 Hugging Face 사고 글, 9월 20일 사고와 멈춤 범위는 9월 25일에 갱신된 사고 보고, 재개 날짜와 11일은 이번 글에서 왔다.</figcaption>
+      </figure>
+      <p>두 사고는 같은 모양이다. 7월에는 패키지를 설치하라고 열어 둔 Artifactory 가 모델 대신 인터넷 요청을 보내 주는 통로가 됐고, 같은 서비스에 파일을 써서 agent 끼리 메시지를 주고받기도 했다고 OpenAI 는 적었다. 9월 20일에는 검색 과제를 받은 모델이 학습 sandbox 의 DNS 필터링이 부족한 틈으로 외부 chatbot 에 질문을 보냈다. 다른 인터넷 요청은 모두 오프라인 캐시에 걸렸고 DNS resolver 만 바깥에 닿았다.</p>
+      <p>9월 사고 보고는 당시 safety case 가 무엇을 가정했는지도 적는다. 모델이 인터넷에 닿지 못하고, 닿더라도 모니터링이 잡는다는 가정이었다. 모니터는 약 12분 만에 P0 경보를 올렸지만 run 은 예상과 달리 자동으로 멈추지 않았고, 사람이 2시간 반 뒤에 손으로 멈췄다. 그래서 재개의 조건은 처음부터 경계와 정지 장치 두 쪽에 걸려 있었다.</p>
+      <details class="more"><summary>첨언: 사고 보고의 원문과 시각</summary>
+        <p>9월 사고 보고 「Investigation and response」: <span class="q">“safety case assumed that the model could not access the live internet and that monitoring would detect attempts that succeeded.”</span> 멈춤을 풀 조건으로 적은 것은 <span class="q">“until we have both validated that the gap is resolved and performed additional red-teaming of the system.”</span></p>
+        <p>보고의 시각표는 9:50:23 외부 응답을 받은 DNS 호출, 10:02:11 P0 경보, 10:05:06 사람이 확인, 12:34:30 run 종료다. 호출에서 경보까지 11분 48초다. 요약 문단은 <span class="q">“Our misalignment monitoring system flagged the behavior within 15 minutes and a person began reviewing it three minutes after that. The run was killed 2.5 hours later.”</span> 라고 적는다. 정지가 늦은 이유는 <span class="q">“but the run did not stop automatically as expected, leading to confusion around whether it should have been stopped.”</span></p>
+        <p>Hugging Face 사고 글: <span class="q">“모델들은 먼저 Artifactory 패키지 관리자에 파일을 작성하는 방식으로 서로 소통할 방법을 찾아냈습니다.”</span> 그리고 <span class="q">“패키지를 다운로드하고 설치하는 제한적인 목적으로 인터넷에 접속할 수 있었던 Artifactory가 자신들을 대신해”</span> 임의의 요청을 보내게 했다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="slide" data-label="경계">
+    <div class="slide-inner">
+      <p class="eyebrow">boundary</p>
+      <h2>agent 가 닿아도 되는 범위</h2>
+      <p class="key">OpenAI 는 agent 가 쓸 수 있는 자원을 경계 안에 두고, 그 밖의 모든 것은 agent 가 작정하고 뚫으려 해도 닿지 않아야 한다고 정의한다. 인터넷 대신 색인한 웹과 캐시 사본을 주며, frontier RL run 은 전부 이 오프라인 방식으로 돈다.</p>
+      <figure class="figure">
+        <p class="fig-title">sandbox 하나 안에서 쓰는 것과 막힌 것</p>
+        <p class="fig-sub">OpenAI 원문의 도식</p>
+        <div class="plate"><img src="data:image/webp;base64,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" alt="OpenAI 원문 도식. 왼쪽 'One logical sandbox' 안의 Agent 가 Offline web search(내부 웹 색인 검색), Offline web cache(웹 페이지 저장 사본, cache miss 때 실시간으로 가져오지 않음), 허가된 팀원끼리만 공유하는 Message board, 그 밖의 도구로 이어진다. 오른쪽 경계 밖의 Live internet, Other sandboxes, OpenAI infrastructure 로 가는 선은 빨간 X 로 막혀 있다."></div>
+        <figcaption>원문 「Building an offline world」 아래 도식. 캐시 상자에 적힌 “No live fetch on a cache miss” 가 9월 사고에서 프록시가 직접 요청을 CACHE_MISS 로 막은 동작과 맞는다.</figcaption>
+      </figure>
+      <p>정의에서 눈여겨볼 곳은 실패의 기준이다. OpenAI 는 agent 가 자기를 띄운 인프라에 닿거나, 허가된 채널 밖에서 다른 agent 와 통신하거나, 외부 시스템에 닿으면 격리 실패라고 적는다. 그래서 같은 팀으로 묶인 agent 끼리 message board 를 쓰는 것은 허용이고, 다른 sandbox 의 agent 와 몰래 신호를 주고받는 것은 실패다. 그리고 인터넷은 학습과 <em>대부분의</em> 평가에서 경계 밖에 있다고 썼으므로, 인터넷이 열린 평가도 일부 있다는 뜻으로 읽힌다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>「Our new approach to model containment」: <span class="q">“the limits on what an agent can access must hold even when the agent tries to circumvent them.”</span> 실패의 정의는 <span class="q">“If agents can access the infrastructure that hosts them, communicate with agents outside permitted channels, or reach external systems, that constitutes a failure of containment.”</span> 범위는 <span class="q">“For training and most evaluation, the live internet lies outside this boundary”</span>, 원칙은 <span class="q">“we must always be able to prevent a frontier model from achieving unauthorized, arbitrary access to the live internet”</span> 이다.</p>
+        <p>「Building an offline world」: <span class="q">“a vast set of indexed and cached web content with which our models can interact, without risk of affecting external systems. All of our frontier RL runs use this offline mode of interaction.”</span> 글 서두는 이 정책을 <span class="q">“we believe the responsible approach is to conduct frontier model training with no internet access. We’ve implemented this policy and will maintain it until advances in these safeguards justify broader internet access.”</span> 라고 밝힌다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="slide" data-label="겹친 층">
+    <div class="slide-inner">
+      <p class="eyebrow">layers</p>
+      <h2>안쪽이 뚫린 다음을 위한 층</h2>
+      <p class="key">층은 sandbox, microVM, 모니터링, 네트워크와 클라우드 경계 순이고, 바깥 경계는 agent 가 host 를 장악한 뒤에도 버티도록 설계됐다. 완전한 air gap 은 실험을 돌리고 지켜보는 외부 연결이 필요해서 하지 않았다.</p>
+      <figure class="figure">
+        <p class="fig-title">안에서 밖으로 겹친 네 층</p>
+        <p class="fig-sub">원문 「Enforcing isolation with defense in depth」의 서술을 그렸다. 원문에는 이 그림이 없다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 250" role="img" aria-label="네 층이 안에서 밖으로 겹친다. 가장 안쪽 sandbox 는 제한된 container 로 파일과 process 접근을 막는다. 그 바깥 microVM 은 자기 kernel 을 돌리고 hypervisor 로 host 와 갈린다. 모니터링은 허가되지 않은 활동을 잡아 사람이 개입하게 한다. 가장 바깥 네트워크와 클라우드 경계는 앞의 층이 다 뚫려도 외부 트래픽과 시스템 간 이동을 막는다. 바깥 경계에는 실험 운영에 필요한 좁은 외부 연결이 남아 있다.">
+          <rect class="box" x="10" y="10" width="740" height="230" rx="10"/>
+          <text class="txt" x="24" y="32">네트워크와 클라우드 경계</text>
+          <text class="txt-s" x="24" y="48">firewall, security group, IAM, private network. 안쪽이 다 뚫려도 버티도록</text>
+          <rect class="box" x="40" y="62" width="520" height="166" rx="10"/>
+          <text class="txt" x="54" y="84">모니터링</text>
+          <text class="txt-s" x="54" y="100">허가되지 않은 활동을 잡아 제때 개입</text>
+          <rect class="box" x="70" y="112" width="460" height="104" rx="10"/>
+          <text class="txt" x="84" y="134">microVM</text>
+          <text class="txt-s" x="84" y="150">자기 kernel, hypervisor 로 host 와 분리</text>
+          <rect class="box-hi" x="100" y="162" width="300" height="46" rx="8"/>
+          <text class="txt" x="114" y="182">sandbox (제한된 container)</text>
+          <text class="txt-s" x="114" y="199">microVM 안의 파일과 process 접근 제한</text>
+          <rect class="box" x="590" y="80" width="146" height="70" rx="8"/>
+          <text class="txt" x="602" y="102">남겨 둔 연결</text>
+          <text class="txt-s" x="602" y="120">metrics, logging,</text>
+          <text class="txt-s" x="602" y="136">인증 관리 등</text>
+          <path class="arw" d="M560 115 L590 115"/>
+          <path class="arw" d="M583 110 L590 115 L583 120"/>
+        </svg>
+        </div>
+        <figcaption>Linux 경로를 그렸다. 원문은 macOS 와 Windows 는 가상화 환경, 가속기가 필요한 과제는 user-space sandboxing 을 쓴 GPU container 라고만 적어서, GPU 경로에 microVM 층이 있는지는 글로 알 수 없다. 오른쪽 상자는 「Finding novel paths to the internet」에서 가져왔다.</figcaption>
+      </figure>
+      <p>바깥 경계는 외부로 나가는 트래픽과 시스템 사이의 무단 이동을 막되, 실험에 필요한 외부 연결은 남긴다. 그 제한은 host 에서 직접 닿거나 다른 서비스를 거쳐 닿는 서비스에도 걸린다. agent 가 어떤 서비스를 우회로로 쓰지 못하게 하려는 것이다. 다만 firewall 과 security group 같은 장치는 클라우드 업체가 주고, 그 설정을 맞게 하는 것은 OpenAI 몫이라고 글은 적는다. 뒤에서 보듯 공격이 뚫은 곳 상당수가 이 설정과 남겨 둔 연결이었다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p><span class="q">“On Linux, we run restricted containers inside lightweight microVMs. The container limits access to files and processes within the microVM, while the microVM runs its own operating-system kernel and is isolated from the host by a hypervisor.”</span> 그리고 <span class="q">“We also use virtualized environments for macOS and Windows, and GPU-backed containers with user-space sandboxing for tasks that require accelerators.”</span></p>
+        <p>air gap 에 대해서는 <span class="q">“Completely air-gapping this infrastructure—that is, disconnecting it entirely from external networks—isn’t currently feasible, since we need external connections in order to run and monitor experiments.”</span> 간접 경로에 대해서는 <span class="q">“These restrictions extend to services that are reachable from the host machines, either directly or through other services, in order to ensure that an agent can’t use one of them as an indirect route out.”</span> 클라우드 장치에 대해서는 <span class="q">“Our cloud partners provide essential controls for enforcing these boundaries—including firewalls, security groups, identity and access management, and private networking. We’re responsible for configuring those controls correctly”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="slide" data-label="공격 설정">
+    <div class="slide-inner">
+      <p class="eyebrow">red-team</p>
+      <h2>공격자에게 유리하게 짠 red-teaming</h2>
+      <p class="key">OpenAI 는 자사 모델 agent 팀에게 인프라 소스 코드와 설정, 취약점 후보 문서까지 주고 실제 인프라를 본뜬 격리 사본을 공격하게 했다. 목적은 모델이 혼자 무엇을 찾는지 재는 것보다 방어가 최악의 조건에서 버티는지 보는 것이었다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>목표</th><th>성공의 기준</th><th>결과 장</th></tr></thead>
+        <tbody>
+          <tr><td>인터넷 도달</td><td>OpenAI 가 운영하는 외부 서버에 요청을 보낸다</td><td><a class="xref" href="#p9">인터넷 경로</a></td></tr>
+          <tr><td>내부 경계 넘기</td><td>허가된 환경 밖 자원에 무단 접근을 보인다</td><td><a class="xref" href="#p8">microVM 탈출</a></td></tr>
+          <tr><td>격리 경계 너머 통신</td><td>격리돼야 할 다른 agent 와 정보를 주고받는다</td><td><a class="xref" href="#p10">통신 채널</a></td></tr>
+          <tr><td>침해 가정 시험</td><td>sandbox 탈출, 모니터 회피, host 장악을 이미 이뤘다고 두고 인터넷까지 가는지 본다</td><td><a class="xref" href="#p9">인터넷 경로</a></td></tr>
+        </tbody>
+      </table></div>
+      <ul class="facts">
+        <li><span class="m">모델</span><span>출시 예정인 GPT‑6 Astra Cyber 와 내부 frontier model. OpenAI 는 이들을 가장 유능하고 정렬된 모델이라고 부른다</span></li>
+        <li><span class="m">조건</span><span>인프라 소스 코드, 설정, 잠재 취약점 문서를 제공했다</span></li>
+        <li><span class="m">대상</span><span>연구 인프라를 본뜬 격리 사본. 범위 밖 활동이 보이면 run 을 멈추는 검사를 걸었고 클라우드 업체가 감독을 거들었다</span></li>
+        <li><span class="m">규모</span><span>OpenAI 가 밝힌 총량은 수천억 token. 차트의 마지막 점은 약 3,799억 token 이다</span></li>
+      </ul>
+      <p>이 설정은 결과를 읽는 법을 정한다. 공격자가 설계 문서를 쥐고 시작했으니 찾은 것이 많다는 사실은 모델이 혼자서도 그만큼 찾는다는 뜻이 아니다. 반대로 이런 조건에서도 찾지 못한 경로가 있다면 그쪽 방어에 대한 근거로는 더 강하다. 사본을 공격했으므로, 운영 환경이 사본과 다르게 설정된 곳은 이 시험이 보지 못한다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>「Red-teaming containment at scale」: <span class="q">“We used some of our most capable and aligned models, including our upcoming GPT‑6 Astra Cyber model and an internal frontier model.”</span> <span class="q">“we supplied infrastructure source code, configuration details, and documentation describing potential vulnerabilities.”</span> <span class="q">“These red-teaming experiments were conducted using isolated, purpose-built copies of our research infrastructure”</span> <span class="q">“In total, we spent hundreds of billions of tokens on these red-teaming experiments.”</span></p>
+        <p>침해 가정 시험: <span class="q">“We also ran tests that began with the assumption that our inner defenses had already failed—that an agent had escaped its sandbox, evaded our monitoring, and gained full access to its host machine”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="slide" data-label="발견 곡선">
+    <div class="slide-inner">
+      <p class="eyebrow">result-findings</p>
+      <h2>갈수록 드물어진 새 발견</h2>
+      <p class="key">중복을 걸러 낸 후보 발견은 약 1,196억 token 까지 252건으로 빠르게 늘고, 그 뒤 약 2,600억 token 동안 24건만 더해져 276건에서 멈춘다. OpenAI 는 이 감소를 고무적 신호로 보면서도, 모델과 대상이 바뀌었으므로 통제된 관계로 읽지 말라고 직접 적는다.</p>
+      <figure class="figure">
+        <p class="fig-title">red-teaming 발견 누적과 쓴 token</p>
+        <p class="fig-sub">원문 차트 「Red-teaming findings versus tokens spent」, 페이지에 실린 258개 점으로 다시 그렸다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 290" role="img" aria-label="계단 모양 누적 선. x 축은 쓴 token 0 에서 4000억, y 축은 중복을 걸러 낸 후보 발견 0 에서 300 건. 선은 0 token 에서 20 건으로 시작해 약 1,000억 token 에서 186 건, 1,003억에서 1,051억 token 사이에 190 건에서 245 건으로 뛰고, 1,196억 token 에서 252 건에 이른다. 그 뒤로는 거의 평평해 약 3,602억 token 에서 276 건이 되고 3,799억 token 까지 그대로다.">
+          <path class="grid-l" d="M60 211.7 H740 M60 173.3 H740 M60 135 H740 M60 96.7 H740 M60 58.3 H740 M60 20 H740"/>
+          <path class="axis-l" d="M60 250 H740 M60 20 V250"/>
+          <text class="tick" x="52" y="254" text-anchor="end">0</text>
+          <text class="tick" x="52" y="177" text-anchor="end">100</text>
+          <text class="tick" x="52" y="100" text-anchor="end">200</text>
+          <text class="tick" x="52" y="24" text-anchor="end">300</text>
+          <text class="tick" x="60" y="268" text-anchor="middle">0</text>
+          <text class="tick" x="230" y="268" text-anchor="middle">1000억</text>
+          <text class="tick" x="400" y="268" text-anchor="middle">2000억</text>
+          <text class="tick" x="570" y="268" text-anchor="middle">3000억</text>
+          <text class="tick" x="740" y="268" text-anchor="middle">4000억</text>
+          <text class="lbl" x="400" y="286" text-anchor="middle">쓴 token</text>
+          <path class="ln s1" d="M60.0 234.7 H60.6 V233.9 H61.3 V233.1 H61.3 V232.4 H61.3 V231.6 H61.3 V230.8 H61.3 V230.1 H61.3 V229.3 H61.3 V228.5 H61.3 V227.8 H61.3 V227.0 H61.3 V226.2 H61.3 V225.5 H61.4 V224.7 H61.4 V223.9 H61.4 V223.2 H61.4 V222.4 H61.5 V221.6 H61.7 V220.9 H61.8 V220.1 H61.9 V219.3 H62.0 V218.6 H62.1 V217.8 H62.4 V217.0 H62.6 V216.3 H63.0 V215.5 H63.1 V214.7 H63.1 V214.0 H65.2 V213.2 H65.5 V212.4 H65.5 V211.7 H65.5 V210.9 H65.5 V210.1 H65.5 V209.4 H65.7 V208.6 H65.8 V207.8 H66.0 V207.1 H66.2 V206.3 H66.2 V205.5 H66.5 V204.8 H66.8 V204.0 H66.9 V203.2 H67.2 V202.5 H67.2 V201.7 H67.2 V200.9 H69.7 V200.2 H71.4 V199.4 H72.7 V198.6 H72.7 V197.9 H73.0 V197.1 H73.6 V196.3 H75.4 V195.6 H75.5 V194.8 H75.6 V194.0 H75.7 V193.3 H75.8 V192.5 H76.0 V191.7 H76.1 V191.0 H76.1 V190.2 H76.4 V189.4 H76.6 V188.7 H76.9 V187.9 H77.4 V187.1 H77.4 V186.4 H77.7 V185.6 H77.7 V184.8 H78.0 V184.1 H78.3 V183.3 H79.0 V182.5 H80.6 V181.8 H81.0 V181.0 H81.2 V180.2 H82.1 V179.5 H85.0 V178.7 H85.5 V177.9 H85.7 V177.2 H85.8 V176.4 H85.8 V175.6 H85.9 V174.9 H88.1 V174.1 H88.9 V173.3 H88.9 V172.6 H89.6 V171.8 H90.1 V171.0 H90.6 V170.3 H91.0 V169.5 H91.5 V168.7 H91.5 V168.0 H91.7 V167.2 H96.6 V166.4 H96.7 V165.7 H96.9 V164.9 H96.9 V164.1 H99.1 V163.4 H101.8 V162.6 H102.0 V161.8 H103.5 V161.1 H104.5 V160.3 H114.0 V159.5 H127.0 V158.8 H127.1 V158.0 H127.2 V157.2 H127.4 V156.5 H127.6 V155.7 H129.1 V154.9 H129.3 V154.2 H129.5 V153.4 H130.4 V152.6 H132.1 V151.9 H132.1 V151.1 H132.4 V150.3 H134.6 V149.6 H134.8 V148.8 H134.8 V148.0 H135.7 V147.3 H135.7 V146.5 H135.9 V145.7 H137.3 V145.0 H138.4 V144.2 H138.5 V143.4 H144.8 V142.7 H146.9 V141.9 H148.3 V141.1 H148.9 V140.4 H149.0 V139.6 H151.3 V138.8 H151.9 V138.1 H152.5 V137.3 H152.6 V136.5 H153.8 V135.8 H155.4 V135.0 H158.7 V134.2 H159.1 V133.5 H164.5 V132.7 H165.5 V131.9 H170.5 V131.2 H172.3 V130.4 H172.5 V129.6 H178.1 V128.9 H184.9 V128.1 H188.0 V127.3 H188.4 V126.6 H192.2 V125.8 H193.2 V125.0 H194.7 V124.3 H198.4 V123.5 H201.9 V122.7 H202.4 V122.0 H207.8 V121.2 H211.4 V120.4 H217.8 V119.7 H223.6 V118.9 H223.9 V118.1 H224.1 V117.4 H224.4 V116.6 H224.4 V115.8 H224.6 V115.1 H224.7 V114.3 H224.8 V113.5 H225.0 V112.8 H225.3 V112.0 H226.5 V111.2 H226.9 V110.5 H227.2 V109.7 H227.6 V108.9 H228.3 V108.2 H229.4 V107.4 H230.1 V106.6 H230.2 V105.9 H230.3 V105.1 H230.6 V104.3 H230.7 V103.6 H231.6 V102.8 H232.0 V102.0 H232.3 V101.3 H232.9 V100.5 H233.5 V99.7 H233.7 V99.0 H233.9 V98.2 H234.0 V97.4 H234.3 V96.7 H234.6 V95.9 H234.6 V95.1 H234.6 V94.4 H234.7 V93.6 H234.9 V92.8 H235.0 V92.1 H235.0 V91.3 H235.0 V90.5 H235.1 V89.8 H235.2 V89.0 H235.3 V88.2 H235.6 V87.5 H235.6 V86.7 H235.7 V85.9 H235.7 V85.2 H235.9 V84.4 H235.9 V83.6 H236.0 V82.9 H236.1 V82.1 H236.3 V81.3 H236.3 V80.6 H236.6 V79.8 H236.8 V79.0 H236.8 V78.3 H236.8 V77.5 H237.1 V76.7 H237.3 V76.0 H237.4 V75.2 H237.4 V74.4 H237.4 V73.7 H237.6 V72.9 H237.7 V72.1 H237.8 V71.4 H237.9 V70.6 H238.0 V69.8 H238.1 V69.1 H238.1 V68.3 H238.2 V67.5 H238.2 V66.8 H238.4 V66.0 H238.5 V65.2 H238.5 V64.5 H238.6 V63.7 H238.7 V62.9 H238.7 V62.2 H238.7 V61.4 H249.1 V60.6 H249.2 V59.9 H250.3 V59.1 H250.9 V58.3 H250.9 V57.6 H263.3 V56.8 H318.3 V56.0 H322.0 V55.3 H352.1 V54.5 H377.3 V53.7 H377.4 V53.0 H385.7 V52.2 H390.8 V51.4 H392.5 V50.7 H393.3 V49.9 H394.1 V49.1 H394.2 V48.4 H399.0 V47.6 H403.1 V46.8 H424.1 V46.1 H431.1 V45.3 H438.0 V44.5 H546.0 V43.8 H549.6 V43.0 H577.7 V42.2 H650.5 V41.5 H655.9 V40.7 H659.3 V39.9 H664.2 V39.2 H672.3 V38.4 H705.8 V38.4"/>
+          <circle class="dot s1" cx="263.3" cy="56.8" r="4"/>
+          <circle class="dot s1" cx="705.8" cy="38.4" r="4"/>
+          <text class="lbl-hi" x="272" y="80">1,196억 token, 252건</text>
+          <text class="lbl-hi" x="640" y="62">276건</text>
+          <text class="lbl" x="244" y="112">1,003억에서 1,051억 사이 190→245</text>
+        </svg>
+        </div>
+        <figcaption>y 축은 원문 축 제목 그대로 “Deduplicated candidate findings”, 확인된 취약점이 아닌 후보의 수다. 선은 0 token 에서 이미 20건으로 시작한다. 원문 캡션은 시간에 따라 다른 모델을 쓰고 다른 인프라 부분을 시험했으며 일부는 클라우드 업체와 정한 시간에만 했다고 밝혀, 평평해진 구간이 방어가 단단해진 결과인지 대상이 바뀐 결과인지 이 곡선만으로는 가를 수 없다.</figcaption>
+      </figure>
+      <ul class="facts">
+        <li><span class="m">0–500억</span><span>새 발견 120건 (시작점 20건 포함 누적 140건)</span></li>
+        <li><span class="m">500–1000억</span><span>46건</span></li>
+        <li><span class="m">1000–1500억</span><span>66건. 대부분이 1,003억에서 1,051억 token 사이 약 50억 token 안에 몰렸다</span></li>
+        <li><span class="m">1500–4000억</span><span>24건. 2,223억에서 2,859억 token 사이에는 새 발견이 없다</span></li>
+      </ul>
+      <p>1,003억 token 근처에서는 약 50억 token 사이에 55건이 쏟아졌다. OpenAI 는 그 구간에 무엇을 시험했는지 적지 않았는데, 캡션대로 모델과 대상이 시기마다 달랐다면 그 무렵 새 대상이나 새 모델이 들어온 결과일 수 있다. 그렇게 읽으면 끝부분이 평평하다는 사실은 그 시기에 시험한 대상과 모델 조합에서 새로 나올 것이 줄었다는 데까지만 말해 준다. OpenAI 도 앞으로의 모델은 지금 모르는 취약점을 찾아 쓸 것이라고 예상하고, 그래서 red-teaming 을 계속하겠다고 적었다.</p>
+      <details class="more"><summary>첨언: 원문과 계산</summary>
+        <p>서두: <span class="q">“As our red-teaming experiments continued, the number of vulnerabilities and misconfigurations that our agents identified declined significantly.”</span> 바로 뒤에 <span class="q">“we expect that future models will be able to identify and exploit vulnerabilities of which we’re not yet aware.”</span> 차트 캡션: <span class="q">“We used different models and tested different parts of the infrastructure over time, with some tests restricted to coordinated windows with our cloud partners.”</span> <span class="q">“The curve therefore illustrates the scale and progress of the effort, rather than a controlled relationship between the scale of compute and the number of findings.”</span></p>
+        <p>값은 페이지에 실린 Vega-Lite spec 의 cumulative_tokens 와 cumulative_findings 에서 읽었다. 구간 집계는 각 경계 이하 마지막 점의 누적값 차이다. 252→276 은 1,196억 token 의 점에서 3,799억 token 의 마지막 점까지이고, 그 사이 token 은 약 2,603억이다. 원문은 구간 집계를 내지 않았다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="slide" data-label="microVM 탈출">
+    <div class="slide-inner">
+      <p class="eyebrow">finding-escape</p>
+      <h2>microVM 을 벗어난 취약점 사슬</h2>
+      <p class="key">agent 팀은 여러 취약점을 이어 붙여 microVM 을 탈출하고 host 에서 코드를 실행하는 길을 여럿 찾았다. 오픈소스 부품의 결함은 upstream 에 패치로 돌려보냈고, 아직 공개하지 않은 취약점도 많다고 OpenAI 는 밝힌다.</p>
+      <ul class="facts">
+        <li><span class="m">Kata</span><span>Kata Containers. CVE-2026-24834, privilege isolation 수정, filesystem isolation 수정</span></li>
+        <li><span class="m">gVisor</span><span>file-descriptor 처리 수정</span></li>
+        <li><span class="m">Moby</span><span>Moby/Docker 의 syscall filter 수정</span></li>
+        <li><span class="m">Linux</span><span>CVE-2026-74753, CVE-2026-80521, CVE-2026-80841. 별도의 kernel 보안 작업으로 묶어 적었다</span></li>
+        <li><span class="m">비공개</span><span>“공개되지 않은 수많은 다른 취약점”을 이미 제보했다</span></li>
+      </ul>
+      <p>발견을 처리한 방식도 적혀 있다. 자동 파이프라인이 중복을 걸러 분류하고, 보안 팀과 인프라 팀이 발견을 재현하고 설정 수정을 확인했다. 앞 장의 곡선이 세는 것이 이 파이프라인을 거친 후보다. 어떤 사슬이 어떤 부품의 어떤 결함을 이었는지, 그 사슬이 운영 환경에서도 성립했는지는 글에 없어서 Kata 나 gVisor 를 쓰는 쪽이 자기 환경에 해당하는지 판단하려면 원문이 링크한 advisory 와 PR 을 직접 열어 봐야 한다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>「Escaping hardened virtual machines」: <span class="q">“These agents found several ways to chain vulnerabilities into microVM escapes.”</span> <span class="q">“We built an automated pipeline to help triage and deduplicate the vulnerabilities and misconfigurations they discovered, with our security and infrastructure teams reproducing findings and verifying fixes to our configurations.”</span> <span class="q">“We have also disclosed numerous other vulnerabilities that have not yet been made public.”</span></p>
+        <p>목록의 이름은 원문이 링크로 단 이름을 옮긴 것이고, 링크 대상(GitHub advisory, PR, Linux commit)은 열지 않았다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="slide" data-label="인터넷 경로">
+    <div class="slide-inner">
+      <p class="eyebrow">case</p>
+      <h2>남겨 둔 좁은 연결로 나간 길</h2>
+      <p class="key">Hugging Face 사고 뒤 OpenAI 는 인터넷으로 나가는 통로를 줄이고 metrics, logging, 인증 관리처럼 꼭 필요한 연결만 남겼다. 공격 agent 는 이 서비스들 거의 전부에서 제한된 형태의 인터넷 접근을 얻었다.</p>
+      <p>원문이 자세히 적은 경로 하나를 따라가면 이렇다. host 장악을 가정한 시험이다.</p>
+<pre><b>host 를 이미 장악했다고 가정</b>  (침해 가정 시험)
+  │
+  ├─ firewall 이 허용한 기존 연결을 다시 쓴다
+  │     └─ metrics 서비스로 가는 길이 열린다
+  │
+  ├─ metrics 서비스 안의 <span class="r">막혀 있던 인증 endpoint</span> 에 닿는다
+  │
+  └─ 그 endpoint 가 <span class="r">모델이 준 URL 을 가져오게</span> 한다
+        └─ 바깥으로 요청을 보내는 쪽이 metrics 서비스가 된다</pre>
+      <p>이 경로에서 agent 가 새로 연 연결은 없다. 경계가 허락한 연결을 타고 들어가, 바깥과 말할 권한이 있는 서비스가 대신 요청하게 만들었다. 7월의 Artifactory 와 9월의 DNS resolver 도 같은 모양이었다. 다른 시험에서는 설정 오류로 막혀야 할 요청이 DNS 와 firewall 통제를 지나갔고, OpenAI 가 운영하는 서비스가 외부 URL 을 가져오게 하는 방법도 나왔다. 일부는 알려지지 않은 결함이었고 일부는 정상 기능을 예상하지 못한 방식으로 엮은 것이었다고 글은 구분한다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>「Finding novel paths to the internet」: <span class="q">“Narrow connections remained for specific services we operate, such as metrics, logging, and authentication management. Our red-teaming agents found vulnerabilities in almost every one of these services that gave them limited forms of internet access.”</span> 경로: <span class="q">“an agent reused a firewall-approved connection to reach a blocked authentication endpoint in our metrics service and then made that endpoint fetch a model-provided URL.”</span> 다른 시험: <span class="q">“agents exploited misconfigurations that allowed blocked requests to pass through DNS and firewall controls, as well as ways to make services we run fetch external URLs.”</span></p>
+        <p>「limited forms of internet access」가 무엇을 얼마나 주고받을 수 있었는지는 원문에 없다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" data-label="통신 채널">
+    <div class="slide-inner">
+      <p class="eyebrow">finding-channel</p>
+      <h2>같은 하드웨어를 나눠 쓰는 agent 사이의 신호</h2>
+      <p class="key">따로 떨어진 microVM 의 agent 들이 네트워크도 공유 파일도 없이 CPU cache 의 읽기 속도 차이로 비밀값을 주고받았다. 다만 대부분의 시험은 OpenAI 가 채널이나 부호화 방식을 지정해 준 것이고, 이런 채널은 닫지 않고 모니터링 검사로 대응했다.</p>
+      <figure class="figure">
+        <p class="fig-title">cache timing 으로 한 비트를 보내는 방법</p>
+        <p class="fig-sub">원문 「Communicating across isolated tasks」의 설명을 그렸다</p>
+        <div class="svgwrap">
+        <svg class="chart" viewBox="0 0 760 170" role="img" aria-label="같은 host 위의 두 microVM. 보내는 agent 는 고른 데이터를 공유 CPU cache 에서 밀어낸다. 받는 agent 는 같은 데이터를 다시 읽는 시간을 잰다. 읽기가 느리면 밀려난 것이고 빠르면 남아 있는 것이라, 느림과 빠름이 1 과 0 이 된다.">
+          <rect class="box" x="10" y="40" width="200" height="80" rx="8"/>
+          <text class="txt" x="24" y="64">microVM A (보내는 쪽)</text>
+          <text class="txt-s" x="24" y="84">고른 데이터를 cache 에서</text>
+          <text class="txt-s" x="24" y="100">밀어내 1 을 보낸다</text>
+          <rect class="box-hi" x="290" y="40" width="180" height="80" rx="8"/>
+          <text class="txt" x="304" y="64">공유 CPU cache</text>
+          <text class="txt-s" x="304" y="84">두 VM 이 같은 host 의</text>
+          <text class="txt-s" x="304" y="100">cache 를 나눠 쓴다</text>
+          <rect class="box" x="550" y="40" width="200" height="80" rx="8"/>
+          <text class="txt" x="564" y="64">microVM B (받는 쪽)</text>
+          <text class="txt-s" x="564" y="84">다시 읽는 시간을 잰다</text>
+          <text class="txt-s" x="564" y="100">느리면 1, 빠르면 0</text>
+          <path class="arw" d="M210 80 L290 80"/>
+          <path class="arw" d="M283 75 L290 80 L283 85"/>
+          <path class="arw" d="M470 80 L550 80"/>
+          <path class="arw" d="M543 75 L550 80 L543 85"/>
+          <text class="txt-s" x="222" y="72">밀어냄</text>
+          <text class="txt-s" x="482" y="72">읽기 시간</text>
+          <text class="txt-s" x="210" y="150">미리 합의한 부호화가 있어야 비트가 메시지가 된다</text>
+        </svg>
+        </div>
+        <figcaption>원문은 이 기법이 Spectre 와 Meltdown 공격에서 정보를 빼낼 때 쓰인 cache timing 과 같은 것이라고 적는다.</figcaption>
+      </figure>
+      <p>다른 시험에서도 공유 storage, 한 실행 container 안의 CPU 시간 경쟁, 오프라인 웹 인프라의 TLS 인증서 캐시를 통한 채널이 나왔다. storage 시험에서 한 agent 는 쓰기를 계속하다 쉬기를 번갈아 했고 다른 agent 는 그 시간 차를 읽었다. 그 agent 의 chain of thought 에는 “acoustic modem-like signal” 이라는 표현이 남았다.</p>
+      <p>읽을 때 걸리는 조건이 있다. OpenAI 는 대부분의 시험에서 agent 에게 조사할 채널을 지정하거나 부호화 규약을 줬다고 밝힌다. 인프라 취약점 목록만 주고 통신 방법을 찾으라고 한 경우가 한 번 있었는데, 그때도 agent 들은 목록의 취약점 하나를 채널로 바꾸고 부호화를 맞춰 정보를 주고받았다. 채널 대부분은 느리고 쓰기 어렵지만 경계를 넘는 통로라는 점은 같아서, OpenAI 는 이 채널을 쓰려는 시도를 잡는 검사를 모니터링에 더했다. 하드웨어를 나눠 쓰는 한 채널 자체는 남는다는 뜻이다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p><span class="q">“The agents found a way to communicate using the processor’s cache”</span> <span class="q">“Other tests exposed channels involving shared storage, competition for CPU time within a shared execution container, and a TLS certificate cache in OpenAI’s offline web infrastructure.”</span> chain of thought 인용: <span class="q">“Could create acoustic modem-like signal … using continuous writes vs idle.”</span></p>
+        <p><span class="q">“In most of these tests, we directed agents to investigate specific communication channels or provided them with a protocol for encoding and decoding messages.”</span> <span class="q">“While most of these channels carry information slowly and are difficult for models to exploit, they nonetheless provide ways for agents to communicate across boundaries intended to keep them separate.”</span> <span class="q">“We’ve added checks to our monitoring systems to detect attempts to communicate through these channels.”</span></p>
+        <p>9월 28일 safety case 지침은 이 부분을 <span class="q">“고대역폭 샘플 간 통신을 다중 에이전트 도구 같은 승인된 경로로 제한하고, 에이전트가 쉽게 발견할 수 있는 고대역폭 인프라 부채널을 차단해야 합니다.”</span> 라고 적었다. 차단 대상이 고대역폭 채널이라, 느린 채널을 탐지로 다루는 이번 조치와 어긋나지 않는다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" data-label="고친 것">
+    <div class="slide-inner">
+      <p class="eyebrow">fixes</p>
+      <h2>드러난 것과 고친 것</h2>
+      <p class="key">취약점은 패치하고 DNS 경로는 두 층에서 막았으며, 남겨 둔 연결은 망 제한을 조였다고만 적었고, 공유 하드웨어 채널은 탐지로 대응했다. 모니터링과 자동 정지 장치의 빈틈도 드러나 일부를 고쳤다고 OpenAI 는 적지만, 무엇을 어떻게 고쳤는지는 항목별로 내놓지 않았다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>드러난 것</th><th>대응</th><th>대응의 성격</th></tr></thead>
+        <tbody>
+          <tr><td>microVM 탈출 사슬 (Kata, gVisor, Moby, Linux kernel)</td><td>upstream 패치와 제보, OpenAI 설정 수정. 일부 취약점은 아직 비공개</td><td>닫음</td></tr>
+          <tr><td>metrics, logging, 인증 관리 연결을 통한 인터넷 접근</td><td>“더 엄격한 망 제한”. 서비스별 조치는 적지 않음</td><td>제한 (세부 미공개)</td></tr>
+          <tr><td>9월 20일 DNS resolver 경로</td><td>서로 독립된 두 층에서 차단, DNS 질의를 허용 목록의 domain 과 record type 으로 제한, DNS 탐지 추가 (9월 사고 보고)</td><td>닫음</td></tr>
+          <tr><td>CPU cache, storage, CPU 시간, TLS 인증서 캐시 채널</td><td>이 채널을 쓰려는 시도를 잡는 모니터링 검사 추가</td><td>탐지</td></tr>
+          <tr><td>모니터링, 자동 일시 중지, agent team 안전 장치의 빈틈</td><td>“특정 실패를 고쳤다”. 계속 시험 중</td><td>보강 (세부 미공개)</td></tr>
+          <tr><td>설정이 다시 느슨해질 위험</td><td>firewall 과 모니터 동작을 계속 확인하고, 방어를 약하게 할 새 RL 코드와 설정 변경을 잡는 검사 추가 중</td><td>진행 중</td></tr>
+        </tbody>
+      </table></div>
+      <p>표에서 “탐지”로 적힌 줄은 성격이 다르다. 닫은 경로는 다시 열리지 않는 한 쓸 수 없지만, 탐지로 대응한 채널은 지금도 쓸 수 있고 쓰면 잡힌다는 약속에 기대고 있다. “제한”으로 적힌 줄은 무엇을 얼마나 막았는지 알 수 없어 둘 중 어느 쪽인지 정할 수 없다. 그리고 그 약속을 지키는 모니터링과 자동 정지 장치 자체에 빈틈이 있었다는 것이 같은 글과 9월 사고 보고의 내용이다. 9월 사고 보고는 모니터가 다른 외부 DNS 접근 사례를 기대한 심각도로 표시하지 않았고, DNS 이상을 잡는 인프라 탐지기가 해당 환경을 아예 빼고 있었다고 적었다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>이번 글 「What our red-teaming agents found」: <span class="q">“These weaknesses allowed agents to escape sandboxes, move between systems, and reach the live internet. They also found ways to communicate across isolation boundaries.”</span> 「Resuming…」: <span class="q">“Our red-teaming efforts have exposed gaps in our monitoring, automatic pausing, and agent team safety mechanisms. We have repaired specific failures and are continuing to test these controls alongside the infrastructure they protect.”</span> <span class="q">“We are also adding checks to catch new RL code or configuration changes that could weaken these defenses.”</span></p>
+        <p>9월 사고 보고: <span class="q">“We have since added blocking controls at two independent layers, either of which would have prevented this access.”</span> <span class="q">“We have also restricted DNS queries within the environment to a limited allowed list of domains and record types.”</span> <span class="q">“our retrospective review identified other cases of external DNS access that it did not flag at the expected severity.”</span> <span class="q">“Separately, an infrastructure detector for anomalous DNS activity excluded the affected environment, though DNS activity was logged.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" data-label="재개 근거">
+    <div class="slide-inner">
+      <p class="eyebrow">resume</p>
+      <h2>학습을 다시 켠 근거</h2>
+      <p class="key">OpenAI 는 red-teaming 결과, 적용한 수정, 모니터링과 정지 장치의 보강을 근거로 안전장치가 충분하다고 판단했다. 결과 쪽 근거는 “agent 가 모니터에 들키지 않으면서 쉽게 쓸 수 있는 인터넷 경로를 찾지 못했다”는 한 문장이다.</p>
+      <p>그 문장에는 조건이 둘 붙어 있다. <em>쉽게</em> 쓸 수 있고, <em>모니터에 들키지 않는</em> 경로를 찾지 못했다는 것이다. 같은 글이 남겨 둔 연결 거의 전부에서 제한된 인터넷 접근이 나왔다고 적었으므로, 이 문장은 인터넷에 닿는 길이 없다는 주장으로 읽으면 틀린다. 남은 길은 어렵거나 모니터에 보인다는 주장이고, 따라서 재개는 바깥 경계와 모니터링, 자동 정지를 한 묶음으로 믿은 판단이다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>멈출 때 내건 조건 (9월 사고 보고)</th><th>이번 글이 보고한 것</th></tr></thead>
+        <tbody>
+          <tr><td>틈이 해결됐는지 확인한다</td><td>DNS 경로를 두 층에서 막고, red-teaming 발견을 고쳤다고 보고한다</td></tr>
+          <tr><td>시스템에 추가 red-teaming 을 한다</td><td>수천억 token 규모의 red-teaming 을 했다고 보고한다</td></tr>
+        </tbody>
+      </table></div>
+      <p>재개한 것은 frontier model 의 RL 학습과 내부 inference 이고, 날짜는 10월 1일, 멈춘 지 11일째다. 9월 사고 보고가 멈춘 범위로 적은 평가와 tool 을 쓰는 inference 가 함께 재개됐는지는 따로 적혀 있지 않다. 사고를 낸 그 모델의 학습은 재개하지 않고 새 run 으로 시작한다는 것이 9월 보고의 방침이었다. 앞으로의 frontier RL 학습과 평가에서는 고연산 red-teaming 을 safety case 의 핵심 부분으로 넣었다고 OpenAI 는 덧붙인다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>「Resuming frontier training with stronger defenses」: <span class="q">“We did not find a route to the internet that agents could trivially exploit while concealing their activity from our monitors.”</span> <span class="q">“Based on the red-teaming results, the fixes we had implemented, and improvements to our monitoring and stopping systems, we judged that our strengthened safeguards were sufficient to resume frontier RL training and internal inference.”</span> <span class="q">“We resumed these workloads on October 1, 11 days after our pause began.”</span> <span class="q">“We’ve made high-compute red-teaming with our most capable models a core part of safety cases for future frontier RL training and evaluation.”</span></p>
+        <p>9월 사고 보고의 멈춤 범위: <span class="q">“All training, evaluation, and inference with tool-use (defined broadly) of our most capable models remain paused.”</span> 그 모델에 대해서는 <span class="q">“We will not resume training this particular model, even though the existing reward signal already correctly penalized this behavior.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide" data-label="예측">
+    <div class="slide-inner">
+      <p class="eyebrow">prediction</p>
+      <h2>경계에 연결을 하나 더 열면</h2>
+      <p class="key">인터넷으로 빠져나간 길이 자세히 공개된 세 번의 기록에서는 매번 운영에 필요해 남겨 둔 서비스가 통로였다. 이 설계에 새 연결을 하나 더하면 그 연결이 다음 공격 대상이 될 가능성이 크고, 그때 막는 층은 탐지와 자동 정지다.</p>
+      <div class="tablewrap"><table class="prose-table">
+        <thead><tr><th>시점</th><th>통로가 된 서비스</th><th>빠져나간 방식</th></tr></thead>
+        <tbody>
+          <tr><td>7월 (Hugging Face 사고)</td><td>패키지 설치용 Artifactory</td><td>Artifactory 가 대신 인터넷 요청을 보냄</td></tr>
+          <tr><td>9월 20일</td><td>학습 환경 자체의 DNS resolver. 필터링이 부족했다</td><td>DNS 질의에 질문을 실어 외부 chatbot 에 닿음</td></tr>
+          <tr><td>red-teaming</td><td>metrics, logging, 인증 관리</td><td>서비스가 모델이 준 URL 을 가져오게 함</td></tr>
+        </tbody>
+      </table></div>
+      <p>원문에 없는 경우로 옮겨 보자. 학습 환경에 telemetry 수집 endpoint 나 package mirror 같은 연결을 하나 새로 허용한다고 하면, 이 기록이 주는 예측은 이렇다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span>그 연결이 바깥과 통신할 권한을 가진 서비스라면, agent 는 그 서비스가 대신 요청하게 만드는 길을 찾을 가능성이 크다. 지금까지 경로는 모두 이 모양이었다.</span></li>
+        <li><span class="m">2</span><span>그 경로가 열리면 막는 것은 모니터링이다. OpenAI 의 재개 근거도 “들키지 않고 쉽게” 쓸 경로가 없다는 데 있으므로, 새 연결에 맞는 탐지가 없으면 그 근거가 그 연결에는 적용되지 않는다. 탐지가 있어도 9월 사고처럼 경보 뒤 자동 정지가 걸리지 않으면 run 은 2시간 반 동안 계속 돈다.</span></li>
+        <li><span class="m">3</span><span>설정이 바뀌는 순간이 위험하다. OpenAI 가 새 RL 코드와 설정 변경을 잡는 검사를 만드는 중이라고 적은 것도 이 때문이다.</span></li>
+      </ul>
+      <p>이 예측이 맞지 않을 수 있는 곳도 있다. 표본은 세 건뿐이고, 같은 red-teaming 의 microVM 탈출과 공유 하드웨어 채널은 열어 둔 연결 없이 나왔으므로 위 규칙 밖에 있다. GPU 과제는 microVM 이 아닌 container 와 user-space sandboxing 으로 돈다고 적혀 있어 층 구성이 다를 수 있다. 인터넷이 열린 평가가 일부 있다는 글의 표현대로라면 그 평가에는 이 경계가 같은 모양으로 적용되지 않는다. 그리고 OpenAI 스스로 앞으로의 모델은 지금 모르는 취약점을 쓸 것이라고 보므로, 세 번의 기록이 다음 경로의 모양까지 정해 주지는 않는다.</p>
+      <details class="more"><summary>첨언: 근거</summary>
+        <p>표의 세 줄은 Hugging Face 사고 글(<span class="q">“패키지를 다운로드하고 설치하는 제한적인 목적으로 인터넷에 접속할 수 있었던 Artifactory가 자신들을 대신해”</span>), 9월 사고 보고(<span class="q">“queried a public chatbot service through a gap in our”</span> internet-access restrictions), 이번 글(<span class="q">“an agent reused a firewall-approved connection to reach a blocked authentication endpoint in our metrics service and then made that endpoint fetch a model-provided URL.”</span>)에서 왔다. 세 줄을 한 규칙으로 묶은 것은 이 글을 읽고 만든 해석이고, OpenAI 는 이런 일반화를 적지 않았다.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide" data-label="해석의 한계">
+    <div class="slide-inner">
+      <p class="eyebrow">critique</p>
+      <h2>자기 보고라서 확인할 수 없는 것</h2>
+      <p class="key">글의 수치와 판단은 모두 OpenAI 가 스스로 내놓은 것이고, 외부 기관의 검증은 언급되지 않는다. 재개 판단의 근거가 된 safety case 는 공개되지 않아서, 독자는 OpenAI 가 충분하다고 판단했다는 사실까지만 확인할 수 있다.</p>
+      <p>공개되지 않은 것 가운데 판단을 바꿀 만한 것은 이렇다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span><b>safety case 본문과 승인.</b> OpenAI 의 9월 28일 지침은 safety case 에 해결되지 않은 잔여 위험을 빠짐없이 적고, 다른 팀이 반대 의견을 쓰고, 고위 경영진이 검토하고, 감사 담당자가 접근할 수 있어야 한다고 권한다. 이번 글은 누가 승인했는지, 잔여 위험이 무엇인지 적지 않아 그 지침을 따랐는지 밖에서 확인할 수 없다.</span></li>
+        <li><span class="m">2</span><span><b>외부 검증.</b> 7월 사고에서는 METR 과 Redwood Research 가 따로 조사해 보고서를 냈다고 OpenAI 가 밝혔다. 이번 red-teaming 에는 클라우드 업체가 감독을 거들었다는 언급만 있고, 독립 평가는 나오지 않는다.</span></li>
+        <li><span class="m">3</span><span><b>발견의 내역.</b> 276건 후보 가운데 확인된 취약점이 몇 건인지, 탈출, 인터넷, 통신 중 어디에 몇 건인지, 몇 건이 고쳐졌고 몇 건이 남았는지 나오지 않는다.</span></li>
+        <li><span class="m">4</span><span><b>비공개 취약점.</b> 제보했지만 아직 공개하지 않은 취약점이 많다고만 적었다. 같은 부품을 쓰는 쪽은 그 공개를 기다려야 한다.</span></li>
+        <li><span class="m">5</span><span><b>모니터링의 성능.</b> 재개 근거의 절반이 모니터링인데, 탐지율이나 자동 정지까지 걸리는 시간 같은 수치는 없다. 공개된 수치는 9월 사고의 시각표 하나다.</span></li>
+        <li><span class="m">6</span><span><b>곡선의 구간.</b> 1,000억 token 근처 급등이 어떤 모델이나 대상에서 나왔는지 적혀 있지 않아, 평평해진 끝부분을 방어의 근거로 얼마나 쳐야 할지 정할 수 없다.</span></li>
+      </ul>
+      <p>red-teaming 에 쓴 모델을 OpenAI 는 “가장 유능하고 정렬된” 모델이라고 부른다. 그 모델은 정렬된 것으로 믿고 쓴 공격자이고, 공격하는 모델이 일부러 덜 찾았을 가능성은 글이 다루지 않는다. 발견이 줄어든 곡선을 방어의 근거로 읽으려면 공격자의 정렬도 믿어야 한다는 뜻이다.</p>
+      <details class="more"><summary>첨언: 원문</summary>
+        <p>safety case 지침 「2. 운영 지침」: <span class="q">“안전성 입증 자료에는 현재 시행 중인 완화 조치로 해결되지 않는 잔여 위험을 최대한 빠짐없이 나열해야 합니다.”</span> <span class="q">“감사 담당자가 안전성 입증 자료의 주장이 유효하고 타당한지 검증하고, 미비점을 발견하면 지적할 수 있도록 충분한 접근 권한을 제공해야 합니다.”</span> 그리고 이 지침은 <span class="q">“이는 현재의 권고 사항이며, OpenAI에서 도입을 진행하고 있습니다.”</span></p>
+        <p>Hugging Face 사고 글: <span class="q">“이와 별도로 METR과 Redwood Research는 이번 사고와 관련된 모델 정렬 문제를 독립적으로 조사했으며”</span></p>
+        <p>red-teaming 모델에 대한 원문: <span class="q">“We used some of our most capable and aligned models, including our upcoming GPT‑6 Astra Cyber model and an internal frontier model.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section class="slide" data-label="반응">
+    <div class="slide-inner">
+      <p class="eyebrow">reception</p>
+      <h2>Hacker News 에서 다툰 air gap 과 지시된 시험</h2>
+      <p class="key">글이 나온 날 Hacker News 스레드는 air gap 을 하지 않은 이유와 통신 실험이 얼마나 지시된 것이었는지를 놓고 갈렸다. 두 쟁점 모두 원문에 이미 적힌 문장을 다시 읽게 하며, 층 장과 통신 채널 장의 해석에 영향을 준다.</p>
+      <ul class="clean">
+        <li><span class="m">1</span><span><b>air gap.</b> 여러 이용자가 “air gap 은 지금 할 수 없다”는 문장을 그대로 인용했다. betterunix2 는 실험을 운영하고 지켜보는 workstation 을 격리망 안에 두면 되지 않느냐고 반박했고, aesthesia 는 OpenAI 가 물리적 air gap 없이 필요한 보안을 얻을 수 있다고 믿는 것으로 보이며 air gap 은 반복 속도 면에서 훨씬 비쌀 것이라고 읽었다. 원문이 대는 이유는 실험 운영에 외부 연결이 필요하다는 것 하나라서, 비용 비교는 원문에 없다. <a class="xref" href="#p5">층</a></span></li>
+        <li><span class="m">2</span><span><b>지시된 시험.</b> dmicah 는 원문의 “대부분의 시험에서 채널을 지정했다”는 문장을 들어 창의성이 얼마나 agent 의 것인지 불분명하다고 했고, aesthesia 는 공격자에게 유리한 조건에서 방어를 시험하는 것이 red-teaming 의 목적이라고 답했다. 두 해석은 원문의 설정 설명과 모두 맞는다. <a class="xref" href="#p10">통신 채널</a></span></li>
+        <li><span class="m">3</span><span><b>비공개 VM 탈출.</b> dist-epoch 는 공개되지 않은 VM 탈출이 여럿 있다는 사실을 알리는 것 자체가 좋은 생각인지 의문을 표했다. <a class="xref" href="#p8">microVM 탈출</a></span></li>
+      </ul>
+      <p>반응은 이용자 개인의 의견이고, 위 세 가지는 원문 어느 문장을 다시 읽게 하는지 때문에 골랐다. 스레드에서 OpenAI 쪽 입장을 편 이용자 가운데 한 명은 요청을 받고 자신이 OpenAI 직원이라고 밝혔다.</p>
+      <details class="more"><summary>첨언: 댓글 원문</summary>
+        <p>wmf (2026-10-23): <span class="q">““Completely air-gapping this infrastructure—that is, disconnecting it entirely from external networks—isn’t currently feasible, since we need external connections in order to run and monitor experiments””</span> betterunix2: <span class="q">“I am unconvinced.  Why can't they just set up workstations on the airgapped network to run and monitor their experiments?”</span> aesthesia: <span class="q">“it appears that they believe they can get the necessary level of security without physical air-gapping, which is likely substantially more costly (especially in terms of iteration speed).”</span></p>
+        <p>dmicah: <span class="q">“It's unclear how much the creativity is on the part of the agents themselves”</span> aesthesia: <span class="q">“You want to test your defenses in scenarios where the attacker has advantage in order to make sure they're sufficiently robust.”</span> dist-epoch: <span class="q">“Ok, so we have a number of non-public yet VM escapes. Not sure it's the greatest idea letting everyone know they exist.”</span> tedsanders (2026-10-24): <span class="q">“I can't edit it now, so let me disclose here: I work at OpenAI.”</span></p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 16 -->
+  <section class="slide" data-label="읽은 범위">
+    <div class="slide-inner">
+      <p class="eyebrow">setup</p>
+      <h2>읽은 글과 열지 않은 링크</h2>
+      <p class="key">이번 글은 본문, 도식, 차트 데이터, canary 문자열까지 전부 읽었다. 재개 조건과 안전 지침을 대조하려고 OpenAI 의 관련 글 세 편과 Hacker News 스레드를 함께 읽었고, 원문이 단 CVE 와 패치 링크는 열지 않았다.</p>
+      <ul class="facts">
+        <li><span class="m">본문</span><span>「Securing our frontier model training environment」 전 절. 차트 값은 페이지에 실린 데이터에서, 도식은 원본 이미지에서 가져왔다</span></li>
+        <li><span class="m">대조</span><span>9월 20일 사고 보고 전 절, safety case 지침 전 절(서버가 보낸 OpenAI 의 한국어판), Hugging Face 사고 글의 첫 부분</span></li>
+        <li><span class="m">반응</span><span>Hacker News 스레드 댓글 120개</span></li>
+        <li><span class="m">열지 않음</span><span>Kata, gVisor, Moby 의 advisory 와 PR, Linux commit 세 개. microVM 탈출 장이 원문 목록을 옮기는 데 그친 이유다</span></li>
+        <li><span class="m">열지 않음</span><span>Patch the Planet 글, Hugging Face 사고의 기술 보고서와 METR 보고서. 7월 사고는 OpenAI 블로그 글의 요약 수준으로만 다뤘다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 17 -->
+  <section class="slide" data-label="출처">
+    <div class="slide-inner">
+      <p class="eyebrow">sources</p>
+      <h2>출처</h2>
+      <div class="src">
+        <div><a href="https://openai.com/index/securing-our-frontier-model-training-environment/">w1. OpenAI, Securing our frontier model training environment (2026-10-23)</a> <span class="t">본문</span></div>
+        <div><a href="https://alignment.openai.com/misalignment-reports/an-agent-used-dns-to-reach-an-external-chatbot/">w2. OpenAI alignment 블로그, An agent used DNS to reach an external chatbot (2026-09-20, 9월 25일 갱신)</a> <span class="t">멈춤의 계기와 조건</span></div>
+        <div><a href="https://openai.com/index/towards-safety-cases-for-frontier-ai-training/">w3. OpenAI, 프런티어 AI 학습의 안전성 입증 자료를 향하여 (2026-09-28)</a> <span class="t">safety case 지침</span></div>
+        <div><a href="https://openai.com/index/hugging-face-incident-and-the-road-ahead/">w4. OpenAI, Hugging Face 사고와 앞으로의 방향 (2026-08-26)</a> <span class="t">7월 사고</span></div>
+        <div><a href="https://news.ycombinator.com/item?id=50214416">w5. Hacker News 스레드 50214416</a> <span class="t">반응</span></div>
+        <div><a href="https://openai.com/index/patch-the-planet/">w6. OpenAI, Patch the Planet</a> <span class="t">열지 않음</span></div>
+        <div><a href="https://github.com/kata-containers/kata-containers/security/advisories/GHSA-wwj6-vghv-5p64">w7. Kata Containers advisory GHSA-wwj6-vghv-5p64 외 원문이 단 패치 링크</a> <span class="t">열지 않음</span></div>
+      </div>
+    </div>
+  </section>
+
+
+  </main>
+
+  <footer class="hud">
+    <button class="nav-btn" id="prev" aria-label="이전 장">← 이전</button>
+    <button class="nav-btn" id="next" aria-label="다음 장">다음 →</button>
+    <span class="counter" id="counter">01 / 17</span>
+    <div class="progress" aria-hidden="true"><i id="progbar"></i></div>
+    <span class="hint">← → 키 · Space · Home / End</span>
+    <button class="nav-btn" id="mode" aria-label="읽기 방식 전환">덱으로 보기</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var slides  = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  // 목차가 비어 있으면 장에서 만든다. 이름은 data-label, 없으면 h2/h1 의 앞 14자.
+  // 장을 더하거나 이름을 바꿀 때 목차를 손으로 맞추지 않아도 되게 하려는 것이다.
+  var rail = document.querySelector(".rail");
+  if (rail && !rail.querySelector(".rail-item")) {
+    slides.forEach(function (s, k) {
+      var eb = (s.querySelector(".eyebrow") || {}).textContent || "";
+      if (k === 2 || /^\s*critique\s*$/.test(eb)) { var sep = document.createElement("div"); sep.className = "rail-sep"; rail.appendChild(sep); }
+      var h = s.querySelector("h2, h1");
+      var label = s.getAttribute("data-label") || (h ? h.textContent.replace(/\s+/g, " ").trim().slice(0, 14) : "");
+      var b = document.createElement("button");
+      b.className = "rail-item"; b.setAttribute("data-go", String(k));
+      var n = document.createElement("span"); n.className = "n"; n.textContent = (k + 1 < 10 ? "0" : "") + (k + 1);
+      var t = document.createElement("span"); t.textContent = label;
+      b.appendChild(n); b.appendChild(t); rail.appendChild(b);
+    });
+  }
+  var railBtn = Array.prototype.slice.call(document.querySelectorAll(".rail-item"));
+  var prev = document.getElementById("prev"), next = document.getElementById("next");
+  var counter = document.getElementById("counter"), progbar = document.getElementById("progbar");
+  var stage = document.getElementById("stage"), modeBtn = document.getElementById("mode");
+  var i = 0;
+  slides.forEach(function (s, k) { if (!s.id) { s.id = "p" + (k + 1); } });
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function isArticle() { return document.body.getAttribute("data-mode") !== "deck"; }
+  function mark(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    railBtn.forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
+    counter.textContent = pad(i + 1) + " / " + pad(slides.length);
+    progbar.style.width = ((i + 1) / slides.length * 100) + "%";
+    prev.disabled = (i === 0);
+    next.disabled = (i === slides.length - 1);
+  }
+  function show(n, updateHash) {
+    mark(n);
+    slides.forEach(function (s, k) {
+      s.setAttribute("data-active", k === i ? "true" : "false");
+      s.setAttribute("aria-hidden", k === i ? "false" : "true");
+      if (k === i) { s.scrollTop = 0; }
+    });
+    if (updateHash !== false) { try { history.replaceState(null, "", "#p" + (i + 1)); } catch (e) {} }
+  }
+  // article 에서는 장을 숨기지 않는다. 목차 클릭과 #pN 은 그 장으로 스크롤한다.
+  function go(n, updateHash) {
+    if (!isArticle()) { show(n, updateHash); return; }
+    mark(n);
+    slides.forEach(function (s) { s.setAttribute("data-active", "true"); s.setAttribute("aria-hidden", "false"); });
+    slides[i].scrollIntoView({ block: "start" });
+    if (updateHash !== false) { try { history.replaceState(null, "", "#p" + (i + 1)); } catch (e) {} }
+  }
+  function setMode(m) {
+    document.body.setAttribute("data-mode", m);
+    try { localStorage.setItem("rl-mode", m); } catch (e) {}
+    modeBtn.textContent = m === "deck" ? "이어 읽기" : "덱으로 보기";
+    go(i, false);
+  }
+  modeBtn.addEventListener("click", function () { setMode(isArticle() ? "deck" : "article"); });
+  prev.addEventListener("click", function () { go(i - 1); });
+  next.addEventListener("click", function () { go(i + 1); });
+  railBtn.forEach(function (b) {
+    b.addEventListener("click", function () { go(parseInt(b.getAttribute("data-go"), 10)); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (isArticle() || e.metaKey || e.ctrlKey || e.altKey) { return; }
+    var t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); show(i + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(i - 1); }
+    else if (e.key === "Home") { e.preventDefault(); show(0); }
+    else if (e.key === "End") { e.preventDefault(); show(slides.length - 1); }
+  });
+  var x0 = null, y0 = null;
+  stage.addEventListener("touchstart", function (e) {
+    x0 = e.changedTouches[0].clientX; y0 = e.changedTouches[0].clientY;
+  }, { passive: true });
+  stage.addEventListener("touchend", function (e) {
+    if (x0 === null || isArticle()) { x0 = null; return; }
+    var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.6) { show(dx < 0 ? i + 1 : i - 1); }
+    x0 = null; y0 = null;
+  }, { passive: true });
+  // article 에서 스크롤 위치를 목차에 반영한다.
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (!isArticle() || ticking) { return; }
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      ticking = false;
+      var line = window.innerHeight * 0.35, best = 0;
+      for (var k = 0; k < slides.length; k++) { if (slides[k].getBoundingClientRect().top <= line) { best = k; } }
+      if (best !== i) { mark(best); try { history.replaceState(null, "", "#p" + (best + 1)); } catch (e) {} }
+    });
+  }, { passive: true });
+  var saved = null;
+  try { saved = localStorage.getItem("rl-mode"); } catch (e) {}
+  document.body.setAttribute("data-mode", saved === "deck" ? "deck" : "article");
+  modeBtn.textContent = isArticle() ? "덱으로 보기" : "이어 읽기";
+  var m = /^#p(\d+)$/.exec(window.location.hash || "");
+  go(m ? parseInt(m[1], 10) - 1 : 0, false);
+})();
+</script>
+</body>
+</html>

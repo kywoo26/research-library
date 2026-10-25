@@ -1,0 +1,25 @@
+# Figures in w1 (and w2)
+
+- w1 diagram (§Building an offline world, before §Enforcing isolation): containment boundary. Alt text: "An agent inside one logical sandbox can use an offline search index, offline web cache, and a message board shared with allowed teammates for multi-agent teams. A boxed plus sign indicates other tools and resources. Connections to the live internet and OpenAI infrastructure, and unauthorized communication with other isolated agents, are blocked." Image: images.ctfassets.net/kftzwdyauwt9/37XEjb1cjzKzPBG9970uRD/…/securing-our-frontier-model-training-environment-diagram-desktop-light.png
+- w1 chart "Red-teaming findings versus tokens spent" (§Red-teaming containment at scale; linkId urgent-high-candidate-findings-vs-tokens-spent). Step line (step-after). x axis "Tokens spent (billions)", domain 0–400. y axis "Deduplicated candidate findings", domain 0–300. 258 points read from the page's embedded Vega-Lite spec (fields cumulative_tokens, cumulative_findings; x = cumulative_tokens / 1e9).
+- chart point: first point 0 tokens, 20 findings (the series starts at 20, not 0)
+- chart point: 3.3 billion tokens, 50 findings
+- chart point: 17.0 billion tokens, 100 findings
+- chart point: 49.9 billion tokens, 140 findings (last point at or below 50B)
+- chart point: 56.1 billion tokens, 150 findings
+- chart point: 99.7 billion tokens, 186 findings (last point at or below 100B)
+- chart point: 102.5 billion tokens, 200 findings
+- chart point: 105.1 billion tokens, 245 findings (burst: 190 findings at 100.35B to 245 at 105.09B)
+- chart point: 112.3 billion tokens, 250 findings
+- chart point: 119.6 billion tokens, 252 findings, followed by a 32.3 billion token stretch with no new finding
+- chart point: 199.4 billion tokens, 264 findings
+- chart point: 222.3 billion tokens, 268 findings, followed by a 63.5 billion token stretch with no new finding
+- chart point: 288.0 billion tokens, 270 findings
+- chart point: 347.4 billion tokens, 272 findings
+- chart point: 360.2 billion tokens, 276 findings (last new finding)
+- chart point: 379.9 billion tokens, 276 findings (last point; total spend shown)
+- chart bins of 50B tokens (new findings): 0–50B 120 (140 including the 20 at zero), 50–100B 46, 100–150B 66, 150–200B 12, 200–250B 4, 250–300B 2, 300–350B 2, 350–400B 4
+- chart summary: 256 of the 276 are new after zero; the last 260 billion tokens (119.6B → 379.9B) added 24 findings (252 → 276)
+- 같은 점을 억 단위로 (1 billion = 10억): 1,196억 token 252건; 3,799억 token 276건 (마지막 점); 3,602억 token 276건 (마지막 새 발견); 1,003억 token 190건에서 1,051억 token 245건; 2,223억 token 268건 뒤 2,859억 token 까지 새 발견 없음; 252→276 사이 약 2,600억 token (2,603억)
+- w1 figure "Agent chain-of-thought reasoning" (§Communicating across isolated tasks): one line, "Could create acoustic modem-like signal … using continuous writes vs idle."
+- w2 timeline (§Investigation and response): 9:50:23 a.m. DNS tool call received external response; 10:02:11 a.m. P0 alert; 10:05:06 a.m. human acknowledged; 12:34:30 p.m. run killed.
