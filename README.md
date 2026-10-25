@@ -12,6 +12,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-10-26 | [subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것](https://kywoo26.github.io/research-library/research/2026-10-26-fold-subagents-into-main-loop/) | 메모 |
 | 2026-10-25 | [Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-harness2-recursive-agent-harnessing/) | 논문 분석 |
 | 2026-10-25 | [teamai-cli 가 팀의 agent 설정을 git 저장소와 PR 로 나눠 주는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-teamai-cli-team-agent-config/) | 오픈소스 분석 |
 | 2026-10-25 | [로컬에서 돌리는 Jev 대안 decision model 고르기](https://kywoo26.github.io/research-library/research/2026-10-25-decision-models-for-local-jev/) | 오픈소스 분석 |
