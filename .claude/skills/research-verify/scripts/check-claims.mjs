@@ -100,8 +100,9 @@ if (argv.includes('--help') || argv.includes('-h')) {
   console.log('  --allow=rule,rule          규칙을 명시적으로 끈다');
   console.log('\n체크아웃 해결 순서 (repo):');
   console.log('  1. --repo owner/name=<path>');
-  console.log('  2. $RESEARCH_CHECKOUT_DIR/<name>');
-  console.log('  3. 못 찾으면 받아올 명령을 알려주고 차단한다 (자동으로 clone 하지 않는다)');
+  console.log('  2. .research/<slug>/notes/checkouts.json 의 {"owner/name": "<path>"} (clone 할 때 researcher 가 적는다)');
+  console.log('  3. $RESEARCH_CHECKOUT_DIR/<name>');
+  console.log('  4. 못 찾으면 받아올 명령을 알려주고 차단한다 (자동으로 clone 하지 않는다)');
   console.log('\n원문 해결 순서 (paper):');
   console.log('  1. --papers <dir>');
   console.log('  2. $RESEARCH_PAPER_DIR');
@@ -155,6 +156,9 @@ if (!target) {
 }
 const slug = target.replace(/\/+$/, '').split('/').pop();
 if (!evidenceDir) evidenceDir = join(ROOT, '.research', slug);
+// clone 한 곳은 기계마다 달라 원장에 넣지 않고 git 이 무시하는 notes/ 에 둔다. hook 과 ship 도 이것으로 찾는다.
+const checkoutsFile = join(ROOT, '.research', slug, 'notes', 'checkouts.json');
+const recordedCheckouts = (() => { try { return JSON.parse(readFileSync(checkoutsFile, 'utf8')); } catch { return {}; } })();
 
 // ---- 읽기 ----
 
@@ -230,7 +234,7 @@ const missingCheckouts = new Set();
 
 function resolveCheckout(src) {
   if (checkoutCache.has(src.id)) return checkoutCache.get(src.id);
-  let path = repoOverride.get(src.repo) || null;
+  let path = repoOverride.get(src.repo) || recordedCheckouts[src.repo] || null;
   if (!path && process.env.RESEARCH_CHECKOUT_DIR) {
     path = join(process.env.RESEARCH_CHECKOUT_DIR, src.repo.split('/').pop());
   }
