@@ -29,18 +29,22 @@
    "what": "판단 문장의 귀속",
    "choice": "표지는 '코드를 읽은 결과로는', 8장과 9장은 '끌어낸 판단' 으로 표시하고 저장소 문서의 권고(기본 브랜치 보호, branch push 권한)와 나눴다",
    "why": "lens A 가 표지의 단정이 저장소 권고처럼 읽힌다고 짚었다"
-  }
- ],
- "needs_owner": [
+  },
   {
-   "what": "두 번째 축을 이 저장소 밖으로 넓힐지",
-   "options": [
-    "지금처럼 teamai-cli 가 전제하는 workflow 로 한정한다",
-    "agent 팀 운영의 다른 출처(다른 도구의 문서, 사례 글)를 더해 비교 장을 하나 만든다"
-   ],
-   "pick": "지금처럼 한정한다. 넓히면 corpus 와 장 구성이 바뀌므로 소유자의 결정이 필요하다"
+   "what": "workflow 변화의 범위",
+   "choice": "teamai-cli 가 전제하는 workflow 만 다룬다(researcher 추천)",
+   "why": "소유자가 추천대로 정했다(2026-10-25). 다른 도구 비교는 원본과 장 구성을 바꾼다",
+   "was": {
+    "what": "두 번째 축을 이 저장소 밖으로 넓힐지",
+    "options": [
+     "지금처럼 teamai-cli 가 전제하는 workflow 로 한정한다",
+     "agent 팀 운영의 다른 출처(다른 도구의 문서, 사례 글)를 더해 비교 장을 하나 만든다"
+    ],
+    "pick": "지금처럼 한정한다. 넓히면 corpus 와 장 구성이 바뀌므로 소유자의 결정이 필요하다"
+   }
   }
  ],
+ "needs_owner": [],
  "corpus": {
   "sources": 1,
   "repo": "Tencent/teamai-cli",
