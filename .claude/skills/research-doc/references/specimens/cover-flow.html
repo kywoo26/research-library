@@ -1,28 +1,25 @@
-<!-- 견본: 표지. 답 문단, 출처 줄, 논증 흐름 판, 흐름 밖 장의 목록. 장 번호 칩은 셸이 href 에서 만든다 -->
+<!-- 견본: 표지. 2026-10-07 meta-organizational-second-brain. 장 번호 칩은 셸이 href 에서 만든다 -->
 <section class="slide" data-role="cover" data-label="표지">
-  <h1>Claude Code 의 effort 가 바꾸는 일과 단계를 고르는 법</h1>
-  <p class="answer">effort 는 한 작업에 계산을 얼마나 쓸지 모델에 알려 주는 다섯 단계 설정이다. 단계를 올리면 Claude 는 더 많이 확인하고 더 많이 혼자 정한다. 그래서 edge case 를 놓친 실패는 크게 줄지만, 과제 설명을 달리 읽을 여지가 있으면 틀린 해석을 고른 실패는 오히려 늘었다. 글쓴이는 사람이 결과를 보며 이끌 구현은 낮은 단계로, 검증은 높은 단계로 돌리기를 권한다.</p>
-  <p class="src">Claude Code 블로그(claude.dev)의 Engineering 글 「Using Claude Code: Spending your effort」(2026-09-25)다. 글쓴이 Thariq Shihipar 는 Claude 모델을 “우리 모델”이라 부르며 Anthropic 내부 실행 결과를 싣는다. 2026-10-25 에 읽은 판이고, Claude Code 와 Claude API 의 effort 공식 문서를 함께 읽었다.</p>
-  <div class="board flow" data-cols="신호|행동|결과|판단" aria-label="effort 단계는 행동 신호이고, 올리면 Claude 가 더 확인하고 더 혼자 정한다. 그 결과 놓친 edge case 는 줄고 틀린 해석은 늘어서, 검증과 맡길 일은 high 이상, 곁에서 볼 일은 low 로 돌린다">
-    <a class="card" id="f-sig" href="#p4" data-col="신호" data-center><b>effort 단계는 행동 신호다</b><p>이 작업에 계산을 얼마나 쓰길 바라는지 모델에 알린다. 토큰 상한은 정하지 않는다</p></a>
-    <a class="card" id="f-act" href="#p5" data-col="행동" data-center><b>올리면 Claude 가 더 확인하고 더 혼자 정한다</b><p>기준 구현이나 brute-force 풀이처럼 따로 맞춰 볼 대상을 만들어 결과를 비교했다</p></a>
-    <a class="card t-good" id="f-down" href="#p7" data-col="결과"><b>edge case 를 놓친 실패는 줄었다</b><span class="big">59 → 24<small>건</small></span><p>Fable 5.1, low → max</p></a>
-    <a class="card t-bad" id="f-up" href="#p7" data-col="결과"><b>틀린 해석을 고른 실패는 늘었다</b><span class="big">25 → 47<small>건</small></span><p>Fable 5.1, low → max</p></a>
-    <a class="card" id="f-high" href="#p10" data-col="판단"><b>검증하거나 사람 없이 맡길 일은 high 이상</b><p>버그 수정, 코드 리뷰, 보안 점검, 끝까지 맡기는 일</p></a>
-    <a class="card" id="f-low" href="#p10" data-col="판단"><b>곁에서 보며 이끌 일은 low</b><p>요구가 두 가지로 읽히면 단계보다 명세를 먼저 채운다</p></a>
-    <span class="edge" data-from="f-sig" data-to="f-act"></span>
-    <span class="edge" data-from="f-act" data-to="f-down"></span>
-    <span class="edge" data-from="f-act" data-to="f-up"></span>
-    <span class="edge" data-from="f-down" data-to="f-high"></span>
-    <span class="edge" data-from="f-up" data-to="f-low"></span>
+  <h1>Meta의 organizational second brain이 전문가 교정을 지식 파일 편집으로 반영하는 방식</h1>
+  <p class="answer">Meta의 organizational second brain은 한 compliance 분야의 agent가 조직의 입장과 분석 절차를 따로 적은 텍스트 파일을 읽고 전문가의 교정을 모델 재학습 없이 그 파일의 편집으로 반영하는 시스템이다. 이 구조를 따라 만들 때 입장이 바뀌는 편집에는 회귀 시험의 예전 정답을 사람이 다시 확인하는 단계가 필요하다.</p>
+  <p class="src">Meta에서 이 시스템을 만든 Shaurya Sengar 외 3명이 Meta의 엔지니어링 블로그 Engineering at Meta에 쓴 글이다(2026-09-02 게시). 2026-10-07에 받은 사본 기준이다.</p>
+  <div class="board flow" data-cols="구조|교정|결과|판단" data-lanes="1|2" data-read="rows" aria-label="지식과 절차를 다른 파일에 나눠 교정의 원인을 한쪽으로 돌리고, 작은 편집이 시험을 통과해야 PR 이 된다. Meta 는 회귀 0건을 보고했고, 입장을 바꾸는 편집에는 사람의 재확인이 필요하다">
+    <a class="card" id="f-split" href="#p4" data-col="구조" data-lane="1..2" data-center><b>지식과 절차를 다른 파일에 나눈다</b><p>지식 파일은 frontmatter 의 depends_on 과 referenced_by 로 서로를 가리킨다</p></a>
+    <a class="card" id="f-diag" href="#p9" data-col="교정" data-lane="1"><b>교정의 원인을 한쪽으로 돌린다</b><p>agent 가 받은 자료로 맞는 결론에 닿을 수 있었는지 묻는다</p></a>
+    <a class="card" id="f-test" href="#p11" data-col="교정" data-lane="2"><b>작은 편집이 시험을 통과해야 PR 이 된다</b><p>원래 장면의 replay 와 분야 benchmark 의 회귀 시험</p></a>
+    <a class="card t-good" id="f-result" href="#p14" data-col="결과" data-lane="1..2" data-center><b>개선 주기 동안 회귀가 없었다</b><span class="big">0<small>건</small></span><p>평가 한 건은 며칠에서 몇 분으로. Meta 의 보고</p></a>
+    <a class="card t-warn" id="f-stance" href="#p16" data-col="판단" data-lane="1..2" data-center><b>입장을 바꾸는 편집은 예전 정답을 사람이 다시 본다</b><p class="ev">이 문서의 해석이고 Meta 가 다룬 경우는 아니다</p></a>
+    <span class="edge" data-from="f-split" data-to="f-diag"></span>
+    <span class="edge" data-from="f-diag" data-to="f-test"></span>
+    <span class="edge" data-from="f-test" data-to="f-result"></span>
+    <span class="edge" data-from="f-result" data-to="f-stance"></span>
   </div>
   <div class="toc">
     <p class="toc-h">논증 밖에서 더 보는 장</p>
     <ul>
-      <li><span class="g">재 본 값</span><a href="#p6">6 · 곡선</a><span class="f">Opus 5.5: low 36.6% → max 65.7%</span></li>
-      <li><span class="g">옮기기</span><a href="#p11">11 · 다른 작업에 옮기기</a><span class="f">시험으로 찾을 edge case 가 많으면 단계를 올린다</span></li>
-      <li><span class="g">설정</span><a href="#p12">12 · Claude Code 설정</a><span class="f"><code>/effort</code> 로 대화 중에 바꾼다</span></li>
-      <li><span class="g">범위</span><a href="#p13">13 · 해석의 한계</a><span class="f">수치는 모두 Anthropic 내부 실행이다</span></li>
+      <li><span class="g">구조</span><a href="#p6">6 · recipe</a><span class="f">recipe 단계로 바꾼 뒤 턴당 토큰이 약 80% 줄었다</span></li>
+      <li><span class="g"></span><a href="#p7">7 · 사람의 개입</a><span class="f">checkpoint 의 교정과 escalation 의 선택이 루프에 들어간다</span></li>
+      <li><span class="g">범위</span><a href="#p17">17 · 한계</a><span class="f">사례 수와 거절된 편집 수는 붙어 있지 않다</span></li>
     </ul>
   </div>
 </section>

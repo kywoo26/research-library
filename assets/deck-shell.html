@@ -173,7 +173,7 @@ figure.plot { margin:0; }
 .plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
 .plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
 .plot-canvas .dot { stroke:var(--card); stroke-width:2; }
-.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
 .plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
 .plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
 .plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
@@ -525,7 +525,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     }
     var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
     if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
-    var kfmt = function (n) { return n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3)); };
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
     cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
     var segs = [], pts = [];
     var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
@@ -537,7 +538,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     });
     var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
     var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
-    if (ra && rb) { el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) }); segs.push([[X(ra.x), Y(ra.y)], [X(rb.x), Y(rb.y)]]); }
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
     var score = function (b, withMarks) {
       var n = 0;
       if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
