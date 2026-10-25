@@ -104,7 +104,7 @@ export const HUMAN_BAND = {
   comma: [1.28, 1.59],
 };
 
-const RULES = Object.fromEntries(PATTERNS.map(([id, desc]) => [id, desc]));
+const RULES = Object.fromEntries([...PATTERNS.map(([id, desc]) => [id, desc]), ['source-as-speaker', `원문을 주어로 세운 문장 (원문은, 원문이) — 3건까지 (2026-10-26 이후 문서)`]]);
 
 // 보이는 산문만 남긴다. 인용과 코드는 규칙 대상이 아니다.
 export function visibleProse(html) {
@@ -126,10 +126,20 @@ function slidesOf(html) {
   return parts.slice(1).map(visibleProse);
 }
 
+// 원문을 말하는 사람처럼 주어로 세우는 문장. 한두 번은 자연스럽고, 문장마다 오면 받아 적은 기록처럼 읽힌다
+// (2026-10-26 문서에서 57번). 2026-10-26 이후 문서에만 센다.
+const SOURCE_SPEAKER = /원문[은이가]\s/g;
+const SOURCE_SPEAKER_MAX = 3;
+const SOURCE_SPEAKER_FROM = '2026-10-26';
+
 export function checkDoc(slug, html) {
   const prose = visibleProse(html);
   const slides = slidesOf(html);
   const problems = [];
+  const speaker = prose.match(SOURCE_SPEAKER) || [];
+  if (String(slug).slice(0, 10) >= SOURCE_SPEAKER_FROM && speaker.length > SOURCE_SPEAKER_MAX) {
+    problems.push({ rule: 'source-as-speaker', msg: `원문을 주어로 세운 문장 (원문은, 원문이) — ${speaker.length}건, ${SOURCE_SPEAKER_MAX}건까지. 쓴 팀이나 사람을 주장이 시작하는 곳에 한 번 밝히고, 그 뒤는 사실로 쓴다` });
+  }
 
   for (const [id, desc, rx] of PATTERNS) {
     const hits = prose.match(new RegExp(rx.source, 'g')) || [];
@@ -217,6 +227,7 @@ if (argv.includes('--help') || argv.includes('-h')) {
   for (const [id, desc] of PATTERNS) {
     console.log(`  ${id.padEnd(w)}  ${desc} — 0건`);
   }
+  console.log(`  ${'source-as-speaker'.padEnd(w)}  ${RULES['source-as-speaker']}`);
   console.log('\n--counts 는 숫자가 붙지 않은 항목의 밀도표를 사람이 쓴 기술 블로그의 중앙값과 나란히 낸다. 막지 않는다.');
   console.log('세는 것과 판단하는 것은 다른 일이고, 뒤쪽은 저자가 넘기기 전에 읽으면서 한다.');
   process.exit(0);

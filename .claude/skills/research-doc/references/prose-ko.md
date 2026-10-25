@@ -57,7 +57,7 @@ leaves the reader assembling the logic; one sentence packing several facts betwe
 leaves them parsing.
 
 **Write about 80% of the way to ASD-STE100.** One statement per sentence; name who acts
-(원문, 글쓴이, 모델, 독자) in the active voice; one term keeps one meaning; what the reader should
+(the team or person behind the source, the model, the reader) in the active voice; one term keeps one meaning; what the reader should
 do is an instruction. The connective that carries the reason stays: that is the other 20%.
 
 **Keep one caveat where it changes what the reader does, and tie it to that action.**
@@ -139,6 +139,8 @@ neighbours it turns into when one form is avoided:
 - comma-list headings (`네 층: 지식, 추론, 평가, 개선`)
 - a run of sentences ending in absence or negation
 - the document talking about itself (`이 문서는`, `이 장에서는`, `이 대응은 이 문서가 만든 것이고`)
+- the source as a speaker, sentence after sentence (`원문은 … 적는다`, `원문이 든 사례`): a page does
+  not speak. Name its author once where the claim starts (`Anthropic 은 … 권한다`), then state the facts
 
 Keep all of them out of headings; `check-doc.mjs` blocks the ones it can count. In the body they
 are review findings, read in context: a contrast that corrects what the reader actually believes
