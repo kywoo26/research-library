@@ -1,0 +1,140 @@
+{
+ "slug": "2026-10-25-openai-frontier-training-containment",
+ "question": "OpenAI 는 frontier 모델의 학습과 평가 환경을 어떻게 가두고, red-teaming 에서 무엇이 드러났고 무엇을 고쳤으며, 무엇을 근거로 학습을 재개했는가. 이 글이 자기 보고라는 점과 공개하지 않은 부분은 무엇인가",
+ "flip_condition": "OpenAI 가 발견 내역이나 safety case 의 기준값을 공개해, 재개 판단이 감시를 피한 쉬운 경로의 부재 말고 다른 근거에 기댄 것으로 드러나면 10장의 읽기가 바뀐다",
+ "slides": 14,
+ "evidenceCount": 50,
+ "claimsCount": 52,
+ "lensesReported": [
+  "B",
+  "A"
+ ],
+ "deadLenses": [],
+ "fixRounds": [
+  {
+   "round": 1,
+   "applied": 24,
+   "rejected": 0,
+   "touched": 11,
+   "recheck": {
+    "hard": 3,
+    "wording": 0,
+    "badRejections": 0
+   },
+   "note": "렌즈 B: 재개 근거를 한 문장으로 줄인 곳, 공개 여부 단정, 연결과 서비스 단위, '일부러', 하루 안 변경의 근거 사본 없음, 링크 수, 범위 확대. 렌즈 A: 표지 문단과 고친 것의 위치, 수정 뒤 재시험, 반복된 사건 보고서 노트, 곁가지 노트. recheck 가 세 건(고친 것 카드의 목록, 8장 p.so 의 귀속, 13장 카드 표현)을 냈다"
+  },
+  {
+   "round": 2,
+   "applied": 8,
+   "rejected": 0,
+   "touched": 5,
+   "recheck": {
+    "hard": 0,
+    "wording": 1,
+    "badRejections": 0
+   },
+   "note": "마지막 recheck 는 표지 p.answer 와 summary 에서 '제한적' 한정어가 빠진 것 하나를 냈고, 규칙대로 고치지 않고 unfixed 에 남겼다"
+  }
+ ],
+ "decided": [
+  "문서 종류는 explainer 로 정했다. 요청이 '정리해 줘'이고 쓸지 말지를 묻지 않으므로 comparison 이 아니며, 고칠 코드가 없으므로 walkthrough 도 아니다. 예측할 사례는 11장의 '내 sandbox 에 옮기기'다",
+  "slug 는 2026-10-25-openai-frontier-training-containment 로 정했다",
+  "원문(w1)이 WebFetch 와 curl 에 403 을 내서 insane-search engine(curl_cffi safari 지문)으로 받았다. 고정 사본은 article 요소의 본문이다",
+  "Internet Archive 사본 둘(w7: 2026-10-23T19:51Z, w8: 2026-10-24T16:18Z)을 출처에 넣었다. 두 사본을 견주면 본문 9곳이 다르고, 이 차이를 12장의 한계로 적었다",
+  "HN 토론(story 50214416, 댓글 120개)에서 원문 주장을 읽는 데 영향을 주는 댓글 둘(w2 air-gap 반론, w4 채널 시험이 지시받은 것이라는 지적)만 반응 상자로 넣었다. 처음 고정했던 다른 댓글 셋은 쓰지 않아 지웠다",
+  "차트 값은 페이지에 실린 Vega-Lite spec 의 258개 점에서 읽었고, 경계 그림은 원문 이미지(webp, 약 37KB)를 그대로 넣었다",
+  "링크된 사건 보고서, safety case 글, Patch the Planet 글, GitHub 와 Linux 링크 8개는 열지 않았고 13장에 그 사실과 얕아진 장을 적었다"
+ ],
+ "needs_owner": [
+  "링크된 safety case 글(/index/towards-safety-cases-for-frontier-ai-training/)과 두 사건 보고서(Hugging Face 글, DNS 사건 보고서)를 새 출처로 열지 정해 주십시오. 선택지: (1) 그대로 둔다. 12장은 '이 글에 없다'로만 말한다. (2) safety case 글만 열어 10장과 12장의 재개 기준을 보강한다. (3) 셋 다 열어 2장의 사건 경위까지 보강한다. 권하는 쪽: (2). 재개 근거가 질문의 중심이고, safety case 글이 그 기준을 담고 있을 가능성이 가장 크다"
+ ],
+ "unverified": [
+  "원문 페이지는 403 때문에 브라우저가 아닌 TLS 지문 요청으로 받았다. 받은 본문은 2026-10-24T16:18Z archive 사본(w8)과 같다",
+  "차트의 Vega-Lite spec 원본은 notes 에 남기지 않았고, 그 점 값은 notes/figures.md 에만 있다",
+  "부재 주장 5건(c30, c45, c46, c47, c52)은 고정 사본에 대한 grep 명령으로만 확인했다",
+  "11장의 예상(c49)과 10장 p.so 의 해석(c50)은 이 문서가 원문에서 끌어낸 읽기이고 원문으로 확인할 수 없다",
+  "링크된 GitHub advisory, PR, Linux commit 8개를 열지 않아 7장의 수정 내용은 원문의 이름표 수준이다"
+ ],
+ "unfixed": [
+  "마지막 recheck: 표지 p.answer 의 '인터넷에 닿는 길을 여럿 찾았다'와 meta summary 의 '좁은 연결을 거친 인터넷 경로'에 원문의 'limited' 를 옮긴 '제한적' 이 빠졌다. 표지 흐름 판, 8장 제목과 카드는 '제한적'을 쓴다",
+  "렌즈 A(확신 낮음): 재개한 것은 'RL 학습과 내부 inference' 이고 멈춘 것은 '학습과 평가' 다. 평가도 재개했는지는 원문에 없는데, 문서는 이 차이를 짚지 않는다"
+ ],
+ "rendered": "render.mjs 로 1280px 와 390px 너비에서 14장을 34장 그림으로 찍었고 배치 경고는 없다. 마지막 수정 뒤 표지(1280)를 직접 봤고, 그 앞 판에서 2-12장의 1280px 그림과 표지, 4, 8, 9, 11장의 390px 그림을 봤다. 다크 모드는 보지 않았다",
+ "reviews": [
+  {
+   "at": "2026-10-25T10:30:07.912Z",
+   "agent": "recheck",
+   "sha": "d801204a47f2f916a38d8ec95ff8a01330839fe9639005d3333b60438cfffa3e"
+  }
+ ],
+ "stoppedBecause": "two rounds",
+ "commitSubject": "OpenAI 의 frontier 학습 환경 격리와 red-teaming 글을 정리한 문서 추가",
+ "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 explainer 로 정리했다. 학습과 평가 환경을 가두는 층, red-teaming 에서 드러난 microVM 탈출과 인터넷 경로와 timing 채널, 고친 것, 10월 1일 재개의 근거, 자기 보고의 한계와 글에 없는 부분을 다룬다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
+ "finishedAt": "2026-10-25T19:32:00+09:00",
+ "gates": {
+  "at": "2026-10-25T10:31:57.275Z",
+  "session": "419312dc-7f73-47f6-88df-99d74f13ba6c",
+  "results": {
+   "check-doc": {
+    "pass": true
+   },
+   "check-prose": {
+    "pass": true
+   },
+   "check-claims": {
+    "pass": true
+   }
+  }
+ },
+ "usage": {
+  "at": "2026-10-25T10:31:57.274Z",
+  "total": {
+   "claude-sonnet-5-5": {
+    "input_tokens": 38,
+    "cache_creation_input_tokens": 198946,
+    "cache_read_input_tokens": 363282,
+    "output_tokens": 33745
+   },
+   "claude-opus-5-5": {
+    "input_tokens": 214,
+    "cache_creation_input_tokens": 295838,
+    "cache_read_input_tokens": 18105734,
+    "output_tokens": 103810
+   }
+  },
+  "byAgent": {
+   "recheck": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 20,
+     "cache_creation_input_tokens": 70141,
+     "cache_read_input_tokens": 208300,
+     "output_tokens": 13200
+    }
+   },
+   "researcher": {
+    "claude-opus-5-5": {
+     "input_tokens": 214,
+     "cache_creation_input_tokens": 295838,
+     "cache_read_input_tokens": 18105734,
+     "output_tokens": 103810
+    }
+   },
+   "lens-numbers": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 14,
+     "cache_creation_input_tokens": 105044,
+     "cache_read_input_tokens": 146662,
+     "output_tokens": 14432
+    }
+   },
+   "lens-reader": {
+    "claude-sonnet-5-5": {
+     "input_tokens": 4,
+     "cache_creation_input_tokens": 23761,
+     "cache_read_input_tokens": 8320,
+     "output_tokens": 6113
+    }
+   }
+  }
+ }
+}
