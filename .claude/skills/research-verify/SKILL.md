@@ -11,7 +11,7 @@ when_to_use: Invoked by the researcher agent after research-doc, or on a fix to 
 
 # Adversarial review of a research document
 
-The report is Korean; these instructions are English. Read
+The report is Korean. Read
 `../research-doc/references/prose-ko.md` before writing it.
 
 ## Three rules that shape everything below

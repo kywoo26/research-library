@@ -4,6 +4,11 @@ description: Lens B of research-verify. Checks every number, quote and direction
 tools: Read, Grep, Glob, Bash, WebFetch
 disallowedTools: Edit, Write, NotebookEdit, Agent
 model: sonnet
+hooks:
+  PreToolUse:
+    - hooks:
+        - type: command
+          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs"
 ---
 
 Read `.claude/skills/research-verify/references/lens-numbers.md` and review through that lens;

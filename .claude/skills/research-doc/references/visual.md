@@ -1,36 +1,42 @@
-# What a chapter can carry
+# Drawing the document
 
-The reader is defined in `../SKILL.md`. A form is right when that reader can read the
-mechanism off it, and wrong when it needs the source's own training to parse. Past its
-budget a chapter stops being read and starts being scanned, and a scanned chapter delivers
-whatever is largest instead of whatever is true.
+The reader is defined in `../SKILL.md`. A reader takes in a structure faster from a picture
+than from sentences describing it, so a document here is drawn first and written second.
 
-## The density symptom
+## Choose each chapter's form before its sentences
 
-A chapter is over budget when its claim will not fit in one `.key`, or the reader has to
-scroll to reach the fold. The ways out, roughly by how often they apply:
+When a chapter's claim has a shape — parts and how they connect, steps in order, a loop,
+options side by side, a quantity that rises or crosses, a decision with branches — the figure
+is the chapter's body. The sentences carry only what a figure cannot: the threshold, the
+reason, the exception, the source's qualifier. Prose alone is for a claim that is a judgment
+or an argument with no shape.
 
-1. Split. Two claims in one chapter means neither gets checked.
-2. Draw the structure and keep prose for what structure cannot say: the threshold, the
-   reason, the exception.
-3. Cut inferable background and a second example making the first one's point.
-4. Fold what remains and is still support into `details.more`.
+A paragraph that walks a figure node by node is the one to cut; the reader has already
+followed the arrows.
 
-`check-prose.mjs --counts` prints the visible Hangul per chapter as a diagnostic. The failure is a wall of sentences at one weight, where the reader cannot tell
-the claim from its support.
+A chapter whose claim will not fit in one `.key`, or that scrolls past the fold, usually
+needs this move too, along with cutting inferable background.
 
-## When a picture is the right move
+## Choosing a form
 
-Draw when the shape is not a line: something returns to an earlier step, one input fans out
-to destinations that behave differently, paths run parallel and rejoin, a quantity crosses
-another and the crossing is the finding, or nesting is the point. A straight-line mechanism
-gets its steps numbered in prose, since a picture restating the sentence above costs a
-second pass and teaches nothing.
+| The claim is | Form |
+|---|---|
+| steps in order | a step diagram, numbered boxes left to right; the condition for each step on its arrow |
+| stages with a returning edge | a cycle, the returning edge on its own row below the forward path |
+| parts and how they talk | boxes and arrows, each box a name and one line of what it does |
+| one metric, several systems | bars; rank reads at a glance |
+| one metric across a varying condition | a line, when the widening gap or the crossing is the claim |
+| several dimensions per row | a table |
+| one instance walked end to end | a `<pre>` trace; indentation is already a diagram and identifiers stay selectable |
+| a decision the reader has to make | a table whose rows are the reader's situations, or a branching diagram |
+| the source's own equations | a flow with the condition written on the edge, which predicts behavior better than the predicate |
+
+Define every symbol the figure uses. Never point at what only resolves in the source: `식 (10)`
+where the document numbered no equation sends the reader to the paper. Name the thing.
 
 ## Write the aria-label first
 
-The gate requires `role="img"` and an `aria-label` on every `<svg>`. Write the label before
-drawing, as a sentence describing what happens:
+Write every `<svg>`'s `aria-label` before drawing, as a sentence describing what happens:
 
 ```
 aria-label="Retry Queue의 4단계 순환. Enqueue에서 작업이 들어오고 Dispatch에서 워커에
@@ -38,11 +44,10 @@ aria-label="Retry Queue의 4단계 순환. Enqueue에서 작업이 들어오고 
 화살표가 있다."
 ```
 
-If the sentence will not come, the figure has no claim in it. Name the returning edge, so
-a reader who only hears the label learns that the loop closes. No counter reads this
-sentence, so apply `prose-ko.md` here by hand.
+If the sentence will not come, the figure has no claim in it. Name the returning edge, so a
+reader who only hears the label learns that the loop closes. Apply `prose-ko.md` here by hand.
 
-## The figure's text does most of the work
+## The figure's text
 
 ```html
 <figure>
@@ -60,27 +65,9 @@ A caption that repeats the title is wasted. One doing its job:
 높지만 이 차이는 통계적으로 유의하지 않다고 논문이 밝히고 있다.
 ```
 
-It gives the source pin, the encoding, and the qualifier that stops a reader over-reading
-the one unfavorable spot. Verifiers extract claims from captions, so a number that appears
-only in a caption still needs its locator.
-
-## Choosing a form
-
-| The content is | Form |
-|---|---|
-| stages, especially with a returning edge | flow or cycle diagram; the return edge is what prose loses |
-| one metric, several systems | bars; rank reads at a glance |
-| one metric across a varying condition | a line, when the widening gap or the crossing is the claim |
-| several dimensions per row | a table |
-| one instance walked end to end | a `<pre>` trace; indentation is already a diagram and identifiers stay selectable |
-| a decision the reader has to make | a table whose rows are the reader's situations, not the source's conditions |
-| the source's own equations | a diagram or prose; a flow with the condition written on the edge lets a developer predict behavior better than the same condition as a predicate |
-
-A symbol earns its place when the document uses it again and the prose cashes a prediction
-from it; one that appears once, or is translated into Korean in the same breath, is the
-source's table of contents. Never point at what only resolves in the source: `식 (10)`
-where the document numbered no equation sends the reader to the paper to read your
-sentence. Name the thing (`inner 게이트의 엄격 개선 조항`) and define every symbol here.
+It gives the source pin, the encoding, and the qualifier that stops a reader over-reading the
+one unfavorable spot. Verifiers extract claims from captions, so a number that appears only in
+a caption still needs its locator.
 
 ## Drawing it
 
@@ -95,23 +82,19 @@ sentence. Name the thing (`inner 게이트의 엄격 개선 조항`) and define 
 </svg>
 ```
 
-- A node carries a name and a line of what it does; a box reading only `RunPipeline` adds
-  nothing to the heading. Highlight one node, not three.
-- Give a returning edge its own row below the forward path; a curve crossing back through
-  it is unreadable at reading size.
+- A box reading only `RunPipeline` adds nothing to the heading. Highlight one node, not three.
 - Three-point arrowheads avoid `<defs>` and follow the theme. Set `width:100%; height:auto`
   with a `min-width`, and `overflow-x:auto` on the wrapper.
+- Render the page (`scripts/render.mjs`) and look at every figure: labels overlapping, an
+  arrow crossing a box, text running out of its box are read as part of the claim.
 
-Bars are CSS: a name, a track, a filled span at a percentage, and the printed number,
-starting at zero. In a table, mark the row the chapter argues for, encode direction (`+0.8`
-and `−2.3` do not read as opposites at a glance), and keep losing rows visible; a
-comparison where every marked cell is a win reads as an advertisement. Route every fill and
-stroke through the theme tokens and pair color with position, a sign or a label.
+Bars are CSS: a name, a track, a filled span at a percentage, and the printed number, starting
+at zero. In a table, mark the row the chapter argues for, encode direction (`+0.8` and `−2.3`
+do not read as opposites at a glance), and keep losing rows visible; a comparison where every
+marked cell is a win reads as an advertisement. Route every fill and stroke through the theme
+tokens and pair color with position, a sign or a label.
 
 ## The source's own figures
-
-Redrawing is the default, for the reasons above, until redrawing would mean inventing what
-the figure shows.
 
 | The figure is | Do |
 |---|---|
@@ -120,21 +103,18 @@ the figure shows.
 | a qualitative sample, a screenshot, a rendered output | embed it; there is nothing to redraw |
 | a plot whose claim is one crossing or one gap | redraw that part, and say in the caption that the source's plot holds more |
 
-**Embed only a figure you have opened and read.** A caption written from a filename is a
-fabricated claim with a picture around it; `notes/figures.md` from the pinning step holds
-the one-sentence descriptions. **Name the source's central figure somewhere**, in the
-document or in `setup` with the reason it is absent, because a reader who has seen the
-paper looks for it first.
+**Embed only a figure you have opened and read**; `notes/figures.md` from the pinning step
+holds the one-sentence descriptions. **Name the source's central figure somewhere**, in the
+document or in `setup` with the reason it is absent, because a reader who has seen the source
+looks for it first.
 
-Mechanics: a `data:` URI inside `.plate`, which keeps a white background under a
-light-source figure in dark mode; `alt` says what the figure shows and the caption carries
-the source's own identifier (`논문 Figure 3`). The file has 1 MB and base64 is a third
-larger than what it encodes, so when a figure will not fit, redraw the part that carries
-the claim and say so.
+Mechanics: a `data:` URI inside `.plate`, which keeps a white background under a light-source
+figure in dark mode; `alt` says what the figure shows and the caption carries the source's own
+identifier (`논문 Figure 3`). The file has 1 MB and base64 is a third larger than what it
+encodes, so when a figure will not fit, redraw the part that carries the claim and say so.
 
 ## Do not
 
-- Screenshot a table. Retype it; a screenshot has no theme, no selectable numbers, no usable
-  alt text, and takes a large share of the size budget.
 - Invent a step to make a diagram symmetric. A four-stage mechanism drawn as five boxes is a
   fabricated claim with a picture around it, and it passes every gate.
+- Draw what the chapter does not claim.

@@ -80,17 +80,15 @@ rather than varying it.
 
 ## Choose the form by the shape of the content
 
-The passages above are prose, and prose is one form among several. Pick the form from what
-the content is:
+What `visual.md` leaves in text takes its form from the content:
 
-- A chain where each step leads to the next: sentences joined by their reasons, as in the
-  explanatory passage above.
+- An argument where each reason leads to the next: sentences joined by those reasons, as in
+  the explanatory passage above.
 - Three or more items of the same kind side by side (differences, conditions, settings,
   things to do): a list, one short sentence per item. Strung into a paragraph they read as an
   enumeration the reader has to count and hold.
 - Several things compared on the same attributes: a table.
-- A flow, a loop, or two requirements that cannot both be met: a figure, or numbered steps
-  when the reader follows them in order (`visual.md`).
+- Two requirements that cannot both be met: a figure (`visual.md`).
 
 Say a thing once in a chapter. When a table holds the cases, the paragraphs around it explain
 what the table cannot show; they do not walk through the same cases again.

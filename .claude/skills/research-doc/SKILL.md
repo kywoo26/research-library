@@ -10,16 +10,12 @@ when_to_use: Invoked by the researcher agent after research-source, in the same 
 
 # Writing a research document
 
-The instructions here are English. **The document is Korean**, and
-`references/prose-ko.md` shows what its sentences should read like.
-
 Read before writing:
 
 - `references/prose-ko.md`, always.
 - `references/specimens/<purpose>-chapter.html`, the one for this document's kind. It shows
   the chapter grammar filled in; its length is an example, and your content sets yours.
-- `references/visual.md`, whenever the document has a mechanism, an architecture, a loop
-  or a comparison. A shape drawn wrong is read as fact.
+- `references/visual.md`, always: each chapter's form is chosen before its sentences.
 - `references/paper.md`, `references/oss.md` or `references/web.md`, by what the corpus is.
 - `.research/<slug>/notes/figures.md`, what the source drew or tabulated. Redraw what the
   reader needs.
@@ -40,7 +36,9 @@ well enough to explain it. What the document has to do for them depends on its k
 The adoption call belongs to the comparison. Comparisons with other systems and outside cases
 go in when the request asks for them, gathered in one chapter.
 
-Plain is the goal, and a qualifier the claim needs survives the plainness.
+Plain is the goal, and a qualifier the claim needs survives the plainness. Describe how
+something was done at the depth the source gives; a step the source leaves out stays out, and
+the document says it is unpublished and what that means for the reader.
 
 ## The first screen and the length
 
@@ -77,10 +75,6 @@ The steps of the mechanism go to the `tl-dr` chapter right after, whose points e
 sentence or two and do not restate the cover. A long answer packed into fewer, longer sentences
 is still long. How the document was made has no place on the first screen: no source-to-chapter
 mapping table, no reading method.
-
-A chapter's body takes its form from its content: sentences for a chain of causes, a list for
-parallel items, a table for a comparison, a figure for a flow (`references/prose-ko.md`
-§Choose the form). It says each thing once.
 
 Aim for twenty chapters or fewer; merge chapters a reader would read as one. The order
 follows the source or the research where that order carries meaning, and the `tl-dr` points
@@ -129,9 +123,8 @@ h2              a short title naming what the chapter holds (thinking을 끄던 
 .key            the claim a scanning reader needs, in one or two sentences. Keep a condition
                 here only when the claim is false without it; narrower conditions go to the
                 body. The only place the claim is stated; the body supports it
-body            a figure, a diff, a table, a fact list with one line per item, or paragraphs
-                of mechanism. Where the source drew or tabulated it, the body is that chart
-                or table redrawn, not prose about it (references/visual.md)
+body            the form references/visual.md picks: a figure, a diff, a table, a fact list
+                with one line per item, or paragraphs for a claim with no shape
 details.more    첨언: the source's own words, the derivation, the setting in full. Folded
 .note           optional. One sentence, when it changes what the reader does next
 ```
@@ -178,8 +171,7 @@ rail from the chapters (`data-label` on a section names it). A document stamped 
 shell carries its own hand-written `.rail-item` list; there, add and renumber the items with
 the chapters, and do not delete them, or the rail goes empty. Define colors as CSS custom
 properties that components reference, so dark mode is not a second copy of every component,
-and give anything wide `overflow-x: auto`. Draw rather than embed, except where redrawing
-would invent what the source shows.
+and give anything wide `overflow-x: auto`.
 
 ## The read pass
 
