@@ -105,9 +105,9 @@ rendering checks and file-count arithmetic go to `sources.jsonl`, `run.json` and
 Name the subject and what it is or does, in a phrase a reader would search for, and use the
 same string in `meta.json` `title`, `<title>`, `og:title` and the cover `h1`.
 
-- ✓ Bar 가 vector 검색 옆에 그래프 경로를 더하는 방식
-- ✗ Bar: 그래프 갈래를 하나 더 두는 컨텍스트 인프라 (a label and a colon; `prose-ko.md` §Forms)
-- ✗ 그래프는 RAG 위에 얹히고, 벤치마크는 저장소에 없다 (a finding with paired clauses; it goes to `summary`)
+- ✓ Bar 의 그래프 경로 검색 / ✓ Sonnet 5.5 로 옮길 때 400 을 받는 요청
+- ✗ Bar: 그래프 갈래를 하나 더 두는 컨텍스트 인프라 (a label and a colon)
+- ✗ 그래프는 RAG 위에 얹히고, 벤치마크는 저장소에 없다 (a finding; it goes to `summary`)
 
 ## The chapter grammar
 

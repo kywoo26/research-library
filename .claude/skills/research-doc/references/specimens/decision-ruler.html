@@ -1,23 +1,17 @@
-<!-- 견본: 판단. 단계를 칸으로 놓고 할 일과 걸린 시간을 그 칸에 건다. 화살표는 한 줄 안에서 뒤 칸으로 건너뛴다 -->
-<section class="slide" data-role="decision" data-label="고르는 기준">
-  <h2>단계는 사람이 곁에서 보는 정도와 검증의 무게로 고른다</h2>
-  <p class="lead">글쓴이의 기준이고, Claude Code 공식 문서도 같은 기준을 싣는다. 단계를 올리는 값은 시간으로 치른다.</p>
-  <div class="board dense" data-cols="low|medium|high|xhigh|max" data-axis-arrow="시간과 토큰이 는다" data-lanes="지금 하는 일|sanitizer 걸린 시간|명세 없는 앱 걸린 시간" aria-label="effort 다섯 단계를 가로축으로 놓고, 그 단계에 맞는 일과 원문 사례에서 걸린 시간을 단계 아래에 놓은 판">
-    <div class="card" data-lane="1" data-col="low"><b>결과를 하나씩 보고 다음을 정하는 일</b><p>아이디어 내기, 첫 sketch, 이름 바꾸기</p></div>
-    <div class="card" data-lane="1" data-col="medium"><b>범위가 분명한 새 기능 구현</b><p class="ev">글쓴이의 평소 단계이자 Opus 5.5 의 기본값</p></div>
-    <div class="card" data-lane="1" data-col="high"><b>기존 코드의 버그 수정, 검증이 중요한 일</b></div>
-    <div class="card" data-lane="1" data-col="xhigh"><b>오래 도는 agent 작업</b><p class="ev">글쓴이의 기준표에는 없다. 문서는 토큰을 더 쓰는 깊은 추론이라고 적는다</p></div>
-    <div class="card t-warn" data-lane="1" data-col="max"><b>앱을 처음부터 검증까지 사람 없이</b><p>그 전에 xhigh 를 먼저 시험한다</p><p class="ev">문서는 수확 체감과 지나친 생각을 경고한다</p></div>
-    <div class="card t-bad" data-lane="1" data-col="low..max"><b>요구가 두 가지로 읽히는데 곁에 사람이 없는 일은 단계보다 명세가 먼저다</b><p class="ev">높은 단계에서 틀린 해석을 고른 실패가 늘었다. Fable 5.1 은 low 25건에서 max 47건</p></div>
-    <div class="card slim t-quiet" id="t-s-lo" data-lane="2" data-col="low"><b>약 2분</b><p class="ev">low 시도 하나</p></div>
-    <div class="card slim t-quiet" id="t-s-hi" data-lane="2" data-col="high"><b>약 33분</b><p class="ev">high-effort 실행 하나</p></div>
-    <div class="card slim t-quiet" id="t-a-lo" data-lane="3" data-col="low"><b>1.5분</b><p class="ev">Opus 5.5</p></div>
-    <div class="card slim t-quiet" id="t-a-hi" data-lane="3" data-col="max"><b>67분</b><p class="ev">Opus 5.5</p></div>
-    <span class="edge" data-from="t-s-lo" data-to="t-s-hi"></span>
-    <span class="edge" data-from="t-a-lo" data-to="t-a-hi"></span>
+<!-- 견본: 판단. 2026-09-09 claude-platform-cost-performance. 선택지를 칸으로 놓고, 이름 있는 줄마다 고를 조건과 잰 결과를 건다 -->
+<section class="slide" data-role="decision" data-label="체크리스트">
+  <h2>어느 /claude-api 명령을 돌릴지는 가진 자료가 정한다</h2>
+  <p class="lead">세 명령은 읽는 자료가 다르다. 아래 결과는 모두 Anthropic 이 자기 벤치마크에서 잰 값이다.</p>
+  <div class="board dense" data-cols="prompt-audit|cost-optimize|hillclimb" data-lanes="이럴 때|원문이 잰 결과" aria-label="세 /claude-api 명령을 칸으로 놓고, 각 명령을 돌릴 상황과 원문이 잰 결과를 그 아래에 놓은 판">
+    <div class="card" data-lane="이럴 때" data-col="prompt-audit"><b>frontier 모델로 막 옮겼다</b><p class="ev">작업 디렉터리의 프롬프트 파일을 읽는다</p></div>
+    <div class="card" data-lane="이럴 때" data-col="cost-optimize"><b>API 청구서를 줄여야 한다</b><p class="ev">API 코드를 읽고, Admin API key 나 usage 로그가 있으면 쓴다</p></div>
+    <div class="card" data-lane="이럴 때" data-col="hillclimb"><b>평가 세트가 있다</b><p class="ev">평가를 train 과 test 로 나눠 held-out 으로 채점한다</p></div>
+    <div class="card slim t-good" data-lane="원문이 잰 결과" data-col="prompt-audit"><b>비용 −14.6%, 정확도 +5.3</b><p class="ev">legacy 프롬프트 여섯 개의 평균</p></div>
+    <div class="card slim t-good" data-lane="원문이 잰 결과" data-col="cost-optimize"><b>run 당 비용 −52.4 ~ −72.7%</b><p class="ev">네 벤치마크. 점수 변화의 95% 신뢰구간은 모두 0 을 포함한다</p></div>
+    <div class="card slim t-good" data-lane="원문이 잰 결과" data-col="hillclimb"><b>held-out 78.6% → 90.5%</b><p class="ev">티켓 14건, 비용은 약 1/5</p></div>
   </div>
-  <ul class="notes"><li>아래 두 줄은 원문 사례에서 같은 과제가 걸린 시간이다. 과제마다 원문이 견준 단계가 다르다.</li></ul>
+  <ul class="notes"><li>고정 커밋 41bbe19 의 skill 저장소에는 hillclimb 정의가 아직 없다.</li></ul>
   <details class="orig"><summary>원문</summary>
-    <p>Claude Code 문서 §Choose an effort level 의 max 행: <span class="q">“`max` may show diminishing returns and is prone to overthinking, so test before adopting it broadly”</span></p>
+    <p>§Effort · How to fix it: <span class="q">“On the 14 held-out tickets the search never saw, the final configuration scored 90.5% against the original setup's 78.6%, at about one fifth the cost.”</span></p>
   </details>
 </section>
