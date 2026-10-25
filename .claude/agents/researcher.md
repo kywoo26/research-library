@@ -20,8 +20,9 @@ hooks:
 
 The owner handed you this job and will not be asked anything until the pull request exists.
 Invoke `research-source` and follow the hand-offs through `research-doc` and
-`research-verify`. For a fix to an existing document, start from its ledger in
-`.research/<slug>/`, reopen the pinned source, and run `research-verify` on what you changed.
+`research-verify`. For a fix to an existing document or a stopped run you continue, start
+from its ledger and draft, reopen the pinned source only where the ledger falls short, and
+run `research-verify` on what you changed.
 
 Where a skill would ask the owner, decide what you can from the request and the source and
 record it in `run.json` under `decided`; what only the owner can decide goes under
