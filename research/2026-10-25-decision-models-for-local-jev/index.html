@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="ko" data-format="board">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로컬에서 돌리는 Jev 대안 decision model 고르기</title>
+<meta name="description" content="Jev Decision Index 0.4.1 의 비공개 시험 점수로 open-weight decision model 을 GPU 급별로 비교하고, 라이선스와 질문 격리 계약까지 맞춰 로컬 후보를 고른다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="로컬에서 돌리는 Jev 대안 decision model 고르기">
+<meta property="og:description" content="Jev Decision Index 0.4.1 의 비공개 시험 점수로 open-weight decision model 을 GPU 급별로 비교하고, 라이선스와 질문 격리 계약까지 맞춰 로컬 후보를 고른다.">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-25-decision-models-for-local-jev/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ═══ board 셸 ═══════════════════════════════════════════════
+   장은 주장(h2) 하나와 그 주장을 담은 판(board) 하나다. 작성자는 상자가 어느 줄(lane)
+   어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
+   html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
+
+/* ── tokens. tone 의 뜻은 모든 문서에서 같다 ── */
+:root {
+  color-scheme: light;
+  --paper:#f6f6f3; --card:#ffffff; --ink:#1f2328; --ink-2:#424a53; --muted:#6e7781; --rule:#d8dee4; --wire:#6e7781;
+  --s1:#0969da; --s2:#cf4a22; --dim:#afb8c1;
+  --n-bg:#ffffff; --n-bd:#c9d1d9; --n-ink:#1f2328;   /* 기본: 대상 하나 */
+  --k-bg:#eef4ff; --k-bd:#0969da; --k-ink:#0550ae;   /* t-key: 판에서 장이 주장하는 상자 하나 (판마다 하나까지) */
+  --g-bg:#effbf2; --g-bd:#1a7f37; --g-ink:#116329;   /* t-good: 좋아진다, 권한다 */
+  --w-bg:#fff8c5; --w-bd:#9a6700; --w-ink:#7d4e00;   /* t-warn: 조건, 주의 */
+  --b-bg:#ffebe9; --b-bd:#cf222e; --b-ink:#a40e26;   /* t-bad: 실패, 나빠진다 */
+  --p-bg:#fff0f6; --p-bd:#bf3989; --p-ink:#99286e;   /* t-person: 사람이 하는 일 */
+  --q-bg:#f6f8fa; --q-bd:#afb8c1; --q-ink:#424a53;   /* t-quiet: 배경, 재지 않은 것 */
+  --r-bg:#f8f5ff; --r-bd:#8250df; --r-ink:#6639ba;   /* react: 원문 밖의 반응 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper:#0d1117; --card:#161b22; --ink:#e6edf3; --ink-2:#b1bac4; --muted:#8b949e; --rule:#30363d; --wire:#8b949e;
+    --s1:#4493f8; --s2:#f0883e; --dim:#545d68;
+    --n-bg:#161b22; --n-bd:#3d444d; --n-ink:#e6edf3;
+    --k-bg:#0c2240; --k-bd:#4493f8; --k-ink:#79b8ff;
+    --g-bg:#0f2a19; --g-bd:#3fb950; --g-ink:#7ee787;
+    --w-bg:#2a2110; --w-bd:#d29922; --w-ink:#e3b341;
+    --b-bg:#3a1418; --b-bd:#f85149; --b-ink:#ff8e86;
+    --p-bg:#33152a; --p-bd:#db61a2; --p-ink:#f2a3cf;
+    --q-bg:#1b2029; --q-bd:#545d68; --q-ink:#b1bac4;
+    --r-bg:#1f1733; --r-bd:#a371f7; --r-ink:#d2a8ff;
+  }
+}
+
+/* ── page ── */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
+h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
+.topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px; padding:8px 28px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--rule); }
+.topbar a { color:var(--s1); text-decoration:none; font-weight:600; }
+.topbar .now { color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:40px; }
+section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
+.chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
+h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
+h2 { font-size:clamp(22px,2.5vw,29px); line-height:1.28; letter-spacing:-.015em; margin:0 0 10px; max-width:30em; text-wrap:balance; }
+h3 { font-size:15px; margin:0 0 6px; }
+.answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
+p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
+.lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
+.block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
+ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
+ul.notes li::before { content:"· "; }
+ul.points { list-style:none; margin:0; padding:0; display:grid; gap:10px; max-width:64em; }
+ul.points li { background:var(--card); border:1px solid var(--rule); border-radius:9px; padding:10px 14px; font-size:14.5px; }
+ul.points li > b:first-child { display:block; margin-bottom:2px; }
+ul.sources { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; }
+ul.sources a { color:var(--s1); overflow-wrap:anywhere; }
+ul.sources .t { color:var(--ink-2); }
+details.orig { margin:18px 0 0; font-size:13.5px; color:var(--ink-2); }
+details.orig summary { cursor:pointer; color:var(--muted); font-size:13px; font-weight:600; }
+details.orig p { margin:8px 0; max-width:70em; }
+span.q { color:var(--ink-2); }
+a.xref, .lead a, .so a, ul.notes a, ul.points a { color:var(--s1); text-underline-offset:2px; }
+code { font:12.5px var(--mono); background:var(--q-bg); padding:1px 4px; border-radius:4px; }
+pre { font:12px/1.62 var(--mono); background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; overflow-x:auto; margin:0 0 14px; color:var(--ink-2); }
+pre b { color:var(--ink); } pre code { background:none; padding:0; }
+pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--b-ink); }
+.good { color:var(--g-ink); font-weight:700; } .bad { color:var(--b-ink); font-weight:700; }
+.plate { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:10px; }
+.plate img { display:block; width:100%; height:auto; }
+.tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--rule); border-radius:10px; margin:0 0 14px; }
+table { border-collapse:collapse; font-size:13px; width:100%; }
+td,th { padding:7px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--rule); line-height:1.5; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr:last-child td { border-bottom:0; }
+:focus-visible { outline:2px solid var(--s1); outline-offset:2px; border-radius:3px; }
+
+/* ── board ── */
+.board { position:relative; display:grid; column-gap:40px; row-gap:20px; align-items:stretch;
+  background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:22px 24px; margin:0; }
+.board.dense { column-gap:18px; }
+.board > .edge { position:absolute; z-index:3; font-size:11.5px; line-height:1.3; color:var(--ink-2); background:var(--card);
+  padding:1px 5px; border-radius:4px; white-space:nowrap; }
+.board > .edge:empty { display:none; }
+svg.wires { position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+svg.wires path { stroke:var(--wire); stroke-width:1.6; fill:none; }
+svg.wires path.head { fill:var(--wire); stroke:none; }
+svg.wires path.tether { stroke:var(--r-bd); stroke-dasharray:3 3; stroke-width:1.4; }
+.lane-label { font-size:13px; font-weight:700; color:var(--ink-2); align-self:center; }
+.lane-rule { align-self:start; height:0; border-top:1px dashed var(--rule); margin-top:-10px; }
+.axis-h { font:700 12.5px var(--mono); color:var(--ink-2); text-align:center; padding:0 0 6px; border-bottom:2px solid var(--rule); align-self:end; }
+.board[data-axis-arrow] .axis-h { border-bottom-color:transparent; }
+.axis-arrow { height:0; border-top:2px solid var(--muted); align-self:end; position:relative; margin-bottom:-1px; }
+.axis-arrow::after { content:""; position:absolute; right:-2px; top:-6px; border:5px solid transparent; border-left:8px solid var(--muted); }
+.axis-cap { font-size:11.5px; line-height:1.35; color:var(--muted); align-self:end; padding-bottom:4px; }
+
+/* ── card ── */
+.card { position:relative; z-index:1; display:block; background:var(--n-bg); border:1px solid var(--n-bd); border-radius:9px;
+  padding:11px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); text-decoration:none; }
+.card > b { display:block; font-size:14.5px; line-height:1.4; color:var(--n-ink); margin:0 0 3px; }
+.card p { margin:0 0 2px; }
+.card .ev { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:6px; }
+.card .big { display:block; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--n-ink); margin-top:2px; }
+.card .big small { font-size:14px; font-weight:600; color:var(--ink-2); }
+.card ul { margin:2px 0 0; padding-left:16px; } .card li { margin:1px 0; }
+.card a { color:var(--s1); }
+.chip { display:inline-block; font:600 11.5px/1.5 var(--mono); padding:0 6px; border-radius:5px; border:1px solid var(--n-bd); color:var(--ink-2); margin:0 4px 4px 0; background:var(--card); }
+.card .colchip, .card .to { display:none; }
+.card.slim { padding:7px 12px; }
+.card.slim > b { font-size:15px; margin:0; }
+.card.slim .ev { margin-top:0; }
+.t-key { --n-bg:var(--k-bg); --n-bd:var(--k-bd); --n-ink:var(--k-ink); }
+.t-good { --n-bg:var(--g-bg); --n-bd:var(--g-bd); --n-ink:var(--g-ink); }
+.t-warn { --n-bg:var(--w-bg); --n-bd:var(--w-bd); --n-ink:var(--w-ink); }
+.t-bad { --n-bg:var(--b-bg); --n-bd:var(--b-bd); --n-ink:var(--b-ink); }
+.t-person { --n-bg:var(--p-bg); --n-bd:var(--p-bd); --n-ink:var(--p-ink); }
+.t-quiet { --n-bg:var(--q-bg); --n-bd:var(--q-bd); --n-ink:var(--q-ink); }
+a.card[href]:hover { outline:2px solid var(--n-bd); outline-offset:1px; }
+a.inert { cursor:default; }
+/* 원문 밖의 반응. 바꾸는 주장(data-on) 바로 아래에 붙고 혼자 서지 않는다 */
+.card.react { --n-bg:var(--r-bg); --n-bd:var(--r-bd); --n-ink:var(--r-ink); border-style:dashed; border-width:1.5px; font-size:13px; }
+.card.react .who { display:block; font:600 11.5px/1.5 var(--mono); color:var(--r-ink); margin:0 0 4px; }
+.card.react .who::before { content:"외부 반응 · "; }
+.card.react .check { margin-top:6px; color:var(--ink-2); }
+.card.react .check::before { content:"원문 대조: "; font-weight:700; color:var(--ink); }
+.verdict { display:inline-block; font:700 11px/1.5 var(--mono); padding:0 6px; border-radius:5px; margin-right:4px; }
+.verdict.holds { background:var(--g-bg); color:var(--g-ink); border:1px solid var(--g-bd); }
+.verdict.contra { background:var(--b-bg); color:var(--b-ink); border:1px solid var(--b-bd); }
+.verdict.open { background:var(--q-bg); color:var(--q-ink); border:1px solid var(--q-bd); }
+
+/* ── split, panel, ladder ── */
+.split { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:18px; align-items:start; }
+.split.even { grid-template-columns:1fr 1fr; }
+.panel { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:18px 20px; }
+.panel > .block-title:first-child { margin-top:0; }
+.panel > .ev { font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+.ladder { display:grid; gap:16px; }
+.ladder > .card:not(:first-child)::before { content:""; position:absolute; left:22px; top:-16px; height:15px; border-left:1.6px solid var(--wire); }
+.meter { display:block; height:6px; border-radius:3px; background:var(--rule); margin:6px 0 2px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--n-bd); }
+
+/* ── plot: 표가 데이터이고 그림은 셸이 그린다 ── */
+figure.plot { margin:0; }
+.fig-title { font-size:14.5px; font-weight:700; margin:0 0 2px; }
+.fig-sub { font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+.plot-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-2); margin:0 0 4px; }
+.plot-legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.plot-canvas svg { display:block; }
+.plot-canvas .grid { stroke:var(--rule); stroke-width:1; }
+.plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
+.plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
+.plot-canvas .dot { stroke:var(--card); stroke-width:2; }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
+.plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
+.plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
+.plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
+ol.plot-marks { margin:4px 0 0; padding-left:0; list-style:none; font-size:12px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; }
+ol.plot-marks b { font-family:var(--mono); }
+.bars { display:grid; gap:9px; }
+.bar-row { display:grid; grid-template-columns:minmax(80px,140px) 1fr; gap:10px; align-items:center; }
+.bar-name { font-size:12.5px; color:var(--ink-2); text-align:right; }
+.bar-row.is-em .bar-name, .bar-row.is-em .bar-val { color:var(--ink); font-weight:700; }
+.bar-set { display:grid; gap:2px; }
+.bar-line { display:grid; grid-template-columns:1fr minmax(3.6em, max-content); gap:8px; align-items:center; }
+.bar-track { height:11px; background:repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%); border-radius:2px; }
+.bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
+.bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
+figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+details.vals { margin-top:6px; font-size:12.5px; }
+details.vals summary { cursor:pointer; color:var(--muted); }
+details.vals table { width:auto; font-size:12.5px; }
+details.vals td, details.vals th { padding:3px 10px 3px 0; }
+
+/* ── cover: 논증 흐름과 나머지 장의 짧은 목록 ── */
+.board .card[data-center] { align-self:center; }
+.toc { margin:18px 0 0; }
+.toc-h { font-size:13px; font-weight:700; color:var(--ink-2); margin:0 0 6px; }
+.toc ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+.toc li { display:grid; grid-template-columns:64px auto 1fr; gap:10px; align-items:baseline; font-size:13.5px; padding:5px 0; border-bottom:1px solid var(--rule); }
+.toc .g { font-size:12px; color:var(--muted); }
+.toc a { color:var(--ink); text-decoration:none; font-weight:600; white-space:nowrap; }
+.toc a[href]:hover { color:var(--s1); text-decoration:underline; }
+.toc .f { color:var(--muted); font-size:12.5px; }
+
+/* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
+@media (max-width: 760px) {
+  .topbar { padding:8px 16px; }
+  main { padding:0 14px 80px; }
+  section.slide { padding:36px 0 26px; }
+  .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
+  .board .lane-rule, .board .axis-h, .board .axis-arrow, .board .axis-cap, .board > .edge, .board > svg.wires { display:none; }
+  .board .lane-label { margin:10px 0 0; font-size:12.5px; color:var(--muted); }
+  .card .colchip { display:inline-block; }
+  .card .to { display:block; font-size:12.5px; color:var(--ink-2); margin-top:6px; }
+  .split, .split.even { grid-template-columns:1fr; }
+  .toc ul { grid-template-columns:1fr; grid-template-rows:none !important; grid-auto-flow:row; }
+  .toc li { grid-template-columns:1fr; gap:0; }
+  .toc .g:empty { display:none; }
+  .toc a { white-space:normal; }
+  .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
+}
+@media print { .topbar { display:none; } section.slide { break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="#p1">지도</a><span class="now"></span></div>
+<main>
+  <section class="slide" data-role="cover" data-label="표지">
+  <h1>로컬에서 돌리는 Jev 대안 decision model 고르기</h1>
+  <p class="answer">Jev는 TypeSafe가 API로만 제공하고 backbone도 밝히지 않은 decision model이라, 로컬에서 쓰려면 open-weight 모델로 바꿔야 한다. 커뮤니티 보드 Jev Decision Index에서 Jev 1.14 이상인 open 모델은 9B인 elephant-1을 빼면 모두 25B 이상의 decoder backbone이다. 이 조사의 판단으로는 GPU가 24GB 이상이면 elephant-1을, 80GB 이상이면 mammoth-1을 먼저 시험한다. 보드와 후보 카드에 한국어 점수가 없으므로, 한국어 업무는 자기 표본으로 다시 재서 고른다.</p>
+  <p class="src">커뮤니티 리더보드 Jev Decision Index 0.4.1의 2026-10-22 데이터가 중심이다. Hugging Face 계정 multimodalart가 운영하고 TypeSafe와는 관계가 없다고 밝힌다. 여기에 후보를 낸 Fastino, Baseten의 Base Labs, Perplexity, PelaAI, Jared Palmer 등의 model card, TypeSafe 공식 문서와 출시 글, Jev API를 밖에서 시험한 개인 블로그 archerhume의 글, Laya의 언어별 측정표를 더했다. 모두 2026-10-25에 받은 판이다.</p>
+  <div class="board flow" data-cols="출발|비교 기준|결과|조건|판단" data-lanes="1|2|3" data-read="rows" aria-label="Jev는 로컬에서 돌릴 수 없으므로 open-weight 후보를 Jev Decision Index의 비공개 시험 점수로 견주고, 크기별 점수와 요청 형식, 라이선스를 겹쳐 GPU 메모리별로 시험할 모델을 고른다. 한국어 점수는 보드에 없어서 아래 줄은 한국어 표본으로 다시 재는 단계로 이어진다">
+    <a class="card" id="f-jev" href="#p2" data-col="출발" data-lane="1..2" data-center><b>Jev는 hosted API로만 쓴다</b><p>모든 계정이 같은 가중치를 쓰고 내려받을 수 없다</p></a>
+    <a class="card" id="f-board" href="#p5" data-col="비교 기준" data-lane="1..2" data-center><b>비공개 시험의 Full score로 견준다</b><p>open 모델을 RTX PRO 6000 한 장에서 같은 요청으로 돌린다</p></a>
+    <a class="card" id="f-size" href="#p6" data-col="결과" data-lane="1"><b>Jev 이상인 행은 거의 25B 이상</b><p>40개 중 15B 미만은 elephant-1 하나</p></a>
+    <a class="card t-warn" id="f-card" href="#p7" data-col="결과" data-lane="2"><b>카드의 점수는 다른 판의 값이다</b><p>표의 1B 이하 모델은 새 영역 시험에서 10점 안팎이다</p></a>
+    <a class="card" id="f-contract" href="#p8" data-col="조건" data-lane="1"><b>질문 처리와 요청 형식이 다르다</b><p>pplx-decider v1.2는 질문끼리 서로 본다</p></a>
+    <a class="card" id="f-cost" href="#p9" data-col="조건" data-lane="2"><b>메모리와 라이선스가 후보를 줄인다</b><p>GLiDE와 StartLux는 상용 조건이 붙는다</p></a>
+    <a class="card t-warn" id="f-ko" href="#p10" data-col="조건" data-lane="3"><b>한국어 공개 점수는 거의 없다</b><p>Laya 다국어판의 의도 분류 100문항이 전부다</p></a>
+    <a class="card t-good" id="f-pick" href="#p12" data-col="판단" data-lane="1..2" data-center><b>24GB면 elephant-1, 80GB면 mammoth-1</b><p>자기 데이터로 정답률과 ECE를 다시 잰다</p></a>
+    <a class="card" id="f-kom" href="#p11" data-col="판단" data-lane="3"><b>한국어는 영어 짝 문항과 함께 잰다</b><p>보드 규칙대로 돌리고 언어별 ECE를 본다</p></a>
+    <span class="edge" data-from="f-jev" data-to="f-board"></span>
+    <span class="edge" data-from="f-board" data-to="f-size"></span>
+    <span class="edge" data-from="f-board" data-to="f-card"></span>
+    <span class="edge" data-from="f-size" data-to="f-contract"></span>
+    <span class="edge" data-from="f-card" data-to="f-cost"></span>
+    <span class="edge" data-from="f-contract" data-to="f-pick"></span>
+    <span class="edge" data-from="f-cost" data-to="f-pick"></span>
+    <span class="edge" data-from="f-ko" data-to="f-kom"></span>
+  </div>
+  <div class="toc">
+    <p class="toc-h">논증 밖에서 더 보는 장</p>
+    <ul>
+      <li><span class="g">구조</span><a href="#p3">3 · Jev 구조</a><span class="f">TypeSafe는 출력 방식과 질문 격리, 학습법 이름만 밝혔고 backbone은 외부 추정이다</span></li>
+      <li><span class="g"></span><a href="#p4">4 · open 구조</a><span class="f">Jev보다 높은 open 모델은 모두 decoder이고 34개가 Gemma-4-31B나 Qwen3.8-27B 기반이다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">보드 하나, 운영자 한 명의 결과이고 순위는 며칠 사이에도 바뀐다</span></li>
+      <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">model card와 보드 데이터, 공개 글만 읽었고 모델은 돌리지 않았다</span></li>
+      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">고정한 커밋과 받은 시각</span></li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="slide" data-role="problem" data-label="로컬 Jev">
+  <h2>Jev를 로컬에서 쓰려면 다른 모델로 바꿔야 한다</h2>
+  <p class="lead">TypeSafe는 Jev를 endpoint 하나로만 제공하고 모든 계정에 같은 가중치를 쓴다. 그래서 로컬 후보는 Jev와 같은 요청을 받는지, 질문을 따로 평가하는지, 확률이 믿을 만한지로 견준다.</p>
+  <div class="board" data-cols="Jev|로컬 후보가 맞출 것" data-lanes="1|2|3" aria-label="hosted Jev에서 출발해 로컬 후보가 맞춰야 할 요청 형식, 질문 격리, 확률 보정으로 화살표가 갈라진다">
+    <div class="card t-quiet" id="c2-jev" data-col="Jev" data-lane="1..3" data-center><b>Jev 1.14, hosted</b><p>POST /v1/systemone 하나로 받는다</p><p>입력 100만 token당 $0.042</p><p class="ev">TypeSafe Models §Models, §Current models</p></div>
+    <div class="card" id="c2-req" data-col="로컬 후보가 맞출 것" data-lane="1"><b>같은 요청 형식</b><p>state 하나와 이름 붙은 question 여러 개를 받는다</p><p class="ev">TypeSafe Introduction §TypeSafe primitives</p></div>
+    <div class="card t-key" id="c2-iso" data-col="로컬 후보가 맞출 것" data-lane="2"><b>질문 격리</b><p>각 질문을 같은 state에 대해 따로 평가한다</p><p class="ev">TypeSafe Introduction §TypeSafe primitives</p></div>
+    <div class="card" id="c2-cal" data-col="로컬 후보가 맞출 것" data-lane="3"><b>믿을 만한 확률</b><p>Jev 1.14의 보드 ECE는 0.0799다</p><p class="ev">Jev Decision Index data/index.json</p></div>
+    <span class="edge" data-from="c2-jev" data-to="c2-req"></span>
+    <span class="edge" data-from="c2-jev" data-to="c2-iso"></span>
+    <span class="edge" data-from="c2-jev" data-to="c2-cal"></span>
+  </div>
+  <ul class="notes">
+    <li>TypeSafe 문서는 Jev 1.14를 2026-10-14부터 제공한다고 적는다. 영어가 주 학습 언어이고 정확도도 영어에서 가장 높다고 밝힌다.</li>
+    <li>ECE는 모델이 고른 답에 준 확률과 실제 정답률의 차이를 구간별로 평균한 값이고 작을수록 좋다. 보드는 정오가 갈리는 벤치마크에서 요청 6개 중 1개를 뽑아 재며, Jev 1.14의 값은 31개 벤치마크로 계산됐다.</li>
+  </ul>
+  <p class="so">그래서: 로컬 후보를 고를 때 점수 하나만 보면 Jev 클라이언트가 기대하던 동작을 놓친다. 요청 형식과 질문 격리는 8장에서 후보별로 다시 본다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>TypeSafe Models §Customizing Jev: <span class="q">“It is trained with RLCD to return calibrated decisions, and the same weights serve every account.”</span></p>
+    <p>TypeSafe Introduction: <span class="q">“Every question is evaluated in parallel and in isolation against the same state in one go.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="architecture" data-label="Jev 구조">
+  <h2>Jev의 내부 구조는 출력 방식까지만 공개됐다</h2>
+  <p class="lead">TypeSafe는 출력 방식과 질문 처리, 학습 방법의 이름을 밝힌다. backbone은 API를 밖에서 시험한 개인 글이 causal decoder, 아마 sparse MoE로 추정할 뿐이라서, 아래 판은 공개와 관찰과 추정을 칸으로 나눈다.</p>
+  <div class="board dense" data-cols="TypeSafe가 밝힌 것|밖에서 관찰한 것|관찰에서 나온 추정" data-lanes="출력|질문과 state|학습|backbone" aria-label="Jev의 출력, 질문 처리, 학습, backbone을 줄로 놓고 TypeSafe가 밝힌 것, archerhume 글이 API로 관찰한 것, 그 관찰에서 나온 추정을 칸으로 나눈다. 공개 칸은 출력과 질문 격리에서 가장 구체적이고, backbone 줄의 내용은 대부분 추정 칸에 있다">
+    <div class="card t-key" data-col="TypeSafe가 밝힌 것" data-lane="출력"><b>모든 확률을 한 번에 낸다</b><p>token을 하나씩 생성하지 않고 선택지 확률을 병렬로 낸다</p><p>선택지는 255개까지 받고, 많으면 개별 점수를 매긴 뒤 다시 고르는 2단계로 처리한다</p><p class="ev">TypeSafe 출시 글</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="질문과 state"><b>state를 한 번 읽고 질문은 격리한다</b><p>모든 질문을 같은 state에 대해 병렬로, 서로 격리해 평가한다</p><p class="ev">TypeSafe Models, Introduction</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="학습"><b>pretrained LM을 RLCD로 후학습한다</b><p>글 대신 결정과 보정된 확률을 내도록 학습하고, 모든 계정에 같은 가중치를 쓴다</p><p class="ev">TypeSafe AI primer, Models</p></div>
+    <div class="card" data-col="TypeSafe가 밝힌 것" data-lane="backbone"><b>새 model architecture라고만 쓴다</b><p>읽은 공식 문서와 출시 글에 base model의 이름과 크기가 없다</p><p class="ev">TypeSafe 출시 글</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="출력"><b>output_tokens는 생성 기록이 아니다</b><p>예/아니오 질문에서 공통 4, 답마다 15, 질문 이름 길이를 더한 값과 정확히 맞는다</p><p>선택지를 하나 더하면 기존 두 선택지의 확률 비가 바뀐다</p><p class="ev">archerhume §1, §4</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="질문과 state"><b>질문 사이로 정보가 건너가지 않는다</b><p>옆 질문에 넣은 비밀 코드를 고를 확률은 0.00이었고, state에 넣자 0.90~0.92가 됐다</p><p>입력 token은 질문 하나에 268, 둘에 276으로 질문별 몫이 더해진다</p><p class="ev">archerhume §2</p></div>
+    <div class="card" data-col="밖에서 관찰한 것" data-lane="backbone"><b>tokenizer가 공개된 것과 맞지 않는다</b><p>token 수가 공개 tokenizer 192개 어느 것과도 일치하지 않았다. 가장 가까운 Qwen도 415개 시험 중 348개만 같았다</p><p class="ev">archerhume §3</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="출력"><b>마지막 위치 head나 pointer식 scorer</b><p>두 readout 모두 관찰과 맞고, 글쓴이는 어느 쪽인지 정하지 못했다</p><p class="ev">archerhume §4</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="질문과 state"><b>state의 KV cache를 질문 갈래가 함께 읽는다</b><p>공통 prefix의 KV cache에 질문별 causal suffix를 잇는 구현을 가장 자연스럽다고 본다</p><p class="ev">archerhume §2</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="학습"><b>결과 기반 objective로 readout까지 맞춘다</b><p>글쓴이는 실제 recipe가 공개되지 않았다고 적고, 이 학습법은 자기 제안이라고 밝힌다</p><p class="ev">archerhume §5</p></div>
+    <div class="card t-quiet" data-col="관찰에서 나온 추정" data-lane="backbone"><b>causal decoder, 아마 sparse MoE</b><p>실험으로는 decoder와 encoder를 가를 수 없어서 decoder를 가정한다</p><p>약 30k token을 약 160ms에 처리한 속도가 활성 10B 안팎의 MoE와 맞는다고 계산한다</p><p class="ev">archerhume §3, §6</p></div>
+  </div>
+  <ul class="notes">
+    <li>archerhume 글은 2026-09-17에 jev-1.13.0을 early-access 계정 하나로 시험한 결과다. Jev 1.14에서도 같은 관찰이 나오는지는 확인되지 않았다.</li>
+    <li>글쓴이는 MoE가 측정이 아닌 추론이라고 적는다. dense 모델로 바꿔도 질문 격리와 readout에 대한 나머지 추정은 그대로라고 쓴다.</li>
+    <li>모든 계정에 같은 가중치를 쓰므로 고객별 fine-tuning은 없다. 업무에 맞추는 수단은 요청의 state와 질문뿐이다.</li>
+  </ul>
+  <p class="so">그래서: 로컬 대안이 Jev와 같은 내부 구조인지는 확인할 수 없다. 후보는 TypeSafe가 공개한 계약인 질문 격리와 모든 선택지의 확률, 보정을 맞추는지로 본다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>TypeSafe 출시 글: <span class="q">“We built a new stack entirely focused on automation: with a new model architecture, parallel sampler for maximum efficiency, and training method we call Reinforcement Learning for Calibrated Decisions (RLCD).”</span></p>
+    <p>TypeSafe 출시 글 §Wikiracing: <span class="q">“Jev supports a cardinality up to 255. For the higher cardinality choices, we do a two-stage system of scoring independently then making an explicit choice, hence the occasional slowdown.”</span></p>
+    <p>TypeSafe Models: <span class="q">“Jev ingests the state once and evaluates every question against it in parallel.”</span></p>
+    <p>archerhume 도입부: <span class="q">“This is clearly all quite speculative, so I’ll try and be as clear as possible around what evidence was published by TypeSafe, what was observed in experiments, and whats inferred from them.”</span></p>
+    <p>archerhume §6: <span class="q">“Specialised hardware could let a dense model match the speed, and benchmark scores may overstate how much knowledge the model holds, so this remains an inference, not a measurement.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="architecture" data-label="open 구조">
+  <h2>Jev보다 높은 open 모델 40개는 모두 decoder backbone이다</h2>
+  <p class="lead">보드는 228행 중 190행을 autoregressive, 30행을 encoder로 분류하고, Jev 1.14보다 높은 40행은 모두 autoregressive다. 표의 decoder 후보들은 글을 생성하지 않고 선택지 확률을 읽으며, 맨 아래 두 행은 견주기 위한 encoder다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>backbone</th><th>state와 질문을 읽는 방식</th><th>확률을 읽는 곳</th><th>카드가 적은 학습과 보정</th></tr></thead>
+    <tbody>
+      <tr><td>GLiDE 1.2</td><td>Qwen3.8-27B 수정판</td><td>질문마다 state 전체를 따로 forward</td><td>255-way readout</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>Kev 27B</td><td>Qwen3.8-27B, prefill만 쓴다</td><td>state를 한 번 계산해 cache하고, 질문은 각자 그 뒤에 잇는다</td><td>pointer head: 선택지 끝 token과 질문 끝 token을 비교</td><td>전체 fine-tune, temperature 1.32 하나</td></tr>
+      <tr><td>mammoth-1, elephant-1</td><td>Qwen3.5-27B, Qwen3.5-9B</td><td>공통 prefix를 한 번 prefill, full-attention 층에 block-bidirectional mask</td><td>선택지마다 확률</td><td>cross-entropy에 Brier 항, 학습한 "모름" 선택지</td></tr>
+      <tr><td>pplx-decider v1.2</td><td>Qwen3.8-27B</td><td>요청 전체를 한 sequence로 읽고, full-attention 층은 noncausal</td><td>질문마다 marker 위치의 [255, 5120] head</td><td>보드 벤치마크의 training split 포함</td></tr>
+      <tr><td>StartLux 9B</td><td>Qwen3.5-9B</td><td>질문마다 prompt 하나, full-attention 층에서 prompt를 양방향으로 읽음</td><td>마지막 위치의 선택지 글자 logit</td><td>약 270만 예제 fine-tune 뒤 170만 예제 adapter</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>Qwen3.5-4B</td><td>질문마다 forward</td><td>선택지 label token의 확률</td><td>LoRA SFT 두 개를 평균, temperature 1.50</td></tr>
+      <tr><td>Clef-flash</td><td>Qwen3.5-9B</td><td>작은 transformer head가 state의 근거를 질문으로 보낸다</td><td>모든 질문의 선택지를 함께 점수</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>Gemma-4-31B-it</td><td>질문을 하나씩 읽는다</td><td>한 번의 forward에서 선택지 확률</td><td>읽은 범위에 없음</td></tr>
+      <tr><td>GLiClass v4 edge</td><td>DeBERTa-v3-large encoder</td><td>label과 본문을 함께</td><td>선택지 logit의 softmax</td><td>지도학습, PPO식 강화학습, 보정기</td></tr>
+      <tr><td>Laya</td><td>ModernBERT-large encoder</td><td>모든 질문을 한 forward로</td><td>선택지마다 [MASK] 위치 점수</td><td>proper scoring rule을 보상으로 쓰는 강화학습</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li>autoregressive는 보드가 붙인 분류 이름이고, backbone이 decoder라는 뜻이다. 표의 decoder 후보도 추론 때 글을 생성하지 않는다.</li>
+    <li>Jev 1.14보다 높은 40행의 base는 Gemma-4-31B 계열이 18개, Qwen3.8-27B가 16개, 그 밖이 6개다. encoder 30행의 최고점은 GLiClass v4 edge의 31.21, diffusion 4행의 최고점은 49.53이다. 보드 meta의 base_model과 technique로 센 값이며 보드는 이 집계를 싣지 않는다.</li>
+    <li>GLiDE와 pplx-decider의 255행 readout은 Jev가 공개한 선택지 한도와 같은 크기다. Kev의 pointer head와 공통 state cache는 3장의 추정과 같은 모양이다. 두 대응은 이 조사가 맞춰 본 것이고, 3장의 추정 자체가 jev-1.13.0을 밖에서 시험해 얻은 추론이라 근거가 한 단계 더 약하다.</li>
+    <li>이 표는 2026-10-22 데이터 하나의 상위권 모양이다. 시간에 따른 추세는 보지 않았다.</li>
+  </ul>
+  <p class="so">그래서: Jev보다 높은 open 모델은 9B인 elephant-1을 빼면 25B 이상 decoder backbone을 쓰고, 질문을 읽는 방식과 readout은 모델마다 다르다. 6장이 보이듯 점수는 크기와 함께 움직이므로, 이 자료로는 어떤 readout이 더 나은지 가를 수 없다. CPU용 encoder는 빠르지만 이 보드에서는 Jev 점수의 절반 수준에 머문다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>kev-27b README: <span class="q">“| Model type | Decision model: a causal language-model backbone run prefill-only, with a pointer head over the options |”</span></p>
+    <p>mammoth-1 README: <span class="q">“- **Objective**: cross-entropy plus a Brier calibration term (λ = 1), with a trained "I don't know" option.”</span></p>
+    <p>pplx-decider-v1.2 README: <span class="q">“This is the native decision-checkpoint layout: a `Qwen3_5Model` backbone plus `readout.safetensors`, a BF16 `[255, 5120]` decision head.”</span></p>
+    <p>StartLux-Decision-v1.1-9B-Instant README: <span class="q">“In the full-attention layers, one in four, prompt tokens also attend to later prompt tokens, so the state is read with the question in view, while the linear-attention layers stay causal.”</span></p>
+    <p>laya README §Training: <span class="q">“The policy reports a distribution; exploration adds zero-mean Gaussian noise to the logits; the reward is a strictly proper scoring rule (log + spherical, plus ranked probability score for ordinal questions).”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="compare" data-label="비교 기준">
+  <h2>로컬 후보를 같은 조건으로 잰 보드는 Jev Decision Index다</h2>
+  <p class="lead">Artificial Analysis의 Decision Index는 벤더의 decision API를 불러 채점한다. Jev Decision Index는 open 모델을 GPU 한 장에서 직접 돌리고, 공개하지 않는 시험으로만 순위를 낸다.</p>
+  <div class="board" data-cols="Jev Decision Index|Artificial Analysis Decision Index" data-lanes="누가 돌리나|무엇으로 매기나" aria-label="두 보드를 칸으로 놓고 누가 모델을 돌리는지와 무엇으로 순위를 매기는지를 줄로 비교한다. 로컬 가중치를 직접 돌린 쪽은 Jev Decision Index다">
+    <div class="card t-key" data-col="Jev Decision Index" data-lane="누가 돌리나"><b>open 모델을 보드가 직접 돌린다</b><p>RTX PRO 6000(96GB) 한 장, 엔진마다 따로 만든 Python 환경</p><p>Jev 1.14는 TypeSafe API로 잰다</p><p class="ev">methodology.json suite.hardware</p></div>
+    <div class="card" data-col="Artificial Analysis Decision Index" data-lane="누가 돌리나"><b>벤더의 decision API를 부른다</b><p>state와 question을 각 모델의 API로 보낸다</p><p class="ev">AA methodology §Decision Models</p></div>
+    <div class="card" data-col="Jev Decision Index" data-lane="무엇으로 매기나"><b>Full score는 비공개 시험만 센다</b><p>같은 기술의 비공개 시험 60%, 새 영역 비공개 과제 40%</p><p>public 37개 벤치마크는 보이지만 순위에 넣지 않는다</p><p class="ev">index.json formulas, methodology changelog v0.4</p></div>
+    <div class="card" data-col="Artificial Analysis Decision Index" data-lane="무엇으로 매기나"><b>네 시험을 25%씩</b><p>AA-Omniscience-Decision, HLE-MultiChoice, When2Call, WildGuardTest</p><p class="ev">AA methodology §Artificial Analysis Decision Index</p></div>
+  </div>
+  <ul class="notes">
+    <li>Jev Decision Index는 답하지 못한 요청을 오답으로 센다. 맨 앞 모델과 0.9점 안에 있는 모델은 같은 순위로 묶는다.</li>
+    <li>0.4.1판(2026-10-21)은 새 영역 비공개 과제를 더 어렵게 바꿨다. 그래서 그 전 판의 숫자와 바로 견줄 수 없다.</li>
+    <li>보드의 README는 Hugging Face 계정 multimodalart가 비공식으로 운영하며 TypeSafe와 관계가 없다고 적는다.</li>
+  </ul>
+  <p class="so">그래서: 로컬 후보는 Jev Decision Index의 Full score로 고르고, 시험 내용이 공개되지 않는다는 점은 13장의 한계로 둔다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>methodology.json changelog v0.4: <span class="q">“Public benchmarks are still run and shown next to every model, but they no longer count toward the Full score: the ranking rests entirely on tests nobody can train on.”</span></p>
+    <p>AA methodology §Decision Models: <span class="q">“We send the state and questions to the model's decision API.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="크기별 점수">
+  <h2>Jev 1.14 이상인 로컬 모델은 9B 하나를 빼면 25B 이상이다</h2>
+  <p class="lead">Full score가 Jev 1.14(60.24)보다 높은 모델 가운데 서빙 파라미터가 15B 미만인 것은 elephant-1(9.4B)뿐이고, 그 다음으로 작은 것은 25.6B다. 1B 이하 모델의 최고점은 31.21로 Jev의 절반 수준이다.</p>
+  <figure class="plot">
+    <p class="fig-title">Jev Decision Index 0.4.1 Full score, 크기별 대표 후보</p>
+    <p class="fig-sub">괄호 안은 보드가 적은 서빙 파라미터 수다. Jev 1.14는 hosted API로 잰 값이다</p>
+    <table class="plot-data" data-kind="bars" data-cat="0" data-y="1" data-emph="Jev 1.14 (hosted)|elephant-1 (9.4B)" data-max="80">
+      <thead><tr><th>모델</th><th>Full score</th></tr></thead>
+      <tbody>
+        <tr><td>GLiDE 1.2 (27.8B)</td><td>71.52</td></tr>
+        <tr><td>Jeffan-31b-1710 (31.3B)</td><td>69.75</td></tr>
+        <tr><td>mammoth-1 (27.4B)</td><td>68.44</td></tr>
+        <tr><td>pplx-decider v1.2 (26.1B)</td><td>67.98</td></tr>
+        <tr><td>elephant-1 (9.4B)</td><td>60.26</td></tr>
+        <tr><td>Jev 1.14 (hosted)</td><td>60.24</td></tr>
+        <tr><td>Kev 27B (27.8B)</td><td>59.56</td></tr>
+        <tr><td>StartLux 9B (9.7B)</td><td>58.07</td></tr>
+        <tr><td>KnowLine-4B Gen5.5 (4.7B)</td><td>55.99</td></tr>
+        <tr><td>pplx-decider flash v1.2 (4.5B)</td><td>54.29</td></tr>
+        <tr><td>Clef-flash (9.7B)</td><td>44.43</td></tr>
+        <tr><td>GLiClass v4 edge (0.44B)</td><td>31.21</td></tr>
+        <tr><td>OneJev1.6-0.8B (0.85B)</td><td>29.58</td></tr>
+        <tr><td>Laya (0.42B)</td><td>9.21</td></tr>
+      </tbody>
+    </table>
+    <figcaption>보드의 data/index.json(2026-10-22T20:10:35Z 생성)에서 각 행의 v03.v 값을 옮겼다. 228행 전체가 아니라 크기 구간마다 높은 행과 많이 쓰이는 행을 골랐다.</figcaption>
+  </figure>
+  <ul class="notes">
+    <li>보드의 다른 228행 가운데 Jev 1.14보다 높은 행은 40개이고, 1B 이하 행은 51개다. 보드 데이터의 served_params와 Full score로 센 값이며 보드는 이 집계를 싣지 않는다.</li>
+    <li>elephant-1과 Jev 1.14의 차이는 0.02점이다. 보드 규칙상 0.9점 안이라 순위를 가르는 차이로 보지 않는다.</li>
+    <li>앞선 문서가 Jev 대안으로 다룬 Laya는 9.21이다. Cloudflare의 9B 모델 Clef-flash는 44.43으로 같은 크기의 elephant-1보다 15.83점 낮다.</li>
+  </ul>
+  <p class="so">그래서: 이 보드에서 Jev와 비슷한 점수를 기대하면 GPU 메모리가 먼저 후보를 가른다. 24GB 안팎이면 9B, 80GB 이상이면 27B급을 본다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>data/index.json, elephant-1 행: <span class="q">“"v03":{"engine":"elephant-1-baselabs","pub":72.24,"same_skills":62.44,"new_domains":44.41,"v":60.26”</span></p>
+    <p>data/index.json, Jev 1.14 행: <span class="q">“"v03":{"engine":"jev","pub":60.7,"same_skills":59.28,"new_domains":48.26,"v":60.24”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="카드 점수">
+  <h2>model card의 점수는 public 시험이나 이전 판의 값이다</h2>
+  <p class="lead">카드에 적힌 숫자는 public 시험이나 0.4판의 값이라 0.4.1 Full score보다 높다. 표의 1B 이하 모델 둘은 새 영역 비공개 점수가 10점 안팎이라 차이가 특히 크다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>카드가 내세운 값</th><th>0.4.1 Full</th><th>public</th><th>새 영역 비공개</th></tr></thead>
+    <tbody>
+      <tr><td>GLiClass v4 edge (0.44B)</td><td>public skill 47.5</td><td>31.21</td><td>47.49</td><td>10.53</td></tr>
+      <tr><td>OneJev1.6-0.8B</td><td>0.3 public 48.82</td><td>29.58</td><td>48.76</td><td>9.28</td></tr>
+      <tr><td>elephant-1 (9.4B)</td><td>0.4판 62.65</td><td>60.26</td><td>72.24</td><td>44.41</td></tr>
+      <tr><td>mammoth-1 (27.4B)</td><td>0.4판 71.24, 1위</td><td>68.44, 3위</td><td>75.34</td><td>56.27</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>0.4.1 69.8, 1위(10-21)</td><td>69.75, 2위</td><td>73.13</td><td>59.06</td></tr>
+      <tr><td>Jev 1.14</td><td>해당 없음</td><td>60.24</td><td>60.7</td><td>48.26</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li>Full, public, 새 영역 비공개는 보드 data/index.json의 v, pub, new_domains 값이다. 카드 값은 각 model card의 고정 커밋에서 옮겼다.</li>
+    <li>pplx-decider v1.2 카드는 보드 벤치마크의 공식 training split을 학습에 넣었다고 밝힌다. 그런 모델은 public 점수가 실제보다 높게 나올 수 있어서 Full score로 견준다.</li>
+  </ul>
+  <p class="so">그래서: 카드의 숫자 대신 보드의 Full score와 새 영역 칸을 본다. 자기 업무가 학습 데이터와 먼 영역이면 작은 모델의 새 영역 점수를 특히 확인한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>gliclass-v4-edge README: <span class="q">“It reaches a Decision Index public skill of 47.5 at a median latency of 11 ms per decision”</span></p>
+    <p>elephant-1 README: <span class="q">“Best model under 15B on the Jev Decision Index 0.4: 62.65, tied #8 of 208 models.”</span></p>
+    <p>pplx-decider-v1.2 README: <span class="q">“several benchmarks ship official training splits, and models that train on them gain markedly on those benchmarks, so we now include these splits (decontaminated against the test sets)”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="contract" data-label="요청과 질문">
+  <h2>후보마다 받는 요청 형식과 질문을 다루는 방식이 다르다</h2>
+  <p class="lead">Jev는 질문을 서로 격리해 평가하는데, pplx-decider v1.2는 한 요청의 질문들이 서로를 본다. Jev 클라이언트를 그대로 쓸 수 있는 후보는 /v1/systemone을 내는 모델이다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>요청 형식</th><th>질문 처리</th><th>길이 한도</th><th>보드 ECE</th></tr></thead>
+    <tbody>
+      <tr><td>Jev 1.14</td><td>POST /v1/systemone (hosted)</td><td>질문마다 격리</td><td>요청 64k, 질문 32k</td><td>0.0799</td></tr>
+      <tr><td>GLiDE 1.2</td><td>/v1/systemone HTTP 서버</td><td>질문마다 forward pass를 따로 한다</td><td>질문당 40,000 token</td><td>0.0204</td></tr>
+      <tr><td>Kev 27B</td><td>/v1/systemone, TypeSafe SDK 그대로</td><td>질문끼리 영향을 주지 않는다</td><td>state 65,536 token</td><td>0.0218</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>/v1/systemone (SGLang 앞단)</td><td>질문마다 forward pass</td><td>카드에 없음</td><td>0.0472</td></tr>
+      <tr><td>mammoth-1, elephant-1</td><td>OneJev 런타임의 DecisionEngine</td><td>공통 prefix를 한 번 prefill한다</td><td>elephant-1 16,384 token</td><td>0.0408, 0.0578</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>vLLM과 자체 prompt, logprob 읽기</td><td>질문을 하나씩 읽는다</td><td>입력 8,192 token</td><td>0.0465</td></tr>
+      <tr><td>pplx-decider v1.2</td><td>자체 Python 패키지</td><td>모든 질문이 한 sequence에서 서로를 본다</td><td>학습은 약 32k까지</td><td>0.0551</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li>mammoth-1과 elephant-1 카드는 full-attention 층에 block-bidirectional mask를 쓴다고 적지만, 질문끼리 서로 보는지는 적지 않는다. 격리가 필요하면 질문 순서를 바꿔 같은 답이 나오는지 시험한다.</li>
+    <li>Jeffan-31b의 카드 예제는 선택지를 26개까지 받는다. 보드 실행에 쓴 inference/ 엔진은 255개까지 받고, top-1 확률이 0.9보다 낮으면 입력을 한 번 더 읽는다.</li>
+    <li>ECE는 보드의 calibration 값이다. 각 카드가 자기 데이터로 잰 값은 이 표에 넣지 않았다.</li>
+  </ul>
+  <p class="so">그래서: pplx-decider v1.2를 쓸 때는 독립된 후보를 요청 하나에 묶지 않는다. 카드도 애매하면 후보 하나씩 보내라고 권한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>pplx-decider-v1.2 README §When to group questions: <span class="q">“Full attention is noncausal, so every question attends to the state and to every other question. This changes the answers.”</span></p>
+    <p>kev-27b README: <span class="q">“Each question is answered as its own row that continues from the shared state, so questions cannot influence one another; the state is computed once and cached.”</span></p>
+    <p>KnowLine-4B-Gen5.5 README: <span class="q">“existing Jev clients only need to change the base URL, and users of earlier versions only need to change the model name, because the interface is unchanged.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="cost" data-label="메모리와 라이선스">
+  <h2>GPU 메모리와 라이선스가 후보를 먼저 줄인다</h2>
+  <p class="lead">27B급은 bf16 가중치만 50GB를 넘어서 80GB 이상 GPU 한 장이 필요하다. 라이선스는 MIT와 Apache-2.0이 많지만 GLiDE와 StartLux는 상용 사용에 조건이 붙는다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>가중치와 GPU</th><th>라이선스</th><th>보드 지연 중앙값</th></tr></thead>
+    <tbody>
+      <tr><td>GLiDE 1.2</td><td>bf16 52.2GB, 80GB 이상 GPU 한 장</td><td>Fastino Community License</td><td>92.9ms</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>31.3B, 96GB GPU 한 장에 맞춘 설정</td><td>Apache-2.0</td><td>121ms</td></tr>
+      <tr><td>mammoth-1</td><td>27.4B, CUDA GPU 한 장</td><td>MIT (카드 머리말)</td><td>220.1ms</td></tr>
+      <tr><td>pplx-decider v1.2</td><td>bf16 가중치 약 52GiB</td><td>Apache-2.0</td><td>144.4ms</td></tr>
+      <tr><td>Kev 27B</td><td>bf16 51.3GB</td><td>Apache-2.0</td><td>135ms</td></tr>
+      <tr><td>elephant-1</td><td>9.4B, CUDA GPU 한 장</td><td>MIT (카드 머리말)</td><td>113.7ms</td></tr>
+      <tr><td>StartLux 9B</td><td>9.7B</td><td>CC-BY-NC-4.0</td><td>38.6ms</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>4.7B, SGLang이 FP8로 올린다</td><td>Apache-2.0</td><td>35.2ms</td></tr>
+      <tr><td>pplx-decider flash v1.2</td><td>bf16 가중치 약 9GiB</td><td>Apache-2.0</td><td>74.8ms</td></tr>
+      <tr><td>GLiClass v4 edge</td><td>0.44B encoder, CPU와 edge용</td><td>Apache-2.0</td><td>21.8ms</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li>Fastino Community License는 연 매출 1천만 달러를 넘는 기업이 상용으로 운영하면 별도 계약을 요구한다. 상용으로 쓰면 "Built with Fastino GLiDE"를 표시해야 한다. 양자화하거나 fine-tune한 파생 모델에도 같은 조건이 따라간다.</li>
+    <li>같은 라이선스는 평가와 연구, 유료 고객이 없는 90일 이하 pilot을 운영(Production)으로 보지 않는다.</li>
+    <li>지연은 보드가 RTX PRO 6000 한 장에서 요청을 하나씩 보내 잰 값이다. Jev 1.14의 196ms는 네트워크를 거친 hosted API 값이라 같은 열에 두지 않았다.</li>
+    <li>9.4B 모델의 bf16 가중치는 약 18.8GB이고 4.7B는 약 9.3GB다. 파라미터 수에 2바이트를 곱한 값이며 KV cache는 따로 든다. 원문에 없는 계산이다.</li>
+  </ul>
+  <p class="so">그래서: 회사 매출이 1천만 달러를 넘고 상용 운영을 생각한다면 GLiDE는 계약을 먼저 확인한다. StartLux는 비상업 용도로만 시험한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>GLiDE LICENSE 2항: <span class="q">“If the Software (or any Derivative Work thereof) is used in Production for any Commercial Use by an entity whose Annual Revenue exceeds 10,000,000 US dollars (or the equivalent in other currencies), such entity shall obtain a separate written commercial agreement from Fastino Inc.”</span></p>
+    <p>GLiDE LICENSE 6e항: <span class="q">“including without limitation fine-tuned, instruction-tuned, merged, quantized, or pruned versions of its model weights, and any model distilled using its model weights.”</span></p>
+    <p>GLiDE README: <span class="q">“Quantized variants have not been validated.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="한국어 평가">
+  <h2>후보의 한국어 공개 평가는 Laya 다국어판 하나뿐이다</h2>
+  <p class="lead">보드가 공개한 벤치마크 목록에는 한국어 시험이 없고, 후보 카드도 한국어 점수를 싣지 않는다. 읽은 범위와 웹 검색에서 찾은 한국어 숫자는 보드에 없는 Laya 다국어판이 의도 분류 100문항으로 잰 값이 전부다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델</th><th>카드나 문서가 적은 언어</th><th>공개된 한국어 평가</th></tr></thead>
+    <tbody>
+      <tr><td>Jev 1.14</td><td>영어가 주 학습 언어이고, CJK는 처리하지만 같은 수준은 아니다</td><td>없음</td></tr>
+      <tr><td>mammoth-1, elephant-1</td><td>en</td><td>없음</td></tr>
+      <tr><td>StartLux 9B</td><td>en</td><td>없음</td></tr>
+      <tr><td>Kev 27B</td><td>English. 영어 밖 언어는 쓰임 범위 밖으로 적는다</td><td>없음</td></tr>
+      <tr><td>Jeffan-31b-1710</td><td>영어 밖 입력에서 품질이 낮다</td><td>없음</td></tr>
+      <tr><td>KnowLine-4B Gen5.5</td><td>영어, 중국어 간체와 번체</td><td>없음</td></tr>
+      <tr><td>GLiClass v4 edge</td><td>en. 다른 언어에서는 품질이 낮다</td><td>없음</td></tr>
+      <tr><td>GLiDE 1.2, pplx-decider v1.2와 flash</td><td>카드에 언어 항목이 없다</td><td>없음</td></tr>
+      <tr><td>Laya 다국어판 (0.32B)</td><td>100개 넘는 언어</td><td>MASSIVE 의도 분류 20지선다 100문항, 정답률 0.470, ECE 0.311</td></tr>
+    </tbody>
+  </table></div>
+  <figure class="plot">
+    <p class="fig-title">Laya의 MASSIVE 의도 분류 정답률, 20지선다</p>
+    <p class="fig-sub">언어마다 100문항이다. 무작위로 고르면 0.05다</p>
+    <table class="plot-data" data-kind="bars" data-cat="0" data-y="1" data-emph="다국어판, 한국어" data-max="1">
+      <thead><tr><th>checkpoint와 언어</th><th>정답률</th></tr></thead>
+      <tbody>
+        <tr><td>영어판, 영어</td><td>0.820</td></tr>
+        <tr><td>다국어판, 영어</td><td>0.710</td></tr>
+        <tr><td>다국어판, 한국어</td><td>0.470</td></tr>
+        <tr><td>영어판, 한국어</td><td>0.110</td></tr>
+      </tbody>
+    </table>
+    <figcaption>Laya 저장소 BENCHMARKS.md(커밋 7a77439)의 51개 언어 표에서 en과 ko 행을 옮겼다. Laya 개발사가 직접 잰 값이다.</figcaption>
+  </figure>
+  <ul class="notes">
+    <li>보드 벤치마크 가운데 영어 밖 자료를 섞은 것은 Amazon ESCI의 스페인어, 일본어 상품 질의와 iSarcasmEval의 아랍어 task 둘이다. 한국어 자료는 없다.</li>
+    <li>Laya의 값은 후보 선택에 바로 쓸 수 없다. 보드에 없는 0.32B encoder의 값이기 때문이다. 다만 영어판이 한국어에서 0.110으로 무작위(0.05)의 약 2배에 그친다는 점은, 영어로만 학습한 decision 모델이 한국어에서 크게 떨어질 수 있다는 한 사례로 읽는다.</li>
+    <li>Laya 다국어판은 보드에 오르지 않았다. 보드의 Laya 행은 영어판(0.42B)이고 Full score는 9.21이다.</li>
+    <li>100문항의 정답률 0.470은 95% 구간이 약 ±0.10이다. 이항 분포로 근사한 계산이며 원문에는 없다.</li>
+    <li>backbone 카드를 보면 Qwen3.5는 201개 언어와 방언을, Gemma 4는 140개 넘는 언어의 pretrain과 35개 넘는 언어의 기본 지원을 적는다. Qwen3.8-27B 카드는 언어 범위를 적지 않는다. backbone이 한국어를 읽더라도, 카드에 언어를 영어로만 적은 decision 모델에 한국어 판단이 얼마나 남는지는 카드로 알 수 없다.</li>
+  </ul>
+  <p class="so">그래서: 6장의 순위와 12장의 GPU별 판단은 한국어 시험이 없는 보드에서 나왔다. 비공개 시험의 언어도 공개되지 않았으므로, 한국어 업무에는 그대로 옮기지 말고 11장의 순서로 다시 잰다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>TypeSafe Models §Language support: <span class="q">“Other languages, including CJK scripts, are handled but not equally well; test on your own content before relying on Jev for a non-English workload, and pay close attention to Confidence when routing.”</span></p>
+    <p>kev-27b README §Out of scope: <span class="q">“States longer than 65,536 tokens, languages other than English, and hardware smaller than an 80 GB-class GPU or a Mac with about 96 GB of memory (see Limitations).”</span></p>
+    <p>Laya BENCHMARKS.md: <span class="q">“| `ko` | 0.110 | 0.470 | +0.360 | 0.680 | 0.311 |”</span></p>
+    <p>보드 methodology.json, Amazon ESCI: <span class="q">“638,016 source test pairs (us 425,762, es 93,347, jp 118,907;”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="procedure" data-label="한국어 고르기">
+  <h2>한국어 업무 모델은 같은 문항의 영어판과 함께 재서 고른다</h2>
+  <p class="lead">아래 순서는 보드의 실행 규칙과 카드의 보정 권고를 한국어 업무에 옮겨 이 조사가 세운 것이다. 영어판 짝을 함께 재면 점수가 낮은 원인이 업무의 난도인지 언어인지 가를 수 있다.</p>
+  <div class="board" data-cols="1|2|3|4|5|6" aria-label="한국어 업무 모델을 고르는 순서. 후보를 줄이고, 한국어 문항과 영어 짝 문항을 만들고, 보드 규칙대로 돌리고, 언어별로 정답률과 ECE를 재고, 한국어 표본으로 보정한 뒤 고른다. 기준에 못 미치면 후보를 줄이는 단계로 돌아간다">
+    <div class="card" id="k1" data-col="1"><b>① 후보를 줄인다</b><p>12장의 GPU 칸에서 둘 이상 고른다</p><p>영어 밖 언어를 범위 밖으로 적은 Kev 27B는 뒤로 미룬다</p><p class="ev">12장 판단, Kev 카드</p></div>
+    <div class="card" id="k2" data-col="2"><b>② 표본을 만든다</b><p>실제 업무의 한국어 요청에 정답을 붙이고, 사람이 검토한 영어 번역을 짝으로 둔다</p><p>질문 유형마다 수백 문항을 모은다. 100문항이면 정답률 하나의 구간이 ±0.10이다</p><p class="ev">이 조사의 계산</p></div>
+    <div class="card" id="k3" data-col="3"><b>③ 보드 규칙대로 돌린다</b><p>요청을 자르지 않고 선택지도 줄이지 않는다. 각 모델의 기본 prompt와 readout을 쓴다</p><p>틀린 답은 다시 묻지 않고, 답하지 못한 요청은 오답으로 센다</p><p class="ev">보드 methodology rules</p></div>
+    <div class="card t-key" id="k4" data-col="4"><b>④ 언어별로 잰다</b><p>정답률, ECE, Brier를 한국어와 영어로 따로 낸다</p><p>확률 임계값 이상을 자동 처리할 때의 처리 비율과 오류율을 함께 본다</p><p class="ev">보드 calibration, Kev 카드의 coverage 지표</p></div>
+    <div class="card" id="k5" data-col="5"><b>⑤ 한국어로 보정한다</b><p>표본을 둘로 나눠 한쪽으로 질문 유형과 선택지 수마다 temperature를 맞추고, 다른 쪽으로 확인한다</p><p>Laya 다국어판은 이 방식으로 평균 ECE가 0.314에서 0.106이 됐다</p><p class="ev">Laya 카드 Honest Limits</p></div>
+    <div class="card t-good" id="k6" data-col="6"><b>⑥ 고른다</b><p>보정 뒤 한국어 오류율이 기준선 안에 드는 가장 작은 모델을 고른다</p><p>기준선은 Jev 1.14나, Jev를 쓸 수 없으면 지금 그 판단을 하는 방식(사람이나 기존 모델)의 같은 표본 오류율로 둔다</p><p class="ev">이 조사의 판단</p></div>
+    <span class="edge" data-from="k1" data-to="k2"></span>
+    <span class="edge" data-from="k2" data-to="k3"></span>
+    <span class="edge" data-from="k3" data-to="k4"></span>
+    <span class="edge" data-from="k4" data-to="k5"></span>
+    <span class="edge" data-from="k5" data-to="k6"></span>
+    <span class="edge" data-from="k6" data-to="k1">기준 미달</span>
+  </div>
+  <ul class="notes">
+    <li>확률만 보고 자동 처리를 정하면 언어를 못 읽는 모델을 걸러내지 못한다. Laya 영어판은 크메르어에서 정답률 0.000에 confidence 0.952를 냈다고 Laya 카드가 적는다.</li>
+    <li>한국어 문서는 길이 한도를 먼저 센다. elephant-1은 학습 길이를 넘는 요청을 자르지 않고 거부하므로, 후보의 tokenizer로 표본의 token 수를 미리 잰다.</li>
+    <li>후보 둘을 견줄 때는 정답률 두 개의 구간을 따로 보지 말고, 같은 문항으로 짝지어 차이의 구간을 낸다. Kev 27B 카드가 같은 문항의 95% paired bootstrap으로 구간을 내는 방식이 그 예다.</li>
+    <li>확률로 자동 처리를 나누지 않고 답만 쓰는 업무라면 ⑤를 건너뛰고, ⑥에서 한국어 정답률이 기준선 이상인 가장 작은 모델을 고른다. ECE와 보정은 확률 임계값을 쓸 때 필요하다.</li>
+    <li>질문 격리가 필요한 업무라면 8장의 질문 순서 바꾸기 시험도 한국어 표본으로 한다.</li>
+    <li>TypeSafe도 영어 밖 업무는 자기 내용으로 먼저 시험하고 routing에서 confidence를 주의해 보라고 권한다. Jev API를 쓸 수 있다면 같은 표본으로 Jev 1.14를 재서 기준선으로 둔다.</li>
+  </ul>
+  <p class="so">그래서: 한국어 업무에서는 보드 점수로 후보를 줄이고, 이 측정 결과로 모델을 정한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>보드 methodology.json rules: <span class="q">“Every request is sent whole. A model whose context window cannot hold a prompt records that request as unsupported; it is never shortened to fit.”</span></p>
+    <p>보드 methodology.json rules: <span class="q">“Transient transport errors retry up to twice; a valid wrong answer is never retried.”</span></p>
+    <p>laya README §Honest Limits: <span class="q">“Refitting one temperature per (question type, option count) moves mean ECE 0.466 → 0.081 (laya) and 0.314 → 0.106 (laya-multilingual). Do this on your own data before trusting the probabilities.”</span></p>
+    <p>laya README: <span class="q">“The English checkpoint collapses on non-Latin scripts (Khmer scores 0.000 accuracy at 0.952 confidence). Because the model stays confident while being wrong, confidence gating cannot save you.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="adopt" data-label="도입 판단">
+  <h2>24GB GPU면 elephant-1, 80GB면 mammoth-1부터 시험한다</h2>
+  <p class="lead">아래 판단은 보드의 Full score에 카드의 라이선스와 실행 조건을 겹쳐 이 조사가 내린 것이다. 1위 GLiDE 1.2를 먼저 두지 않은 이유는 라이선스 조건이고, 어느 모델이든 자기 데이터로 정답률과 ECE를 다시 재서 확률 임계값을 정한다.</p>
+  <div class="board dense" data-cols="CPU만|GPU 16GB 안팎|GPU 24~48GB|GPU 80GB 이상" data-lanes="먼저|조건이 맞으면" aria-label="GPU 메모리를 칸으로 놓고 먼저 시험할 모델과 조건이 맞을 때 볼 모델을 건다. 24에서 48GB 칸의 elephant-1이 Jev 1.14와 같은 점수로 가장 작은 선택이다">
+    <div class="card t-bad" data-col="CPU만" data-lane="먼저"><b>hold, Jev 대체로는 보류</b><p>1B 이하 최고점은 GLiClass v4 edge의 31.21로 Jev 1.14의 절반 수준</p><p class="ev">보드 Full score</p></div>
+    <div class="card t-warn" data-col="GPU 16GB 안팎" data-lane="먼저"><b>assess, KnowLine-4B Gen5.5</b><p>55.99로 Jev 1.14보다 4.25점 낮다. Apache-2.0, /v1/systemone</p><p class="ev">보드 Full score, KnowLine 카드</p></div>
+    <div class="card t-key" data-col="GPU 24~48GB" data-lane="먼저"><b>trial, elephant-1</b><p>60.26으로 Jev 1.14와 0.9점 안이다. MIT, 길이 16,384 token</p><p class="ev">보드 Full score, elephant-1 카드</p></div>
+    <div class="card t-good" data-col="GPU 80GB 이상" data-lane="먼저"><b>trial, mammoth-1</b><p>68.44, MIT, 길이 16,384 token. 96GB GPU라면 Jeffan-31b(69.75, Apache-2.0, 입력 8,192 token, 첫 릴리스)도 시험한다</p><p class="ev">보드 Full score, 각 카드</p></div>
+    <div class="card t-quiet" data-col="GPU 16GB 안팎" data-lane="조건이 맞으면"><b>pplx-decider flash v1.2</b><p>54.29로 KnowLine보다 1.7점 낮고 자체 Python 패키지로 부른다</p><p class="ev">보드 Full score, flash 카드</p></div>
+    <div class="card t-quiet" data-col="GPU 24~48GB" data-lane="조건이 맞으면"><b>StartLux 9B</b><p>58.07, 비상업 용도로만</p><p class="ev">CC-BY-NC-4.0</p></div>
+    <div class="card t-quiet" data-col="GPU 80GB 이상" data-lane="조건이 맞으면"><b>GLiDE 1.2, Kev 27B</b><p>GLiDE는 71.52로 1위지만 라이선스 조건이 붙는다. Kev 27B는 59.56에 ECE 0.0218이고 질문을 격리한다</p><p class="ev">보드, 각 카드</p></div>
+  </div>
+  <ul class="notes">
+    <li>GPU 칸은 bf16 가중치 크기에 여유를 더해 이 조사가 나눈 것이다. 카드가 적은 GPU 조건은 9장 표에 있다.</li>
+    <li>state가 8,192 token을 넘으면 Jeffan-31b의 카드 한도를 넘으므로 mammoth-1을 고른다.</li>
+    <li>pplx-decider v1.2(67.98, Apache-2.0)도 80GB 칸의 후보다. 다만 질문끼리 서로 보는 방식이 Jev와 달라서 기존 요청을 그대로 옮기려면 8장의 권고대로 나눠 보내야 한다.</li>
+    <li>이 판의 칸 배치는 한국어 시험이 없는 보드의 점수로 정했다. 한국어 업무라면 같은 GPU 칸의 '먼저'와 '조건이 맞으면' 후보를 11장의 순서로 함께 재고 그 결과로 바꾼다.</li>
+  </ul>
+  <p class="so">그래서: 되돌리기 쉬운 길은 Jev 요청 형식을 유지하는 것이다. GLiDE, Kev, KnowLine 카드는 /v1/systemone을 낸다고 적으므로 base URL을 바꿔 시험하고, 응답 필드가 Jev와 같은지는 첫 요청에서 확인한다. 나머지 모델은 state와 question을 옮기는 adapter를 둔다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>elephant-1 README: <span class="q">“Max sequence length: 16,384 tokens”</span></p>
+    <p>Jeffan-31b-1710 README §Limitations: <span class="q">“A first release; later versions may differ.”</span></p>
+    <p>kev-27b README: <span class="q">“It implements TypeSafe's public System One API (POST /v1/systemone), so the TypeSafe SDK works against it unchanged.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="critique" data-label="한계">
+  <h2>순위는 운영자 한 명의 보드에서 나왔고 며칠 사이에도 바뀐다</h2>
+  <p class="lead">Full score의 근거인 비공개 시험은 운영자 밖에서 확인할 수 없다. 모델을 직접 돌려 본 것도 아니라서, 아래 항목은 도입 전에 각자 확인해야 한다.</p>
+  <ul class="points">
+    <li><b>보드 하나의 결과</b>Jev Decision Index는 비공식 커뮤니티 보드이고 비공개 시험은 공개되지 않는다. 0.9점 안의 차이로 순위를 정하지 말고 자기 데이터로 견준다.</li>
+    <li><b>빠르게 바뀌는 순위</b>Jeffan-31b 카드는 10-21 기준 1위라고 적지만 10-22 데이터에서는 GLiDE 1.2가 1위다. 고를 때마다 보드의 최신 데이터를 다시 받는다.</li>
+    <li><b>돌려 보지 않은 모델</b>메모리와 설치 조건은 각 카드의 설명이고 지연은 보드의 RTX PRO 6000 값이다. 자기 GPU에서 같은 요청으로 다시 잰다.</li>
+    <li><b>양자화</b>GLiDE 카드는 양자화본을 검증하지 않았다고 적는다. 24GB보다 작은 GPU에 맞추려고 양자화하면 정답률과 ECE를 다시 잰다.</li>
+    <li><b>한국어 성능</b>후보와 Jev의 한국어 점수는 이 조사가 재지 않았고, 공개된 값은 Laya 다국어판의 100문항뿐이다. 도입 전에 11장의 순서로 자기 한국어 표본에서 잰다.</li>
+    <li><b>구조 추정</b>3장의 관찰과 추정은 archerhume 글쓴이가 2026-09-17에 jev-1.13.0을 계정 하나로 시험한 결과다. TypeSafe가 확인한 내용이 아니고, Jev 1.14에서 같은지도 모른다. 구조를 근거로 설계를 정하지 말고 공개된 계약으로 정한다.</li>
+    <li><b>카드와 실제 접근</b>GLiDE와 pplx-decider 카드는 토큰이나 private 저장소 접근이 필요하다고 적는다. 2026-10-25에 토큰 없이 가중치 파일을 요청하자 두 저장소 모두 내려받기 주소로 넘어갔다. 지금은 받을 수 있지만 카드의 접근 조건이 다시 걸릴 수 있으므로, trial 전에 가중치를 내부 저장소에 받아 두고 9장의 라이선스 조건을 확인한다.</li>
+    <li><b>유지 이력</b>후보의 릴리스 주기와 관리자 수, 이슈 응답은 보지 않았다. Jeffan-31b처럼 개인 계정이 낸 첫 릴리스도 있으므로 trial 기간에 저장소의 커밋과 토론 응답을 함께 본다.</li>
+    <li><b>MIT 표기</b>mammoth-1과 elephant-1은 저장소에 LICENSE 파일이 없고 카드 머리말에만 mit라고 적혀 있다. 법무 검토가 필요하면 Baseten에 확인한다.</li>
+  </ul>
+  <details class="orig"><summary>원문</summary>
+    <p>보드 README: <span class="q">“Unofficial and community-maintained; not affiliated with TypeSafe AI.”</span></p>
+    <p>GLiDE README: <span class="q">“hf download fastino/GLiDE --local-dir GLiDE # needs a token with read access to the fastino org”</span></p>
+    <p>pplx-decider-v1.2 README: <span class="q">“The repository is private: authenticate with a Hugging Face token that has access to it.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="setup" data-label="읽은 범위">
+  <h2>보드 데이터와 model card를 읽었고 모델은 돌리지 않았다</h2>
+  <p class="lead">보드는 Space 커밋 0b5ecaf의 데이터 파일을, 후보는 각 Hugging Face 저장소의 고정 커밋에서 README와 라이선스를 읽었다. 가중치는 받지 않았고 한국어 표본도 돌리지 않았다.</p>
+  <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료, 그리고 열지 않아 얕아진 장">
+    <div class="card" data-col="읽음"><b>Jev Decision Index</b><p>README, data/index.json, data/methodology.json</p></div>
+    <div class="card" data-col="읽음"><b>후보 13개 저장소</b><p>README, GLiDE의 LICENSE</p></div>
+    <div class="card" data-col="읽음"><b>TypeSafe와 AA 문서</b><p>Models, Introduction, AI primer, 출시 글, AA 방법론</p></div>
+    <div class="card" data-col="읽음"><b>구조와 언어 자료</b><p>archerhume 글, Laya BENCHMARKS.md, Qwen3.5-9B, Qwen3.5-27B, Qwen3.8-27B, Gemma-4-31B-it 카드</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>각 모델의 서빙 코드</b><p class="ev">8장의 질문 처리와 4장의 구조는 카드의 설명이다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>archerhume의 근거 묶음</b><p class="ev">3장의 관찰은 글에 적힌 값이고 원 기록과 대조하지 않았다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>AA 점수표</b><p class="ev">JavaScript로 그려져 받은 사본에 값이 없다. 5장은 방법론만 다룬다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>보드의 vision 판과 영역별 세부</b><p class="ev">이미지 입력 비교는 하지 않았다</p></div>
+  </div>
+  <ul class="notes"><li>pplx-decider flash 카드는 앞부분만, Clef-flash는 머리말과 Model 절만, StartLux는 머리말과 답하는 방식 절만 읽었다. Kev 27B와 Laya 카드는 이번에 끝까지 읽었고, GLiClass 카드는 앞부분과 학습, 한계 절을 읽었다. GLiDE, Clef-flash, Jeffan-31b의 학습 방법은 읽은 범위에 없어서 4장 표에 비워 두었다.</li><li>pplx-decider와 Jeffan-31b의 라이선스는 README의 머리말과 본문에서 옮겼고 LICENSE 파일은 열지 않았다.</li><li>Jev와 후보의 한국어 평가는 2026-10-25에 웹 검색으로도 찾았고, 위 Laya 값 밖의 숫자는 찾지 못했다.</li></ul>
+  </section>
+
+  <section class="slide" data-role="sources" data-label="출처">
+  <h2>출처</h2>
+  <ul class="sources">
+    <li><a href="https://huggingface.co/spaces/multimodalart/jev-decision-index/tree/0b5ecaf2396891e76c13a19aa17b874b59abcc37">r-jdi · Jev Decision Index</a> <span class="t">Hugging Face 계정 multimodalart의 커뮤니티 보드, 커밋 0b5ecaf, 데이터 생성 2026-10-22</span></li>
+    <li><a href="https://huggingface.co/fastino/GLiDE/tree/d199b6d7e04523d87986b8b68cd62272ed1cefc0">r-glide · fastino/GLiDE</a> <span class="t">Fastino, 커밋 d199b6d</span></li>
+    <li><a href="https://huggingface.co/tattrongvu/Jeffan-31b-1710/tree/cebfa86c2bed2b5c83b12e44de4374b20c87fd79">r-jeffan31 · tattrongvu/Jeffan-31b-1710</a> <span class="t">Hugging Face 사용자 tattrongvu, 커밋 cebfa86</span></li>
+    <li><a href="https://huggingface.co/baselabs/mammoth-1/tree/61cec44c281c693992e3d6ebeb44dd3402dfa186">r-mammoth · baselabs/mammoth-1</a> <span class="t">Baseten의 Base Labs, 커밋 61cec44</span></li>
+    <li><a href="https://huggingface.co/baselabs/elephant-1/tree/b3f8a93462fb1051a9de031e94a7ff380e254072">r-elephant · baselabs/elephant-1</a> <span class="t">Baseten의 Base Labs, 커밋 b3f8a93</span></li>
+    <li><a href="https://huggingface.co/perplexity-ai/pplx-decider-v1.2/tree/cce0f3f80033e9d89d80831d5281fd72124aacce">r-pplx · perplexity-ai/pplx-decider-v1.2</a> <span class="t">Perplexity, 커밋 cce0f3f</span></li>
+    <li><a href="https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2/tree/9ff7cf9838e59df461c276b7699d56b244d2af58">r-pplxflash · perplexity-ai/pplx-decider-flash-v1.2</a> <span class="t">Perplexity, 커밋 9ff7cf9</span></li>
+    <li><a href="https://huggingface.co/jaredpalmer/kev-27b/tree/af0e6d551bdc2cc724f3e9d7a8bee1cd4fb8f7bf">r-kev27 · jaredpalmer/kev-27b</a> <span class="t">Jared Palmer, 커밋 af0e6d5</span></li>
+    <li><a href="https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5/tree/779944d2cc8ffa19cef386aee83c83bcb967ade2">r-knowline4 · PelaAI/KnowLine-4B-Gen5.5</a> <span class="t">PelaAI, 커밋 779944d</span></li>
+    <li><a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant/tree/18a17f734966b213b2f00fa9c915e8b9af2a9b20">r-startlux9 · StartLux-Decision-v1.1-9B-Instant</a> <span class="t">Hugging Face 조직 startlux-models, 커밋 18a17f7</span></li>
+    <li><a href="https://huggingface.co/knowledgator/gliclass-v4-edge/tree/885af1af8a07edf4ed34df83ca0d995ed8201283">r-gliclass · knowledgator/gliclass-v4-edge</a> <span class="t">Knowledgator Engineering, 커밋 885af1a</span></li>
+    <li><a href="https://huggingface.co/OmniJev/OneJev1.6-0.8B/tree/c89933c277629b707895bff752c61d2b0664c85e">r-onejev08 · OmniJev/OneJev1.6-0.8B</a> <span class="t">OmniJev, 커밋 c89933c</span></li>
+    <li><a href="https://huggingface.co/convaiinnovations/laya/tree/7b928d828b7b0e022f929d9bd2e44165aa270148">r-laya · convaiinnovations/laya</a> <span class="t">Convai Innovations, 커밋 7b928d8</span></li>
+    <li><a href="https://huggingface.co/Cloudflare/clef-flash/tree/f0b7d3cd65296abfe459e6c228b618f5d8b26d2f">r-clefflash · Cloudflare/clef-flash</a> <span class="t">Cloudflare, 커밋 f0b7d3c</span></li>
+    <li><a href="https://docs.typesafe.ai/models.md">w-ts-models · TypeSafe Models</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://docs.typesafe.ai/introduction.md">w-ts-intro · TypeSafe Introduction</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://artificialanalysis.ai/methodology/decision-index">w-aa-meth · Artificial Analysis Decision Index methodology</a> <span class="t">Artificial Analysis, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://docs.typesafe.ai/introduction/machine-learning-primer.md">w-ts-primer · TypeSafe AI primer</a> <span class="t">TypeSafe 공식 문서, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">w-ts-launch · Introducing System One Models &amp; Jev</a> <span class="t">TypeSafe 창업자 Diogo Almeida의 출시 글, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://archerhume.com/posts/jevs-architecture-unmasked">w-archer · Jev’s Architecture Unmasked</a> <span class="t">개인 블로그 archerhume의 2026-09-17 essay, jev-1.13.0 API probe, 2026-10-25에 받은 사본</span></li>
+    <li><a href="https://github.com/NandhaKishorM/laya/blob/7a77439b0923d6efe00052d50a7f787840bfce98/BENCHMARKS.md">r-laya-bench · Laya BENCHMARKS.md</a> <span class="t">Convai Innovations의 Laya 저장소, 커밋 7a77439</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.5-9B/tree/c202236235762e1c871ad0ccb60c8ee5ba337b9a">r-qwen35-9b · Qwen/Qwen3.5-9B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 c202236</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.5-27B/tree/fc05daec18b0a78c049392ed2e771dde82bdf654">r-qwen35-27b · Qwen/Qwen3.5-27B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 fc05dae</span></li>
+    <li><a href="https://huggingface.co/Qwen/Qwen3.8-27B/tree/1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0">r-qwen38-27b · Qwen/Qwen3.8-27B</a> <span class="t">Alibaba Cloud의 Qwen 팀, 커밋 1d4bf0f</span></li>
+    <li><a href="https://huggingface.co/google/gemma-4-31B-it/tree/842da3794eaa0b77d5f08bae87a17459d91ff475">r-gemma4-31b · google/gemma-4-31B-it</a> <span class="t">Google DeepMind, 커밋 842da37</span></li>
+    <li><a href="../2026-09-21-jev-system-one/">Jev System One: 문장 대신 판단과 확률을 반환하는 모델</a> <span class="t">Jev 자체를 다룬 이 저장소의 앞선 문서</span></li>
+  </ul>
+  </section>
+
+</main>
+<script>
+/* board 셸 스크립트
+   board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
+   plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
+   좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
+   render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
+(function () {
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var list = function (s) { return (s || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean); };
+  var narrow = function () { return window.matchMedia('(max-width: 760px)').matches; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var warnings = [];
+  window.__layout = { warnings: warnings, done: false };
+  var warn = function (where, msg) { var w = where + ': ' + msg; if (warnings.indexOf(w) < 0) warnings.push(w); };
+  var titleOf = function (el) { return ((el.querySelector(':scope > b') || el).textContent || '').replace(/\s+/g, ' ').trim(); };
+  // 그림의 값: [약|~] [+|-] [$] 숫자(쉼표 가능) [k|M|B] [단위]. 단위 목록은 check-doc.mjs 의 plot-data 와 같다
+  var NUM = /^([+-]?)\$?(\d+(?:\.\d+)?)([kMB]?)(%p|%|pt|ms|s|초|분|시간|일|건|개|번|회|명|배|x|×|원|달러)?$/;
+  var num = function (t) {
+    var m = NUM.exec(String(t).replace(/약|~|,|\s/g, ''));
+    if (!m) return NaN;
+    return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]) * ({ k: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1);
+  };
+
+  /* ── 장 번호, 목차 링크, 위 막대 ── */
+  var secs = $$('section.slide');
+  secs.forEach(function (s, k) {
+    if (!s.id) s.id = 'p' + (k + 1);
+    if (s.getAttribute('data-role') === 'cover') return;
+    var c = document.createElement('p'); c.className = 'chno'; c.setAttribute('aria-hidden', 'true');
+    c.textContent = String(k + 1).padStart(2, '0') + ' · ' + (s.getAttribute('data-label') || '');
+    s.insertBefore(c, s.firstChild);
+  });
+  $$('a[href^="#p"]').forEach(function (a) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) { a.removeAttribute('href'); a.classList.add('inert'); return; }
+    // 표지 흐름 판의 상자는 장 번호 칩을 셸이 링크에서 만든다. 장을 합치거나 옮겨도 칩이 낡지 않는다
+    if (a.classList.contains('card') && a.closest('section[data-role="cover"]')) {
+      var c = document.createElement('span'); c.className = 'chip'; c.textContent = (secs.indexOf(t) + 1) + '장';
+      a.insertBefore(c, a.firstChild);
+    }
+  });
+  var now = document.querySelector('.topbar .now');
+  if (now && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { var h = e.target.querySelector('h1,h2'); now.textContent = h ? h.textContent : ''; } });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(function (s) { io.observe(s); });
+  }
+
+  /* ── board: 칸 배치 ── */
+  function idx(spec, names) {
+    var one = function (v) { var n = names.indexOf(v); if (n >= 0) return n; var k = parseInt(v, 10); return isNaN(k) || String(k) !== v ? -1 : k - 1; };
+    if (!spec) return [0, 0];
+    if (spec === 'all') return [0, names.length - 1];
+    var ab = spec.split('..'), i = one(ab[0].trim()), j = ab[1] ? one(ab[1].trim()) : i;
+    if (i >= names.length || j >= names.length || j < i) return [-1, -1];
+    return [i, j];
+  }
+  function buildBoard(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    var cols = list(board.dataset.cols), lanes = list(board.dataset.lanes);
+    var ncol = Math.max(cols.length, 1), nl = Math.max(lanes.length, 1);
+    var colNames = cols.length ? cols : ['1'], laneNames = lanes.length ? lanes : ['1'];
+    // 칸과 줄의 이름은 화면에 보인다. 숫자만 쓴 이름(1|2|3)은 이름 없는 칸·줄이라 보이지 않는다.
+    var named = function (ns) { return ns.length > 0 && !ns.every(function (c) { return /^\d+$/.test(c); }); };
+    var laneLabels = named(lanes);
+    var axis = named(cols);
+    // 좁은 화면의 읽는 순서: 이름 있는 줄이 있으면 줄마다, 없으면 칸마다. data-read 가 정하면 그것을 따른다
+    var byCols = board.dataset.read ? board.dataset.read === 'cols' : !laneLabels;
+    var widths = (board.dataset.widths || '').split(/\s+/).filter(Boolean);
+    var cards = $$(':scope > .card', board);
+    cards.filter(function (c) { return c.classList.contains('react'); }).forEach(function (r) {
+      var t = document.getElementById(r.dataset.on);
+      if (!t || t.parentElement !== board) { warn(name, 'reaction points at missing card "' + r.dataset.on + '"'); return; }
+      if (!r.dataset.col) r.dataset.col = t.dataset.col || '1';
+      if (!r.dataset.lane) r.dataset.lane = t.dataset.lane || '1';
+    });
+    var occ = {}, laneRows = []; for (var q = 0; q < nl; q++) laneRows.push(1);
+    var pl = cards.map(function (c) {
+      var cc = idx(c.dataset.col, colNames), ll = idx(c.dataset.lane, laneNames);
+      if (cc[0] < 0 || ll[0] < 0) { warn(name, 'unknown lane/col on "' + titleOf(c).slice(0, 24) + '"'); cc = [0, 0]; ll = [0, 0]; }
+      return { c: c, c0: cc[0], c1: cc[1], l0: ll[0], l1: ll[1], s: 0 };
+    });
+    pl.forEach(function (p) {
+      if (p.l0 !== p.l1) return;
+      var s = 0;
+      for (;; s++) { var free = true; for (var k = p.c0; k <= p.c1; k++) if (occ[p.l0 + ':' + k + ':' + s]) free = false; if (free) break; }
+      for (var k2 = p.c0; k2 <= p.c1; k2++) occ[p.l0 + ':' + k2 + ':' + s] = 1;
+      p.s = s; laneRows[p.l0] = Math.max(laneRows[p.l0], s + 1);
+    });
+    var head = axis ? 1 : 0, lc = laneLabels ? 1 : 0, start = [], r = 1 + head;
+    for (var i = 0; i < nl; i++) { start[i] = r; r += laneRows[i]; }
+    board.style.gridTemplateColumns = (laneLabels ? 'minmax(72px, 104px) ' : '') +
+      colNames.map(function (_, i2) { return 'minmax(0, ' + (widths[i2] || 1) + 'fr)'; }).join(' ');
+    pl.forEach(function (p) {
+      p.c.style.gridColumn = (p.c0 + 1 + lc) + ' / ' + (p.c1 + 2 + lc);
+      p.c.style.gridRow = p.l0 === p.l1 ? String(start[p.l0] + p.s) : start[p.l0] + ' / ' + (start[p.l1] + laneRows[p.l1]);
+      p.order = byCols ? p.c0 * 1000 + p.l0 * 100 + p.s : p.l0 * 1000 + p.s * 100 + p.c0;
+    });
+    pl.forEach(function (p) {
+      if (p.c.classList.contains('react')) { var tp = pl.filter(function (x) { return x.c.id === p.c.dataset.on; })[0]; if (tp) p.order = tp.order + 0.5; }
+      p.c.style.order = String(Math.round(p.order * 2));
+      if (axis && cols.length) {
+        var chip = document.createElement('span'); chip.className = 'chip colchip'; chip.setAttribute('aria-hidden', 'true');
+        chip.textContent = p.c0 === p.c1 ? cols[p.c0] : (p.c0 === 0 && p.c1 === ncol - 1) ? '모든 칸' : cols[p.c0] + '–' + cols[p.c1];
+        p.c.insertBefore(chip, p.c.firstChild);
+      }
+    });
+    var add = function (cls, col, row, text, order) {
+      var d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true');
+      if (text != null) d.textContent = text; d.style.gridColumn = col; d.style.gridRow = row;
+      if (order != null) d.style.order = String(order);
+      board.insertBefore(d, board.firstChild); return d;
+    };
+    if (axis) cols.forEach(function (t, i3) { add('axis-h', String(i3 + 1 + lc), '1', t); });
+    if (axis && board.dataset.axisArrow) {
+      add('axis-arrow', (1 + lc) + ' / ' + (ncol + 1 + lc), '1');
+      add('axis-cap', laneLabels ? '1' : String(ncol + lc), laneLabels ? '1' : '2', board.dataset.axisArrow);
+    }
+    lanes.forEach(function (t, i4) {
+      if (laneLabels) {
+        var l = add('lane-label', '1', start[i4] + ' / ' + (start[i4] + laneRows[i4]), t, byCols ? -1 : i4 * 2000 - 1);
+        l.removeAttribute('aria-hidden');
+        if (i4 > 0) add('lane-rule', '1 / -1', String(start[i4]));
+      }
+    });
+    var order = pl.slice().sort(function (a, b) { return a.order - b.order; }).map(function (p) { return p.c; });
+    board._edges = [];
+    $$(':scope > .edge', board).forEach(function (e) {
+      var s = document.getElementById(e.dataset.from), t = document.getElementById(e.dataset.to);
+      if (!s || !t || s.parentElement !== board || t.parentElement !== board) { warn(name, 'edge ' + e.dataset.from + '→' + e.dataset.to + ' has no card'); return; }
+      board._edges.push(e);
+      var label = e.textContent.trim(), back = order.indexOf(t) < order.indexOf(s);
+      if (label || back) { var d = document.createElement('p'); d.className = 'to'; d.textContent = (back ? '↺ ' : '→ ') + (label ? label + ': ' : '') + titleOf(t); s.appendChild(d); }
+    });
+  }
+
+  /* ── board: 화살표. 상자의 실제 위치에서 계산한다 ── */
+  function wire(board, bi) {
+    var old = board.querySelector(':scope > svg.wires'); if (old) old.remove();
+    board.style.paddingBottom = '';
+    var reacts = $$(':scope > .card.react[data-on]', board);
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    if (board.scrollWidth > board.clientWidth + 2) warn(name, 'board is wider than the page');
+    if (narrow() || (!(board._edges || []).length && !reacts.length)) return;
+    var B = board.getBoundingClientRect();
+    var rect = function (el) { var q = el.getBoundingClientRect(); return { l: q.left - B.left, t: q.top - B.top, r: q.right - B.left, b: q.bottom - B.top, el: el }; };
+    var cards = $$(':scope > .card', board).map(rect);
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'wires');
+    svg.setAttribute('width', B.width); svg.setAttribute('height', B.height + 60); svg.setAttribute('role', 'img');
+    var said = [], needBottom = 0, segs = [], labels = [];
+    var cx = function (q) { return (q.l + q.r) / 2; }, cy = function (q) { return (q.t + q.b) / 2; };
+    board._edges.forEach(function (e) {
+      var S = document.getElementById(e.dataset.from), T = document.getElementById(e.dataset.to);
+      var s = rect(S), t = rect(T), pts, lo, hi;
+      if (t.l >= s.r - 2) {
+        lo = Math.max(s.t, t.t); hi = Math.min(s.b, t.b);
+        if (hi - lo >= 24) { var sm = (s.b - s.t) < (t.b - t.t) ? s : t; var y = Math.min(Math.max(cy(sm), lo + 12), hi - 12); pts = [[s.r, y], [t.l, y]]; }
+        else { var mx = (s.r + t.l) / 2; pts = [[s.r, cy(s)], [mx, cy(s)], [mx, cy(t)], [t.l, cy(t)]]; }
+      } else if (t.r <= s.l + 2) {
+        var yb = Math.max(s.b, t.b) + 26; needBottom = Math.max(needBottom, yb + 26);
+        pts = [[cx(s), s.b], [cx(s), yb], [cx(t), yb], [cx(t), t.b]];
+      } else if (t.t >= s.b - 2) {
+        lo = Math.max(s.l, t.l); hi = Math.min(s.r, t.r);
+        if (hi - lo >= 24) pts = [[(lo + hi) / 2, s.b], [(lo + hi) / 2, t.t]];
+        else { var my = (s.b + t.t) / 2; pts = [[cx(s), s.b], [cx(s), my], [cx(t), my], [cx(t), t.t]]; }
+      } else {
+        var x = (Math.max(s.l, t.l) + Math.min(s.r, t.r)) / 2; pts = [[x, s.t], [x, t.b]];
+      }
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M' + pts.map(function (q) { return q.join(' '); }).join(' L')); svg.appendChild(p);
+      var a = pts[pts.length - 2], b = pts[pts.length - 1], dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+      var h = document.createElementNS(NS, 'path'); h.setAttribute('class', 'head');
+      h.setAttribute('d', dx ? 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] - 4.5) + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] + 4.5) + ' Z'
+                             : 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 4.5) + ' ' + (b[1] - 8 * dy) + ' L' + (b[0] + 4.5) + ' ' + (b[1] - 8 * dy) + ' Z');
+      svg.appendChild(h);
+      for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], s: S, t: T });
+      var label = e.textContent.trim();
+      said.push(titleOf(S) + ' → ' + titleOf(T) + (label ? ' (' + label + ')' : ''));
+      if (label) {
+        var best = 0, bl = -1;
+        for (var k = 0; k < pts.length - 1; k++) { var L = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); if (L > bl) { bl = L; best = k; } }
+        var p0 = pts[best], p1 = pts[best + 1], mxl = (p0[0] + p1[0]) / 2, myl = (p0[1] + p1[1]) / 2;
+        e.style.left = '0px'; e.style.top = '0px';
+        var w = e.offsetWidth, hh = e.offsetHeight;
+        e.style.left = (p0[1] === p1[1] ? mxl - w / 2 : mxl + 6) + 'px'; e.style.top = (myl - hh / 2) + 'px';
+        labels.push(e);
+      }
+    });
+    reacts.forEach(function (r) {
+      var T = document.getElementById(r.dataset.on); if (!T) return;
+      var a = rect(r), t = rect(T), x = Math.max(a.l, t.l) + 18;
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'tether');
+      p.setAttribute('d', a.t >= t.b ? 'M' + x + ' ' + t.b + ' L' + x + ' ' + a.t : 'M' + a.l + ' ' + cy(a) + ' L' + t.r + ' ' + cy(t));
+      svg.appendChild(p);
+      said.push(titleOf(T) + ' 에 붙은 외부 반응');
+    });
+    svg.setAttribute('aria-label', '연결: ' + said.join('; '));
+    board.insertBefore(svg, board.firstChild);
+    if (needBottom > B.height) board.style.paddingBottom = (24 + needBottom - B.height) + 'px';
+    var hit = function (sg, c) { var l = Math.min(sg.a[0], sg.b[0]), r2 = Math.max(sg.a[0], sg.b[0]), t2 = Math.min(sg.a[1], sg.b[1]), b2 = Math.max(sg.a[1], sg.b[1]); return r2 > c.l + 3 && l < c.r - 3 && b2 > c.t + 3 && t2 < c.b - 3; };
+    segs.forEach(function (sg) { cards.forEach(function (c) { if (c.el !== sg.s && c.el !== sg.t && hit(sg, c)) warn(name, 'wire ' + sg.s.id + '→' + sg.t.id + ' crosses "' + titleOf(c.el).slice(0, 20) + '"'); }); });
+    var lr = labels.map(rect);
+    lr.forEach(function (L, i) {
+      cards.forEach(function (c) { if (L.r > c.l && L.l < c.r && L.b > c.t && L.t < c.b) warn(name, 'label "' + L.el.textContent.trim() + '" overlaps a card'); });
+      for (var j = i + 1; j < lr.length; j++) { var M = lr[j]; if (L.r > M.l && L.l < M.r && L.b > M.t && L.t < M.b) warn(name, 'two labels overlap'); }
+    });
+  }
+  function overflowCheck(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    $$(':scope > .card', board).forEach(function (c) { if (c.scrollWidth > c.clientWidth + 2) warn(name, 'text spills out of "' + titleOf(c).slice(0, 20) + '"'); });
+  }
+
+  /* ── plot ── */
+  function buildPlot(fig, fi) {
+    var table = fig.querySelector('table.plot-data'); if (!table) return;
+    var lg = document.createElement('div'); lg.className = 'plot-legend';
+    var cv = document.createElement('div'); cv.className = 'plot-canvas';
+    var mk = document.createElement('ol'); mk.className = 'plot-marks';
+    table.parentNode.insertBefore(lg, table); table.parentNode.insertBefore(cv, table); table.parentNode.insertBefore(mk, table);
+    var det = document.createElement('details'); det.className = 'vals'; det.innerHTML = '<summary>값 표 보기</summary>';
+    table.parentNode.insertBefore(det, table); det.appendChild(table);
+    fig._t = table; fig._cv = cv; fig._lg = lg; fig._mk = mk; fig._name = 'plot ' + (fi + 1) + ' "' + ((fig.querySelector('.fig-title') || {}).textContent || '').trim().slice(0, 24) + '"';
+  }
+  function colorFor(emph, s) { var i = emph.indexOf(s); return i === 0 ? 'var(--s1)' : i === 1 ? 'var(--s2)' : 'var(--dim)'; }
+  function drawBars(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg;
+    var ci = +table.dataset.cat || 0, ys = (table.dataset.y || '').split(/\s+/).filter(Boolean).map(Number);
+    var heads = Array.prototype.slice.call(table.tHead.rows[0].cells).map(function (c) { return c.textContent.trim(); });
+    var colors = ys.length === 1 ? ['var(--s1)'] : ys.map(function (_, i) { return i === ys.length - 1 ? 'var(--s1)' : i === ys.length - 2 ? 'var(--dim)' : 'var(--s2)'; });
+    lg.innerHTML = ys.length > 1 ? ys.map(function (y, i) { return '<span><i style="background:' + colors[i] + '"></i>' + heads[y] + '</span>'; }).join('') : '';
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var emph = list(table.dataset.emph);
+    var bad = rows.filter(function (tr) { return ys.some(function (y) { return !isFinite(num(tr.cells[y].textContent)); }); });
+    if (bad.length) warn(fig._name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (tr) { return bad.indexOf(tr) < 0; });
+    var max = +table.dataset.max || Math.max.apply(null, rows.map(function (tr) { return Math.max.apply(null, ys.map(function (y) { return num(tr.cells[y].textContent); })); }));
+    var html = '<div class="bars">';
+    rows.forEach(function (tr) {
+      var em = emph.indexOf(tr.cells[ci].textContent.trim()) >= 0;
+      html += '<div class="bar-row' + (em ? ' is-em' : '') + '"><span class="bar-name">' + tr.cells[ci].innerHTML + '</span><span class="bar-set">';
+      ys.forEach(function (y, i) {
+        var v = num(tr.cells[y].textContent);
+        // 값 열이 하나일 때 강조한 행만 색을 쓰고 나머지는 회색이다. 지는 행도 지우지 않는다
+        var col = ys.length === 1 && emph.length && !em ? 'var(--dim)' : colors[i];
+        html += '<span class="bar-line"><span class="bar-track"><span class="bar-fill" style="width:' + Math.max(0, Math.min(100, v / max * 100)) + '%;background:' + col + '"></span></span><span class="bar-val">' + tr.cells[y].textContent.trim() + '</span></span>';
+      });
+      html += '</span></div>';
+    });
+    cv.innerHTML = html + '</div>';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + rows.map(function (tr) { return tr.cells[ci].textContent.trim() + ': ' + ys.map(function (y) { return heads[y] + ' ' + tr.cells[y].textContent.trim(); }).join(', '); }).join('. '));
+  }
+  function drawLine(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg, mkl = fig._mk, name = fig._name;
+    var si = +table.dataset.series, xi = +table.dataset.x, yi = +table.dataset.y, xlog = table.hasAttribute('data-xlog');
+    var emph = list(table.dataset.emph);
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows).map(function (tr) {
+      return { tr: tr, s: tr.cells[si].textContent.trim(), x: num(tr.cells[xi].textContent), y: num(tr.cells[yi].textContent), label: tr.dataset.label, id: tr.id };
+    });
+    var bad = rows.filter(function (r) { return !isFinite(r.x) || !isFinite(r.y); });
+    if (bad.length) warn(name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (r) { return isFinite(r.x) && isFinite(r.y) && (!xlog || r.x > 0); });
+    if (rows.length < 2) { cv.innerHTML = ''; lg.innerHTML = ''; mkl.innerHTML = ''; warn(name, 'fewer than two rows to draw'); return; }
+    var series = rows.map(function (r) { return r.s; }).filter(function (s, i, a) { return a.indexOf(s) === i; });
+    var others = series.filter(function (s) { return emph.indexOf(s) < 0; });
+    lg.innerHTML = emph.map(function (s) { return '<span><i style="background:' + colorFor(emph, s) + '"></i>' + s + '</span>'; }).join('') +
+      (others.length ? '<span><i style="background:var(--dim)"></i>' + others.join(', ') + '</span>' : '');
+    var W = Math.max(cv.clientWidth, 260), small = W < 520, H = small ? 340 : 360;
+    var m = { l: 40, r: 12, t: 14, b: 30 };
+    var f = xlog ? Math.log10 : function (v) { return v; };
+    var xv = rows.map(function (r) { return r.x; }), yv = rows.map(function (r) { return r.y; });
+    var x0 = f(Math.min.apply(null, xv) / (xlog ? 1.15 : 1)), x1 = f(Math.max.apply(null, xv) * (xlog ? 1.12 : 1));
+    if (!xlog) { var pad = (x1 - x0) * 0.06 || 1; x0 -= pad; x1 += pad; }
+    var step = +table.dataset.ystep || 10;
+    var y0 = table.dataset.ymin != null ? +table.dataset.ymin : Math.floor((Math.min.apply(null, yv) - step / 5) / step) * step;
+    var y1 = table.dataset.ymax != null ? +table.dataset.ymax : Math.ceil((Math.max.apply(null, yv) + step / 5) / step) * step;
+    var X = function (v) { return m.l + (f(v) - x0) / (x1 - x0) * (W - m.l - m.r); };
+    var Y = function (v) { return m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b); };
+    var yUnit = /%/.test(rows[0] ? rows[0].tr.cells[yi].textContent : '') ? '%' : '';
+    cv.innerHTML = ''; mkl.innerHTML = '';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    cv.appendChild(svg);
+    var el = function (tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    var placed = [];
+    for (var v = y0; v <= y1 + 1e-9; v += step) {
+      el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) });
+      var tk = el('text', { class: 'tick', x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end' }, v + yUnit);
+      var bb = tk.getBBox(); placed.push({ x: bb.x, y: bb.y, width: bb.width + 4, height: bb.height });
+    }
+    var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
+    if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
+    cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
+    var segs = [], pts = [];
+    var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
+    drawOrder.forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; });
+      el('polyline', { class: 'ln', stroke: colorFor(emph, s), points: rs.map(function (r) { return X(r.x) + ',' + Y(r.y); }).join(' ') });
+      rs.forEach(function (r, i) { pts.push([X(r.x), Y(r.y)]); if (i) segs.push([[X(rs[i - 1].x), Y(rs[i - 1].y)], [X(r.x), Y(r.y)]]); });
+      rs.forEach(function (r) { el('circle', { class: 'dot', cx: X(r.x), cy: Y(r.y), r: emph.indexOf(s) >= 0 ? 5 : 4, fill: colorFor(emph, s) }); });
+    });
+    var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
+    var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
+    var score = function (b, withMarks) {
+      var n = 0;
+      if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
+      placed.forEach(function (q) { if (b.x < q.x + q.width && b.x + b.width > q.x && b.y < q.y + q.height && b.y + b.height > q.y) n += 3; });
+      pts.forEach(function (p) { if (p[0] > b.x - 5 && p[0] < b.x + b.width + 5 && p[1] > b.y - 5 && p[1] < b.y + b.height + 5) n += 2; });
+      if (!withMarks) segs.forEach(function (sg) { for (var k = 0; k <= 10; k++) { var sx = sg[0][0] + (sg[1][0] - sg[0][0]) * k / 10, sy = sg[0][1] + (sg[1][1] - sg[0][1]) * k / 10; if (sx > b.x && sx < b.x + b.width && sy > b.y && sy < b.y + b.height) { n += 1; break; } } });
+      return n;
+    };
+    var fit = function (t, x, y, offs, loose) {
+      var best = null;
+      for (var i = 0; i < offs.length; i++) {
+        var o = offs[i]; t.setAttribute('x', x + o[0]); t.setAttribute('y', y + o[1]); t.setAttribute('text-anchor', o[2]);
+        var b = t.getBBox(), box = { x: b.x - 2, y: b.y - 1, width: b.width + 4, height: b.height + 2 }, sc = score(box, loose);
+        if (!best || sc < best.sc) best = { sc: sc, o: o, box: box };
+        if (sc === 0) break;
+      }
+      t.setAttribute('x', x + best.o[0]); t.setAttribute('y', y + best.o[1]); t.setAttribute('text-anchor', best.o[2]);
+      return best;
+    };
+    var OFF = [[9, 4, 'start'], [0, -11, 'middle'], [-9, 4, 'end'], [0, 19, 'middle'], [7, -9, 'start'], [-7, -9, 'end'], [7, 17, 'start'], [-7, 17, 'end'],
+      [14, -14, 'start'], [-14, -14, 'end'], [14, 24, 'start'], [-14, 24, 'end'], [0, -22, 'middle'], [0, 30, 'middle']];
+    var MK = [[6, -6, 'start'], [-6, -6, 'end'], [6, 14, 'start'], [-6, 14, 'end'], [9, 4, 'start'], [-9, 4, 'end'], [0, -10, 'middle'], [0, 18, 'middle']];
+    var marks = 0;
+    // 글을 둘 자리가 없으면 점 옆에 번호만 두고 글은 그림 아래 목록으로 보낸다. 선택 글은 범례가 대신한다.
+    var place = function (x, y, text, cls, fill, offs, optional) {
+      var t = el('text', { class: cls, fill: fill || '' }, text), best = fit(t, x, y, offs, false);
+      if (best.sc === 0) { placed.push(best.box); return; }
+      t.remove(); if (optional) return;
+      var n = String(++marks), k = el('text', { class: 'mk' }, n), bm = fit(k, x, y, MK, true);
+      placed.push(bm.box);
+      if (bm.sc >= 3) warn(name, 'marker for "' + text + '" overlaps');
+      var li = document.createElement('li'); li.innerHTML = '<b>' + n + '</b> '; li.appendChild(document.createTextNode(text)); mkl.appendChild(li);
+    };
+    rows.filter(function (r) { return r.label; }).forEach(function (r) { place(X(r.x), Y(r.y), r.label, emph.indexOf(r.s) === 0 ? 'lbl strong' : 'lbl', '', OFF, false); });
+    if (ra && rb && table.dataset.refLabel) place((X(ra.x) + X(rb.x)) / 2, (Y(ra.y) + Y(rb.y)) / 2, table.dataset.refLabel, 'lbl', 'var(--muted)', [[0, 16, 'middle'], [0, -8, 'middle'], [0, 30, 'middle']], true);
+    series.filter(function (s) { return !rows.some(function (r) { return r.s === s && r.label; }); }).forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; }), r = rs[rs.length - 1]; place(X(r.x), Y(r.y), s, 'lbl', 'var(--muted)', OFF, true);
+    });
+    svg.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + series.map(function (s) {
+      return s + ': ' + rows.filter(function (r) { return r.s === s; }).map(function (r) { return r.tr.cells[xi].textContent.trim() + ', ' + r.tr.cells[yi].textContent.trim(); }).join('; ');
+    }).join('. '));
+  }
+  function drawPlot(fig) {
+    if (!fig._t) return;
+    if (fig._t.dataset.kind === 'bars') drawBars(fig); else drawLine(fig);
+  }
+
+  /* ── ladder: 막대 길이는 상자에 적힌 숫자에서 잰다. 같은 수를 두 번 쓰지 않는다 ── */
+  $$('.ladder[data-meter]').forEach(function (lad) {
+    var bigs = $$(':scope > .card .big', lad), vals = bigs.map(function (b) { return Math.abs(num(b.textContent.replace(/[+p]/g, ''))); });
+    var mx = Math.max.apply(null, vals);
+    bigs.forEach(function (b, i) { var m = document.createElement('span'); m.className = 'meter'; m.setAttribute('aria-hidden', 'true'); m.innerHTML = '<i style="width:' + (mx ? vals[i] / mx * 100 : 0) + '%"></i>'; b.parentNode.insertBefore(m, b.nextSibling); });
+  });
+
+  // 표지 목록은 두 칸에 위에서 아래로 채운다
+  $$('.toc ul').forEach(function (u) { u.style.gridTemplateRows = 'repeat(' + Math.ceil(u.children.length / 2) + ', auto)'; });
+  var boards = $$('.board'); boards.forEach(buildBoard);
+  var buildWarn = warnings.slice();
+  var plots = $$('figure.plot'); plots.forEach(buildPlot);
+  var layout = function () {
+    warnings.length = 0; buildWarn.forEach(function (w) { warnings.push(w); });
+    plots.forEach(drawPlot); boards.forEach(wire); boards.forEach(overflowCheck);
+  };
+  var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
+  layout();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); window.__layout.done = true; });
+})();
+</script>
+</body>
+</html>
