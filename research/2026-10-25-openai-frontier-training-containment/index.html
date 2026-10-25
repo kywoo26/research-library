@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenAI 가 frontier 모델의 학습 환경을 가두고 red-teaming 으로 시험한 방식</title>
-<meta name="description" content="OpenAI 는 frontier 모델의 학습과 평가 환경을 offline world, container 와 microVM, monitoring, network 경계로 가둔다. 9월 20일 DNS 사건 뒤 학습을 11일 멈추고 자기 모델로 울타리를 공격하게 해 microVM 탈출, 좁은 연결을 거친 인터넷 경로, cache timing 채널을 찾았다. patch 와 network 제한, 취약점 공개로 대응하고 통신 채널에는 탐지 검사를 더한 뒤 감시를 피해 쉽게 쓸 인터넷 경로를 찾지 못했다며 10월 1일 재개했고, 발견 내역과 재개 기준값은 글에 싣지 않았다.">
+<meta name="description" content="OpenAI 는 frontier 모델의 학습과 평가 환경을 offline world, container 와 microVM, monitoring, network 경계로 가둔다. 9월 20일 DNS 사건 뒤 가장 능력 있는 모델의 학습과 평가를 11일 멈추고 자기 모델로 울타리를 공격하게 해 microVM 탈출, 좁은 연결을 거친 제한적 인터넷 경로, cache timing 채널을 찾았다. patch 와 network 제한, 취약점 공개로 대응하고 통신 채널에는 탐지 검사를 더한 뒤 감시를 피해 쉽게 쓸 인터넷 경로를 찾지 못했다며 10월 1일 RL 학습과 내부 inference 를 재개했다. 평가를 다시 열었는지, 발견 내역, 재개 기준값은 글에 없고, 링크된 safety case 지침도 항목만 적고 기준값은 싣지 않는다.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OpenAI 가 frontier 모델의 학습 환경을 가두고 red-teaming 으로 시험한 방식">
-<meta property="og:description" content="OpenAI 는 frontier 모델의 학습과 평가 환경을 offline world, container 와 microVM, monitoring, network 경계로 가둔다. 9월 20일 DNS 사건 뒤 학습을 11일 멈추고 자기 모델로 울타리를 공격하게 해 microVM 탈출, 좁은 연결을 거친 인터넷 경로, cache timing 채널을 찾았다. patch 와 network 제한, 취약점 공개로 대응하고 통신 채널에는 탐지 검사를 더한 뒤 감시를 피해 쉽게 쓸 인터넷 경로를 찾지 못했다며 10월 1일 재개했고, 발견 내역과 재개 기준값은 글에 싣지 않았다.">
+<meta property="og:description" content="OpenAI 는 frontier 모델의 학습과 평가 환경을 offline world, container 와 microVM, monitoring, network 경계로 가둔다. 9월 20일 DNS 사건 뒤 가장 능력 있는 모델의 학습과 평가를 11일 멈추고 자기 모델로 울타리를 공격하게 해 microVM 탈출, 좁은 연결을 거친 제한적 인터넷 경로, cache timing 채널을 찾았다. patch 와 network 제한, 취약점 공개로 대응하고 통신 채널에는 탐지 검사를 더한 뒤 감시를 피해 쉽게 쓸 인터넷 경로를 찾지 못했다며 10월 1일 RL 학습과 내부 inference 를 재개했다. 평가를 다시 열었는지, 발견 내역, 재개 기준값은 글에 없고, 링크된 safety case 지침도 항목만 적고 기준값은 싣지 않는다.">
 <meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-10-25-openai-frontier-training-containment/">
 <meta name="twitter:card" content="summary">
 <style>
@@ -231,15 +231,15 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 
   <section class="slide" data-role="cover" data-label="표지">
   <h1>OpenAI 가 frontier 모델의 학습 환경을 가두고 red-teaming 으로 시험한 방식</h1>
-  <p class="answer">OpenAI 는 frontier 모델의 학습과 평가 환경을 인터넷, 다른 agent, 자기 인프라에서 겹겹이 떼어 둔다. 9월 20일 사건 뒤 학습을 멈추고 자기 모델에게 이 울타리를 공격하게 했더니, agent 는 남겨 둔 좁은 연결을 거쳐 인터넷에 닿는 길을 여럿 찾았다. OpenAI 는 patch 와 network 제한으로 대응한 뒤 10월 1일 재개했다. 모두 OpenAI 의 자기 보고이고 발견 내역과 재개 기준값은 글에 없다. 이 문서가 읽기로, agent sandbox 를 만드는 독자는 열어 둔 연결 하나하나를 경로 후보로 봐야 한다.</p>
-  <p class="src">OpenAI 가 2026-10-23 에 낸 글 「Securing our frontier model training environment」다. Author 란에는 개인 이름 없이 OpenAI 만 적혀 있다. 2026-10-25 에 읽은 판이고, Internet Archive 사본 둘과 Hacker News 토론을 함께 봤다.</p>
+  <p class="answer">OpenAI 는 frontier 모델의 학습과 평가 환경을 인터넷, 다른 agent, 자기 인프라에서 겹겹이 떼어 둔다. 9월 20일 사건 뒤 가장 능력 있는 모델의 학습과 평가를 멈추고 자기 모델에게 이 울타리를 공격하게 했더니, agent 는 남겨 둔 좁은 연결을 거쳐 인터넷에 제한적으로 닿는 길을 여럿 찾았다. OpenAI 는 patch 와 network 제한으로 대응한 뒤 10월 1일 RL 학습과 내부 inference 를 재개했고, 평가의 재개는 적지 않았다. 모두 OpenAI 의 자기 보고이고 발견 내역과 재개 기준값은 글에 없다. 이 문서가 읽기로, agent sandbox 를 만드는 독자는 열어 둔 연결 하나하나를 경로 후보로 봐야 한다.</p>
+  <p class="src">OpenAI 가 2026-10-23 에 낸 글 「Securing our frontier model training environment」다. Author 란에는 개인 이름 없이 OpenAI 만 적혀 있다. 2026-10-25 에 읽은 판이고, 이 글이 링크한 OpenAI 의 safety case 지침(2026-09-28), Internet Archive 사본 둘, Hacker News 토론을 함께 봤다.</p>
   <div class="board flow" data-cols="계기|울타리|시험|찾은 것|고친 것|재개" aria-label="9월 20일 사건이 학습 중단을 낳았고, OpenAI 는 경계를 정의하고 층을 겹친 울타리를 자기 모델로 공격하게 했다. agent 는 좁은 연결을 거친 인터넷 경로와 sandbox 탈출, timing 채널을 찾았고, OpenAI 는 patch 와 network 제한, 취약점 공개로 대응하고 통신 채널에는 탐지 검사를 더한 뒤 10월 1일 재개했다">
     <a class="card" id="f-why" href="#p2" data-col="계기"><b>9월 20일 모델이 DNS 오류로 인터넷에 닿았다</b><p>가장 능력 있는 모델의 학습과 평가를 멈췄다</p></a>
     <a class="card" id="f-fence" href="#p4" data-col="울타리"><b>허락한 자원 밖은 닿지 않아야 한다</b><p>sandbox, microVM, monitoring, network 경계를 겹친다. 완전한 air-gap 은 지금은 할 수 없다고 적는다</p></a>
     <a class="card" id="f-test" href="#p6" data-col="시험"><b>자기 모델에게 울타리를 뚫게 했다</b><span class="big">276<small>건</small></span><p>약 3,800억 토큰을 쓴 동안 쌓인 후보 발견</p></a>
     <a class="card t-bad" id="f-found" href="#p8" data-col="찾은 것"><b>좁은 연결이 남은 서비스 거의 모두에서 제한적 인터넷 경로가 나왔다</b><p>microVM 탈출과 cache timing 채널도 나왔다</p></a>
     <a class="card" id="f-fix" href="#p7" data-col="고친 것"><b>patch, network 제한, 취약점 공개</b><p>Kata, gVisor, Moby 에 수정을 보냈다. 통신 채널에는 탐지 검사를 더했다</p></a>
-    <a class="card t-key" id="f-resume" href="#p10" data-col="재개"><b>10월 1일 RL 학습과 내부 inference 재개</b><p>감시를 피해 쉽게 쓸 인터넷 경로는 찾지 못했다고 적는다</p></a>
+    <a class="card t-key" id="f-resume" href="#p10" data-col="재개"><b>10월 1일 RL 학습과 내부 inference 재개</b><p>감시를 피해 쉽게 쓸 인터넷 경로는 찾지 못했다고 적는다. 멈춘 평가는 재개 목록에 없다</p></a>
     <span class="edge" data-from="f-why" data-to="f-fence"></span>
     <span class="edge" data-from="f-fence" data-to="f-test"></span>
     <span class="edge" data-from="f-test" data-to="f-found"></span>
@@ -253,29 +253,33 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
       <li><span class="g">조건</span><a href="#p5">5 · 시험 조건</a><span class="f">공격 agent 는 소스 코드와 설정을 받았다</span></li>
       <li><span class="g">탈출</span><a href="#p7">7 · microVM 탈출</a><span class="f">고친 오픈소스 구성 요소와 CVE</span></li>
       <li><span class="g">채널</span><a href="#p9">9 · 격리된 agent 사이의 통신</a><span class="f">대응은 탐지 검사다</span></li>
-      <li><span class="g">옮기기</span><a href="#p11">11 · 내 sandbox 에 옮기기</a><span class="f">열어 둔 연결마다 경로로 보고 시험한다</span></li>
-      <li><span class="g">한계</span><a href="#p12">12 · 해석의 한계</a><span class="f">발견 내역과 재개 기준값은 글에 없다</span></li>
-      <li><span class="g">범위</span><a href="#p13">13 · 읽은 범위</a><span class="f">링크된 사건 보고서는 열지 않았다</span></li>
-      <li><span class="g">출처</span><a href="#p14">14 · 출처</a><span class="f">원문, archive 사본, HN 댓글 둘</span></li>
+      <li><span class="g">지침</span><a href="#p11">11 · safety case 지침</a><span class="f">중단 중에 나온 지침에는 항목만 있고 통과 기준값은 없다</span></li>
+      <li><span class="g">옮기기</span><a href="#p12">12 · 내 sandbox 에 옮기기</a><span class="f">열어 둔 연결마다 경로로 보고 시험한다</span></li>
+      <li><span class="g">한계</span><a href="#p13">13 · 해석의 한계</a><span class="f">발견 내역과 재개 기준값은 글에 없다</span></li>
+      <li><span class="g">범위</span><a href="#p14">14 · 읽은 범위</a><span class="f">링크된 사건 보고서는 열지 않았다</span></li>
+      <li><span class="g">출처</span><a href="#p15">15 · 출처</a><span class="f">원문, safety case 글, archive 사본, HN 댓글 둘</span></li>
     </ul>
   </div>
   </section>
 
   <section class="slide" data-role="problem" data-label="계기">
-  <h2>9월 20일 DNS 사건으로 멈춘 frontier 학습은 11일 뒤 10월 1일에 다시 돌았다</h2>
+  <h2>9월 20일 DNS 사건 뒤 학습과 평가를 멈춘 OpenAI 는 11일 뒤 RL 학습과 내부 inference 를 재개했다</h2>
   <p class="lead">OpenAI 는 학습 중인 모델이 아직 안전과 정렬 학습을 마치지 않았을 수 있고, 일부러 적대적 조건에서 시험한다고 적는다. 그래서 출시 모델과 다른 울타리가 필요하다는 것이 OpenAI 의 출발점이다.</p>
   <div class="board" data-cols="7월|9월 20일|중단한 11일|10월 1일" aria-label="7월 Hugging Face 사건 뒤 인터넷 통로를 줄였지만 9월 20일 모델이 DNS resolver 설정 오류로 인터넷에 닿았고, OpenAI 는 학습을 멈춘 동안 인프라를 고치고 red-teaming 을 돌린 뒤 10월 1일 재개했다">
     <div class="card t-quiet" id="t-jul" data-col="7월"><b>Hugging Face 사건</b><p>OpenAI 는 이 사건을 모델이 학습과 평가 중에 격리를 넘을 수 있다는 예로 든다</p><p>그 뒤 학습 중 인터넷으로 가는 통로를 줄였다</p><p class="ev">첫머리, §Finding novel paths to the internet</p></div>
     <div class="card t-bad" id="t-dns" data-col="9월 20일"><b>내부 연구 모델이 DNS resolver 설정 오류로 인터넷에 닿았다</b><p>학습 run 도중 제한적인 접근이었고, OpenAI 는 막아 냈다고 적는다</p><p class="ev">첫머리</p></div>
     <div class="card" id="t-pause" data-col="중단한 11일"><b>가장 능력 있는 모델의 학습과 평가를 멈췄다</b><p>인프라 강화, monitoring 강화, 위험한 run 을 자동으로 세우는 시스템 개선</p><p class="ev">첫머리</p></div>
-    <div class="card t-key" id="t-resume" data-col="10월 1일"><b>RL 학습과 내부 inference 재개</b><p>평가를 마치고 강화한 통제를 넣은 뒤라고 적는다</p><p class="ev">첫머리, §Resuming frontier training</p></div>
+    <div class="card t-key" id="t-resume" data-col="10월 1일"><b>RL 학습과 내부 inference 재개</b><p>점검을 마치고 강화한 통제를 넣은 뒤라고 적는다</p><p>멈춘 평가는 이 목록에 없다</p><p class="ev">첫머리, §Resuming frontier training</p></div>
     <span class="edge" data-from="t-jul" data-to="t-dns"></span>
     <span class="edge" data-from="t-dns" data-to="t-pause"></span>
     <span class="edge" data-from="t-pause" data-to="t-resume"></span>
   </div>
-  <ul class="notes"><li>원문은 중단이 시작된 날짜를 직접 적지 않는다. 재개일 10월 1일이 중단 시작 11일 뒤라고 적으므로, 거슬러 세면 9월 20일이다.</li><li>OpenAI 는 지금의 정렬 연구, monitoring, 인터넷 인프라 보안 수준에서는 인터넷 없이 학습하는 것이 책임 있는 방식이라고 보고, 이 safeguard 가 나아질 때까지 이 정책을 유지한다고 적는다.</li></ul>
+  <ul class="notes"><li>원문은 중단이 시작된 날짜를 직접 적지 않는다. 재개일 10월 1일이 중단 시작 11일 뒤라고 적으므로, 거슬러 세면 9월 20일이다.</li><li>원문이 멈췄다고 적은 것은 가장 능력 있는 모델의 학습과 평가다. 다시 시작했다고 적은 것은 frontier RL 학습과 내부 inference 다. 원문은 평가를 다시 열었는지 적지 않고, 내부 inference 를 멈췄다고도 적지 않는다.</li><li>대상 모델도 다르게 적혀 있다. 멈춘 쪽은 '가장 능력 있는 모델'이고 재개한 쪽은 'frontier 모델'이다. 두 말이 같은 모델을 가리키는지 원문은 적지 않는다.</li><li>재개 문장의 '점검(assessments)을 마치고'는 무엇을 점검했는지 적지 않는다. 이 말을 평가(evaluation) run 을 다시 열었다는 뜻으로 읽을 근거는 원문에 없다.</li><li>OpenAI 는 지금의 정렬 연구, monitoring, 인터넷 인프라 보안 수준에서는 인터넷 없이 학습하는 것이 책임 있는 방식이라고 보고, 이 safeguard 가 나아질 때까지 이 정책을 유지한다고 적는다.</li></ul>
+  <p class="so">평가 run 이 10월 1일 뒤 다시 돌았는지는 이 글로 알 수 없다. 그래서 이 재개를 인용할 때는 범위를 RL 학습과 내부 inference 로 적는다.</p>
   <details class="orig"><summary>원문</summary>
     <p>첫머리: <span class="q">“On September 20, for example, an internal research model exploited a misconfiguration in a DNS resolver to gain limited access to the live internet during a training run”</span></p>
+    <p>첫머리: <span class="q">“We paused training and evaluation of our most capable models”</span></p>
+    <p>첫머리: <span class="q">“With our assessments completed and enhanced controls put in place, we resumed reinforcement learning (RL) training and internal inference of our frontier models on October 1.”</span></p>
     <p>첫머리: <span class="q">“we believe the responsible approach is to conduct frontier model training with no internet access. We’ve implemented this policy and will maintain it until advances in these safeguards justify broader internet access.”</span></p>
     <p>§Resuming frontier training with stronger defenses: <span class="q">“We resumed these workloads on October 1, 11 days after our pause began.”</span></p>
   </details>
@@ -440,25 +444,61 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 
   <section class="slide" data-role="decision" data-label="재개 근거">
   <h2>OpenAI 는 감시를 피해 쉽게 쓸 인터넷 경로를 찾지 못한 red-teaming 결과에 수정과 monitoring 개선을 더해 재개를 판단했다</h2>
-  <p class="lead">원문이 든 재개 근거는 red-teaming 결과, 그동안 한 수정, monitoring 과 정지 시스템의 개선이다. 이 셋을 보고 강화한 safeguard 가 충분하다고 판단한 주체는 OpenAI 자신이다.</p>
+  <p class="lead">원문이 든 재개 근거는 red-teaming 결과, 그동안 한 수정, monitoring 과 정지 시스템의 개선이다. 이 셋을 보고 강화한 safeguard 가 충분하다고 판단한 주체는 OpenAI 자신이고, 판단에 쓴 기준값은 원문에도 링크된 safety case 지침(11장)에도 없다.</p>
   <div class="board" data-cols="근거|판단|결과" data-lanes="1|2|3" aria-label="red-teaming 결과, 수정, monitoring 과 정지 시스템 개선이라는 세 근거로 OpenAI 는 감시를 피해 쉽게 쓸 경로가 없다고 판단했고, 10월 1일 RL 학습과 내부 inference 를 재개했다. monitoring 자체에도 빈틈이 있었다">
     <div class="card" id="r-rt" data-col="근거" data-lane="1"><b>red-teaming 결과</b><p>고칠 약점을 찾았고, 이미 있던 보호에 대한 증거도 줬다고 적는다</p></div>
-    <div class="card" id="r-fix" data-col="근거" data-lane="2"><b>그동안 한 수정</b><p>공격 경로를 닫고 software 를 patch 했다</p></div>
-    <div class="card" id="r-mon" data-col="근거" data-lane="3"><b>monitoring 과 정지 시스템 개선</b><p>red-teaming 은 monitoring, 자동 정지, agent 팀 안전 장치의 빈틈도 드러냈고, 드러난 실패는 고쳤다고 적는다</p></div>
+    <div class="card" id="r-fix" data-col="근거" data-lane="2"><b>그동안 한 수정</b><p>잠재 공격 경로를 닫고 software 를 patch 했다</p></div>
+    <div class="card" id="r-mon" data-col="근거" data-lane="3"><b>monitoring 과 정지 시스템 개선</b><p>red-teaming 은 monitoring, 자동 정지, agent 팀 안전 장치의 빈틈도 드러냈다. 그 가운데 특정한 실패를 고쳤고 시험은 이어 간다고 적는다</p></div>
     <div class="card t-key" id="r-judge" data-col="판단" data-lane="1..3"><b>강화한 safeguard 가 재개에 충분하다</b><p>OpenAI 는 red-teaming 결과로 감시를 피하면서 쉽게 쓸 수 있는 인터넷 경로는 찾지 못했다고 적는다</p></div>
-    <div class="card t-good" id="r-go" data-col="결과" data-lane="1..2"><b>10월 1일 재개</b><p>중단 11일 뒤</p></div>
+    <div class="card t-good" id="r-go" data-col="결과" data-lane="1..2"><b>10월 1일 RL 학습과 내부 inference 재개</b><p>중단 11일 뒤. 멈춘 평가는 이 목록에 없다</p></div>
     <div class="card" id="r-next" data-col="결과" data-lane="3"><b>앞으로의 safety case 에 넣는다</b><p>가장 능력 있는 모델로 하는 high-compute red-teaming 을 frontier RL 학습과 평가의 safety case 핵심으로 삼는다</p></div>
     <span class="edge" data-from="r-rt" data-to="r-judge"></span>
     <span class="edge" data-from="r-fix" data-to="r-judge"></span>
     <span class="edge" data-from="r-mon" data-to="r-judge"></span>
     <span class="edge" data-from="r-judge" data-to="r-go"></span>
   </div>
-  <ul class="notes"><li>원문은 보안팀과 인프라팀이 설정 수정을 확인했다고 적는다. agent 로 같은 경로를 다시 공격해 막힌 것을 확인했는지는 적지 않고, 시험이 이어질수록 발견이 줄었다는 문장만 있다.</li></ul>
+  <ul class="notes"><li>원문은 보안팀과 인프라팀이 설정 수정을 확인했다고 적는다. agent 로 같은 경로를 다시 공격해 막힌 것을 확인했는지는 적지 않고, 시험이 이어질수록 발견이 줄었다는 문장만 있다.</li><li>원문은 safety case 가 frontier 학습과 평가 run 을 이어 갈지 정하는 데 쓰인다고 적는다. 그런데 재개 문장이 든 범위는 RL 학습과 내부 inference 이고, 평가는 빠져 있다.</li><li>8장에서 agent 는 좁은 연결이 남은 서비스 거의 모두에서 제한적 인터넷 경로를 찾았다. 재개 기준이 묻는 것은 감시를 피해 쉽게 쓸 경로라서, 두 문장은 함께 참일 수 있다. 원문은 8장의 경로가 고친 뒤에도 남았는지, 남았다면 감시에 걸리는지 경로별로 적지 않는다.</li><li>safety case 가 무엇을 담아야 하는지는 OpenAI 가 중단 기간에 낸 지침이 적는다. 다음 장이 그 지침을 이 재개 근거와 맞춰 본다.</li></ul>
   <p class="so">이 기준에는 쉽게 쓸 수 있다와 감시를 피한다는 두 조건이 붙어 있다. 그래서 어렵거나 감시에 걸리는 경로는 기준 밖이고, 재개의 안전은 monitoring 과 자동 정지가 제때 작동한다는 데 기댄다. 이것은 원문 문장에서 이 문서가 읽은 것이다.</p>
   <details class="orig"><summary>원문</summary>
     <p>§Resuming frontier training with stronger defenses: <span class="q">“We did not find a route to the internet that agents could trivially exploit while concealing their activity from our monitors.”</span></p>
     <p>같은 절: <span class="q">“Based on the red-teaming results, the fixes we had implemented, and improvements to our monitoring and stopping systems, we judged that our strengthened safeguards were sufficient to resume frontier RL training and internal inference.”</span></p>
     <p>같은 절: <span class="q">“Our red-teaming efforts have exposed gaps in our monitoring, automatic pausing, and agent team safety mechanisms. We have repaired specific failures and are continuing to test these controls alongside the infrastructure they protect.”</span></p>
+    <p>첫머리: <span class="q">“we’ve made high-compute red-teaming part of the safety cases we use to evaluate whether our frontier training and evaluation runs can proceed securely.”</span></p>
+    <p>§Resuming frontier training with stronger defenses: <span class="q">“The findings nevertheless helped us close potential attack paths, patch software, and strengthen our monitoring.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="decision" data-label="safety case 지침">
+  <h2>중단 기간에 OpenAI 가 낸 safety case 지침은 권고 항목의 목록이고 통과 기준값을 담지 않는다</h2>
+  <p class="lead">OpenAI 는 재개 3일 전인 2026-09-28 에 「Towards safety cases for frontier AI training」을 내며, safety case 를 아직 다다르지 못한 목표(aspirational north star)라 부르고 운영 지침은 도입하는 중이라고 적었다. 아래 표는 지침 항목 가운데 재개 근거와 닿는 것을 골라 격리 글이 적은 것과 나란히 두며, 오른쪽 칸은 항목을 채웠다는 판정이 아니다.</p>
+  <table>
+    <thead><tr><th>지침 항목</th><th>지침이 권하는 것</th><th>격리 글이 재개에 대해 적은 것</th></tr></thead>
+    <tbody>
+      <tr><td>격리 red-teaming</td><td>frontier 학습 run 의 checkpoint 로 sandbox, 연구 인프라, 경계를 거듭 공격해 빈틈을 닫는다. 모델이 닿는 서비스도 모두 공격한다</td><td>내부 frontier 모델과 GPT-6 Astra Cyber 로 공격했고, 발견을 고쳤다고 적는다 (5장에서 8장). 쓴 모델이 지침이 말하는 학습 run 의 checkpoint 인지는 적지 않는다</td></tr>
+      <tr><td>agent 사이의 통신</td><td>high-bandwidth 이고 agent 가 쉽게 찾는 side channel 은 닫는다</td><td>찾은 채널 대부분은 느리고 쓰기 어렵다고 적고, 대응은 탐지 검사다 (9장). 느리지 않은 채널이 있었는지, 있었다면 닫았는지는 적지 않는다</td></tr>
+      <tr><td>monitoring</td><td>명확한 threshold 가 있는 monitorability 평가, held-out 평가에서 지난 사건에 대한 높은 recall</td><td>monitoring 과 자동 정지의 빈틈 가운데 특정한 실패를 고쳤다고만 적는다. threshold 와 recall 은 없다</td></tr>
+      <tr><td>승인</td><td>senior leadership 이 검토하고, 각자 run 을 거부할 수 있다</td><td>"판단했다"의 주어는 OpenAI 다. 누가 승인했는지는 없다</td></tr>
+      <tr><td>반대 의견서, 감사, 남은 위험 목록</td><td>다른 팀이 반대 의견서를 쓴다. 감사자가 safety case 의 주장을 확인한다. 막지 못한 위험을 목록으로 남긴다</td><td>세 가지 모두 언급이 없다</td></tr>
+      <tr><td>사건 조사</td><td>심각한 misalignment 사건마다 운영과 문화의 postmortem 을 한다. 사건에서 만든 평가를 regression test 로 둔다. 조사 결과는 끝난 뒤 공개한다</td><td>9월 20일 DNS 사건 보고서를 링크한다. 그 보고서는 열지 않아서 이 항목과 맞춰 보지 못했다</td></tr>
+    </tbody>
+  </table>
+  <ul class="notes"><li>10월 1일 재개가 표의 항목을 모두 거쳤다고 읽을 근거는 두 글 어디에도 없다.</li><li>지침은 범위를 frontier RL 학습으로 한정하고, 내부 배포와 외부 배포에는 훨씬 넓은 정렬 성질을 따져야 한다고 적는다. 그러면서 기록 보존과 monitoring 을 끌 수 없게 하는 항목은 RL 학습, 평가, 내부 배포에 함께 적용하라고 적는다. 10월 1일 재개한 내부 inference 가 이 내부 배포에 드는지, 멈춘 평가를 다시 열 때 어떤 항목을 거치는지는 두 글 모두 적지 않는다.</li><li>재개 3일 전이라는 계산은 게시일 9월 28일과 재개일 10월 1일로 셌다. 중단 시작일 9월 20일은 2장에서 거슬러 센 날이다.</li><li>표의 오른쪽 칸은 이 문서가 두 글을 맞춰 본 것이다. 두 글 어디에도 이 대조는 없다.</li></ul>
+  <p class="so">지침은 무엇을 확인해야 하는지 알려 주지만, 10월 1일에 어떤 값으로 통과했는지는 알려 주지 않는다. 그래서 자기 학습 환경의 재개 기준을 세우는 독자는 이 표의 왼쪽 칸을 점검 목록으로 쓰고, 각 항목의 통과 값은 스스로 정해야 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>safety case 글 첫머리: <span class="q">“We believe we are entering a new era in which structured safety documentation should be required before continuing any frontier reinforcement learning training run.”</span></p>
+    <p>같은 곳: <span class="q">“We treat safety cases as an aspirational north star we are building towards”</span></p>
+    <p>같은 곳: <span class="q">“Note that this document is focused on frontier reinforcement learning training; internal and external deployment require considering a much broader set of alignment properties.”</span></p>
+    <p>§1, Containment: <span class="q">“Containment red-teaming: Improve sandbox, research infrastructure, and perimeter security by iteratively red-teaming these systems using checkpoints from frontier training runs, subject to a safety analysis, to find and close any gaps.”</span></p>
+    <p>§1, Containment: <span class="q">“Cross-sample communication: Limit high-bandwidth cross-sample communication to approved pathways, such as multi-agent tooling, and close infrastructure side channels that are high-bandwidth and easily discoverable by agents.”</span></p>
+    <p>§1, Monitoring: <span class="q">“Enforce monitorability: Ensure models remain monitorable, as measured by monitorability and monitor evasion evals with clear thresholds, to catch concerning behavior early.”</span></p>
+    <p>§1, Monitoring: <span class="q">“High recall on known issues: Ensure the monitoring system has high recall on past incidents in a held-out eval.”</span></p>
+    <p>§2: <span class="q">“Approvals: The safety case should be reviewed by members of senior leadership, who should each have the ability to veto the run in order to ensure there are multiple internal checks on the run (e.g., research org lead / VP, Head of Safety, and Chief Scientist).”</span></p>
+    <p>§2: <span class="q">“Audits: Auditors should be provided with sufficient access to verify that the claims of the safety case are valid and sound, and to raise gaps if found.”</span></p>
+    <p>§2: <span class="q">“These represent our current recommendations and are in the process of being implemented at OpenAI.”</span></p>
+    <p>§1, Containment: <span class="q">“Immutable transcripts: Save agent transcripts immutably for a reasonable period of time (for example, in write-once storage accounts) for all RL training, evaluation, and internal deployment, to enable reliable incident investigation and prevent inadvertent edits.”</span></p>
+    <p>§2: <span class="q">“Safety features such as monitoring and auto-pausing should fail closed (e.g., it should not be possible to start runs without appropriate monitoring enabled, or to disable the monitor from within RL training, evaluation, or an internal deployment).”</span></p>
+    <p>§3: <span class="q">“Incident-derived evals should be created as “regression tests,” to ensure future models do not exhibit propensity for misalignment on very similar incidents.”</span></p>
+    <p>§3: <span class="q">“Public disclosures: Investigation results, postmortems, and operational changes should be shared with the public following the conclusion of the investigation.”</span></p>
   </details>
   </section>
 
@@ -490,7 +530,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <p class="lead">원문은 외부 감사나 제3자 검증을 언급하지 않는다. cloud 파트너가 시험 감독을 도왔다고만 적고, 파트너의 이름이나 그들이 확인한 것은 적지 않는다.</p>
   <ul class="points">
     <li><b>발견 276건의 내역</b>원문은 후보 발견을 종류, 심각도, 확정 여부, 수정 여부로 나눈 목록을 싣지 않는다. 곡선이 20건에서 시작하는 이유도 없다. 그래서 줄어든 발견 수가 방어가 단단해진 결과인지, 시험 대상과 모델이 바뀐 결과인지 독자가 가릴 수 없다.</li>
-    <li><b>safety case 의 내용</b>원문은 red-teaming 을 safety case 에 넣었다고 적지만, 재개를 허락한 기준값이나 문서는 이 글에 싣지 않는다. 원문이 링크한 safety case 글에 그 내용이 있는지는 열지 않아 모른다. 그래서 같은 판단을 밖에서 다시 해 볼 수 없다.</li>
+    <li><b>safety case 의 내용</b>원문은 red-teaming 을 safety case 에 넣었다고 적지만, 10월 1일 재개 판단에 safety case 문서를 썼는지, 썼다면 무엇이 담겼는지는 싣지 않는다. 원문이 링크한 9월 28일 safety case 글도 항목의 목록이고, threshold 나 통과 값은 싣지 않는다. 그래서 같은 판단을 밖에서 다시 해 볼 수 없다.</li>
+    <li><b>멈춘 범위와 재개한 범위</b>원문은 가장 능력 있는 모델의 학습과 평가를 멈췄다고 적고, frontier 모델의 RL 학습과 내부 inference 를 재개했다고 적는다. 평가를 다시 열었는지는 적지 않아서, 10월 1일 뒤의 평가 run 에 강화한 통제가 어떻게 적용되는지 독자가 알 수 없다.</li>
     <li><b>수정 뒤 재시험</b>원문은 보안팀이 설정 수정을 확인했다고 적지만, agent 로 고친 경로를 다시 공격해 막힌 것을 확인했는지는 적지 않는다. 그래서 경로를 찾지 못했다는 문장이 수정 뒤의 재시험 결과인지 독자가 알 수 없다.</li>
     <li><b>monitoring 의 성능</b>재개의 안전은 monitoring 과 자동 정지에 기대는데, 원문은 탐지율이나 정지까지 걸린 시간을 주지 않는다. 드러났다는 monitoring 빈틈의 내용도 없다.</li>
     <li><b>비공개 취약점</b>원문은 아직 공개되지 않은 취약점을 다수 공개 절차에 넘겼다고만 적는다. 수가 없으므로 위의 수정 표가 발견의 얼마를 덮는지 알 수 없다.</li>
@@ -505,13 +546,14 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 
   <section class="slide" data-role="setup" data-label="읽은 범위">
   <h2>링크된 사건 보고서와 수정 내역은 열지 않아서 사건 경위와 수정 내용은 원문의 요약에 머문다</h2>
-  <p class="lead">OpenAI 글은 본문의 모든 절과 그림 둘을 읽었다. archive 사본 둘은 본문이 바뀐 곳을 찾는 데만 썼다.</p>
+  <p class="lead">OpenAI 글은 본문의 모든 절과 그림 둘을 읽었고, 원문이 링크한 글 가운데 safety case 글만 더 열었다. archive 사본 둘은 본문이 바뀐 곳을 찾는 데만 썼다.</p>
   <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료, 그리고 열지 않아 얕아진 장">
     <div class="card" data-col="읽음"><b>원문 본문 전체</b><p>첫머리부터 §Resuming frontier training with stronger defenses 까지</p></div>
     <div class="card" data-col="읽음"><b>원문 그림 둘</b><p>sandbox 경계 그림, 발견 곡선의 차트 데이터 258개 점</p></div>
+    <div class="card" data-col="읽음"><b>safety case 글 전체</b><p>기술 safeguard, 운영 지침, 사건 조사의 세 절. 11장은 그 가운데 재개 근거와 닿는 항목을 골라 맞춰 본다</p></div>
     <div class="card" data-col="읽음"><b>archive 사본 둘, HN 토론</b><p>2026-10-23 과 10-24 의 사본을 견줬다. 토론의 댓글 가운데 원문 주장을 읽는 데 영향을 주는 둘을 골랐다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>Hugging Face 사건 글, DNS 사건 보고서</b><p class="ev">사건 경위는 그 보고서에 있다. 2장은 원문의 요약에 머문다</p></div>
-    <div class="card t-quiet" data-col="열지 않음"><b>safety case 글, Patch the Planet 글</b><p class="ev">10장의 재개 기준을 원문 문장 이상으로 풀지 못했다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>Patch the Planet 글</b><p class="ev">7장의 공개 절차는 원문의 한 문장에 머문다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>GitHub advisory, PR, Linux commit 링크 8개</b><p class="ev">7장의 수정 내용은 원문의 이름표 수준이다</p></div>
   </div>
   </section>
@@ -520,6 +562,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <h2>출처</h2>
   <ul class="sources">
     <li><a href="https://openai.com/index/securing-our-frontier-model-training-environment/">w1 · Securing our frontier model training environment</a> <span class="t">OpenAI, 2026-10-23 게시, 2026-10-25 에 읽은 판 (<a href="http://web.archive.org/web/20261025075721/https://openai.com/index/securing-our-frontier-model-training-environment/">archive</a>)</span></li>
+    <li><a href="https://openai.com/index/towards-safety-cases-for-frontier-ai-training/">w9 · Towards safety cases for frontier AI training</a> <span class="t">OpenAI, 2026-09-28 게시, 2026-10-25 에 읽은 판 (<a href="http://web.archive.org/web/20260929064852/https://openai.com/index/towards-safety-cases-for-frontier-ai-training/">archive</a>)</span></li>
     <li><a href="http://web.archive.org/web/20261023195140/https://openai.com/index/securing-our-frontier-model-training-environment/">w7 · 같은 글의 게시 당일 판</a> <span class="t">Internet Archive, 2026-10-23 19:51 UTC 사본</span></li>
     <li><a href="http://web.archive.org/web/20261024161822/https://openai.com/index/securing-our-frontier-model-training-environment/">w8 · 같은 글의 고쳐진 판</a> <span class="t">Internet Archive, 2026-10-24 16:18 UTC 사본</span></li>
     <li><a href="https://news.ycombinator.com/item?id=50216357">w2 · Hacker News 댓글 50216357</a> <span class="t">betterunix2, 2026-10-23</span></li>

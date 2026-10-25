@@ -2,9 +2,9 @@
  "slug": "2026-10-25-openai-frontier-training-containment",
  "question": "OpenAI 는 frontier 모델의 학습과 평가 환경을 어떻게 가두고, red-teaming 에서 무엇이 드러났고 무엇을 고쳤으며, 무엇을 근거로 학습을 재개했는가. 이 글이 자기 보고라는 점과 공개하지 않은 부분은 무엇인가",
  "flip_condition": "OpenAI 가 발견 내역이나 safety case 의 기준값을 공개해, 재개 판단이 감시를 피한 쉬운 경로의 부재 말고 다른 근거에 기댄 것으로 드러나면 10장의 읽기가 바뀐다",
- "slides": 14,
- "evidenceCount": 50,
- "claimsCount": 52,
+ "slides": 15,
+ "evidenceCount": 69,
+ "claimsCount": 73,
  "lensesReported": [
   "B",
   "A"
@@ -34,6 +34,30 @@
     "badRejections": 0
    },
    "note": "마지막 recheck 는 표지 p.answer 와 summary 에서 '제한적' 한정어가 빠진 것 하나를 냈고, 규칙대로 고치지 않고 unfixed 에 남겼다"
+  },
+  {
+   "round": "fix-1",
+   "applied": 14,
+   "rejected": 0,
+   "touched": 7,
+   "recheck": {
+    "hard": 0,
+    "wording": 4,
+    "badRejections": 0
+   },
+   "note": "소유자의 고칠 것 세 가지(표지의 '제한적', 멈춘 범위와 재개 범위, safety case 글로 재개 근거 보강)를 반영한 뒤 렌즈 B 와 A 를 장 1, 2, 10, 11, 13, 14, 15 에 다시 돌렸다. 렌즈 B: 'specific failures', 'potential attack paths', 13장의 '가장 능력 있는 모델' 한정어, '재개를 허락한 safety case' 의 전제. 렌즈 A: 2장 제목이 차이를 지운다, 10장에 safety case 보강이 안 보인다, 8장의 경로와 재개 기준의 긴장, 11장 제목과 표의 판정처럼 읽히는 칸, 사건 조사 절 누락, 표지 p.src 에 safety case 글 없음. recheck 는 hard 0, 한정어 넓힘 4건(표지 '가장 능력 있는 모델', '요구', '도입 중'의 범위, 'severe')"
+  },
+  {
+   "round": "fix-2",
+   "applied": 4,
+   "rejected": 0,
+   "touched": 2,
+   "recheck": {
+    "hard": 0,
+    "wording": 3,
+    "badRejections": 0
+   },
+   "note": "recheck 의 한정어 4건을 고쳤다. 마지막 recheck 는 hard 0, 표현 선호 3건을 냈고 규칙대로 고치지 않고 unfixed 에 남겼다"
   }
  ],
  "decided": [
@@ -43,34 +67,60 @@
   "Internet Archive 사본 둘(w7: 2026-10-23T19:51Z, w8: 2026-10-24T16:18Z)을 출처에 넣었다. 두 사본을 견주면 본문 9곳이 다르고, 이 차이를 12장의 한계로 적었다",
   "HN 토론(story 50214416, 댓글 120개)에서 원문 주장을 읽는 데 영향을 주는 댓글 둘(w2 air-gap 반론, w4 채널 시험이 지시받은 것이라는 지적)만 반응 상자로 넣었다. 처음 고정했던 다른 댓글 셋은 쓰지 않아 지웠다",
   "차트 값은 페이지에 실린 Vega-Lite spec 의 258개 점에서 읽었고, 경계 그림은 원문 이미지(webp, 약 37KB)를 그대로 넣었다",
-  "링크된 사건 보고서, safety case 글, Patch the Planet 글, GitHub 와 Linux 링크 8개는 열지 않았고 13장에 그 사실과 얕아진 장을 적었다"
+  "소유자의 요청대로 doc/2026-10-25-openai-frontier-training-containment 브랜치에서 이어 고쳤다. 같은 원문으로 쓴 다른 문서(2026-10-25-openai-training-containment)는 열지 않았다",
+  "소유자가 지난 needs_owner 의 선택지 (2)를 골랐다. 그래서 safety case 글(w9, 2026-09-28 게시)만 새 출처로 열었고, Hugging Face 글과 DNS 사건 보고서, Patch the Planet 글, GitHub 와 Linux 링크 8개는 열지 않았다. 14장에 그 사실을 적었다",
+  "w9 는 curl 이 403 이라 w1 과 같은 방법(curl_cffi safari 지문)으로 받았다. Save Page Now 는 520 으로 실패해서 2026-09-29T06:48:52Z archive 사본을 archive_url 로 두었다. 두 본문은 단어 하나(review/reviews)만 다르다",
+  "safety case 글의 내용은 10장에 다 넣지 않고 11장(safety case 지침)을 새로 두었다. 10장의 주장은 OpenAI 가 든 재개 근거이고, 지침이 무엇을 요구하는지와 격리 글이 그 항목에 무엇을 적었는지는 다른 주장이기 때문이다. 10장 lead 와 notes 가 11장을 가리킨다. 옛 11-14장은 12-15장이 되었고 claims.jsonl 의 scope 장 번호도 옮겼다",
+  "멈춘 범위와 재개 범위의 차이는 표지 p.answer 와 재개 카드, 2장 제목과 카드와 notes 와 p.so, 10장 결과 카드와 notes, 13장 한계 목록에 넣었다. 멈춘 쪽의 '가장 능력 있는 모델'과 재개 쪽의 'frontier 모델'이 다르게 적힌 것도 2장에 적었다",
+  "2장의 10월 1일 카드에 있던 '평가를 마치고'는 원문 'assessments' 를 옮긴 말이라 평가(evaluation) 재개로 읽힐 수 있었다. '점검을 마치고'로 바꾸고 notes 에 그 뜻을 적었다",
+  "커밋은 브랜치의 기존 커밋을 고쳐 쓰지 않고 새 커밋으로 얹었다. 기존 커밋의 subject 가 이번 수정을 담지 않기 때문이다. merge 할 때 squash 하면 문서 하나에 커밋 하나가 된다"
  ],
- "needs_owner": [
-  "링크된 safety case 글(/index/towards-safety-cases-for-frontier-ai-training/)과 두 사건 보고서(Hugging Face 글, DNS 사건 보고서)를 새 출처로 열지 정해 주십시오. 선택지: (1) 그대로 둔다. 12장은 '이 글에 없다'로만 말한다. (2) safety case 글만 열어 10장과 12장의 재개 기준을 보강한다. (3) 셋 다 열어 2장의 사건 경위까지 보강한다. 권하는 쪽: (2). 재개 근거가 질문의 중심이고, safety case 글이 그 기준을 담고 있을 가능성이 가장 크다"
- ],
+ "needs_owner": [],
  "unverified": [
-  "원문 페이지는 403 때문에 브라우저가 아닌 TLS 지문 요청으로 받았다. 받은 본문은 2026-10-24T16:18Z archive 사본(w8)과 같다",
+  "원문 페이지 w1 과 safety case 글 w9 는 403 때문에 브라우저가 아닌 TLS 지문 요청으로 받았다. w1 은 2026-10-24T16:18Z archive 사본(w8)과, w9 는 2026-09-29T06:48Z archive 사본과 본문이 같다",
   "차트의 Vega-Lite spec 원본은 notes 에 남기지 않았고, 그 점 값은 notes/figures.md 에만 있다",
-  "부재 주장 5건(c30, c45, c46, c47, c52)은 고정 사본에 대한 grep 명령으로만 확인했다",
-  "11장의 예상(c49)과 10장 p.so 의 해석(c50)은 이 문서가 원문에서 끌어낸 읽기이고 원문으로 확인할 수 없다",
-  "링크된 GitHub advisory, PR, Linux commit 8개를 열지 않아 7장의 수정 내용은 원문의 이름표 수준이다"
+  "부재 주장 9건(c30, c45, c46, c47, c52, c55, c60, c65, c71)은 고정 사본에 대한 grep 명령으로만 확인했다",
+  "12장의 예상(c49), 10장 p.so 의 해석(c50), 11장 p.so 의 권고(c68)는 이 문서가 원문에서 끌어낸 읽기이고 원문으로 확인할 수 없다. 11장 표의 오른쪽 칸도 두 글을 맞춰 본 것이고 문서가 그 사실을 밝힌다",
+  "링크된 GitHub advisory, PR, Linux commit 8개와 DNS 사건 보고서를 열지 않아, 7장의 수정 내용은 원문의 이름표 수준이고 11장의 사건 조사 행은 맞춰 보지 못했다"
  ],
  "unfixed": [
-  "마지막 recheck: 표지 p.answer 의 '인터넷에 닿는 길을 여럿 찾았다'와 meta summary 의 '좁은 연결을 거친 인터넷 경로'에 원문의 'limited' 를 옮긴 '제한적' 이 빠졌다. 표지 흐름 판, 8장 제목과 카드는 '제한적'을 쓴다",
-  "렌즈 A(확신 낮음): 재개한 것은 'RL 학습과 내부 inference' 이고 멈춘 것은 '학습과 평가' 다. 평가도 재개했는지는 원문에 없는데, 문서는 이 차이를 짚지 않는다"
+  "마지막 recheck(표현 선호): 표지 p.answer 의 '멈추고 자기 모델에게 이 울타리를 공격하게 했더니'는 red-teaming 을 중단 기간 안에 한 것으로 읽힌다. 원문은 캠페인을 시작했다고만 적고 중단 기간 안이라고는 적지 않는다",
+  "마지막 recheck(표현 선호): 11장 사건 조사 행의 '사건마다 … 한다'는 원문의 'Some examples of such actions could include' 보다 의무처럼 읽힌다",
+  "마지막 recheck(표현 선호): 11장 격리 red-teaming 행은 원문의 'subject to a safety analysis' 조건을 뺐다",
+  "렌즈 A(고치지 않음): 13장의 '멈춘 범위와 재개한 범위', '수정 뒤 재시험', 'safety case 의 내용' 은 2장과 10장의 notes 와 같은 말을 되풀이한다. 한계를 한 곳에 모으는 장이라 두었다"
  ],
- "rendered": "render.mjs 로 1280px 와 390px 너비에서 14장을 34장 그림으로 찍었고 배치 경고는 없다. 마지막 수정 뒤 표지(1280)를 직접 봤고, 그 앞 판에서 2-12장의 1280px 그림과 표지, 4, 8, 9, 11장의 390px 그림을 봤다. 다크 모드는 보지 않았다",
+ "rendered": "render.mjs 로 1280px 와 390px 너비에서 15장을 38장 그림으로 찍었고 배치 경고와 가로 넘침은 없다. 마지막 수정 뒤 10장과 11장(1280)과 11장(390)을 직접 봤고, 첫 수정 뒤 표지와 2장(1280)을 봤다. 다크 모드는 보지 않았다",
  "reviews": [
   {
    "at": "2026-10-25T10:30:07.912Z",
    "agent": "recheck",
    "sha": "d801204a47f2f916a38d8ec95ff8a01330839fe9639005d3333b60438cfffa3e"
+  },
+  {
+   "at": "2026-10-25T10:46:37.120Z",
+   "agent": "lens-numbers",
+   "sha": "93c530009cb3fab6762ec08669399715c9a6a673be5497ed39ed6ff5130d84b4"
+  },
+  {
+   "at": "2026-10-25T10:46:41.717Z",
+   "agent": "lens-reader",
+   "sha": "93c530009cb3fab6762ec08669399715c9a6a673be5497ed39ed6ff5130d84b4"
+  },
+  {
+   "at": "2026-10-25T10:50:09.694Z",
+   "agent": "recheck",
+   "sha": "442e9f30fe20f08c75a5deb0c079d5a54be9f6ac2cf3c7efd6e21ae4a082012c"
+  },
+  {
+   "at": "2026-10-25T10:51:47.272Z",
+   "agent": "recheck",
+   "sha": "fbd2bc8f6bc1b810159f6096b3650a502b261c448a40106dd57cb3b634133960"
   }
  ],
  "stoppedBecause": "two rounds",
- "commitSubject": "OpenAI 의 frontier 학습 환경 격리와 red-teaming 글을 정리한 문서 추가",
- "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 explainer 로 정리했다. 학습과 평가 환경을 가두는 층, red-teaming 에서 드러난 microVM 탈출과 인터넷 경로와 timing 채널, 고친 것, 10월 1일 재개의 근거, 자기 보고의 한계와 글에 없는 부분을 다룬다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
- "finishedAt": "2026-10-25T19:32:00+09:00",
+ "commitSubject": "OpenAI 학습 환경 격리 문서에 멈춘 범위와 재개 범위의 차이와 safety case 지침 장을 더하다",
+ "commitBody": "OpenAI 가 2026-10-23 에 낸 「Securing our frontier model training environment」를 다룬 explainer 를 소유자의 요청대로 고쳤다. 표지 문단에 원문의 'limited' 를 '제한적으로'로 되살렸다. 멈춘 것(가장 능력 있는 모델의 학습과 평가)과 재개한 것(frontier RL 학습과 내부 inference)이 다르다는 점을 표지, 2장, 10장, 13장이 짚게 했다. 원문이 링크한 safety case 글을 새로 열어 11장(safety case 지침)을 두고, 지침의 항목과 격리 글이 재개에 대해 적은 것을 나란히 놓았다. 지침은 권고 항목의 목록이고 통과 기준값을 담지 않는다.\n\n출처: openai.com 원문(2026-10-25 에 읽은 판, text_sha256 고정), OpenAI 「Towards safety cases for frontier AI training」(2026-09-28 게시, 2026-10-25 에 읽은 판, text_sha256 고정), Internet Archive 사본 둘(2026-10-23T19:51Z, 2026-10-24T16:18Z), Hacker News 댓글 둘(50216357, 50215651).",
+ "finishedAt": "2026-10-25T20:05:00+09:00",
  "gates": {
   "at": "2026-10-25T10:31:57.275Z",
   "session": "419312dc-7f73-47f6-88df-99d74f13ba6c",
@@ -136,5 +186,17 @@
     }
    }
   }
+ },
+ "shippedAt": "2026-10-25T10:53:16.046Z",
+ "ship": {
+  "branch": "doc/2026-10-25-openai-frontier-training-containment",
+  "draft": true,
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "fbd2bc8f6bc1b810159f6096b3650a502b261c448a40106dd57cb3b634133960",
+  "unreviewed": false
  }
 }
