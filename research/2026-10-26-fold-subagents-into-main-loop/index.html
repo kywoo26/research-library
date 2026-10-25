@@ -231,8 +231,8 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
 
   <section class="slide" data-role="cover" data-label="표지">
   <h1>subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것</h1>
-  <p class="answer">Anthropic 의 「When to fold subagents into your main agent loop」는 router, planner, 팀별 subagent 를 main agent 하나의 loop 에 합치라고(fold) 권한다. 글을 쓴 팀은 agent 를 나누던 주된 이유를 skill 과 tool search 가 덜어 준다고 보고, 이미 있는 subagent 는 합친 쪽이 eval 에서 더 나쁠 때만 남기라고 한다. 2026-04 글이 대부분의 경우 orchestrator-subagent 로 시작하라고 한 것과 견주면, 이제 남을 근거를 대야 하는 쪽은 subagent 다.</p>
-  <p class="src">Anthropic 의 Diane Sarkis 가 claude.com 에 쓴 글(2026-10-22 게시)이고, Anthropic Applied AI 팀이 기업 배포에서 본 패턴을 정리했다. 한국어판 URL 이지만 본문은 영어다. 2026-10-25 사본 기준이며, 맞대어 보려고 같은 주제의 Anthropic 이전 글 일곱 편, Cognition 의 글 한 편, 글에 딸린 migration kit 저장소를 함께 읽었다.</p>
+  <p class="answer">Anthropic 의 「When to fold subagents into your main agent loop」는 router, planner, 팀별 subagent 를 main agent 하나의 loop 에 합치라고(fold) 권한다. 글을 쓴 팀은 agent 를 나누던 주된 이유를 skill 과 tool search 가 덜어 준다고 보고, 이미 있는 subagent 는 합친 쪽이 eval 에서 더 나쁠 때만 남기라고 한다. 이 글은 업계 문서를 언급하지 않지만, CrewAI 나 OpenAI Agents SDK 문서가 역할마다 전문 agent 를 두라고 가르치는 것에 대면, 남을 근거를 댈 쪽은 subagent 다.</p>
+  <p class="src">Anthropic 의 Diane Sarkis 가 claude.com 에 쓴 글(2026-10-22 게시)이고, Anthropic Applied AI 팀이 기업 배포에서 본 패턴을 정리했다. 한국어판 URL 이지만 본문은 영어다. 2026-10-25 사본 기준이다. 맞대어 보려고 LangChain·LangGraph, CrewAI, AutoGen, OpenAI 의 multi-agent 문서와 가이드, 같은 주제의 Anthropic 이전 글 일곱 편, Cognition 의 글 한 편, 글에 딸린 migration kit 저장소를 함께 읽었다.</p>
   <div class="board flow" data-cols="문제|예전 근거|남는 자리|설계|이행|판정" data-lanes="1|2" aria-label="팀마다 subagent 를 두는 구조가 문제의 출발이다. agent 를 나누던 전문화 이유는 skill 과 tool search 로, 하네스가 하던 판단은 모델로 옮겨 가고, subagent 는 context 로 나뉘는 일에만 남는다. 그 결과가 단일 loop 설계이고, eval 을 먼저 만들어 하나씩 합치며 재는 이행으로 이어진다. 사례 하나에서는 지연이 줄면서 task 하나가 깨졌고, 독자는 따로 둘 context 가 있는지로 자기 subagent 를 판정한다">
     <a class="card" id="f-org" href="#p2" data-col="문제" data-lane="1..2" data-center><b>팀마다 subagent 를 두면 agent 구조가 조직도를 닮는다</b><p>context 손실, subagent 난립, 부딪치는 prompt, 쪼개진 eval, 지연</p></a>
     <a class="card t-key" id="f-spec" href="#p4" data-col="예전 근거" data-lane="1"><b>agent 를 나누던 전문화 이유를 skill 과 tool search 가 맡는다</b><p>긴 domain 지식, 많은 tool, persona, 팀 경계</p></a>
@@ -254,12 +254,12 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <div class="toc">
     <p class="toc-h">논증 밖에서 더 보는 장</p>
     <ul>
-      <li><span class="g">배경</span><a href="#p3">3 · 흐름</a><span class="f">2026-04 글은 multi-agent 를 고르면 대부분의 경우 orchestrator-subagent 부터 하라고 했다</span></li>
+      <li><span class="g">배경</span><a href="#p3">3 · 업계 구조</a><span class="f">LangGraph, CrewAI, OpenAI 문서는 역할마다 agent 를 두고 supervisor 나 handoff 로 엮는 법을 가르친다</span></li>
       <li><span class="g">조직</span><a href="#p11">11 · 팀의 몫</a><span class="f">팀은 agent 대신 skill, tool, eval 을 내보낸다</span></li>
-      <li><span class="g">정리</span><a href="#p12">12 · 새로운 것</a><span class="f">원칙은 2024-12 부터 이어지고, 바뀐 것은 subagent 를 남기는 입증 책임이다</span></li>
-      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">핵심 비교에는 배포 수도 점수도 없다</span></li>
+      <li><span class="g">정리</span><a href="#p12">12 · 뒤집는 것</a><span class="f">2026-10 글의 기준을 대면 역할마다 agent 를 두던 분할이 뒤집히고, 실패가 보일 때 나누는 조건은 남는다</span></li>
+      <li><span class="g">범위</span><a href="#p13">13 · 한계</a><span class="f">단일 agent 가 낫다는 비교에는 배포 수도 점수도 없다</span></li>
       <li><span class="g"></span><a href="#p14">14 · 읽은 범위</a><span class="f">kit 의 코드는 돌리지 않았다</span></li>
-      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">웹 글 아홉 편과 저장소 하나</span></li>
+      <li><span class="g"></span><a href="#p15">15 · 출처</a><span class="f">웹 문서 열여섯 편과 저장소 둘</span></li>
     </ul>
   </div>
   </section>
@@ -294,50 +294,55 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   </details>
   </section>
 
-  <section class="slide" data-role="history" data-label="흐름">
-  <h2>Anthropic 은 2024년 말부터 multi-agent 를 쓸 조건을 차츰 좁혀 왔다</h2>
-  <p class="lead">같은 주제로 Anthropic 이 낸 글을 날짜순으로 놓았다. Cognition 의 글은 Anthropic 밖에서 같은 방향을 먼저 주장한 예로 함께 넣었다.</p>
+  <section class="slide" data-role="history" data-label="업계 구조">
+  <h2>업계 문서는 전문 agent 를 supervisor 나 handoff 로 엮는 법을 가르친다</h2>
+  <p class="lead">실무자가 multi-agent 를 배우는 LangChain·LangGraph, CrewAI, AutoGen, OpenAI 의 문서에서 구조마다 가르치는 문장을 모았다. 2026-10 글은 이 문서들을 언급하지 않고, 자기 권고를 이 구조들과 견주지도 않는다.</p>
   <table>
-    <thead><tr><th>게시</th><th>글</th><th>multi-agent 에 대해 한 말</th></tr></thead>
+    <thead><tr><th>구조</th><th>업계 문서가 가르치는 방식</th></tr></thead>
     <tbody>
-      <tr><td>2024-12</td><td><b>Building effective agents</b> (Anthropic)</td><td>routing, orchestrator-workers 같은 workflow 를 소개하면서 가장 단순한 해법부터 쓰고 효과가 보일 때만 복잡성을 더하라고 권한다</td></tr>
-      <tr><td>2025-06</td><td><b>How we built our multi-agent research system</b> (Anthropic)</td><td>lead agent 와 subagent 구성이 단일 Claude Opus 4 보다 내부 research eval 에서 90.2% 높았다. 토큰은 chat 의 약 15배를 쓴다</td></tr>
-      <tr><td>2025-06</td><td><b>Don’t Build Multi-Agents</b> (Cognition)</td><td>OpenAI 의 swarm 과 Microsoft 의 autogen 같은 라이브러리가 multi-agent 구조를 밀고 있다고 비판한다. context 와 agent trace 전체를 공유하라고 하고, 2025년의 multi-agent 협업은 깨지기 쉽다고 본다</td></tr>
-      <tr><td>2026-01</td><td><b>Building multi-agent systems</b> (Anthropic)</td><td>multi-agent 가 이기는 상황을 context 오염, 병렬화, 전문화로 꼽고, 그 밖에서는 조정 비용이 이득보다 크다고 쓴다. 토큰은 단일 agent 의 3-10배다</td></tr>
-      <tr><td>2026-04</td><td><b>Multi-agent coordination patterns</b> (Anthropic)</td><td>multi-agent 를 고른 팀에게 대부분의 경우 orchestrator-subagent 로 시작하라고 권한다</td></tr>
-      <tr><td>2026-07</td><td><b>The new rules of context engineering for Claude 5 generation models</b> (Anthropic)</td><td>Claude Code system prompt 를 80% 넘게 지웠는데 코딩 eval 에서 잴 만한 손실이 없었다고 적는다</td></tr>
-      <tr><td>2026-09</td><td><b>A guide to the anatomy of effective commerce agents</b> (Anthropic)</td><td>앞에 intent router 도, 뒤에 domain agent 도 없는 한 loop 에 skill 을 붙인 구조를 권한다</td></tr>
-      <tr><td>2026-10</td><td><b>When to fold subagents into your main agent loop</b> (Anthropic Applied AI 팀)</td><td>router, planner, domain subagent 를 main loop 로 합치는 절차와 migration kit 을 내놓는다</td></tr>
+      <tr><td><b>역할마다 agent</b></td><td>CrewAI 의 agent 는 crew 안의 기능과 전문성을 정하는 role, 성격을 주는 backstory 를 갖는다. AutoGen 의 예제는 web search tool 하나, 계산 tool 하나에 agent 를 하나씩 둔다. OpenAI Agents SDK 문서는 무엇이든 해야 하는 범용 agent 대신 한 가지를 잘하는 전문 agent 를 두라고 한다</td></tr>
+      <tr><td><b>supervisor 와 manager</b></td><td>LangGraph 의 supervisor 는 모든 통신과 위임을 정하고, supervisor 를 거느린 supervisor 로 research_team, writing_team 같은 층을 쌓는다. CrewAI 의 hierarchical process 는 회사 위계를 본뜬 manager 가 계획, 위임, 검증을 맡는다. OpenAI 가이드의 manager pattern 은 전문 agent 를 tool 로 부른다</td></tr>
+      <tr><td><b>handoff 와 group chat</b></td><td>OpenAI 가이드의 decentralized pattern 은 agent 끼리 전문 분야를 따라 일을 넘기고, 예로 sales 와 support 를 나눈 고객 응대를 든다. AutoGen 의 SelectorGroupChat 에서는 모델이 공유된 대화를 보고 다음에 말할 agent 를 고른다</td></tr>
+      <tr><td><b>router 와 고정 pipeline</b></td><td>OpenAI Agents SDK 의 code orchestration 은 agent 가 task 를 분류하게 한 뒤 그 범주로 다음 agent 를 고르거나, 조사, 개요, 작성, 비평을 agent 사슬로 잇는다. CrewAI 의 기본값인 sequential process 는 앞 task 의 출력을 다음 task 의 context 로 넘긴다</td></tr>
     </tbody>
   </table>
   <ul class="notes">
-    <li>2025-06 글의 90.2% 는 Claude Opus 4 가 lead 이고 Claude Sonnet 4 가 subagent 인 구성과 단일 Claude Opus 4 의 비교다. 같은 글은 그 이득의 바탕을 토큰으로 설명한다. BrowseComp 에서 성능 분산의 80% 를 토큰 사용량 하나가 설명했다.</li>
+    <li>Anthropic 의 앞선 글도 이 흐름의 한 줄기다. 2024-12 글은 routing 과 orchestrator-workers 를 workflow 로 소개했다. 2026-01 글은 context 오염, 병렬화, 전문화를 multi-agent 가 이기는 상황으로 꼽았다. 2026-04 글은 multi-agent 를 고른 팀에게 대부분의 경우 orchestrator-subagent 로 시작하라고 권했다.</li>
+    <li>반대 목소리도 있었다. Cognition 의 2025-06 글은 OpenAI 의 swarm 과 Microsoft 의 autogen 이 multi-agent 구조를 민다고 비판하고, context 와 agent trace 전체를 공유하라고 했다.</li>
+    <li>업계 문서도 단일 agent 를 먼저 권한다. OpenAI 가이드는 단일 agent 의 능력부터 최대로 키우라고 하고, LangChain 문서는 맞는 tool 과 prompt 를 가진 단일 agent 가 비슷한 결과를 낼 때가 많다고 적는다. LangChain 은 skill 을 multi-agent 패턴의 하나로도 싣는다.</li>
+    <li>supervisor 의 모양도 바뀌었다. langgraph-supervisor 의 README 는 이제 대부분의 경우 라이브러리 대신 supervisor 를 tool 로 부르는 방식을 권한다.</li>
   </ul>
-  <p class="so">그래서 2026-10 글의 결론은 앞선 글들이 달아 둔 단서에서 이어진다. 2026-01 글은 모델이 나아지면 이 기준도 움직인다고 이미 적었다. Applied AI 팀은 Opus 4.5 부터 모델이 한 loop 에서 훨씬 많은 일을 다룬다고 보고, 이미 있는 subagent 를 하나씩 합쳐 보라고 한다.</p>
+  <p class="so">그래서 단일 agent 부터 키우라는 말은 업계 문서에도 이미 있다. 업계 문서가 agent 를 나누라고 하는 조건은 4장에, 하네스가 정해 두던 경로는 5장에 2026-10 글의 새 자리와 짝지어 놓았다.</p>
   <details class="orig"><summary>원문</summary>
-    <p>2026-01 글 §What is a multi-agent system?: <span class="q">“Today, multi-agent systems are often applied in situations where a single agent would perform better, though this calculus continues to evolve as models improve.”</span></p>
-    <p>같은 글: <span class="q">“These thresholds will shift as models improve. Current limits represent practical guidelines, not fundamental constraints.”</span></p>
-    <p>2026-04 글 §Getting started: <span class="q">“For most use cases, we recommend starting with orchestrator-subagent. It handles the widest range of problems with the least coordination overhead.”</span></p>
-    <p>2025-06 글 §Benefits of a multi-agent system: <span class="q">“We found that a multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents outperformed single-agent Claude Opus 4 by 90.2% on our internal research eval.”</span></p>
+    <p>CrewAI 「Agents」 속성 표: <span class="q">“Role | role | str | Defines the agent’s function and expertise within the crew.”</span> <span class="q">“Backstory | backstory | str | Provides context and personality to the agent, enriching interactions.”</span></p>
+    <p>OpenAI Agents SDK 「Agent orchestration」: <span class="q">“Have specialized agents that excel in one task, rather than having a general purpose agent that is expected to be good at anything.”</span></p>
+    <p>langgraph-supervisor README.md: <span class="q">“The supervisor controls all communication flow and task delegation, making decisions about which agent to invoke based on the current context and task requirements.”</span> <span class="q">“You can create multi-level hierarchical systems by creating a supervisor that manages multiple supervisors.”</span></p>
+    <p>CrewAI 「Processes」 §Hierarchical Process: <span class="q">“Emulates a corporate hierarchy, CrewAI allows specifying a custom manager agent or automatically creates one, requiring the specification of a manager language model (manager_llm). This agent oversees task execution, including planning, delegation, and validation.”</span></p>
+    <p>OpenAI 「A practical guide to building agents」: <span class="q">“A central “manager” agent coordinates multiple specialized agents via tool calls, each handling a specific task or domain.”</span> <span class="q">“Multiple agents operate as peers, handing off tasks to one another based on their specializations.”</span></p>
+    <p>OpenAI Agents SDK §Orchestrating via code: <span class="q">“For example, you might ask an agent to classify the task into a few categories, and then pick the next agent based on the category.”</span></p>
+    <p>OpenAI 가이드 §When to consider creating multiple agents: <span class="q">“Our general recommendation is to maximize a single agent’s capabilities first.”</span></p>
+    <p>LangChain 「Multi-agent」 머리말: <span class="q">“However, not every complex task requires this approach—a single agent with the right (sometimes dynamic) tools and prompt can often achieve similar results.”</span></p>
+    <p>LangChain 「Multi-agent」 §Patterns: <span class="q">“Skills | Specialized prompts and knowledge loaded on-demand. A single agent stays in control while loading context from skills as needed.”</span></p>
+    <p>langgraph-supervisor README.md: <span class="q">“We now recommend using the supervisor pattern directly via tools rather than this library for most use cases.”</span></p>
+    <p>Anthropic 2026-04 글 §Getting started: <span class="q">“For most use cases, we recommend starting with orchestrator-subagent. It handles the widest range of problems with the least coordination overhead.”</span></p>
     <p>Cognition 글: <span class="q">“In some cases, libraries such as https://github.com/openai/swarm by OpenAI and https://github.com/microsoft/autogen by Microsoft actively push concepts which I believe to be the wrong way of building agents.”</span></p>
-    <p>같은 글: <span class="q">“it is evident that in 2025, running multiple agents in collaboration only results in fragile systems. The decision-making ends up being too dispersed and context isn’t able to be shared thoroughly enough between the agents.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="contrast" data-label="나누던 이유">
   <h2>agent 를 나누던 전문화 이유는 skill 과 tool search 로 옮겨 간다</h2>
-  <p class="lead">Anthropic 은 2026-01 글에서 tool 이 많을 때, 행동 방식이 부딪칠 때, domain 지식이 클 때 agent 를 나누라고 했다. 2026-10 글과 migration kit 은 그 이유마다 main agent 안의 다른 자리를 준다.</p>
+  <p class="lead">Anthropic 의 2026-01 글과 업계 문서는 tool 이 많을 때, 지시가 부딪치거나 복잡할 때, domain 지식이 클 때 agent 를 나누라고 한다. 2026-04 글은 message bus 패턴의 장점으로, LangChain 문서는 multi-agent 를 찾는 이유로 팀별 독립 개발을 들고, 아래 표는 이 이유마다 2026-10 글과 migration kit 이 주는 새 자리를 짝지어 놓았다.</p>
   <table>
     <thead><tr><th>나누던 이유</th><th>예전 권고</th><th>새 자리</th></tr></thead>
     <tbody>
-      <tr><td><b>domain 지식이 크다</b></td><td>domain context 를 한 agent 에 다 싣기보다 전문 agent 가 나눠 든다 (2026-01)</td><td>skill 로 옮긴다. 평소에는 짧은 설명만 context 에 있고, 필요할 때 본문을 읽는다. Skills 글은 metadata 를 약 50 토큰, SKILL.md 본문을 약 500 토큰으로 잡는다</td></tr>
-      <tr><td><b>tool 이 많다</b></td><td>tool 이 흔히 20개 이상이면 고르기 어렵다. 40개 이상의 tool 을 가진 예에서는 전문 agent 로 나눠 선택 오류를 풀었다 (2026-01)</td><td>tool search 와 deferred loading 으로 정의를 필요할 때 불러온다. tool 은 API 마다 하나씩 두지 말고 사용자 의도별로 묶는다. system prompt 에 실린 정의가 30-50개를 넘으면 선택이 나빠진다</td></tr>
-      <tr><td><b>행동 방식이 부딪친다</b></td><td>공감하는 상담과 엄격한 코드 리뷰처럼 모드가 부딪치면 prompt 를 따로 둔 agent 로 나눈다 (2026-01)</td><td>목소리는 main system prompt 하나가 맡고, 작은 중앙 팀이 그 prompt 를 소유한다. kit 은 agent 하나에 목소리 하나라고 적는다. skill 로도 풀리지 않는 지시 충돌만 6장의 조건으로 남는다</td></tr>
-      <tr><td><b>맡은 팀이 다르다</b></td><td>전문가끼리 협업하는 조직처럼 agent 를 나눈다 (2026-01). message bus 에서는 팀이 agent 를 따로 배포할 수 있다는 점을 장점으로 든다 (2026-04)</td><td>팀은 agent 대신 skill, tool, eval 을 소유한다. kit 은 다른 팀이 맡았다는 사실을 따로 context 를 둘 이유로 치지 않는다</td></tr>
+      <tr><td><b>domain 지식이 크다</b></td><td>domain context 를 한 agent 에 다 싣기보다 전문 agent 가 나눠 든다 (2026-01). LangChain 문서도 긴 prompt 와 domain tool 이 드는 전문 지식을 이유로 든다</td><td>skill 로 옮긴다. 평소에는 짧은 설명만 context 에 있고, 필요할 때 본문을 읽는다. Skills 글은 metadata 를 약 50 토큰, SKILL.md 본문을 약 500 토큰으로 잡는다</td></tr>
+      <tr><td><b>tool 이 많다</b></td><td>tool 이 흔히 20개 이상이면 고르기 어렵다. 40개 이상의 tool 을 가진 예에서는 전문 agent 로 나눠 선택 오류를 풀었다 (2026-01). OpenAI 가이드는 겹치는 tool 이면 10개 미만에서도 헤맨다고 보고, tool 설명을 고쳐도 나아지지 않으면 나누라고 한다</td><td>tool search 와 deferred loading 으로 정의를 필요할 때 불러온다. tool 은 API 마다 하나씩 두지 말고 사용자 의도별로 묶는다. system prompt 에 실린 정의가 30-50개를 넘으면 선택이 나빠진다</td></tr>
+      <tr><td><b>행동 방식이 부딪친다</b></td><td>공감하는 상담과 엄격한 코드 리뷰처럼 모드가 부딪치면 prompt 를 따로 둔 agent 로 나눈다 (2026-01). OpenAI 가이드는 prompt 에 if-then-else 분기가 많아지면 논리 단위마다 agent 로 나누라고 한다</td><td>목소리는 main system prompt 하나가 맡고, 작은 중앙 팀이 그 prompt 를 소유한다. kit 은 agent 하나에 목소리 하나라고 적는다. skill 로도 풀리지 않는 지시 충돌만 6장의 조건으로 남는다</td></tr>
+      <tr><td><b>맡은 팀이 다르다</b></td><td>message bus 에서는 팀이 agent 를 따로 개발하고 배포할 수 있다는 점을 장점으로 든다 (2026-04). LangChain 문서는 팀마다 기능을 따로 개발하고 유지하는 것을 multi-agent 를 찾는 이유로 들면서, skill 패턴에도 같은 점수를 준다</td><td>팀은 agent 대신 skill, tool, eval 을 소유한다. kit 은 다른 팀이 맡았다는 사실을 따로 context 를 둘 이유로 치지 않는다</td></tr>
     </tbody>
   </table>
   <ul class="notes">
-    <li>tool 수 기준은 2026-01 글에서 흔히 20개 이상, 다른 절에서는 15-20개 이상이었고, 2026-10 글은 30-50개를 적는다. 두 글이 세는 것이 조금 다르다. 앞의 것은 한 agent 가 가진 tool 수이고, 뒤의 것은 system prompt 에 실린 tool 정의 수다. 그래서 이 차이를 기준이 올라간 정도로 읽지 않는다. 두 숫자를 나란히 놓은 비교는 어느 글에도 없다.</li>
+    <li>tool 수 기준은 2026-01 글에서 흔히 20개 이상, 다른 절에서는 15-20개 이상이었고, 2026-10 글은 30-50개를 적는다. 두 글은 세는 대상을 다르게 적는다. 앞의 것은 한 agent 가 가진 tool 이고, 뒤의 것은 system prompt 에 실린 tool 정의다. tool search 로 정의를 미뤄 부르면 두 수가 갈라지므로, 이 차이를 기준이 올라간 정도로 바로 읽지 않는다. 두 숫자를 나란히 놓은 비교는 어느 글에도 없다.</li>
     <li>tool search 는 2026-01 글도 multi-agent 로 가기 전에 먼저 써 보라고 권했고, 토큰을 최대 85% 줄인다고 적었다.</li>
     <li>Claude Code 의 system prompt 를 80% 넘게 줄인 일에는 skill 과 tool 을 progressive disclosure 로 바꾼 몫이 들어 있다.</li>
   </ul>
@@ -346,22 +351,24 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
     <p>2026-01 글 §Domain expertise specialization: <span class="q">“Rather than loading all domain context into a single agent, specialized agents can carry focused expertise relevant to their specific responsibilities.”</span></p>
     <p>2026-01 글 §Tool set specialization: <span class="q">“Quantity. An agent with too many tools (often 20+) struggles to select the appropriate one.”</span></p>
     <p>2026-01 글 §System prompt specialization: <span class="q">“When a single agent must switch between conflicting behavioral modes, separating into specialized agents with tailored system prompts produces more consistent results.”</span></p>
-    <p>2026-01 글: <span class="q">“This pattern mirrors effective professional collaboration, where specialists with tools matched to their roles collaborate more effectively than generalists attempting to maintain expertise across all domains.”</span></p>
+    <p>2026-04 글 §Pattern 4: Message bus: <span class="q">“This pipeline suits the message bus because events flow from one stage to the next, teams can add new agent types as threat categories evolve, and teams can develop and deploy agents independently.”</span></p>
+    <p>OpenAI 가이드 §When to consider creating multiple agents: <span class="q">“When prompts contain many conditional statements (multiple if-then-else branches), and prompt templates get difficult to scale, consider dividing each logical segment across separate agents.”</span> <span class="q">“Some implementations successfully manage more than 15 well-defined, distinct tools while others struggle with fewer than 10 overlapping tools.”</span></p>
+    <p>LangChain 「Multi-agent」 §Why multi-agent?: <span class="q">“Multi-agent patterns are particularly valuable when a single agent has too many tools and makes poor decisions about which to use, when tasks require specialized knowledge with extensive context (long prompts and domain-specific tools), or when you need to enforce sequential constraints that unlock capabilities only after certain conditions are met.”</span></p>
     <p>2026-10 글 §Using an agent loop with progressive disclosure: <span class="q">“This removes the main reason teams previously split work across subagents. In fact, we reduced Claude Code’s system prompt for more advanced models by over 80% which included cuts related to progressively disclosing skills and tools.”</span></p>
     <p>2026-10 글 §MCP tools: <span class="q">“We recommend tools grouped by user intent (not one tool per API) because once you exceed 30-50 tool definitions in the system prompt, tool choice tends to degrade.”</span></p>
-    <p>kit skill/steps/00-audit.md: <span class="q">“A different team inside the company owns it. Ownership moves to the skill and its eval. It has its own persona or voice. One agent should have one voice. Its prompt is long. A skill's body is only loaded when it is needed. It has many tools. Tool search loads tool definitions on demand.”</span></p>
+    <p>kit skill/steps/00-audit.md: <span class="q">“A different team inside the company owns it. Ownership moves to the skill and its eval.”</span> <span class="q">“It has its own persona or voice. One agent should have one voice.”</span> <span class="q">“Its prompt is long. A skill's body is only loaded when it is needed.”</span> <span class="q">“It has many tools. Tool search loads tool definitions on demand.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="contrast" data-label="하네스의 판단">
   <h2>하네스가 코드로 정해 두던 판단은 매 턴 모델이 내린다</h2>
-  <p class="lead">Anthropic 의 2024-12 글이 소개한 workflow 는 미리 정한 코드 경로로 모델과 tool 을 엮는다. Applied AI 팀은 그 경로가 하던 판단을 매 턴 모델에게 넘기고, 코드에는 기계적인 일과 강한 제한만 남긴다.</p>
-  <div class="board" data-cols="예전 하네스 구성|옮겨 가는 곳" data-lanes="1|2|3|4" aria-label="왼쪽의 예전 하네스 구성 넷이 각각 오른쪽의 새 자리로 옮겨 간다. routing 은 모델의 매 턴 선택으로, 고정 pipeline 은 skill 과 tool 안의 코드로, 따로 둔 planner 는 계획을 쓰고 실행하는 같은 모델로, prompt 의 규칙은 tool 과 하네스의 제한으로 간다. 가장 큰 변화는 planner 줄이다">
-    <div class="card" id="c5-route" data-col="예전 하네스 구성" data-lane="1"><b>routing 과 intent classifier</b><p>입력을 분류해 전문 prompt 와 tool 로 보낸다. 2024-12 글의 예는 고객 지원 질의다</p></div>
+  <p class="lead">3장의 router, pipeline, manager 와 Anthropic 2024-12 글의 workflow 는 미리 정한 코드 경로나 따로 둔 agent 로 모델과 tool 을 엮는다. Applied AI 팀은 그 경로가 하던 판단을 매 턴 모델에게 넘기고, 코드에는 기계적인 일과 강한 제한만 남긴다.</p>
+  <div class="board" data-cols="예전 하네스 구성|옮겨 가는 곳" data-read="lanes" data-lanes="1|2|3|4" aria-label="왼쪽의 예전 하네스 구성 넷이 각각 오른쪽의 새 자리로 옮겨 간다. routing 은 모델의 매 턴 선택으로, 고정 pipeline 은 skill 과 tool 안의 코드로, 따로 둔 planner 는 계획을 쓰고 실행하는 같은 모델로, prompt 의 규칙은 tool 과 하네스의 제한으로 간다. 가장 큰 변화는 planner 줄이다">
+    <div class="card" id="c5-route" data-col="예전 하네스 구성" data-lane="1"><b>routing 과 intent classifier</b><p>입력을 분류해 전문 agent 나 prompt 로 보낸다</p><p class="ev">OpenAI SDK 의 code orchestration, LangChain 의 Router, 2024-12 글의 routing</p></div>
     <div class="card" id="c5-route2" data-col="옮겨 가는 곳" data-lane="1"><b>모델이 매 턴 다음 걸음을 고른다</b><p>tool 묶음, 사용자에게 질문, 답 가운데 하나다. 2026-09 commerce 글의 agent 앞에는 intent router 가 없다</p></div>
-    <div class="card" id="c5-pipe" data-col="예전 하네스 구성" data-lane="2"><b>고정된 여러 단계 pipeline</b><p>단계를 코드로 정해 두고 앞 단계의 출력을 다음 단계에 넘긴다</p></div>
+    <div class="card" id="c5-pipe" data-col="예전 하네스 구성" data-lane="2"><b>고정된 여러 단계 pipeline</b><p>단계를 코드로 정해 두고 앞 단계의 출력을 다음 단계에 넘긴다</p><p class="ev">CrewAI 의 sequential process, OpenAI SDK 의 agent 사슬</p></div>
     <div class="card" id="c5-pipe2" data-col="옮겨 가는 곳" data-lane="2"><b>순서와 절차는 skill 로, 기계적인 부분은 tool 안의 코드로</b><p>payload 만들기, stream 파싱, 확인 질문 뒤 재개 같은 일이다</p></div>
-    <div class="card" id="c5-plan" data-col="예전 하네스 구성" data-lane="3"><b>planner 와 worker</b><p>중앙 LLM 이 일을 쪼개 worker 에게 맡기고 결과를 합친다</p></div>
+    <div class="card" id="c5-plan" data-col="예전 하네스 구성" data-lane="3"><b>planner 와 worker</b><p>중앙 LLM 이 일을 쪼개 worker 에게 맡기고 결과를 합친다</p><p class="ev">LangGraph supervisor, CrewAI manager, 2024-12 글의 orchestrator-workers</p></div>
     <div class="card t-key" id="c5-plan2" data-col="옮겨 가는 곳" data-lane="3"><b>계획을 쓴 모델이 실행도 한다</b><p>첫 턴에 계획을 context 에 쓰고, 결과가 올 때마다 턴 중간에도 고친다</p><p class="ev">orchestrator 구성과 가장 크게 다른 점이다</p></div>
     <div class="card" id="c5-rule" data-col="예전 하네스 구성" data-lane="4"><b>prompt 에 적은 강한 규칙</b><p>Claude Code 도 처음에는 파일 삭제 같은 최악을 피하려 강한 규칙을 prompt 에 넣었다 (2026-07)</p></div>
     <div class="card" id="c5-rule2" data-col="옮겨 가는 곳" data-lane="4"><b>검증과 승인은 tool 안에, 예산과 write gate 는 하네스에</b><p>tool 이 사용자별 권한을 확인하고 모델이 읽을 거절을 돌려준다</p></div>
@@ -377,6 +384,7 @@ details.vals td, details.vals th { padding:3px 10px 3px 0; }
   <p class="so">그래서 하네스가 맡는 일은 모델이 할 판단을 미리 정해 두는 일에서, 모델이 넘으면 안 되는 선을 강제하는 일로 좁아진다. 새 모델이 나올 때마다 판단을 더 옮길 수 있고, Anthropic 이 도운 고객 이행에서는 경직된 multi-agent 구조가 새 모델이 일을 더 맡는 것을 자주 막았다.</p>
   <details class="orig"><summary>원문</summary>
     <p>2024-12 글 §Workflow: Routing: <span class="q">“Routing classifies an input and directs it to a specialized followup task. This workflow allows for separation of concerns, and building more specialized prompts.”</span></p>
+    <p>CrewAI 「Processes」 §Sequential Process: <span class="q">“Task execution follows the predefined order in the task list, with the output of one task serving as context for the next.”</span></p>
     <p>2024-12 글 §Workflow: Orchestrator-workers: <span class="q">“In the orchestrator-workers workflow, a central LLM dynamically breaks down tasks, delegates them to worker LLMs, and synthesizes their results.”</span></p>
     <p>2026-10 글 §How to fold subagents into the main agent loop: <span class="q">“This is the main change from the orchestrator and specialist agents setup: the model that writes the plan is also the one carrying it out, so it can change the plan mid-turn.”</span></p>
     <p>같은 절: <span class="q">“A code step that rewrites the plan from a catalog of rules is no longer needed, since the model decides each step.”</span> <span class="q">“Hard limits (validation, approval gates) and anything else that comes up mid-conversation (e.g. memory lookup) move into the tools.”</span></p>
@@ -556,71 +564,89 @@ v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
   </details>
   </section>
 
-  <section class="slide" data-role="synthesis" data-label="새로운 것">
-  <h2>Anthropic 의 2026-10 글이 바꾼 것은 subagent 를 남기는 입증 책임이다</h2>
-  <p class="lead">단일 agent 를 먼저 쓰라는 말과 context 로 나누라는 원칙은 앞선 글에 이미 있었다. 아래 판은 이어진 원칙과 2026-10 글에서 바뀐 것을 나눠 놓았다.</p>
-  <div class="board" data-cols="앞선 글에서 이어진 원칙|2026-10 글에서 바뀐 것" data-lanes="1|2|3|4|5" aria-label="왼쪽은 2024-12 부터 이어진 원칙이고 오른쪽은 2026-10 글에서 처음 바뀐 것이다. 오른쪽에서 이 문서가 가장 크게 보는 변화는 subagent 가 합친 쪽보다 eval 에서 나아야만 남는다는 점이다">
-    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="1"><b>가장 단순한 해법부터 쓴다</b><p>복잡성은 측정해서 효과가 보일 때만 더한다 (2024-12)</p></div>
-    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="2"><b>문제 유형 대신 context 로 나눈다</b><p>handoff 마다 정보가 줄어드는 telephone game (2025-06, 2026-01)</p></div>
-    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="3"><b>context 와 trace 를 공유한다</b><p>Cognition 의 원칙 (2025-06)</p></div>
-    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="4"><b>multi-agent 전에 tool search 를 써 본다</b><p>2026-01 글이 먼저 권했다</p></div>
-    <div class="card t-quiet" data-col="앞선 글에서 이어진 원칙" data-lane="5"><b>router 없는 한 loop 에 skill 을 붙인다</b><p>2026-09 commerce 글이 상거래 agent 에서 먼저 권했다</p></div>
-    <div class="card t-key" data-col="2026-10 글에서 바뀐 것" data-lane="1"><b>subagent 가 합친 쪽을 이겨야 남는다</b><p>2026-04 글은 multi-agent 를 고르면 대부분의 경우 orchestrator-subagent 부터 하라고 했다. 2026-10 글은 이미 있는 subagent 마다 합친 쪽과 eval 로 비교해, 합친 쪽이 더 나쁠 때만 남긴다</p></div>
-    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="2"><b>전문화 이유가 skill 과 tool search 로 간다</b><p>domain 지식, tool 수, persona, 팀 경계 (4장)</p></div>
-    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="3"><b>팀의 소유 단위가 skill, tool, eval 이 된다</b><p>작은 중앙 팀이 system prompt 와 end-to-end 품질을 맡는다 (11장)</p></div>
-    <div class="card" data-col="2026-10 글에서 바뀐 것" data-lane="4"><b>이행 도구가 붙는다</b><p>migration kit, /claude-api 의 build-eval, prompt-audit, hillclimb, cost-optimize</p></div>
+  <section class="slide" data-role="synthesis" data-label="뒤집는 것">
+  <h2>2026-10 글의 기준을 대면 역할마다 agent 를 두던 업계의 분할이 뒤집힌다</h2>
+  <p class="lead">왼쪽은 3장과 4장에서 모은 업계의 가르침이고, 가운데와 오른쪽은 같은 가르침을 2026-10 글의 기준에 대었을 때다. 2026-10 글은 이 대응을 직접 하지 않으므로, 제목의 ‘뒤집힌다’와 판의 짝은 4장에서 11장의 기준을 하나씩 대어 본 해석이다.</p>
+  <div class="board" data-cols="업계가 가르치는 것|2026-10 글의 기준에서 달라짐|그대로 또는 좁혀서 남음" data-read="lanes" data-lanes="1|2|3|4|5|6|7" aria-label="왼쪽 일곱 가르침이 각각 가운데의 달라지는 칸이나 오른쪽의 남는 칸으로 이어진다. 위의 다섯은 달라지고 아래 둘은 남거나 좁혀진다. 가장 큰 변화는 이미 있는 subagent 가 합친 쪽이 eval 에서 더 나쁠 때만 남는다는 점이다">
+    <div class="card" id="c12-role" data-col="업계가 가르치는 것" data-lane="1"><b>역할과 persona 마다 agent 를 둔다</b><p class="ev">CrewAI 의 role 과 backstory, OpenAI SDK 의 전문 agent 권고, AutoGen 의 예제</p></div>
+    <div class="card" id="c12-role2" data-col="2026-10 글의 기준에서 달라짐" data-lane="1"><b>역할의 절차는 skill 로, 목소리는 main prompt 하나로 간다</b><p class="ev">4장</p></div>
+    <div class="card" id="c12-team" data-col="업계가 가르치는 것" data-lane="2"><b>회사 위계를 본뜨고, 팀별 독립 개발을 장점으로 든다</b><p>LangChain 은 skill 패턴에도 같은 점수를 준다</p><p class="ev">CrewAI 의 hierarchical process, LangChain 의 distributed development, Anthropic 2026-04 글의 message bus</p></div>
+    <div class="card" id="c12-team2" data-col="2026-10 글의 기준에서 달라짐" data-lane="2"><b>팀은 skill, tool, eval 을 내보낸다</b><p class="ev">11장</p></div>
+    <div class="card" id="c12-tool" data-col="업계가 가르치는 것" data-lane="3"><b>tool 이 많아 잘못 고르거나 domain 지식이 크면 나눈다</b><p class="ev">LangChain 문서, Anthropic 2026-01 글</p></div>
+    <div class="card" id="c12-tool2" data-col="2026-10 글의 기준에서 달라짐" data-lane="3"><b>먼저 tool search 와 skill 로 푼다</b><p>그래도 tool 을 잘 고르지 못하면 6장의 조건으로 남는다</p><p class="ev">4장, 6장</p></div>
+    <div class="card" id="c12-route" data-col="업계가 가르치는 것" data-lane="4"><b>router 로 분류하고 고정 pipeline 으로 잇는다</b><p class="ev">OpenAI SDK 의 code orchestration, CrewAI 의 sequential, LangChain 의 Router</p></div>
+    <div class="card" id="c12-route2" data-col="2026-10 글의 기준에서 달라짐" data-lane="4"><b>모델이 매 턴 고르고, 정해진 단계는 tool 안의 코드가 된다</b><p class="ev">5장</p></div>
+    <div class="card" id="c12-sup" data-col="업계가 가르치는 것" data-lane="5"><b>manager 가 계획하고 전문 agent 에게 맡긴다</b><p class="ev">LangGraph supervisor, CrewAI manager, OpenAI 가이드의 manager pattern</p></div>
+    <div class="card t-key" id="c12-sup2" data-col="2026-10 글의 기준에서 달라짐" data-lane="5"><b>이미 있는 subagent 는 합친 쪽이 eval 에서 더 나쁠 때만 남는다</b><p>Applied AI 팀은 orchestrator-subagent 를 무난한 방법으로 보면서도 skill 과 tool search 가 자주 더 낫다고 본다</p><p>남는 subagent 를 main agent 가 tool 로 부르는 모양은 OpenAI 의 manager pattern 과 같다. 계획은 실행하는 모델이 쓴다</p><p class="ev">5장, 8장</p></div>
+    <div class="card" id="c12-split" data-col="업계가 가르치는 것" data-lane="6"><b>단일 agent 부터 키우고, tool 을 계속 잘못 고르거나 병렬로 할 일이 있을 때 나눈다</b><p class="ev">OpenAI 가이드, LangChain 의 subagents</p></div>
+    <div class="card t-quiet" id="c12-split2" data-col="그대로 또는 좁혀서 남음" data-lane="6"><b>6장의 조건과 거의 같다. subagent 가 없으면 한 loop 로 시작한다</b><p class="ev">6장, kit 의 README</p></div>
+    <div class="card" id="c12-hand" data-col="업계가 가르치는 것" data-lane="7"><b>handoff 로 전문 agent 에게 대화를 넘긴다</b><p class="ev">OpenAI 가이드의 decentralized pattern, OpenAI SDK 의 handoffs</p></div>
+    <div class="card t-quiet" id="c12-hand2" data-col="그대로 또는 좁혀서 남음" data-lane="7"><b>사용자와 직접 말해야 할 때만 남는다</b><p>그 밖의 전문 agent 는 main loop 의 skill 과 tool 이 될 수 있다</p><p class="ev">6장, 10장</p></div>
+    <span class="edge" data-from="c12-role" data-to="c12-role2"></span>
+    <span class="edge" data-from="c12-team" data-to="c12-team2"></span>
+    <span class="edge" data-from="c12-tool" data-to="c12-tool2"></span>
+    <span class="edge" data-from="c12-route" data-to="c12-route2"></span>
+    <span class="edge" data-from="c12-sup" data-to="c12-sup2"></span>
+    <span class="edge" data-from="c12-split" data-to="c12-split2"></span>
+    <span class="edge" data-from="c12-hand" data-to="c12-hand2"></span>
   </div>
   <ul class="notes">
-    <li>판단을 하네스에서 모델로 옮기는 방향은 2026-07 글의 context engineering 정리와 같다. Claude Code 팀은 그 글에서 Claude Opus 5 와 Fable 5 에 맞춰 system prompt 를 80% 넘게 지운 결과를 내놓고, 앞에 다 싣던 방식을 progressive disclosure 로, 규칙을 판단으로 바꿨다고 적는다.</li>
-    <li>prompt-audit 은 prompt, skill, tool 설명에서 예전 모델에 맞춰 쓴 지시를 찾아 diff 로 고칠 안을 낸다.</li>
-    <li>단일 loop 는 이미 orchestrator 와 전문 agent 를 가진 팀이 향할 목표로 제시된다. subagent 가 아직 없으면 한 loop 로 시작하라는 문장은 kit 의 README 에 있다.</li>
-    <li>왼쪽과 오른쪽을 나눈 것은 이 문서의 정리다. 2026-10 글 자체는 앞선 글과 자기 주장을 이렇게 나누지 않는다.</li>
+    <li>2026-10 글에서 새로 붙은 것은 이행 도구다. migration kit 과 /claude-api 의 build-eval, prompt-audit, hillclimb, cost-optimize 가 있고, prompt-audit 은 예전 모델에 맞춰 쓴 지시를 찾아 diff 로 고칠 안을 낸다.</li>
+    <li>OpenAI 가이드는 tool 설명을 고쳐도 tool 을 계속 잘못 고를 때 나누라고 한다. 그래서 이 조건은 2026-10 글이 subagent 를 남기는 셋째 조건, 곧 tool 을 잘 고르지 못할 때와 같은 쪽에 선다.</li>
   </ul>
-  <p class="so">그래서 2026-10 글이 알리는 방향은 구조 하나의 우열을 정하는 데서 끝나지 않는다. Applied AI 팀은 마지막에, 모델이 바뀌면 이해와 지침도 바뀌므로 어느 구조든 그 뒤의 원칙만큼 중요하지 않다고 적는다. 재고, 한 번에 하나만 바꾸고, 버티는 것을 남기라는 원칙이다.</p>
+  <p class="so">그래서 이 대조에서 달라진 것은 이미 나뉜 시스템에서 근거를 대는 쪽이다. 이것은 2026-10 글의 절차에서 끌어낸 해석이고, 글이 직접 적은 것은 subagent 를 하나씩 합쳐 보고 합친 쪽이 eval 에서 더 나쁠 때만 남기라는 절차다. Applied AI 팀은 마지막에 어느 구조든 그 뒤의 원칙만큼 중요하지 않다고 적는다. 재고, 한 번에 하나만 바꾸고, 버티는 것을 남기라는 원칙이다.</p>
   <details class="orig"><summary>원문</summary>
-    <p>2024-12 글 §Combining and customizing these patterns: <span class="q">“To repeat: you should consider adding complexity only when it demonstrably improves outcomes.”</span></p>
+    <p>2026-10 글 §Using an agent loop with progressive disclosure: <span class="q">“The orchestrator-subagent design described above is a reasonable approach to coordinating specialists built across teams, but often a more effective approach can be progressively disclosing context via skills and progressively disclosing tools via tool search.”</span></p>
+    <p>같은 글: <span class="q">“We’d only recommend a full handoff, where the subagent takes over the conversation, when it needs to talk to the user directly. Everything else can be a skill plus tools in the main loop.”</span></p>
+    <p>OpenAI 가이드 §When to consider creating multiple agents: <span class="q">“Our general recommendation is to maximize a single agent’s capabilities first.”</span> <span class="q">“When your agents fail to follow complicated instructions or consistently select incorrect tools, you may need to further divide your system and introduce more distinct agents.”</span></p>
+    <p>LangChain 「Multi-agent」 머리말: <span class="q">“However, not every complex task requires this approach—a single agent with the right (sometimes dynamic) tools and prompt can often achieve similar results.”</span></p>
     <p>2026-10 글 §Tools to accelerate this work: <span class="q">“That makes any one architecture less important than the principle behind it: measure, change one thing at a time, and keep what holds up.”</span></p>
     <p>같은 절: <span class="q">“As models get more capable and agents get longer running, more of your subagents can be skills and tools. You don’t have to make that move in one step, though.”</span></p>
-    <p>2026-07 글: <span class="q">“We removed over 80% of Claude Code’s system prompt for models like Claude Opus 5 and Claude Fable 5 with no measurable loss on our coding evaluations.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="critique" data-label="한계">
-  <h2>핵심 비교는 숫자 없이 Anthropic 의 관찰로만 제시된다</h2>
-  <p class="lead">아래 한계는 이 권고를 자기 시스템에 옮길 때 무엇부터 재야 하는지로 이어진다. 2026-10 글과 kit, 앞선 글이 모두 Anthropic 의 자료라는 점이 바탕에 있다.</p>
+  <h2>skill 을 가진 단일 agent 가 낫다는 비교는 숫자 없이 Anthropic 의 관찰로만 제시된다</h2>
+  <p class="lead">아래 한계는 이 권고를 자기 시스템에 옮길 때 무엇부터 재야 하는지로 이어진다. 2026-10 글과 kit 이 모두 Anthropic 의 자료라는 점이 바탕에 있다.</p>
   <ul class="points">
     <li><b>숫자 없는 비교</b>skill 을 가진 단일 agent 가 품질에서 앞섰다는 비교는 ‘여러 기업 배포’라고만 적고 배포 수, 과제, 점수를 밝히지 않는다. 링크된 commerce 글의 같은 문장도 숫자가 없다. 그래서 자기 시스템의 eval 로 재기 전에는 이 결론을 가설로 둔다.</li>
     <li><b>한 단계 낮아진 표현</b>2026-09 commerce 글은 같은 비교를 consistently 앞섰다고 적었고, 2026-10 글은 frequently 앞섰다고 적는다. 권고대로 subagent 마다 재는 편이 안전하다.</li>
     <li><b>지연 2배는 고객 한 곳</b>지연 숫자는 고객 한 곳이 잰 약 2배뿐이고, 그 시스템의 규모와 과제는 나와 있지 않다. 자기 시스템의 지연은 eval 실행에서 직접 잰다.</li>
     <li><b>사례가 고객 응대에 쏠려 있다</b>2026-10 글, commerce 글, kit 의 예제가 모두 고객 응대나 상거래 agent 다. 넓게 병렬 탐색하는 research 에서는 2025-06 글이 multi-agent 가 90.2% 높았다고 했고, Applied AI 팀도 research frontier 에 subagent 의 자리가 있다고 인정한다. 넓은 탐색이 핵심인 시스템은 6장의 병렬 조건부터 확인한다.</li>
     <li><b>kit 기록은 얇다</b>실제 모델 실행은 한 사람이 한 모델로 두 번 돌린 것이다. merge 단계와 완성된 single_loop 버전은 실제 모델로 돌리지 않았고, kit 은 관리하지 않는 reference implementation 이다. 9장의 숫자는 방향을 보여 주는 예로만 읽는다.</li>
-    <li><b>합친 뒤의 context 비용은 재지 않았다</b>한 context 에 skill 본문과 tool 결과가 쌓이는 비용은 숫자로 나와 있지 않고, system prompt, context window, memory, 메모를 규율 있게 다뤄야 한다는 말뿐이다. 긴 대화를 다루는 agent 라면 합친 뒤의 턴당 토큰과 context 길이를 eval 실행에서 함께 잰다.</li>
-    <li><b>모델 능력 주장은 자기 평가</b>Opus 4.5 부터 한 loop 에서 훨씬 많은 일을 다룬다는 주장에는 측정 근거가 붙어 있지 않다. 80% 감축의 ‘손실 없음’은 Anthropic 이 자기 코딩 eval 로 잰 것이므로, 다른 영역의 agent 는 prompt 를 줄이기 전과 뒤를 자기 eval 로 비교한다.</li>
+    <li><b>2026-10 글은 합친 뒤의 context 비용을 숫자로 싣지 않았다</b>2026-10 글은 한 context 에 skill 본문과 tool 결과가 쌓이는 비용을 숫자로 보이지 않고, system prompt, context window, memory, 메모를 규율 있게 다뤄야 한다고만 적는다. 반대쪽 계산은 LangChain 문서에 있다. 언어마다 약 2,000 토큰 문서를 둔 세 언어 비교 시나리오에서(측정 방법은 밝히지 않는다), skill 방식은 3번 호출에 약 15K 토큰을, context 를 따로 둔 subagent 방식은 5번 호출에 약 9K 토큰을 처리한다. kit 의 결과 파일에는 행마다 입력 토큰이 남아 있지만 9장은 지연과 호출 수만 합산했다. 긴 대화를 다루는 agent 라면 합친 뒤의 턴당 토큰과 context 길이를 eval 실행에서 함께 잰다.</li>
+    <li><b>모델 능력 주장은 자기 평가</b>Opus 4.5 부터 한 loop 에서 훨씬 많은 일을 다룬다는 주장에는 측정 근거가 붙어 있지 않다. 80% 를 줄이고도 잴 만한 손실이 없었다는 결과는 Anthropic 이 자기 코딩 eval 로 잰 것이므로, 다른 영역의 agent 는 prompt 를 줄이기 전과 뒤를 자기 eval 로 비교한다.</li>
+    <li><b>업계 대조는 지금 판의 문서에 기댄다</b>3장과 12장의 업계 문서는 2026-10-25 에 받은 판이다. 업계 웹 문서에는 게시일이 없고, OpenAI 가이드는 PDF 정보의 생성일과 수정일이 모두 2025-04-07 이다. 업계 웹 문서의 문장이 언제부터 있었는지는 이 사본으로 가릴 수 없으므로, 3장은 지금 실무자가 읽는 가르침으로 읽는다. 그 framework 로 만든 시스템의 성능도 담지 않으므로, 자기 시스템은 12장의 짝을 대어 본 뒤 eval 로 잰다.</li>
   </ul>
   <details class="orig"><summary>원문</summary>
     <p>2026-10 글 머리말: <span class="q">“In our comparisons across several enterprise deployments, a single agent with skills frequently outperformed both the one-prompt-for-everything design and the subagent design on quality, and often at a lower cost and latency per task.”</span></p>
     <p>commerce 글 §Skills, not subagents: <span class="q">“In our comparisons across several enterprise deployments, a single agent with skills consistently has outperformed both the one-prompt-for-everything design and the subagent design on quality, and often at a lower cost and latency per task.”</span></p>
     <p>2026-10 글 머리말: <span class="q">“To be clear, subagents still have their place, including at the research frontier. Use them when:”</span></p>
+    <p>LangChain 「Multi-agent」 §Performance comparison: <span class="q">“After loading, every subsequent call processes all 6K tokens of skill documentation. Subagents processes 67% fewer tokens overall due to context isolation. Total: 15K tokens.”</span></p>
     <p>kit README.md: <span class="q">“Not run on a real model: the merge and upkeep steps, the finished `single_loop/` version of the example, tasks t18 and t19, starting from a repo with no eval, and the kit on any system other than the example.”</span></p>
   </details>
   </section>
 
   <section class="slide" data-role="setup" data-label="읽은 범위">
-  <h2>앞선 글과 kit 에서는 2026-10 글과 맞대는 데 필요한 부분만 열었다</h2>
-  <p class="lead">2026-10 글은 전문과 그림 글자까지 읽었다. migration kit 에서는 문서와 실행 기록을 읽었고, 코드는 실행하지 않았다.</p>
+  <h2>대조에 쓴 문서와 kit 은 2026-10 글과 맞대는 데 필요한 부분만 열었다</h2>
+  <p class="lead">2026-10 글은 전문과 그림 글자까지 읽었다. 업계 framework 는 문서만 읽었고, migration kit 에서는 문서와 실행 기록을 읽었으며, 어느 코드도 실행하지 않았다.</p>
   <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 자료와 열지 않은 자료. 열지 않은 것마다 얕아진 장을 적었다">
     <div class="card" data-col="읽음"><b>2026-10 글 전문과 그림 셋의 글자</b><p>그림 둘은 GIF 의 첫 화면을 읽었다</p></div>
     <div class="card" data-col="읽음"><b>앞선 Anthropic 글</b><p>2026-01 글 전문, 2024-12 글 전문, 2026-07 글 전문, 2025-06·2026-04·2026-09 글의 해당 절, Skills 글의 progressive disclosure 절</p></div>
     <div class="card" data-col="읽음"><b>Cognition, Don’t Build Multi-Agents 전문</b></div>
+    <div class="card" data-col="읽음"><b>업계 framework 문서</b><p>LangChain 의 Multi-agent 전문, langgraph-supervisor 의 README, CrewAI 의 Processes 와 Hierarchical Process 전문</p><p>CrewAI Agents 의 속성 표, AutoGen SelectorGroupChat 의 개념과 예제의 agent 절, OpenAI Agents SDK 의 orchestration 전문</p></div>
+    <div class="card" data-col="읽음"><b>OpenAI, A practical guide to building agents</b><p>orchestration 절(13-23쪽)과 결론</p></div>
     <div class="card" data-col="읽음"><b>migration kit</b><p>README, audit 단계, reference loop 의 설명, example-run 두 개의 write-up 과 결과 파일</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>kit 의 나머지 단계 파일, scripts, templates</b><p class="ev">8장이 baseline 과 fold 단계의 세부 질문과 비용 추정을 다루지 않는다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>support desk 의 앱 코드와 traces</b><p class="ev">9장은 깨진 경로를 결과 행으로만 확인했다</p></div>
     <div class="card t-quiet" data-col="열지 않음"><b>2026-10 글이 링크한 task budgets 와 tool search 문서</b><p class="ev">7장의 예산과 tool search 설명이 글의 수준에 머문다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>framework 의 코드와 나머지 multi-agent 문서</b><p class="ev">3장은 각 문서가 가르치는 방식이다. 그 framework 로 만든 시스템이 실제로 어떻게 도는지는 따로 확인한다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>예전 LangGraph concepts 의 multi_agent 페이지</b><p class="ev">지금은 다른 페이지로 넘기는 redirect 만 남아 있다. 3장의 LangChain 문장은 지금 판의 것이다</p></div>
   </div>
   <ul class="notes">
-    <li>2024-12 글은 게시 뒤 고친 판을 읽었고 원판은 받지 않았다. 고친 판의 머리에는 그 뒤로 도구 환경이 많이 바뀌었다는 안내가 붙어 있다. 3장, 5장, 12장의 2024-12 인용은 고친 판의 문장이다.</li>
+    <li>2024-12 글은 게시 뒤 고친 판을 읽었고 원판은 받지 않았다. 고친 판의 머리에는 그 뒤로 도구 환경이 많이 바뀌었다는 안내가 붙어 있다. 3장과 5장의 2024-12 인용은 고친 판의 문장이다.</li>
     <li>2026-01 글과 2026-04 글의 받은 사본에는 2026-10 글로 가는 링크가 들어 있다. 링크를 언제 넣었는지는 확인하지 못했다.</li>
-    <li>기존 하네스 통념은 Anthropic 의 앞선 글과 Cognition 의 글로 세웠다. LangGraph, CrewAI 같은 multi-agent framework 의 문서는 열지 않았으므로, 그 framework 의 기본 구조와의 대비는 4장과 5장의 기준을 독자가 직접 대어 본다.</li>
+    <li>AutoGen 은 SelectorGroupChat 한 페이지만 읽었다. 다른 framework 도 질문에 필요한 multi-agent 페이지만 골랐다.</li>
   </ul>
   </section>
 
@@ -636,6 +662,14 @@ v1 t01 두 번째 실행 (results/v1/results.jsonl:2)
     <li><a href="https://claude.dev/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models/">w7 · The new rules of context engineering for Claude 5 generation models</a> <span class="t">Anthropic Claude Code 팀의 Thariq Shihipar, 2026-07-24 게시. 2026-10-25 사본</span></li>
     <li><a href="https://claude.com/resources/articles/the-anatomy-of-effective-commerce-agents">w8 · A guide to the anatomy of effective commerce agents</a> <span class="t">Anthropic 의 Ali Shazal 과 Matthew Koen, 2026-09-02 게시. 2026-10-25 사본</span></li>
     <li><a href="https://claude.com/resources/articles/building-agents-with-skills-equipping-agents-for-specialized-work">w9 · Building agents with Skills: Equipping agents for specialized work</a> <span class="t">Anthropic 의 claude.com 글, 2026-01-22 게시. 2026-10-25 사본</span></li>
+    <li><a href="https://docs.langchain.com/oss/python/langchain/multi-agent">w10 · Multi-agent</a> <span class="t">LangChain 의 공식 문서(LangChain 과 LangGraph). 게시일 표시 없음. 2026-10-25 사본</span></li>
+    <li><a href="https://github.com/langchain-ai/langgraph-supervisor-py/tree/88859b34017ac3569bbd4a3092c7e77593a0a960">r2 · langchain-ai/langgraph-supervisor-py</a> <span class="t">LangChain, Inc. 의 LangGraph supervisor 라이브러리, MIT. commit 88859b3 의 README</span></li>
+    <li><a href="https://docs.crewai.com/v1.15.30/en/concepts/processes">w11 · Processes</a> <span class="t">CrewAI 의 공식 문서, v1.15.30 판. 2026-10-25 사본</span></li>
+    <li><a href="https://docs.crewai.com/v1.15.30/en/learn/hierarchical-process">w12 · Hierarchical Process</a> <span class="t">CrewAI 의 공식 문서, v1.15.30 판. 2026-10-25 사본</span></li>
+    <li><a href="https://docs.crewai.com/v1.15.30/en/concepts/agents">w15 · Agents</a> <span class="t">CrewAI 의 공식 문서, v1.15.30 판. 2026-10-25 사본</span></li>
+    <li><a href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/selector-group-chat.html">w13 · Selector Group Chat</a> <span class="t">Microsoft 의 AutoGen 공식 문서(AgentChat, stable 판). 2026-10-25 사본</span></li>
+    <li><a href="https://openai.github.io/openai-agents-python/multi_agent/">w14 · Agent orchestration</a> <span class="t">OpenAI 의 Agents SDK(Python) 공식 문서. 2026-10-25 사본</span></li>
+    <li><a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf">w16 · A practical guide to building agents</a> <span class="t">OpenAI 의 agent 구축 가이드, PDF 34쪽. PDF 정보의 생성일은 2025-04-07. 2026-10-25 사본</span></li>
     <li><a href="https://github.com/anthropics/single-agent-loop-kit/tree/c43796287b83bec847db923f07131d1cc8de750d">r1 · anthropics/single-agent-loop-kit</a> <span class="t">Anthropic 의 reference implementation, Apache-2.0. commit c437962</span></li>
   </ul>
   </section>

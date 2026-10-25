@@ -1,7 +1,7 @@
 {
  "slug": "2026-10-26-fold-subagents-into-main-loop",
  "date": "2026-10-26",
- "question": "Anthropic 의 'When to fold subagents into your main agent loop' 는 하네스 구축에서 통용되던 개념과 방법론(팀·문제 유형별 agent 분업, routing, 고정 pipeline, orchestrator-workers, prompt 의 규칙, multi-agent 출발점)을 어떻게 반박하거나 바꾸고, 어떤 방향을 알리는가. 원문 자신의 설계와 이행 절차도 놓치지 않는다. 독자가 원문에 없는 자기 subagent 를 놓고 fold, merge, as-tool, keep 가운데 무엇이 될지 예측할 수 있게 한다",
+ "question": "Anthropic 의 'When to fold subagents into your main agent loop' 는 업계의 하네스 방법론이 가르쳐 온 multi-agent 구조(역할마다 agent, supervisor 와 manager, handoff, router 와 고정 pipeline, tool 과 지시와 팀을 이유로 나누기)와 Anthropic 의 이전 권고 가운데 무엇을 뒤집고 무엇을 그대로 두며, 어떤 방향을 알리는가. 원문 자신의 설계와 이행 절차도 놓치지 않는다. 독자가 원문에 없는 자기 subagent 를 놓고 fold, merge, as-tool, keep 가운데 무엇이 될지 예측할 수 있게 한다",
  "flipCondition": "skill 과 tool search 를 쓴 단일 loop 가 같은 기업 과제에서 subagent 구성보다 품질이 낮다는 측정이 나오거나, 합친 뒤 context 가 쌓여 잴 만한 성능 저하가 흔히 나타나면, 4장과 12장의 '나누던 이유가 skill 과 tool search 로 간다' 와 '입증 책임이 subagent 로 넘어간다' 가 뒤집힌다",
  "purpose": "explainer",
  "decided": [
@@ -16,7 +16,7 @@
    "why": "한국어판 URL 의 Wayback 사본이 없었고, 두 판의 본문 차이는 메타데이터 칸의 표기뿐이었다"
   },
   {
-   "what": "'기존에 알려진 하네스 개념' 을 무엇으로 세울지",
+   "what": "'기존에 알려진 하네스 개념' 을 무엇으로 세울지 (첫 실행)",
    "choice": "원문이 직접 링크하거나 같은 주제로 Anthropic 이 앞서 낸 글 일곱 편(w2-w5, w7-w9)과 Anthropic 밖의 Cognition 글 한 편(w6)을 고정해 대비를 세웠다. LangGraph, CrewAI 같은 framework 문서는 열지 않고 14장에 적었다",
    "why": "요청의 각도가 기존 통념과의 대비다. 통념을 기억으로 쓰지 않으려면 고정한 글이 있어야 한다. 원문이 반박하는 대상이 주로 Anthropic 자신의 이전 권고(전문화, orchestrator-subagent 출발점)라서 그 글들이 가장 직접적이다. Cognition 글은 같은 주장이 바깥에서 먼저 나왔는지 보려고 넣었고, 그 글이 OpenAI swarm 과 Microsoft autogen 을 비판한 문장으로 framework 쪽 통념을 한 줄 받쳤다"
   },
@@ -74,28 +74,78 @@
    "what": "수정 실행: 마지막 recheck 의 \"손실 없음\" 지적",
    "choice": "고치지 않고 unfixed 에 meaning: false 로 적었다",
    "why": "같은 문장이 곧바로 \"Anthropic 이 자기 코딩 eval 로 잰 것\" 이라고 범위를 밝혀, 문장 전체는 w7 의 no measurable loss on our coding evaluations 와 같은 뜻이다. recheck 도 방향은 바로잡혀 있어 심각도가 낮다고 했다. 표현만 원문에 더 가까울 수 있다"
+  },
+  {
+   "what": "수정 실행 (2026-10-26, 둘째): '세간에 알려진 방법론' 의 출처",
+   "choice": "실무자가 배우는 문서 일곱 곳을 고정했다. LangChain Multi-agent(w10), langgraph-supervisor README(r2), CrewAI 의 Processes·Hierarchical Process·Agents(w11, w12, w15), AutoGen SelectorGroupChat(w13), OpenAI Agents SDK orchestration(w14), OpenAI 'A practical guide to building agents' PDF(w16). Anthropic 이전 글 일곱 편과 Cognition 글은 그대로 두고 '한 줄기' 로 3장 노트에 내렸다",
+   "why": "소유자가 '앤트로픽이 그랬다는게 아니라 … 하네스 엔지니어링에서 매번 얘기하던거' 라고 짚었고, research-source 의 바뀐 문장이 요청이 말한 비교 대상(실무자가 배우는 framework 와 가이드)으로 corpus 를 정하라고 한다. 요청에 든 네 framework 마다 질문에 필요한 multi-agent 페이지만 골랐다"
+  },
+  {
+   "what": "예전 LangGraph concepts 의 multi_agent 페이지",
+   "choice": "싣지 않았다. 지금 주소는 graph-api 로 넘기는 redirect 이고, Wayback 조회는 429 로 실패했다. 같은 계열의 지금 판(w10)과 supervisor 라이브러리 README(r2)로 대신했다",
+   "why": "예전 판을 받지 못한 채 그 문장을 기억으로 쓸 수 없다. 14장 카드와 13장 한계에 지금 판이라는 점을 밝혔다"
+  },
+  {
+   "what": "3장과 12장의 재구성",
+   "choice": "3장을 '업계 구조' 로 바꿔 구조마다 업계 문서의 문장을 표로 놓고, Anthropic 이전 글은 노트 한 줄로 내렸다. 12장은 세 열(업계가 가르치는 것, 2026-10 글의 기준에서 달라짐, 그대로 또는 좁혀서 남음)의 판으로 다시 짰다. 4장과 5장은 장을 늘리지 않고 '예전 권고' 칸과 왼쪽 상자에 업계 출처를 더했다. 장 수는 15 그대로다",
+   "why": "소유자가 장을 늘리기보다 기존 장 안에서 다시 짜고 길이를 크게 늘리지 말라고 했다. 보이는 글은 22,951자에서 26,340자로 약 15% 늘었다"
+  },
+  {
+   "what": "대조가 문서의 것임을 밝히는 자리",
+   "choice": "3장 lead, 12장 lead, 표지 답에 '2026-10 글은 이 문서들을 언급하지 않는다' 를 적었다. absence 주장(c131)으로 w1 사본에 framework 이름이 없음을 grep 으로 남겼다",
+   "why": "research-doc 의 바뀐 문장. 렌즈 A 가 12장 열 이름이 원문의 반박처럼 읽힌다고 해 열 이름도 '2026-10 글의 기준에서' 로 낮췄다"
+  },
+  {
+   "what": "렌즈 B 와 A 의 지적: 12장의 과장",
+   "choice": "supervisor 행을 '뒤집는다' 에서 '이미 있는 subagent 는 합친 쪽이 eval 에서 더 나쁠 때만 남는다' 와 w1 의 'reasonable approach' 로 바꿨다. tool 수 행은 LangChain 의 'poor decisions' 조건을 넣고 OpenAI 가이드의 조건은 남는 쪽(6장 조건)으로 옮겼다. handoff 는 병렬 worker 와 떼어 '좁혀서 남음' 으로 따로 두었다. 팀 행은 업계 문서가 팀별 agent 를 가르친다고 쓰지 않고 '팀별 독립 개발을 장점으로 든다' 로 좁혔다. 12장 h2 와 표지는 '역할마다 agent 를 두던 분할' 로 좁혔다",
+   "why": "렌즈 B 가 w1 이 orchestrator-subagent 를 'a reasonable approach' 라고 부른다는 것과 OpenAI 가이드가 tool 수가 아니라 겹침과 반복된 실패를 조건으로 건다는 것을 짚었고, recheck 가 LangChain 과 CrewAI 는 팀마다 agent 를 두라고 하지 않는다고 짚었다"
+  },
+  {
+   "what": "렌즈 A 의 중복 지적",
+   "choice": "3장 표의 '나누는 조건' 행(4장과 겹침), 3장의 90.2% 노트(13장과 겹침), 12장의 Anthropic 이전 글 노트와 단일 loop 노트(3장·7장과 겹침)를 지웠다. 3장 p.so 는 4장과 5장을 가리키는 한 문장으로 줄였다",
+   "why": "길이를 크게 늘리지 말라는 지시와 렌즈 A 의 '건너뛰어도 됐던 것'"
+  },
+  {
+   "what": "렌즈 A 의 6장·10장 h2 지적",
+   "choice": "고치지 않았다",
+   "why": "이번에 바뀐 장이 아니고, 렌즈 A 도 참고로만 적었다. 앞 실행의 검증을 거친 제목이다"
+  },
+  {
+   "what": "앞 실행의 unfixed(13장 'measurable' 누락)",
+   "choice": "고쳤다. '80% 를 줄이고도 잴 만한 손실이 없었다는 결과' 로 썼다",
+   "why": "13장을 어차피 고치는 실행이었다"
+  },
+  {
+   "what": "모바일 배치",
+   "choice": "5장과 12장의 판에 data-read=\"lanes\" 를 주어 좁은 화면에서 짝이 붙어 읽히게 했다",
+   "why": "390px 렌더에서 12장의 왼쪽 열이 다 나온 뒤 오른쪽 열이 나와 짝이 끊겼다"
+  },
+  {
+   "what": "unfixed 여섯 건의 처리",
+   "choice": "모두 고쳤다. 3장 노트는 근거를 OpenAI 가이드의 'maximize a single agent's capabilities first' 와 LangChain 머리말로 바꾸고 README 문장은 따로 떼었다. 12장 lead 에 제목의 '뒤집힌다' 가 이 문서의 해석이라고 적었다",
+   "why": "coordinator 가 고치라고 지시했고, 각 항목에 한 가지 바른 답이 있다"
   }
  ],
  "needs_owner": [],
  "corpus": {
-  "sources": 10,
-  "retrievedAt": "2026-10-25T15:00:58Z (w1), 2026-10-25T15:02:56Z-15:02:59Z (w2-w9), r1 commit c43796287b83bec847db923f07131d1cc8de750d",
-  "webCopies": "HTML 의 h1 부터 본문 끝까지에서 script, style, svg 와 태그를 뺀 글자. 그림은 alt 만 남김",
-  "figures": "notes/figures.md 에 원문 그림 셋의 글자를 이미지에서 읽어 적었다"
+  "sources": 18,
+  "retrievedAt": "w1-w9: 2026-10-25T15:00-15:03Z, w10-w16: 2026-10-25T16:11-16:13Z, r1 commit c43796287b83bec847db923f07131d1cc8de750d, r2 commit 88859b34017ac3569bbd4a3092c7e77593a0a960",
+  "webCopies": "HTML 의 h1(main 안) 부터 본문 끝까지에서 script, style, svg, nav, footer, button 과 태그를 뺀 글자. 그림은 alt 만. w16 은 PDF 를 poppler pdftotext 로 뽑은 글자",
+  "figures": "notes/figures.md 에 원문 그림 셋의 글자. 업계 문서의 그림은 alt 만 사본에 남겼다"
  },
- "evidenceCount": 157,
- "claimsCount": 110,
+ "evidenceCount": 199,
+ "claimsCount": 135,
  "claimKinds": {
-  "web": 66,
-  "doc": 15,
+  "web": 87,
+  "doc": 18,
   "numeric": 17,
-  "absence": 5,
+  "absence": 6,
   "code": 1,
   "derived": 6
  },
- "checkClaims": "OK 주장 110, 근거 157, 출처 10, --allow 없음",
+ "checkClaims": "OK 주장 135, 출처 18, --allow 없음",
  "checkDoc": "OK, --allow 없음",
- "checkProse": "OK, --allow 없음 (source-as-speaker 0건)",
+ "checkProse": "OK, --allow 없음",
  "lensModel": "sonnet",
  "rounds": [
   {
@@ -122,40 +172,61 @@
   {
    "round": "fix-final",
    "recheck": "1장 목차 줄과 8장은 새 결함 없음. 13장 \"손실 없음\" 에서 measurable 이 빠졌다는 낮은 수준 지적 1건(unfixed, meaning false)"
+  },
+  {
+   "round": "fix2-1",
+   "scope": "수정 실행(업계 출처). 1, 3, 4, 5, 12, 13, 14, 15장",
+   "lensB": "수치 약 65개와 접힌 인용 73개 대조. 틀림 2건(14장 쪽수 13-21 → 13-23, 13장 context 비용 문장이 kit 까지 덮음). 원문보다 넓은 문장 5건(12장 supervisor 행, 팀 행, tool 수 행, 4장 팀 칸의 2026-01 비유, kit 인용을 한 덩어리로 이음). 4장 tool 수 노트가 추론을 사실처럼 씀",
+   "lensA": "과업 일부 가능. 12장 h2 와 열 이름이 원문의 반박처럼 읽힘, 표지에 대조의 주체가 없음, 3장 '가르쳐 왔다' 의 시제, 12장 handoff 와 병렬을 한 행에 묶음, manager pattern 과 as-tool 의 관계, 3·12장 중복, 13장에 업계 대조의 한계 없음",
+   "fixed": "표지 답과 목차, 3장 h2·표·노트·p.so·fold, 4장 lead·팀 칸·tool 노트·kit 인용, 12장 판 전체·노트·p.so·fold, 13장 h2·context 비용·업계 대조 한계, 14장 쪽수와 노트"
+  },
+  {
+   "round": "fix2-2",
+   "recheck": "의미 결함 2건: 12장 팀 행과 표지·4장의 '조직을 따라 나누라' 가 업계 문서에 없음, tool 수 행이 LangChain 의 'poor decisions' 조건을 뺌. 표현 4건(14장 노트의 12장 언급, 3장 '움직였다', 13장 게시일, 13장 소제목의 주어, handoff 행의 '된다')",
+   "fixed": "표지 답(역할마다 전문 agent), 12장 h2·팀 행·tool 행·handoff 행, 4장 lead 와 팀 칸, 3장 노트, 13장 소제목·kit 토큰 한 줄·날짜, 14장 노트"
+  },
+  {
+   "round": "fix2-final",
+   "recheck": "의미 결함 1건과 경계선 1건, 표현 4건. 고치지 않고 unfixed 에 적었다"
+  },
+  {
+   "round": "fix3",
+   "scope": "coordinator 지시로 unfixed 여섯 건. 3장 노트, 4장 lead, 12장 lead, 13장 context 비용 소제목·LangChain 예·PDF 날짜",
+   "recheck": "표현 3건(3장 README 문장의 for most use cases 누락, 4장 lead 의 message bus 범위, 13장 '웹 문서' 지칭). 고친 뒤 마지막 recheck 는 세 문장 모두 원문과 맞다고 했다",
+   "fixed": "여섯 건과 recheck 의 세 건"
   }
  ],
  "rejected": [
   "렌즈 B: 13장 '한 사람' 의 근거 없음(kit README 139행에 있다)",
   "렌즈 A: timestamp replay, /skill-doctor, prompt-audit, end-state 노트 접기(원문 자신의 권고다)",
-  "렌즈 A: 9장 baseline·v1 trace 접기(깨진 경로를 보여 주는 hop 이다)"
+  "렌즈 A: 9장 baseline·v1 trace 접기(깨진 경로를 보여 주는 hop 이다)",
+  "렌즈 A: 3장 Cognition 노트 접기(업계 흐름의 반대 목소리로 남겼다)",
+  "렌즈 A: 6장·10장 h2(이번에 바뀐 장이 아니다)"
  ],
- "rendered": "예. 마지막 수정 뒤 render.mjs 로 1280px 과 390px 를 다시 찍었고 배치 경고는 없었다",
+ "rendered": "예. 마지막 수정 뒤 render.mjs 로 1280px 과 390px 를 다시 찍었고 배치 경고는 없었다. 12장과 13장을 눈으로 보았다",
  "unverified": [
-  "부재 주장 5건: 모두 재실행 가능한 grep 명령이 있다",
-  "행동 주장: kit 의 코드(reference_loop, compare.py)와 support desk 앱은 실행하지 않았다. 9장은 kit 이 남긴 결과 파일만 합산했다",
+  "부재 주장 6건: 모두 재실행 가능한 grep 명령이 있다",
+  "행동 주장: kit 의 코드와 support desk 앱, 업계 framework 의 코드는 실행하지 않았다. 3장과 12장은 각 문서가 가르치는 방식이다",
   "원문의 기업 배포 비교, 고객 한 곳의 약 2배, Claude Code prompt 80% 감축은 Anthropic 이 밝힌 것이고 재현하지 않았다",
-  "w2(2026-01 글)는 Wayback 사본을 얻지 못했고, 예전 주소의 2026-10-03 사본은 429 로 받지 못해 원문 링크가 언제 들어갔는지 대조하지 못했다",
+  "w2(2026-01 글)는 Wayback 사본을 얻지 못했고 원문 링크가 언제 들어갔는지 대조하지 못했다",
   "w4(2024-12 글)는 게시 뒤 고친 판만 읽었다",
   "원문 그림 1·3 은 GIF 이고 첫 화면만 읽었다",
-  "LangGraph, CrewAI 등 multi-agent framework 문서는 열지 않았다(14장)"
+  "업계 문서(w10-w15)는 게시일이 없는 지금 판이다. 예전 LangGraph concepts 의 multi_agent 페이지는 받지 못했다. w12 는 Wayback 사본이 없고, 나머지의 archive_url 은 받은 날보다 앞선 사본이라 본문을 대조하지 않았다",
+  "AutoGen 은 SelectorGroupChat 한 페이지, CrewAI Agents 는 속성 표만 읽었다"
  ],
- "unfixed": [
-  {
-   "item": "13장 마지막 항목의 \"80% 감축의 ‘손실 없음’\" 은 w7 의 \"no measurable loss on our coding evaluations\" 에서 measurable 을 줄였다. 같은 문장이 곧바로 자기 코딩 eval 로 잰 것이라고 밝힌다. 3장 표처럼 \"잴 만한 손실이 없었다\" 로 쓸 수 있다",
-   "meaning": false
-  }
- ],
- "commitSubject": "subagent 를 main agent loop 로 fold 하라는 Anthropic 글을 기존 하네스 설계와 맞대어 설명하는 문서를 더하다",
- "commitBody": "Anthropic 의 'Building agents: When to fold subagents into your main agent loop'(2026-10-22) 를 설명하는 explainer 문서다. 원문이 router, planner, 팀별 subagent 를 main agent 하나의 loop 로 합치라고 하는 근거를, 같은 주제의 Anthropic 이전 글과 Cognition 글에 맞대어 정리했다. agent 를 나누던 전문화 이유가 skill 과 tool search 로, 하네스의 판단이 모델로 옮겨 가는 과정, 남는 subagent 의 조건, 단일 loop 설계, eval 을 먼저 두는 이행 절차, kit 의 판정 기준을 다룬다. 원문 사례는 migration kit 의 실행 기록을 합산해 확인했다(returns fold 뒤 평균 지연 27.31 → 19.36초, t01 이 2회 중 1회 깨짐). 문장의 주어는 \"원문\" 대신 각 글을 쓴 팀과 날짜로 밝혔다.\n\n근거 자료 (2026-10-25 고정):\n- w1 Diane Sarkis, \"Building agents: When to fold subagents into your main agent loop\" (claude.com, 2026-10-22, 한국어판 URL)\n- w2 Cara Phillips 외, \"Building multi-agent systems: When and how to use them\" (claude.com, 2026-01-23)\n- w3 Cara Phillips 외, \"Multi-agent coordination patterns\" (claude.com, 2026-04-10)\n- w4 Erik S., Barry Zhang, \"Building effective agents\" (anthropic.com, 2024-12-19, 고친 판)\n- w5 Jeremy Hadfield 외, \"How we built our multi-agent research system\" (anthropic.com, 2025-06-13)\n- w6 Walden Yan, \"Don't Build Multi-Agents\" (cognition.ai, 2025-06-12)\n- w7 Thariq Shihipar, \"The new rules of context engineering for Claude 5 generation models\" (claude.dev, 2026-07-24)\n- w8 Ali Shazal, Matthew Koen, \"A guide to the anatomy of effective commerce agents\" (claude.com, 2026-09-02)\n- w9 \"Building agents with Skills: Equipping agents for specialized work\" (claude.com, 2026-01-22)\n- r1 anthropics/single-agent-loop-kit @ c43796287b83bec847db923f07131d1cc8de750d\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
- "shippedAt": "2026-10-25T16:00:27.009Z",
+ "unfixed": [],
+ "commitSubject": "fold 문서의 '기존 통념' 을 LangGraph, CrewAI, AutoGen, OpenAI 의 multi-agent 문서로 세우다",
+ "commitBody": "Anthropic 의 'Building agents: When to fold subagents into your main agent loop'(2026-10-22) 를 설명하는 explainer 문서를 고쳤다. 소유자가 '기존 통념' 은 Anthropic 의 이전 글이 아니라 업계의 하네스 방법론이 늘 말해 온 것이라고 짚어, 실무자가 배우는 framework 문서와 가이드를 고정하고 그 문장으로 대비를 다시 세웠다. 3장은 업계 문서가 가르치는 구조(역할마다 agent, supervisor 와 manager, handoff 와 group chat, router 와 고정 pipeline)를 표로 놓고 Anthropic 이전 글은 그 흐름의 한 줄기로 내렸다. 12장은 그 가르침을 2026-10 글의 기준에 대어, 역할마다 agent 를 두는 분할과 router·pipeline 은 달라지고 실패가 보일 때 나누는 조건과 사용자와 직접 말하는 handoff 는 남는다고 정리했다. 2026-10 글이 이 문서들을 언급하지 않는다는 점을 대조가 시작하는 곳에 밝혔다. 4·5·13·14·15장을 새 출처에 맞게 고쳤고 장 수는 그대로다.\n\n더한 근거 자료 (2026-10-25 고정):\n- w10 LangChain, \"Multi-agent\" (docs.langchain.com)\n- r2 langchain-ai/langgraph-supervisor-py @ 88859b34017ac3569bbd4a3092c7e77593a0a960 (README)\n- w11 CrewAI, \"Processes\" (docs.crewai.com v1.15.30)\n- w12 CrewAI, \"Hierarchical Process\" (docs.crewai.com v1.15.30)\n- w15 CrewAI, \"Agents\" (docs.crewai.com v1.15.30)\n- w13 Microsoft AutoGen, \"Selector Group Chat\" (AgentChat, stable)\n- w14 OpenAI Agents SDK (Python), \"Agent orchestration\"\n- w16 OpenAI, \"A practical guide to building agents\" (PDF, 2025-04)\n\n기존 근거 자료: w1-w9(Anthropic 글 여덟 편과 Cognition 글 한 편), r1 anthropics/single-agent-loop-kit @ c43796287b83bec847db923f07131d1cc8de750d\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+ "shippedAt": "2026-10-25T16:56:08.456Z",
  "ship": {
-  "branch": "doc/2026-10-26-fold-subagents-into-main-loop",
+  "branch": "doc/2026-10-26-fold-subagents-into-main-loop-fix-202610251650",
+  "draft": false,
   "gates": {
    "check-doc": true,
    "check-prose": true,
    "check-claims": true
   },
-  "docSha": "f2e651df32888badbb52258dff73aa0ca00d7ae7981361b0c8e8cc6f0fec1bc7",
+  "docSha": "becbcd4c51d69837fcf7645e51659a27ab69389d8d69439904dd4b55195be823",
   "unreviewed": false
  }
 }
