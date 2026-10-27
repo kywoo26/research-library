@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, openSync, readSync, closeSync, existsSync, m
 import { join, basename, resolve } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 import * as zlib from 'node:zlib';
-import { ccusage } from '../usage.mjs';
+import { ccusage, fromRoles, TYPES } from '../usage.mjs';
 
 // 첫 session_meta 가 이 파일의 thread 다. 뒤에는 fork 로 복사된 부모 metadata 가 올 수 있다.
 function metadata(file) {
@@ -31,6 +31,7 @@ function metadata(file) {
     const m = record.type === 'session_meta' && record.payload;
     if (!m?.id || typeof m.cwd !== 'string') return null;
     return { file, id: m.id, cwd: resolve(m.cwd),
+      role: m.source?.subagent?.thread_spawn?.agent_role || m.agent_role || 'default',
       parent: m.source?.subagent?.thread_spawn?.parent_thread_id || m.parent_thread_id || m.forked_from_id };
   } catch { return null; }
 }
@@ -70,36 +71,39 @@ export function jobFiles(home, root, threadId) {
 
 const count = (n) => Number.isSafeInteger(n) && n >= 0;
 const money = (n) => typeof n === 'number' && Number.isFinite(n) && n >= 0;
-const cents = (n) => Math.round(n * 100) / 100;
+const sessionKey = (id) => typeof id === 'string' ? id.replaceAll('\\', '/').replace(/\.jsonl(?:\.zst)?$/, '') : '';
 
-// Codex JSON 은 models 객체다. Claude 의 modelBreakdowns 와 모양이 다르다.
-export function fromReport(report) {
+// ccusage Codex JSON 의 inputTokens 는 cache 제외, cacheCreationTokens 는 cache write 다.
+// outputTokens 에 reasoning 이 포함된다. totalTokens/reasoningOutputTokens 를 다시 더하지 않는다.
+export function fromReport(report, sessionRoles) {
   const sessions = report?.sessions;
   if (!Array.isArray(sessions) || !sessions.length) return null;
-  let tokens = 0, usd = 0;
-  const models = {};
+  const roles = new Map();
   for (const session of sessions) {
+    const role = sessionRoles?.get(sessionKey(session.sessionId));
+    if (typeof role !== 'string' || !role) return null;
+    const values = { input: session.inputTokens, cache_write: session.cacheCreationTokens ?? 0,
+      cache_read: session.cacheReadTokens ?? 0, output: session.outputTokens };
+    if (!count(session.totalTokens) || TYPES.some((key) => !count(values[key]))) return null;
+    if (TYPES.reduce((sum, key) => sum + values[key], 0) !== session.totalTokens) return null;
     const cost = session.costUSD ?? session.totalCost;
-    if (!count(session.totalTokens) || !money(cost) || !session.models || Array.isArray(session.models)) return null;
+    if (!session.models || typeof session.models !== 'object' || Array.isArray(session.models)) return null;
     const entries = Object.entries(session.models);
     if (!entries.length && session.totalTokens) return null;
-    tokens += session.totalTokens;
-    usd += cost;
-    let modelTokens = 0;
-    for (const [model, usage] of entries) {
-      if (!count(usage?.totalTokens) || usage.missingPricing) return null;
-      modelTokens += usage.totalTokens;
-      const amount = usage.costUSD ?? usage.cost ?? (entries.length === 1 ? cost : null);
-      if (amount !== null && !money(amount)) return null;
-      const previous = models[model] || { tokens: 0, usd: 0 };
-      models[model] = { tokens: previous.tokens + usage.totalTokens,
-        usd: previous.usd === null || amount === null ? null : previous.usd + amount };
-    }
-    if (modelTokens !== session.totalTokens) return null;
+    const row = roles.get(role) || { models: [], input: 0, cache_write: 0, cache_read: 0, output: 0, usd: 0 };
+    for (const [model] of entries) if (!row.models.includes(model)) row.models.push(model);
+    for (const key of TYPES) row[key] += values[key];
+    if (row.usd === null || !money(cost) || entries.some(([, model]) => model?.missingPricing)) row.usd = null;
+    else row.usd += cost;
+    if (TYPES.some((key) => !count(row[key]))) return null;
+    roles.set(role, row);
   }
-  if (!count(tokens) || !money(usd)) return null;
-  for (const value of Object.values(models)) if (value.usd !== null) value.usd = cents(value.usd);
-  return { tokens, usd: cents(usd), models };
+  for (const row of roles.values()) {
+    row.models.sort();
+    if (row.usd !== null && !money(row.usd)) return null;
+  }
+  const result = fromRoles(Object.fromEntries(roles));
+  return result && count(result.tokens) ? result : null;
 }
 
 // options 는 bunx 없이 선별·전달을 시험할 때만 바꾼다.
@@ -114,15 +118,19 @@ export default function usage(root, {
     if (!files.length) return null;
     tmp = mkdtempSync(join(tmpdir(), 'research-usage-codex-'));
     const out = join(tmp, 'sessions');
+    const sessionRoles = new Map();
     mkdirSync(out);
     for (const [index, file] of files.entries()) {
       const dir = join(out, String(index));
       mkdirSync(dir);
       copyFileSync(file, join(dir, basename(file)));
+      const role = index === 0 ? 'researcher' : metadata(file)?.role;
+      if (typeof role !== 'string' || !role) return null;
+      sessionRoles.set(sessionKey(`${index}/${basename(file)}`), role);
     }
     // 오래된 로그의 speed fallback 도 원래 설정을 읽게 한다.
     if (existsSync(join(home, 'config.toml'))) copyFileSync(join(home, 'config.toml'), join(tmp, 'config.toml'));
-    return fromReport(run(['codex', 'session'], { CODEX_HOME: tmp }));
+    return fromReport(run(['codex', 'session'], { CODEX_HOME: tmp }), sessionRoles);
   } catch { return null; }
   finally { if (tmp) rmSync(tmp, { recursive: true, force: true }); }
 }

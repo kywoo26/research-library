@@ -13,12 +13,12 @@ function fixture(t) {
   const home = mkdtempSync(join(tmpdir(), 'usage-codex-test-'));
   const root = join(home, 'worktrees', 'research-job', 'research-library');
   t.after(() => rmSync(home, { recursive: true, force: true }));
-  const add = (id, parent, { dir = 'sessions/2026/10/28', cwd = root, tail = [], prefix = '' } = {}) => {
+  const add = (id, parent, { dir = 'sessions/2026/10/28', cwd = root, tail = [], prefix = '', role } = {}) => {
     const folder = join(home, dir);
     mkdirSync(folder, { recursive: true });
     const file = join(folder, `rollout-${id}.jsonl`);
     const meta = { id, ...(prefix ? { instructions: prefix } : {}), cwd,
-      source: parent ? { subagent: { thread_spawn: { parent_thread_id: parent } } } : 'cli' };
+      source: parent ? { subagent: { thread_spawn: { parent_thread_id: parent, agent_role: role } } } : 'cli' };
     writeFileSync(file, [JSON.stringify({ type: 'session_meta', payload: meta }), ...tail.map(JSON.stringify)].join('\n') + '\n');
     return file;
   };
@@ -26,8 +26,12 @@ function fixture(t) {
 }
 
 const names = (files) => files.map((file) => basename(file)).sort();
-const session = (tokens, costUSD, models) => ({ totalTokens: tokens, costUSD, models });
+const session = (sessionId, inputTokens, cacheCreationTokens, cacheReadTokens, outputTokens, costUSD, models = { sol: {} }) => ({
+  sessionId, inputTokens, cacheCreationTokens, cacheReadTokens, outputTokens, costUSD, models,
+  totalTokens: inputTokens + cacheCreationTokens + cacheReadTokens + outputTokens,
+});
 const report = (...sessions) => ({ sessions });
+const role = (models, input, cache_write, cache_read, output, usd) => ({ models, input, cache_write, cache_read, output, usd });
 
 test('실제 계보로 이름 없는 보조 thread 와 중첩 자손까지 고른다', (t) => {
   const f = fixture(t);
@@ -96,50 +100,62 @@ test('긴 첫 metadata 의 UTF-8 cwd 를 보존하고 잘못된 파일을 건너
   assert.deepEqual(jobFiles(join(f.home, 'absent'), f.root, 'root'), []);
 });
 
-test('ccusage 합계·모델별 값을 더하고 마지막에 센트로 반올림한다', () => {
+test('같은 역할의 여러 thread 를 유형별로 합치고 모델 중복을 제거한다', () => {
   const result = fromReport(report(
-    session(100, 0.004, { sol: { totalTokens: 100 } }),
-    session(200, 0.004, { sol: { totalTokens: 200 } }),
-    session(50, 0.12, { astra: { totalTokens: 50 } }),
-  ));
-  assert.deepEqual(result, { tokens: 350, usd: 0.13,
-    models: { sol: { tokens: 300, usd: 0.01 }, astra: { tokens: 50, usd: 0.12 } } });
+    session('root', 10, 20, 30, 40, 1.004),
+    session('check-1', 1, 0, 2, 3, 0.004),
+    session('check-2', 4, 5, 6, 7, 0.004, { astra: {}, sol: {} }),
+  ), new Map([['root', 'researcher'], ['check-1', 'recheck'], ['check-2', 'recheck']]));
+  assert.deepEqual(result, { tokens: 128, usd: 1.01, roles: {
+    researcher: role(['sol'], 10, 20, 30, 40, 1),
+    recheck: role(['astra', 'sol'], 5, 5, 8, 10, 0.01),
+  } });
 });
 
-test('여러 모델 thread 도 합계는 보존하고 나눌 근거가 없는 모델 비용만 null 이다', () => {
+test('한 thread 에 여러 모델이 있어도 그 역할의 ccusage 금액을 유지한다', () => {
+  assert.deepEqual(fromReport(report(session('root', 2, 0, 20, 8, 0.5, { sol: {}, astra: {} })),
+    new Map([['root', 'researcher']])),
+  { tokens: 30, usd: 0.5, roles: { researcher: role(['astra', 'sol'], 2, 0, 20, 8, 0.5) } });
+});
+
+test('역할 금액을 알 수 없어도 토큰과 다른 역할의 값을 남긴다', () => {
   const result = fromReport(report(
-    session(10, 0.1, { sol: { totalTokens: 10 } }),
-    session(30, 0.5, { sol: { totalTokens: 20 }, astra: { totalTokens: 10 } }),
-    session(40, 0.2, { luna: { totalTokens: 40 } }),
-  ));
-  assert.deepEqual(result, { tokens: 80, usd: 0.8,
-    models: { sol: { tokens: 30, usd: null }, astra: { tokens: 10, usd: null }, luna: { tokens: 40, usd: 0.2 } } });
+    session('root', 1, 2, 3, 4, 1),
+    session('helper-1', 10, 0, 20, 5, undefined),
+    session('helper-2', 1, 0, 2, 3, 0.5),
+  ), new Map([['root', 'researcher'], ['helper-1', 'default'], ['helper-2', 'default']]));
+  assert.deepEqual(result, { tokens: 51, usd: null, roles: {
+    researcher: role(['sol'], 1, 2, 3, 4, 1), default: role(['sol'], 11, 0, 22, 8, null),
+  } });
+  const missingPrice = session('root', 1, 0, 2, 3, 0, { sol: { missingPricing: true } });
+  assert.deepEqual(fromReport(report(missingPrice), new Map([['root', 'researcher']])),
+    { tokens: 6, usd: null, roles: { researcher: role(['sol'], 1, 0, 2, 3, null) } });
 });
 
-test('모델별 비용을 주는 JSON 이면 그 값을 보존한다', () => {
-  assert.deepEqual(fromReport(report(session(30, 0.5, {
-    sol: { totalTokens: 20, costUSD: 0.2 }, astra: { totalTokens: 10, cost: 0.3 },
-  }))), { tokens: 30, usd: 0.5, models: { sol: { tokens: 20, usd: 0.2 }, astra: { tokens: 10, usd: 0.3 } } });
-});
-
-test('reasoning 이 포함된 ccusage totalTokens 를 다시 더하지 않는다', () => {
-  assert.equal(fromReport(report(session(12, 0.1, { sol: {
-    totalTokens: 12, inputTokens: 2, cacheReadTokens: 5, outputTokens: 5, reasoningOutputTokens: 3,
-  } }))).tokens, 12);
+test('input 은 cache 제외, output 은 reasoning 포함이며 cache write 누락은 0 이다', () => {
+  const s = session('root', 2, 3, 5, 7, 0.1);
+  s.reasoningOutputTokens = 3;
+  const roles = new Map([['root', 'researcher']]);
+  assert.deepEqual(fromReport(report(s), roles),
+    { tokens: 17, usd: 0.1, roles: { researcher: role(['sol'], 2, 3, 5, 7, 0.1) } });
+  delete s.cacheCreationTokens;
+  s.totalTokens = 14;
+  assert.equal(fromReport(report(s), roles).roles.researcher.cache_write, 0);
 });
 
 test('값이 없거나 모순된 ccusage JSON 은 null 이다', () => {
-  for (const data of [null, {}, report(), report(session(-1, 1, {})),
-    report(session(10, NaN, { sol: { totalTokens: 10 } })),
-    report(session(10, 1, { sol: { totalTokens: 9 } })),
-    report(session(10, 0, { sol: { totalTokens: 10, missingPricing: true } }))]) {
-    assert.equal(fromReport(data), null);
+  const valid = session('root', 1, 2, 3, 4, 1);
+  const roles = new Map([['root', 'researcher']]);
+  for (const data of [null, {}, report(), report({ ...valid, inputTokens: -1 }),
+    report({ ...valid, totalTokens: 11 }), report({ ...valid, cacheReadTokens: '3' }),
+    report({ ...valid, sessionId: 'unregistered' }), report({ ...valid, models: {} })]) {
+    assert.equal(fromReport(data, roles), null);
   }
 });
 
-test('선택한 전체 파일을 한 번에 ccusage 로 넘기고 임시 입력을 지운다', (t) => {
+test('전체 파일을 ccusage 에 한 번 넘기고 root/typed child 역할을 연결한다', (t) => {
   const f = fixture(t);
-  f.add('root'); f.add('child', 'root'); f.add('other');
+  f.add('root'); f.add('child', 'root', { role: 'lens-numbers' }); f.add('other');
   writeFileSync(join(f.home, 'config.toml'), 'service_tier = "priority"\n');
   let temporary;
   const result = usage(f.root, { home: f.home, threadId: 'root', run(args, env) {
@@ -150,10 +166,30 @@ test('선택한 전체 파일을 한 번에 ccusage 로 넘기고 임시 입력�
     const copied = readdirSync(sessions).flatMap((dir) => readdirSync(join(sessions, dir)));
     assert.deepEqual(copied.sort(), ['rollout-child.jsonl', 'rollout-root.jsonl']);
     assert.equal(readFileSync(join(temporary, 'config.toml'), 'utf8'), 'service_tier = "priority"\n');
-    return report(session(100, 1, { sol: { totalTokens: 100 } }));
+    return report(session('0/rollout-root', 10, 2, 30, 8, 0.5),
+      session('1/rollout-child', 5, 0, 40, 5, 0.25));
   } });
-  assert.deepEqual(result, { tokens: 100, usd: 1, models: { sol: { tokens: 100, usd: 1 } } });
+  assert.deepEqual(result, { tokens: 100, usd: 0.75, roles: {
+    researcher: role(['sol'], 10, 2, 30, 8, 0.5), 'lens-numbers': role(['sol'], 5, 0, 40, 5, 0.25),
+  } });
   assert.equal(existsSync(temporary), false);
+});
+
+test('이름 없는 자식은 default, 여러 recheck 는 한 역할로 합친다', (t) => {
+  const f = fixture(t);
+  f.add('root'); f.add('a-helper', 'root');
+  f.add('check-1', 'root', { role: 'recheck' }); f.add('check-2', 'root', { role: 'recheck' });
+  const result = usage(f.root, { home: f.home, threadId: 'root', run(args, env) {
+    const sessions = join(env.CODEX_HOME, 'sessions');
+    return report(...readdirSync(sessions).map((dir) => {
+      const file = readdirSync(join(sessions, dir))[0];
+      return session(`${dir}/${file}`, 1, 0, 2, 3, 0.1);
+    }));
+  } });
+  assert.deepEqual(result, { tokens: 24, usd: 0.4, roles: {
+    researcher: role(['sol'], 1, 0, 2, 3, 0.1), default: role(['sol'], 1, 0, 2, 3, 0.1),
+    recheck: role(['sol'], 2, 0, 4, 6, 0.2),
+  } });
 });
 
 test('ccusage 실패도 ship 을 막지 않고 임시 입력을 정리한다', (t) => {
