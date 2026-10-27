@@ -27,6 +27,7 @@ const u = fromSession({ totalTokens: 1000, totalCost: 1.23456, modelBreakdowns: 
   { modelName: 'claude-sonnet-5-5', inputTokens: 10, outputTokens: 0, cacheCreationTokens: 0, cacheReadTokens: 0, cost: 0.23 }] });
 ok('합계와 모델별 값으로 줄인다', u.tokens === 1000 && u.usd === 1.23 && u.models['claude-opus-5-5'].tokens === 10 && u.models['claude-sonnet-5-5'].usd === 0.23, JSON.stringify(u));
 ok('PR 한 줄', usageLine(u) === '1,000 tokens, API 환산 $1.23 (claude-opus-5-5 $1.00, claude-sonnet-5-5 $0.23)', usageLine(u));
+ok('모델별 금액이 없을 때', usageLine({ tokens: 5, usd: 0.5, models: { 'gpt-6.1-sol': { tokens: 3, usd: null }, 'gpt-6-luna': { tokens: 2, usd: null } } }) === '5 tokens, API 환산 $0.50 (gpt-6.1-sol 3 tokens, gpt-6-luna 2 tokens)', 'x');
 ok('셀 수 없을 때', usageLine(null) === '셀 수 없었다', usageLine(null));
 ok('session 이 없으면 null', fromSession(undefined) === undefined || fromSession(undefined) === null, String(fromSession(undefined)));
 
