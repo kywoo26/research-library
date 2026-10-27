@@ -4,6 +4,7 @@
 // git 과 PR 은 모델이 아니라 이 스크립트가 한다. 게이트를 먼저 돌려 막히면 내보내지 않고, 사람이 정할 것이
 // 남았거나 재검증 뒤에 문서가 바뀌었거나 모델이 저절로 바뀌었으면 draft 로 연다.
 
+import { jobUsage, usageLine } from './lib/usage.mjs';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -122,6 +123,8 @@ if (current !== branch) {
 }
 
 run.shippedAt = new Date().toISOString();
+// 이 job 이 ship 할 때까지 쓴 토큰과 API 환산 금액(ccusage). 통계로 쌓는다.
+run.usage = await jobUsage(harness, process.cwd());
 run.ship = { branch, draft: isDraft, draftReasons: v.reasons, gates, docSha: sha, unreviewed: !!unreviewed, harness, modelCheck: v.modelCheck };
 writeFileSync(runPath, JSON.stringify(run, null, 1) + '\n');
 step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
@@ -162,7 +165,7 @@ ${list(unfixed)}
 - 모델 확인: ${v.modelCheck}
 - 렌더링: ${run.rendered || '기록 없음'}
 - 도식이 든 본문 장: ${figureShare(docPath)}
-- 토큰과 모델별 사용량은 실행이 끝날 때 hook 이 .research/${slug}/notes/hooks.json 에 남긴다(커밋하지 않는다)
+- 사용량(ccusage, ship 시점): ${usageLine(run.usage)}
 ${isDraft ? `\n## draft 로 연 이유\n${list(v.reasons)}\n` : ''}
 ${ATTRIBUTION.footer}`;
 const existingPr = sh('gh', ['pr', 'list', '-R', repo, '--head', branch, '--state', 'open', '--json', 'url', '-q', '.[0].url']);

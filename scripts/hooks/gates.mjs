@@ -25,9 +25,6 @@ const selfRepo = (slug) => {
   return sources.includes(`"repo": "${name}"`) || sources.includes(`"repo":"${name}"`) ? ['--repo', `${name}=${root}`] : [];
 };
 
-let usage = null;
-try { usage = (await import(`./usage/${ev.harness}.mjs`)).default(ev); } catch {}
-
 const failures = [];
 for (const slug of slugs) {
   const doc = `research/${slug}`;
@@ -43,7 +40,6 @@ for (const slug of slugs) {
   }
   updateHooks(root, slug, (run) => {
     run.gates = { at: new Date().toISOString(), session: ev.session || null, harness: ev.harness, results };
-    run.usage = usage ? { at: new Date().toISOString(), harness: ev.harness, ...usage } : { at: new Date().toISOString(), harness: ev.harness, unknown: true };
   });
 }
 await checkModel(ev, root, slugs);

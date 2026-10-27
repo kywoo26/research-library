@@ -23,4 +23,4 @@ jobs:
       - name: check-harness
         run: node scripts/check-harness.mjs
       - name: hook and ship tests
-        run: node scripts/test/hooks.test.mjs
+        run: node scripts/test/hooks.test.mjs && node scripts/test/usage.test.mjs
