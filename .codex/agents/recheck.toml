@@ -1,0 +1,11 @@
+name = "recheck"
+description = "Re-check after a research-verify fix round. Re-reads only the chapters the author just changed, against the pinned source, in a context that did not make the edits, and reports what the edits broke. Use when research-verify §6 asks for a re-check."
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+developer_instructions = "Read `.agents/skills/research-verify/references/recheck.md` and follow it."
+
+[features]
+memories = false
+apps = false
+plugins = false
+request_permissions_tool = false

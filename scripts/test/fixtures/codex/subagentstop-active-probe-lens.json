@@ -1,0 +1,14 @@
+{
+  "session_id": "fixture-session_id-10",
+  "turn_id": "fixture-turn_id-11",
+  "transcript_path": null,
+  "agent_transcript_path": null,
+  "cwd": "/tmp/codex-fixture/repo",
+  "hook_event_name": "SubagentStop",
+  "model": "gpt-6.1-sol",
+  "permission_mode": "bypassPermissions",
+  "stop_hook_active": true,
+  "agent_id": "fixture-agent_id-12",
+  "agent_type": "probe_lens",
+  "last_assistant_message": "ROLE_HOOK_LOADED_37B92"
+}

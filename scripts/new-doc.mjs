@@ -105,7 +105,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 // ---- board 장 골격 ----
 // 장은 h2(주장 한 문장) → p.lead(두 문장 이하) → 판이나 그림 → ul.notes → details.orig 다.
 // 판은 작성자가 줄(data-lane)과 칸(data-col)만 쓰고 셸이 그린다. TODO 판은 모양을 보이는 자리표시라
-// 장의 주장에 맞는 모양으로 바꾼다 (견본: .claude/skills/research-doc/references/specimens/).
+// 장의 주장에 맞는 모양으로 바꾼다 (견본: .agents/skills/research-doc/references/specimens/).
 // 상자 id 는 문서 안에서 하나여야 하므로 장 번호를 앞에 붙인다.
 const card = (id, col, tone = '') =>
   `    <div class="card${tone ? ' ' + tone : ''}" id="${id}" data-col="${col}"><b>TODO 이름</b><p>TODO 한두 줄</p><p class="ev">TODO 원문 위치</p></div>`;
@@ -288,7 +288,7 @@ async function create(slug, corpus, purpose, opts) {
   console.log(`research/${slug}/          index.html, meta.json (seq ${seq})`);
   console.log(`.research/${slug}/         sources.jsonl, evidence.jsonl, claims.jsonl, notes/`);
   console.log(`\n출발용 ${chapters.length}장 (${corpus}, ${purpose}), board 셸. 장마다 data-role 이 있고 TODO 판은 장의 주장에 맞는 모양으로 바꾼다.`);
-  console.log('견본: .claude/skills/research-doc/references/specimens/. 장은 합치거나 빼서 20개 안쪽으로 두고, 표지의 흐름 판과 목록을 장에 맞춘다.');
+  console.log('견본: .agents/skills/research-doc/references/specimens/. 장은 합치거나 빼서 20개 안쪽으로 두고, 표지의 흐름 판과 목록을 장에 맞춘다.');
   console.log(`읽은 범위는 조사를 마친 뒤 ${chapters.findIndex((c) => c[0] === 'setup') + 1}장에 직접 적는다.`);
 }
 

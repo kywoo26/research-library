@@ -1,0 +1,19 @@
+{
+  "session_id": "fixture-session_id-1",
+  "turn_id": "fixture-turn_id-2",
+  "agent_id": "fixture-agent_id-3",
+  "agent_type": "researcher",
+  "transcript_path": null,
+  "cwd": "/tmp/codex-fixture/repo",
+  "hook_event_name": "PreToolUse",
+  "model": "gpt-6-luna",
+  "permission_mode": "bypassPermissions",
+  "tool_name": "collaborationspawn_agent",
+  "tool_input": {
+    "agent_type": "lens-numbers",
+    "task_name": "lens_numbers",
+    "fork_turns": "none",
+    "message": "[redacted probe prompt]"
+  },
+  "tool_use_id": "fixture-tool_use_id-4"
+}

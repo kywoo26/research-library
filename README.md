@@ -78,7 +78,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 ├── docs/
 │   ├── method-provenance.md        # 규칙이 어디서 왔는가 (skill 은 읽지 않는다)
 │   └── reader-test.md              # 하네스 변경 전후의 독자 시험 절차
-├── .claude/skills/                 # 조사와 문서화 skill
+├── .agents/skills/                 # 조사와 문서화 skill. 원본은 여기 한 벌, .claude/skills/<이름> 은 여기로의 링크
 │   ├── AUTHORING.md                # skill 을 고칠 때 읽는 규칙
 │   ├── research-source/            # 코퍼스를 이식 가능한 신원으로 고정
 │   ├── research-doc/               # 문서 작성
@@ -114,12 +114,40 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 |---|---|---|
 | `README.md` | GitHub 에 들어온 사람 | 저장소가 무엇인지, 구조, 추가 절차, `meta.json` 필드 |
 | `AGENTS.md` | 에이전트 세션 | 어디에 무엇을 두는지, 어떤 skill 을 쓰는지, 명령, 규칙, 커밋. `CLAUDE.md` 가 이걸 import 한다 |
-| `.claude/skills/` | 에이전트 세션 | 조사 방법, 장 골격, 시각화, 문안 규칙, 검토 절차 |
+| `.agents/skills/` | 에이전트 세션 | 조사 방법, 장 골격, 시각화, 문안 규칙, 검토 절차 |
 | `index.html` | Pages 방문자 | 발행된 문서 목록 |
 
 `AGENTS.md` 는 매 세션 전부 로드되므로 **항상 필요한 것만** 둡니다. 문서를 쓸 때만 필요한 규칙은 skill 에 있고, 필요할 때만 읽힙니다. 같은 규칙을 두 곳에 적으면 한쪽이 낡아도 알 수 없습니다.
 
 문서 목록을 `README.md` 에 손으로 관리하지 않는 이유는 금방 실제와 어긋나기 때문입니다. 목록은 `meta.json` 하나만 보고 두 곳에 동시에 생성됩니다.
+
+## 리서치 맡기기 (Claude Code, Codex)
+
+두 harness 어디서든 같은 리서치 체인이 돕니다. 지침(skill과 역할 본문)과 게이트·ship 스크립트는 한 벌이고,
+harness마다 다른 것은 agent 정의의 설정과 hook 등록뿐입니다. 개념마다 두 harness 가 무엇으로 대응하는지, harness 가
+바뀌었을 때 무엇을 다시 볼지는 `docs/harness-parity.md` 에 있습니다.
+
+| harness | 맡기는 법 | 처음 한 번 하는 준비 |
+|---|---|---|
+| Claude Code | 아무 세션에서 "리서치 맡겨 <url>" | 저장소 폴더를 trust 한다 |
+| Codex | `node scripts/codex-research.mjs "리서치 맡겨 <url>"` 로 연 세션 | 아래 |
+
+Codex 는 `codex --worktree` 대신 시작 스크립트로 엽니다. Codex 의 sandbox 는 새 worktree 의 git 메타데이터를 읽기 전용으로 두고,
+그 worktree 의 gitdir 경로를 정확히 허용해야만 commit 할 수 있습니다. 스크립트는 origin/main 에서 worktree 를 만들고, 연구 profile 의
+권한을 상속해 그 경로만 더한 채 `codex --profile research` 를 띄웁니다. 뒤에 붙인 인자는 codex 에 그대로 넘어갑니다
+(예: `-m gpt-6.1-sol -c 'model_reasoning_effort="high"'`). 멈춘 연구는 `--resume=<worktree>` 로 이어 갑니다.
+
+Codex 준비:
+
+1. 저장소를 Codex 에서 trust 합니다(한 번). 스크립트가 만드는 worktree 에도 적용됩니다.
+2. 스크립트는 부를 때마다 연구 profile 을 `${CODEX_HOME:-~/.codex}/research.config.toml` 로 복사합니다. symlink 로 두지 않는 것은
+   Codex 가 hook trust 기록을 그 파일에 쓰기 때문입니다.
+3. 연구 hook 을 아직 trust 하지 않았으면 스크립트가 요청을 넘기지 않고 알려 줍니다. 세션에서 `/hooks` 를 열어 네 hook 을 보고
+   trust(`t`)한 뒤 요청을 입력합니다. hook 정의가 바뀌면 다시 trust 해야 합니다. trust 전에 시작한 요청에서는 lens 의 시작·완료
+   hook 이 돌지 않아 PR 이 draft 로 열립니다.
+4. 설정에 `sandbox_mode` 가 있으면 연구 권한보다 먼저 적용되므로 시작 스크립트가 멈춥니다.
+
+PR 본문의 "모델 확인" 줄은 실제 모델을 본 행위자의 수를 적습니다. 저절로 바뀐 것이 보이면 PR 을 열지 않습니다.
 
 ## 문서 추가하기
 
@@ -228,7 +256,7 @@ node scripts/check-prose.mjs --help             # 규칙 목록
 세 번째는 skill 안에 있습니다. `.research/` 의 작업 산출물을 다루기 때문에 그 절차 밖에서는 쓸 일이 없고, 발행물만 보는 위 게이트와 섞이면 어느 쪽이 저장소 규약인지 흐려집니다.
 
 ```bash
-node .claude/skills/research-verify/scripts/check-claims.mjs research/2026-...
+node .agents/skills/research-verify/scripts/check-claims.mjs research/2026-...
 ```
 
 문서의 주장이 고정된 원문에 실제로 근거하는지 확인합니다. `.research/<slug>/` 의 `sources.jsonl` 과 `claims.jsonl` 을 읽고, 인용문이 그 커밋의 해당 위치에 실제로 있는지 대조합니다. 파일이 있고 줄 번호가 범위 안이라는 것만으로는 통과하지 않습니다.

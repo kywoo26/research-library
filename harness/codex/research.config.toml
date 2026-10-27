@@ -1,0 +1,66 @@
+# scripts/codex-research.mjs copies this file to ${CODEX_HOME}/research.config.toml and starts codex --profile research.
+# Do not symlink it: Codex writes hook trust ([hooks.state]) into the profile file.
+# The root model is the owner's session model; effort is pinned for every role (scripts/lib/roles.mjs EFFORT).
+model_reasoning_effort = "high"
+developer_instructions = "This session is the researcher (harness=codex); agents it starts are not. Read .agents/skills/research/references/researcher.md and follow it."
+default_permissions = "research"
+
+[permissions.research]
+description = "Research worktree, pinned source cache, temporary rendering, and source network access."
+extends = ":workspace"
+
+[permissions.research.filesystem]
+"~/.cache/research-library" = "write"
+# :workspace already permits :slash_tmp and :tmpdir for Chrome's temporary profile.
+# scripts/codex-research.mjs adds the new worktree's exact gitdir to this map when it
+# starts the session: Codex 0.164 keeps a linked worktree's gitdir read-only, and only
+# that exact path (not the common dir or .git/worktrees) makes commits possible.
+
+[features]
+network_proxy = true
+
+# The two lenses run at once; a user-level cap or a disabled multi-agent tool would serialise or block them.
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 4
+
+[permissions.research.network]
+enabled = true
+# render.mjs uses loopback HTTP/WebSocket DevTools and Chrome binds a local port.
+allow_local_binding = true
+
+[permissions.research.network.domains]
+# Research accepts arbitrary public URLs, including redirects and PDF hosts.
+"*" = "allow"
+"localhost" = "allow"
+"127.0.0.1" = "allow"
+
+[[hooks.PreToolUse]]
+matcher = ".*"
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "node scripts/hooks/pretool.mjs --harness=codex --role=researcher"
+
+# After a shell command or patch: tells the researcher at once when it changed the document or ledgers while lenses read.
+[[hooks.PostToolUse]]
+matcher = "^(Bash|apply_patch)$"
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = "node scripts/hooks/window.mjs --harness=codex --role=researcher"
+
+[[hooks.SubagentStart]]
+matcher = "^(lens-numbers|lens-reader|recheck)$"
+[[hooks.SubagentStart.hooks]]
+type = "command"
+command = "node scripts/hooks/review.mjs --harness=codex --role=researcher"
+
+[[hooks.SubagentStop]]
+matcher = "^(lens-numbers|lens-reader|recheck)$"
+[[hooks.SubagentStop.hooks]]
+type = "command"
+command = "node scripts/hooks/review.mjs --harness=codex --role=researcher"
+
+[[hooks.Stop]]
+[[hooks.Stop.hooks]]
+type = "command"
+command = "node scripts/hooks/gates.mjs --harness=codex --role=researcher"
