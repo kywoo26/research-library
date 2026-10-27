@@ -28,6 +28,8 @@ ok('역할별 값으로 합계를 낸다', u.tokens === 20 && u.usd === 1.24 && 
 const table = usageTable(u).split('\n');
 ok('표는 금액이 큰 역할부터, 끝에 합계', table[2].startsWith('| researcher |') && table[3].startsWith('| lens-numbers |') && table[4] === '| 합계 | | 11 | 2 | 3 | 4 | $1.24 |', table.join('\n'));
 ok('ccusage claude session 을 역할 값으로', JSON.stringify(claudeRole({ modelsUsed: ['m'], inputTokens: 1, cacheCreationTokens: 2, cacheReadTokens: 3, outputTokens: 4, totalCost: 0.5 })) === JSON.stringify(role(['m'], 1, 2, 3, 4, 0.5)), 'x');
+const m = fromRoles({ researcher: role(['gpt-6.1-sol'], 1, 0, 2, 3, 0.5), recheck: role(['gpt-6.1-sol'], 1, 0, 0, 1, null) });
+ok('금액 모르는 역할이 있으면 합계 금액도 null', m.usd === null && m.tokens === 8 && m.roles.recheck.usd === null && usageTable(m).includes('| 미확인 |'), JSON.stringify(m));
 ok('셀 수 없을 때', usageTable(null) === '셀 수 없었다', usageTable(null));
 ok('역할이 없으면 null', fromRoles({}) === null, 'x');
 
