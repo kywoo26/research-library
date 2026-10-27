@@ -1,10 +1,10 @@
 // Claude 의 research job = researcher subagent 와 그가 띄운 subagent 전체(lens·recheck·그 아래).
 // researcher 의 worktree 이름(agent-<id>)으로 그 기록을 찾고, meta.json 의 parentAgentId 로 자손을 고른다.
-// 고른 기록만 임시 CLAUDE_CONFIG_DIR 에 복사해 ccusage 에 넘긴다(ccusage 는 subagent 기록을 부모 session 으로 묶는다).
+// 고른 기록을 역할(agentType)마다 임시 CLAUDE_CONFIG_DIR 의 session 하나로 복사해 ccusage 에 넘긴다(ccusage 는 subagent 기록을 부모 session 으로 묶는다).
 import { readdirSync, readFileSync, existsSync, mkdtempSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
-import { ccusage, fromSession } from '../usage.mjs';
+import { ccusage, claudeRole, fromRoles } from '../usage.mjs';
 
 // 같은 subagents 폴더에서 researcher 와 그 자손의 transcript 를 고른다.
 export function jobFiles(dir, researcher) {
@@ -39,10 +39,15 @@ export default function usage(root) {
   if (!dir) return null;
   const tmp = mkdtempSync(join(tmpdir(), 'research-usage-'));
   try {
-    const out = join(tmp, 'projects', 'job', 'job', 'subagents');
-    mkdirSync(out, { recursive: true });
-    for (const f of jobFiles(dir, id)) copyFileSync(join(dir, f), join(out, f));
+    for (const f of jobFiles(dir, id)) {
+      let role = 'unknown';
+      try { role = JSON.parse(readFileSync(join(dir, f.replace(/\.jsonl$/, '.meta.json')), 'utf8')).agentType || role; } catch {}
+      const out = join(tmp, 'projects', 'job', role.replace(/[^\w-]/g, '_'), 'subagents');
+      mkdirSync(out, { recursive: true });
+      copyFileSync(join(dir, f), join(out, f));
+    }
     const r = ccusage(['claude', 'session', '--breakdown'], { CLAUDE_CONFIG_DIR: tmp });
-    return fromSession(r?.sessions?.[0]);
+    if (!r?.sessions?.length) return null;
+    return fromRoles(Object.fromEntries(r.sessions.map((s) => [s.sessionId, claudeRole(s)])));
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 }
