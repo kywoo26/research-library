@@ -3,10 +3,10 @@
 A repository for researching, writing, and verifying research documents. `README.md`
 covers what the repository is and the `meta.json` field reference; `index.html` is the
 published listing. This file holds only what every session needs; `CLAUDE.md` imports
-it. Research procedure and writing rules live in the skills.
+it.
 
 **Documents are written in Korean.** These instructions are English; the product is not.
-Technical terms stay English; `.claude/skills/research-doc/references/prose-ko.md` holds the list.
+Technical terms stay English; `.agents/skills/research-doc/references/prose-ko.md` holds the list.
 
 ## Where things go
 
@@ -32,7 +32,7 @@ against bytes it never saw, and the honest outcome is a coverage chapter that sa
 ## Which skill to use
 
 Research, and fixes to a document, are handed to the `researcher` agent through the
-`research` skill.
+`research` skill. In Codex, the owner opens the researcher with `node scripts/codex-research.mjs`.
 
 The researcher follows three skills, which hold the research method and the writing rules:
 
@@ -42,9 +42,10 @@ The researcher follows three skills, which hold the research method and the writ
 | `research-doc` | Writing the document | the same author context |
 | `research-verify` | After the draft is finished | two lenses in separate contexts, run in parallel: numbers and quotes, and a reader |
 
-Editing a skill is a different job from using one. `.claude/skills/AUTHORING.md` holds the
+Editing a skill is a different job from using one. `.agents/skills/AUTHORING.md` holds the
 rules for that, and revisions go through `skill-creator`. Why a rule exists lives in
-`docs/method-provenance.md`.
+`docs/method-provenance.md`. Changing how the chain runs on Claude Code or Codex starts from
+`docs/harness-parity.md`.
 
 ## Commands
 
@@ -58,8 +59,9 @@ node scripts/build-index.mjs                     # regenerate the listing
 node scripts/render.mjs research/<slug>          # chapter screenshots in headless Chrome
 node scripts/doc-text.mjs research/<slug>        # the document as reading-order text
 node scripts/restamp-shell.mjs --all            # put the current shell into board documents
+node scripts/check-harness.mjs                   # harness definitions agree
 
-node .claude/skills/research-verify/scripts/check-claims.mjs research/<slug>
+node .agents/skills/research-verify/scripts/check-claims.mjs research/<slug>
 ```
 
 Never move a document directory by hand. The slug is usually settled only after the
@@ -94,7 +96,7 @@ resolving it silently.
 
 ## Commits
 
-One line in the subject saying what was done. The body records the document's topic and
+One line in the subject, in Korean like the documents, saying what was done. The body records the document's topic and
 the sources it rests on. Adding one document is one commit.
 
 A PR takes that subject as its title.

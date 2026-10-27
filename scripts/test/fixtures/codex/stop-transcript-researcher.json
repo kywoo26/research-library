@@ -1,0 +1,11 @@
+{
+  "session_id": "fixture-session_id-8",
+  "turn_id": "fixture-turn_id-9",
+  "transcript_path": "/tmp/codex-fixture/rollout.jsonl",
+  "cwd": "/tmp/codex-fixture/repo",
+  "hook_event_name": "Stop",
+  "model": "gpt-6-luna",
+  "permission_mode": "bypassPermissions",
+  "stop_hook_active": false,
+  "last_assistant_message": "R7_FIXTURE_OK"
+}

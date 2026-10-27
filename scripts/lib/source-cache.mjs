@@ -1,6 +1,6 @@
 // 원본 저장소 cache 의 자리. scripts/source.mjs, scripts/prune.mjs, check-claims.mjs 가 같은 규칙으로 찾는다.
 // 커밋이 이름에 들어가므로 어느 worktree 에서 고치든 같은 자리를 본다. 작업 공간 밖이라 원본 안의
-// CLAUDE.md, .claude/skills/ 가 researcher 의 지침으로 섞여 들지 않는다.
+// AGENTS.md, CLAUDE.md 와 .claude/skills/, .agents/skills/ 가 researcher 의 지침으로 섞여 들지 않는다.
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 

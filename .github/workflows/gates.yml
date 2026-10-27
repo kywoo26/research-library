@@ -1,6 +1,6 @@
 # 발행물 게이트. AGENTS.md 의 Commands 에 있는 것을 그대로 돌린다.
 # check-claims 는 여기서 돌리지 않는다. 고정 커밋의 체크아웃과 논문 캐시가 있어야 해서
-# 로컬 검증 단계의 몫이다 (.claude/skills/research-verify/SKILL.md).
+# 로컬 검증 단계의 몫이다 (.agents/skills/research-verify/SKILL.md).
 name: gates
 on:
   push:
@@ -20,3 +20,7 @@ jobs:
         run: node scripts/check-prose.mjs
       - name: check-prose tests
         run: node scripts/test/check-prose.test.mjs
+      - name: check-harness
+        run: node scripts/check-harness.mjs
+      - name: hook and ship tests
+        run: node scripts/test/hooks.test.mjs

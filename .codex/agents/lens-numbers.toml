@@ -1,0 +1,11 @@
+name = "lens-numbers"
+description = "Lens B of research-verify. Checks every number, quote and direction in a finished research document under research/<slug>/ against the pinned corpus, in a context that did not write it. Use when research-verify launches lens B."
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+developer_instructions = "Read `.agents/skills/research-verify/references/lens-numbers.md` and follow it."
+
+[features]
+memories = false
+apps = false
+plugins = false
+request_permissions_tool = false

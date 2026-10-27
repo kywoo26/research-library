@@ -1,8 +1,8 @@
 # Where the rules came from
 
-No skill loads this file. The rules live in `.claude/skills/` stated as instructions; the
+No skill loads this file. The rules live in `.agents/skills/` stated as instructions; the
 reasons live here, so running a skill does not pay for them and the harness can still be
-audited. See `.claude/skills/AUTHORING.md` for why they are separated.
+audited. See `.agents/skills/AUTHORING.md` for why they are separated.
 
 | Rule | Lives in | Basis |
 |---|---|---|
@@ -1155,3 +1155,33 @@ paraphrased fixed copy would pass `check-claims.mjs` since quotes are taken from
 relays, whose text can differ from the original, so the `sources.jsonl` entry records what the
 text came through. The failure paragraph stayed as section 4, retitled, so the later section
 numbers, which `research-doc/references/paper.md` cites, did not move.
+
+## Why the chain runs the same way on Claude Code and Codex
+
+The owner asked for the same research report from either harness (2026-10-26), with no change that has to
+be made in two places. How each concept maps onto each
+harness, and what to recheck when one of them changes, lives in `docs/harness-parity.md`.
+
+- **Instructions sit in the cross-client location.** `.agents/skills/` is the Agent Skills convention for
+  sharing between clients; Codex reads it natively, and Claude Code reads it through `.claude/skills/<name>`
+  links, which its documentation supports. Frontmatter keeps to the standard fields. Moving the files
+  changed Claude's behaviour in one place: "wait for both reports" let Claude start the lenses in the
+  background once in two runs; naming the foreground restored it (3/3).
+- **Agent definitions and hooks have no common format,** so each harness keeps a definition of settings
+  plus one sentence pointing at the shared body. `check-harness.mjs` refuses any other sentence there, so a
+  role's behaviour is written once.
+- **Codex gets its researcher from a config profile and a launcher.** Its subagents inherit the caller's
+  working directory and permissions, and a trusted project config would load in every Codex session, so
+  the researcher is a session opened with the profile. Its sandbox keeps a linked worktree's gitdir
+  read-only unless that exact path is granted, which is known only after the worktree exists.
+- **Shipping fails closed on the procedure, not only on the result.** Each lens needs a start and a
+  completion paired within this run, the two lenses have to overlap, and each lens's last reading has to be
+  of the current document unless a recheck read it. Independent reviews found three inputs (completion
+  without start, lenses one after another, one lens on an older draft) that had passed as a normal pull
+  request. The researcher cannot edit the records through its tools; a shell can still forge them, which
+  the chain does not defend against.
+- **A model switch that is seen stops shipping; one that cannot be seen does not make a draft.** Neither
+  harness gives hooks the model a subagent actually ran on. Claude's transcript and Codex's own SQLite log
+  are read as auxiliary observations, each isolated with a removal condition, and the pull request says
+  how many actors were observed rather than claiming no switch. Codex's official `model/rerouted` event
+  exists only on its app server.

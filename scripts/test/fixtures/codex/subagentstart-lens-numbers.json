@@ -1,0 +1,11 @@
+{
+  "session_id": "fixture-session_id-1",
+  "turn_id": "fixture-turn_id-5",
+  "transcript_path": null,
+  "cwd": "/tmp/codex-fixture/repo",
+  "hook_event_name": "SubagentStart",
+  "model": "gpt-6-luna",
+  "permission_mode": "bypassPermissions",
+  "agent_id": "fixture-agent_id-6",
+  "agent_type": "lens-numbers"
+}
