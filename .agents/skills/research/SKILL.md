@@ -19,7 +19,7 @@ Tell the owner in one line that it started.
 
 When the researcher reports, pass on its pull request link, what it decided and what it left
 for the owner, in a few lines. Asked how it is going before then, read `run.json` in its
-worktree (`git worktree list`), and `notes/hooks.json` beside it for `gates`, `reviews` and `usage`.
+worktree (`git worktree list`), and `notes/hooks.json` beside it for `gates` and `reviews`.
 
 When the owner answers something left for them, send the answer to that same
 researcher.

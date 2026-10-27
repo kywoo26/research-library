@@ -11,6 +11,9 @@ extends = ":workspace"
 
 [permissions.research.filesystem]
 "~/.cache/research-library" = "write"
+# ship.mjs 가 job 사용량을 bunx ccusage@latest 로 센다. bunx 의 패키지 cache 와 ccusage 의 가격 cache.
+"~/.bun/install/cache" = "write"
+"~/.cache/ccusage" = "write"
 # :workspace already permits :slash_tmp and :tmpdir for Chrome's temporary profile.
 # scripts/codex-research.mjs adds the new worktree's exact gitdir to this map when it
 # starts the session: Codex 0.164 keeps a linked worktree's gitdir read-only, and only
