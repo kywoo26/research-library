@@ -1,0 +1,124 @@
+{
+ "question": "현재 OCR이 Codex 내장 review와 Claude 공식 review plugin보다 나은 운영 조건은 무엇이며 언제 보류해야 하는가?",
+ "decided": [
+  "기존 URL과 디렉터리를 유지하고 2026-10-29 기준 comparison으로 갱신한다.",
+  "기존 관점인 실행 관리와 LLM 판단의 경계를 유지한다. 자체 리뷰 스킬은 Codex 내장 /review 및 공식 review-agent sample, Claude 공식 code-review / pr-review-toolkit과 구분해 비교한다.",
+  "유료 LLM 품질 평가는 재실행하지 않는다. 현재 구현과 공식 자료에 근거해 trial 조건을 제시한다.",
+  "기존 deck 셸과 URL을 유지하고 18장으로 재구성했다. Codex 내장 runtime도 코드 경계를 갖고 있음을 비교에 반영했다.",
+  "lens B가 지적한 confirmed의 filter 생략·실패 조건을 10장에 추가했다. Claude·Codex 근거 span의 줄 위치와 내용도 수정했다."
+ ],
+ "needs_owner": [],
+ "unfixed": [],
+ "unverified": [
+  "부재 주장 0건(기능 부재를 tree 전체에 대해 단정하지 않음).",
+  "동작 주장 96건은 pinned 코드·지시문과 대조했다. 실 LLM 실행 확인은 0건이다. 최신 품질·청구 비용·#1824 원 실행은 재현하지 않았다.",
+  "callee를 열지 않은 채 동작을 단정한 주장 0건. 공개 CLI·plugin 밖 cloud 서비스 내부는 분석하지 않았다.",
+  "shallow checkout이라 commit 빈도·기여자 분포·release 주기를 검증하지 않았다.",
+  "web은 직접 받은 텍스트 사본과 hash를 보존했으며 독립 archive는 확보하지 못했다.",
+  "기계 검증의 논문 근거 19건 중 8건은 절 범위를 좁히지 못해 전체 텍스트에서 일치 여부를 확인했다. 주요 성능표는 LaTeX Table 3와 렌즈 B로 별도 대조했다."
+ ],
+ "rendered": "headless Chrome으로 1280px 18장을 캡처했다. 표지·비교·Claude·입력 누락·benchmark·운영·수정된 filter 설명을 실제 이미지로 확인했다. 390px도 18장을 캡처하고 표지·입력 누락 장을 확인했다. 기존 deck의 표와 SVG는 모바일에서 가로 스크롤한다. recheck도 6·10장 화면과 현재 HTML 링크를 확인했다.",
+ "verification": {
+  "lens_reader": "trial 판단 가능. 행동을 막는 문제 없음. 렌더는 읽지 않음.",
+  "lens_numbers": "수치 24개, 버전·날짜·commit identity와 동작 96개 대조. confirmed 조건 1건 및 ledger span 보정 요구. 반영 후 recheck 진행.",
+  "claims": 71,
+  "recheck": "수정된 10장 confirmed 조건, 6장 링크 및 지정 evidence 전체를 pinned source와 대조. 새 의미·조건·인용 오류 없음.",
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "sources": 12,
+  "evidence_spans": 85
+ },
+ "source_file_comparison": {
+  "main": "375f64cd6f67a48a135da83cfcf59c52669a09cb",
+  "release": "dd925205e108304bd4dd6cc0f8e8b7cf8dee77ea",
+  "checks": [
+   {
+    "file": "internal/diff/git.go",
+    "equal": true,
+    "sha256": "00a25c109dd6ef7f979d9715b8a2c6dfa6fc2b6f490d5c3e20f4b327e1d07f85"
+   },
+   {
+    "file": "internal/agent/selection.go",
+    "equal": true,
+    "sha256": "55359ece4199fa42fc5af3f435c7e8750ac66be6b0112be643a2b040b7134d1b"
+   },
+   {
+    "file": "internal/llmloop/loop.go",
+    "equal": true,
+    "sha256": "d756604d81805ced27a7b9d3e0927a26e0ae8927a64457d0a78adf333da25b66"
+   },
+   {
+    "file": "skills/open-code-review-delegate/SKILL.md",
+    "equal": true,
+    "sha256": "1ad19cca0a584e3175e171616a314ee8de5d4fb90c31971a40eff9bb2fb1f2f8"
+   }
+  ],
+  "method": "Python pathlib.read_bytes() equality and SHA-256; target code not executed"
+ },
+ "commitSubject": "OpenCodeReview를 최신 Codex·Claude 리뷰와 비교해 갱신한다",
+ "commitBody": "기존 OpenCodeReview 문서를 2026-10-29 기준으로 재평가한다. Codex 내장 review와 review-agent sample, Claude 공식 code-review와 pr-review-toolkit, OCR managed와 delegation의 실행 경계를 비교한다. OCR의 규칙·예산·상태 관리 이점과 provider 입력 누락 분기를 반영하고 managed trial 조건을 제시한다.\n\n근거는 alibaba/open-code-review@375f64cd6f67a48a135da83cfcf59c52669a09cb 및 v1.13.3@dd925205e108304bd4dd6cc0f8e8b7cf8dee77ea, openai/codex@e75e4af22938c8715b2a1e0d3fc142836ab4d962, anthropics/claude-plugins-official@f8c5e7a1dcb71b10cb74586224b5401f3de5db28이다. OCR 2608.09290v2와 AACR-Bench 2601.19494v3, 공식 Codex 문서 및 OCR issue #1824를 대조했다.",
+ "shippedAt": "2026-10-29T09:36:22.994Z",
+ "usage": {
+  "tokens": 13005096,
+  "usd": 2.76,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 237737,
+    "cache_write": 0,
+    "cache_read": 10322688,
+    "output": 46283,
+    "usd": 2.01
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 127975,
+    "cache_write": 0,
+    "cache_read": 1876864,
+    "output": 8987,
+    "usd": 0.53
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 31249,
+    "cache_write": 0,
+    "cache_read": 86912,
+    "output": 1436,
+    "usd": 0.09
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 43022,
+    "cache_write": 0,
+    "cache_read": 219904,
+    "output": 2039,
+    "usd": 0.13
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-09-15-open-code-review-fix-202610290936",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "17292d721c222af5d428cace32879b34a74d64355421936d6333a04642c0b269",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/4, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}
