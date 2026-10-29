@@ -1,0 +1,157 @@
+{
+ "decided": [
+  {
+   "item": "문서 성격",
+   "decision": "comparison",
+   "reason": "기존 harness와 LLM 판단의 경계를 유지하고 Codex 및 Claude 자체 리뷰 대비 도입 가치를 판단한다."
+  },
+  {
+   "item": "갱신 방식",
+   "decision": "기존 slug와 발행일을 유지하고 updated에 이번 조사일을 기록한다. 과거 상세 설명은 현재 코드로 다시 확인한 범위로 압축한다.",
+   "reason": "소유자가 기존 글의 재조사를 요청했다."
+  },
+  {
+   "item": "질문",
+   "decision": "이미 Codex·Claude 리뷰를 쓰는 팀이 OCR을 더 운영할 이유가 있는가?",
+   "flip": "선택 누락·실패 기록·재개 요구가 없거나 사내 PR에서 추가 발견이 없으면 자체 리뷰를 유지한다."
+  },
+  {
+   "item": "독자 검토 수정",
+   "decision": "로컬 trial 버전을 v1.13.3으로 지정하고 기능의 release 포함 여부를 대조했다. 후속 보안·Action 변경은 고정 main 빌드로 구분했다.",
+   "reason": "독자가 어떤 artifact로 시험할지 결정할 수 있어야 한다."
+  },
+  {
+   "item": "비교 단위",
+   "decision": "Codex 로컬 custom instructions와 GitHub AGENTS.md/P0·P1 정책을 나누고, 제품별 effort는 각각 기록하도록 고쳤다.",
+   "reason": "명령 이름이나 effort 이름만 같다고 동일 조건이 되지 않는다."
+  },
+  {
+   "item": "접기와 유지",
+   "decision": "인증 상세는 접고 실행 미확인 목록의 반복을 줄였다. Code Review 서비스와 Ultrareview 요약은 유지했다.",
+   "reason": "현재 자체 리뷰 대비 재현·검증 깊이와 실행 장소의 차이를 판단하는 데 필요하다."
+  },
+  {
+   "item": "재검토 수정",
+   "decision": "npm 자동 updater를 끄고 실행 버전을 기록하도록 고쳤다. Go CLI 빌드와 Action 정의 및 ocr_version 고정을 구분했다.",
+   "reason": "recheck가 설치 버전 drift와 Action 변경의 적용 경로 오류를 지적했다."
+  }
+ ],
+ "needs_owner": [
+  {
+   "item": "종료 게이트가 읽는 기본 논문 캐시에 원문을 배치해야 한다.",
+   "why": "기본 경로 /home/k/.research-papers가 이 세션에서 읽기 전용이며 pin-paper.mjs가 EROFS로 실패했다. notes/papers의 동일 hash 원문을 지정한 검사는 통과했다.",
+   "options": [
+    "이 세션 밖의 terminal에서 node .agents/skills/research-verify/scripts/pin-paper.mjs 2608.09290 v2 실행",
+    "다음 연구 세션의 hook 환경에 쓰기 가능한 원문 경로를 RESEARCH_PAPER_DIR로 전달"
+   ]
+  }
+ ],
+ "unverified": [
+  "부재 주장 1건은 재실행 검색 명령과 고정 논문 표·본문으로 대조했다.",
+  "행동 주장 5건은 코드만 대조했다. 실제 LLM 리뷰·인증·과금 및 target Go test는 실행하지 않았다. Go 도구가 없다.",
+  "callee 미열람 동작 주장은 해당 없다. UI·MCP·ACP 및 각 provider 전체와 장기 운영 이력은 검토하지 않았다.",
+  "논문 근거 15건 중 7건은 gate가 표·그림 범위로 좁히지 못해 전체 고정 텍스트와 대조했다. 수치·조건은 별도 Lens B가 확인했다.",
+  "독립 web archive 조회는 429로 실패했다. 직접 받은 사본과 SHA-256을 보관했다.",
+  "종료 hook은 RESEARCH_PAPER_DIR를 상속하지 않아 기본 캐시에서 논문을 찾지 못한다. 기본 캐시는 sandbox에서 읽기 전용이므로 종료 gate는 미통과다. 수동 경로 지정 검사와 구분한다."
+ ],
+ "unfixed": [],
+ "commitSubject": "OpenCodeReview 최신 구현과 Codex·Claude 자체 리뷰 비교를 갱신한다",
+ "commitBody": "기존 OpenCodeReview 글의 실행 harness와 LLM 판단 경계를 보존하며 2026-10-30 기준으로 갱신한다.\n\nAlibaba main cd8b55de72a4 및 v1.13.3, Anthropic 공식 plugin f8c5e7a1dcb7, OpenAI·Anthropic 공식 리뷰 문서와 OpenCodeReview 논문 2608.09290v2를 근거로 삼는다.\n\n선택 전 gitignore 누락, 예산·grace 처리, delegation과 ChatGPT preview의 경계를 분석하고 최신 자체 리뷰의 품질 우열은 별도 trial로 남긴다.",
+ "rendered": "headless Chrome으로 desktop 1280 및 mobile 390 렌더를 만들었다. 작성자는 표지·비교표·누락 경로·benchmark·인증·도입 판단을 직접 봤고, 마지막 수정 후 도입 판단 화면을 다시 봤다. 좁은 화면의 표와 SVG는 기존 shell의 가로 스크롤을 쓴다.",
+ "verification": {
+  "lens_numbers": {
+   "numbers_versions_dates": 44,
+   "behavior_claims": 68,
+   "finding": "release 이후 main 변경의 고정 비교 근거를 보강했다."
+  },
+  "lens_reader": {
+   "decision": "trial",
+   "findings_fixed": [
+    "trial artifact 명시",
+    "Codex 로컬과 GitHub 비교 범위 분리",
+    "제품별 effort와 공통 입력 구분"
+   ]
+  },
+  "recheck_rounds": 2,
+  "last_recheck": "새 must-fix 없음. meaning true/false 모두 없음.",
+  "checks": {
+   "check_doc": "pass",
+   "check_prose": "pass",
+   "check_claims": {
+    "claims": 76,
+    "evidence": 138,
+    "sources": 18,
+    "result": "pass"
+   }
+  },
+  "stop_gate": {
+   "result": "blocked",
+   "reason": "기본 논문 캐시 원문 누락. 복구 쓰기는 EROFS로 실패.",
+   "scoped_check": "RESEARCH_PAPER_DIR로 기존 고정 원문을 지정하면 check-claims 통과",
+   "owner_action": "세션 밖에서 pin-paper.mjs 2608.09290 v2를 실행한 뒤 기본 경로의 check-claims를 재실행한다."
+  }
+ },
+ "shippedAt": "2026-10-29T19:13:08.117Z",
+ "usage": {
+  "tokens": 15827178,
+  "usd": 3.48,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 243255,
+    "cache_write": 0,
+    "cache_read": 13404672,
+    "output": 48896,
+    "usd": 2.67
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 120369,
+    "cache_write": 0,
+    "cache_read": 1250048,
+    "output": 7400,
+    "usd": 0.44
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 31628,
+    "cache_write": 0,
+    "cache_read": 143872,
+    "output": 2414,
+    "usd": 0.1
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 87606,
+    "cache_write": 0,
+    "cache_read": 482688,
+    "output": 4330,
+    "usd": 0.27
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-09-15-open-code-review-fix-202610291911",
+  "draft": true,
+  "draftReasons": [
+   "사람이 정할 것이 남았다"
+  ],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "da47c16a1ba6a6a3810f6447e001a24e6fa3c8bb658a51c3be103b00c81ef63d",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/5, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}
