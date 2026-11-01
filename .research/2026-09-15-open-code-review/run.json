@@ -1,0 +1,149 @@
+{
+ "startedAt": "2026-11-01T19:37:11.416084+00:00",
+ "refresh": true,
+ "purpose": "comparison",
+ "question": "동일한 리뷰 작업에서 harness가 강제하는 실행 조건과 LLM 판단의 경계는 어디이며, 언제 자체 리뷰를 쓰고 언제 OpenCodeReview를 trial할 것인가?",
+ "decided": [
+  {
+   "what": "전면 갱신",
+   "choice": "기존 slug·URL·date·seq 유지; 목차와 비교축은 현재 자료에서 재구성",
+   "why": "사용자가 현재 공식 자료에 근거한 전면 재조사를 요청했다"
+  },
+  {
+   "what": "문서 종류",
+   "choice": "comparison",
+   "why": "자체 리뷰와 OCR 도입의 조건 및 운영 부담을 판단해야 한다"
+  },
+  {
+   "what": "과거 기록",
+   "choice": "기존 문서와 닫힌 PR #44·#45는 질문의 배경으로만 사용",
+   "why": "과거 결론을 현재 사실의 근거로 쓰지 않는다"
+  },
+  {
+   "what": "비교축",
+   "choice": "내장 로컬 리뷰, 공식 확장, 별도 서비스와 OCR managed/delegation을 분리",
+   "why": "현재 공식 문서가 Claude bundled review와 Ultrareview를 별도 경로로 제공하며 기존 plugin만으로 대표할 수 없다"
+  },
+  {
+   "what": "성능 자료",
+   "choice": "현재 동일 PR trial 제안으로 판단; 과거 성능표 숫자는 재인용하지 않음",
+   "why": "이번 요청은 현재 도입 판단이며 최신 경로 사이에 실제 동일 PR 리뷰를 실행하지 않았다"
+  },
+  {
+   "what": "시각화",
+   "choice": "현재 board shell로 전면 교체; 메커니즘·실행·도입·trial에 판, 다차원 비교에 표",
+   "why": "원래 slug와 URL을 보존하며 독자가 경로를 따라 읽게 한다"
+  },
+  {
+   "what": "독립 검토 반영",
+   "choice": "5·7장 aria-label에 조건을 복구하고 모든 비교표 앞에 가로 스크롤 안내·focusable wrapper 추가",
+   "why": "Lens B가 접근성 문구의 조건 누락 2건을 찾았고 Lens A가 mobile 표의 오른쪽 열 발견성을 지적했다"
+  }
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "행동 설명은 고정 코드·지시문·공식 문서에서 확인했다. 실제 동일 PR LLM 리뷰·발견 채점·청구액 측정은 실행하지 않았다.",
+  "전체 실제 bug를 알 수 없어 trial의 알려진 결함 탐지율을 전체 recall로 부르지 않는다.",
+  "IDE 확장·scan·ACP·MCP·provider 전체와 서비스 내부 구현은 조사 범위 밖이다.",
+  "shallow checkout으로 commit 빈도·기여자 분포·응답 속도는 검증하지 않았다.",
+  "web 원문은 직접 받은 텍스트와 hash를 보관했다. 독립 archive는 확보하지 않았다."
+ ],
+ "unfixed": [],
+ "external_actions": [],
+ "preflight": "재시작 begin --harness=codex 통과. 이전 실행은 browser/cache 선행 조건 실패 후 종료.",
+ "target_execution": "대상 OCR·Codex·Claude의 실제 LLM review 및 target unit test는 실행하지 않음; 소스 열람과 release/main 파일 대조만 수행.",
+ "rendered": "headless Chrome으로 1280·390 너비를 렌더했다. 작성자가 desktop 16장 전체를 직접 읽었고 mobile 표지·선택·도입 판단을 봤다. 판은 세로로 재배치하고 표는 가로 스크롤한다. 화살표 label 겹침과 mobile 전체 overflow를 수정한 뒤 render gate 통과. 마지막 수정 뒤 1280·390 재렌더에서 경고·페이지 overflow 없이 통과했고, 5장 desktop과 12·13장 mobile의 표 안내를 다시 읽었다.",
+ "reviews_summary": {
+  "lensA": {
+   "decision": "trial",
+   "must_fix": 0,
+   "judgment": [
+    "모바일 표의 오른쪽 열에 대한 가로 스크롤 안내 필요"
+   ]
+  },
+  "lensB": {
+   "numbers": 5,
+   "behavioral_claims": 119,
+   "aria_labels": 8,
+   "must_fix": [
+    "5장 aria-label이 선택적인 plan을 필수로 표현",
+    "7장 aria-label이 relocation/filter의 조건을 누락"
+   ],
+   "unverifiable": 0
+  }
+ },
+ "recheck": {
+  "result": "새 의미 결함 없음",
+  "checked": "5·7장 접근성 설명과 고정 코드 조건; 모든 비교표의 가로 스크롤 안내 및 키보드 포커스; 수정 렌더 화면"
+ },
+ "commitSubject": "OpenCodeReview의 실행 경계와 최신 자체 리뷰 비교를 전면 갱신한다",
+ "commitBody": "기존 research/2026-09-15-open-code-review/의 slug와 URL을 유지하고 2026-11-02 기준 comparison으로 전면 갱신한다. 리뷰 실행을 통제하는 harness와 LLM 판단의 경계를 질문으로 유지하며, 과거 글과 닫힌 PR #44·#45는 배경으로만 사용했다.\n\nAlibaba OpenCodeReview main 216dcf513593055a70165f793e96b52589d71b1b와 v1.13.3 commit 375f64cd6f67a48a135da83cfcf59c52669a09cb, OpenAI Codex 4b4a5cf25aa5b064c866218b405c848745fd280f와 codex-plugin-cc db52e28f4d9ded852ab3942cea316258ae4ef346, Anthropic 공식 plugin a7ba5b93db0c7c8d17f3f1d25853adca79598a1a 및 양사의 현재 공식 문서를 근거로 삼는다.\n\n내장 로컬 리뷰, 공식 sample·plugin, 별도 cloud 서비스를 나눠 비교한다. OCR managed의 선택·group·위치·filter·예산·manifest와 delegation의 host 인계 경계를 판으로 설명한다. 운영 부담과 복귀 조건을 비교표에 담고, 입력을 고정한 동일 PR 반복 trial과 판정표를 제안한다. 실제 LLM 품질 비교나 비용 절감은 측정·단정하지 않았다.",
+ "verification": {
+  "check-doc": "pass",
+  "check-prose": "pass",
+  "check-claims": "pass; 286개 추출 항목과 고정 원문 인용 일치",
+  "render": "pass;1280,390",
+  "lenses": "parallel reader/numbers complete; recheck no new semantic defect"
+ },
+ "shippedAt": "2026-11-01T19:55:19.032Z",
+ "usage": {
+  "tokens": 17354814,
+  "usd": 4.3,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 284967,
+    "cache_write": 0,
+    "cache_read": 14576512,
+    "output": 52252,
+    "usd": 3.5
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 57205,
+    "cache_write": 0,
+    "cache_read": 342656,
+    "output": 3043,
+    "usd": 0.18
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 123749,
+    "cache_write": 0,
+    "cache_read": 1549952,
+    "output": 6694,
+    "usd": 0.47
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 56002,
+    "cache_write": 0,
+    "cache_read": 300288,
+    "output": 1494,
+    "usd": 0.16
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-09-15-open-code-review-fix-202611011955",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "4d2dc4af3648fbe00cb35edddfd32f713b2cc0e06c31b8075145b5af7be12721",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/4, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}
