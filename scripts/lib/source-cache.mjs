@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 
 export const cacheRoot = () => join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'research-library', 'src');
+export const paperCacheRoot = () => join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'research-library', 'papers');
 export const srcPath = (repo, commit, history = false) =>
   join(cacheRoot(), `${repo.replace('/', '__')}@${commit}${history ? '+history' : ''}`);
 // 마지막 사용 시각은 읽기 전용 트리 밖의 옆 파일에 둔다.

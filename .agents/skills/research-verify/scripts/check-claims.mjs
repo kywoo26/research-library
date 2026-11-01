@@ -18,7 +18,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { srcPath } from '../../../../scripts/lib/source-cache.mjs';
+import { srcPath, paperCacheRoot } from '../../../../scripts/lib/source-cache.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
@@ -108,7 +108,8 @@ if (argv.includes('--help') || argv.includes('-h')) {
   console.log('\n원문 해결 순서 (paper):');
   console.log('  1. --papers <dir>');
   console.log('  2. $RESEARCH_PAPER_DIR');
-  console.log('  3. ~/.research-papers');
+  console.log('  3. ~/.cache/research-library/papers (기본 cache)');
+  console.log('  4. ~/.research-papers (이전 cache, 기본 cache에 해당 원문이 없을 때)');
   console.log('  캐시는 pin-paper.mjs 가 만든다. 같은 버전은 다시 받아도 같은 sha256 이므로');
   console.log('  캐시를 지워도 되고, sources.jsonl 의 text_sha256 이 신원이다.');
   console.log('\n규칙:');
@@ -294,9 +295,10 @@ const norm = (s) => s.replace(/\s+/g, ' ').trim();
 // 같은 버전은 다시 받아도 같은 해시가 나오므로, 캐시는 버려도 되고 다른 머신에서
 // pin-paper.mjs 로 다시 만들면 된다. 로컬 경로를 sources.jsonl 에 적지 않는 이유와 같다.
 
-const PAPER_DIR = paperOverrideDir
-  || process.env.RESEARCH_PAPER_DIR
-  || join(process.env.HOME || '.', '.research-papers');
+const PAPER_DIRS = paperOverrideDir || process.env.RESEARCH_PAPER_DIR
+  ? [paperOverrideDir || process.env.RESEARCH_PAPER_DIR]
+  : [paperCacheRoot(), join(process.env.HOME || '.', '.research-papers')];
+const paperPath = (ref, suffix) => PAPER_DIRS.map((dir) => join(dir, `${ref}${suffix}`)).find(existsSync);
 
 const paperCache = new Map();
 const missingPapers = new Set();
@@ -331,9 +333,9 @@ const figureCache = new Map();
 function resolveFigures(src) {
   if (figureCache.has(src.id)) return figureCache.get(src.id);
   const ref = `${src.arxiv_id}${src.version || ''}`;
-  const path = join(PAPER_DIR, `${ref}.figures.txt`);
+  const path = paperPath(ref, '.figures.txt');
   let text = null;
-  if (existsSync(path)) {
+  if (path) {
     text = readFileSync(path, 'utf8');
     if (src.figures_sha256) {
       const sha = createHash('sha256').update(text).digest('hex');
@@ -351,10 +353,10 @@ function resolveFigures(src) {
 function resolvePaper(src) {
   if (paperCache.has(src.id)) return paperCache.get(src.id);
   const ref = `${src.arxiv_id}${src.version || ''}`;
-  const path = join(PAPER_DIR, `${ref}.tex`);
+  const path = paperPath(ref, '.tex');
   let text = null;
 
-  if (existsSync(path)) {
+  if (path) {
     text = readFileSync(path, 'utf8');
     if (src.text_sha256) {
       const sha = createHash('sha256').update(text).digest('hex');

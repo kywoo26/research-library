@@ -40,6 +40,10 @@ The scaffold writes the kind as `purpose` in `meta.json` and lays out the chapte
 kind needs. The verify lenses read `purpose` to know what the document was meant to do.
 
 Then write the question the document settles and the condition that would flip its answer.
+For a time-specific refresh of an existing document, use the old document to recover its
+question and angle, then frame the comparison from current sources before adopting its
+outline or claims. Its pinned corpus establishes what was true then; pin new source versions
+for what the refreshed document says is true now.
 What the request names to compare against sets the corpus: "세간에 알려진 방법론" means where
 practitioners learn it (the frameworks and guides they use), not the source's own publisher.
 Without them, coverage is decided by what is easy to reach, and the setup chapter ends up

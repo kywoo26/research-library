@@ -54,6 +54,13 @@ what stopped you, and the sentence that should have let you.
 
 ## 4. What you could skip
 
+Open the existing screenshots in `.research/<slug>/notes/render/` for the cover and the
+chapters that explain a mechanism, a sequence or a decision. Check whether their visible
+forms let you follow the claim without reconstructing it from paragraphs. Report the
+specific missing or unhelpful visual as a finding when it costs you the point; a table or
+trace can be the right form, and a diagram count alone is not a verdict. If screenshots
+are absent, say that you could not judge the rendered form.
+
 Name the chapters, paragraphs and caveats you read without needing them for the task: process
 talk, repeated qualifiers, outside material nobody asked for, a chapter that says what another
 already said, sentences carrying what has a shape (parts, steps, a loop, options side by side,

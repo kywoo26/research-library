@@ -73,6 +73,7 @@ if (resuming) {
 } else run.baseOid = base;
 
 // 4. 선행 조건
+let gitFailure = null;
 const checks = {
   gh: () => spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }).status === 0,
   browser: () => spawnSync('sh', ['-c', 'find ~/.cache/ms-playwright -name chrome-headless-shell -type f 2>/dev/null | grep -q .']).status === 0,
@@ -80,8 +81,14 @@ const checks = {
   cache: () => { try { mkdirSync(cacheRoot(), { recursive: true }); const d = mkdtempSync(join(cacheRoot(), '.begin-')); rmSync(d, { recursive: true }); return true; } catch { return false; } },
   // commit 은 object 와 gitdir 의 index.lock 을 쓴다. Codex sandbox 는 linked worktree 의 gitdir 을 따로 막는다.
   git: () => {
-    if (spawnSync('git', ['hash-object', '-w', '--stdin'], { input: `begin ${run.runId}\n`, encoding: 'utf8' }).status !== 0) return false;
-    try { const p = join(gitDir, `begin-${run.runId}.probe`); writeFileSync(p, ''); rmSync(p); return true; } catch { return false; }
+    const objectPath = git(['rev-parse', '--path-format=absolute', '--git-path', 'objects']).stdout.trim();
+    const hash = spawnSync('git', ['hash-object', '-w', '--stdin'], { input: `begin ${run.runId}\n`, encoding: 'utf8' });
+    if (hash.status !== 0) {
+      gitFailure = `object 저장소 ${objectPath}: ${(hash.stderr || hash.error?.message || `exit ${hash.status}`).trim()}`;
+      return false;
+    }
+    try { const p = join(gitDir, `begin-${run.runId}.probe`); writeFileSync(p, ''); rmSync(p); return true; }
+    catch (error) { gitFailure = `worktree gitdir ${gitDir}: ${error.message}`; return false; }
   },
   // researcher 가 subagent 이므로 lens 는 둘째 단계다. 깊이가 1 이면 lens 를 띄우지 못한다.
   depth: () => harness !== 'claude' || !process.env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH || Number(process.env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH) >= 2,
@@ -91,6 +98,7 @@ for (const [name, fn] of Object.entries(checks)) run.preflight[name] = allowed.h
 const failed = Object.entries(run.preflight).filter(([, v]) => v === 'failed').map(([k]) => k);
 run.state = failed.length ? 'refused' : 'running';
 if (failed.length) run.reason = `preflight: ${failed.join(', ')}`;
+if (gitFailure) run.preflightErrors = { git: gitFailure };
 save();
-if (failed.length) fail(`선행 조건이 안 된다: ${failed.join(', ')}. 연구를 시작하기 전에 보고한다.`);
+if (failed.length) fail(`선행 조건이 안 된다: ${failed.join(', ')}. 연구를 시작하기 전에 보고한다.${gitFailure ? `\ngit: ${gitFailure}` : ''}`);
 console.log(JSON.stringify({ runId: run.runId, harness, base: run.baseOid.slice(0, 7), resumed: !!resuming, preflight: run.preflight }));

@@ -9,10 +9,11 @@ import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
+import { paperCacheRoot } from '../../../../scripts/lib/source-cache.mjs';
 
 const [id, version] = process.argv.slice(2);
 const dirArg = process.argv.indexOf('--dir');
-const CACHE = dirArg > -1 ? process.argv[dirArg + 1] : join(process.env.HOME, '.research-papers');
+const CACHE = dirArg > -1 ? process.argv[dirArg + 1] : process.env.RESEARCH_PAPER_DIR || paperCacheRoot();
 
 if (!id || !version) {
   console.error('사용: node pin-paper.mjs <arxiv_id> <version> [--dir <cache>]');

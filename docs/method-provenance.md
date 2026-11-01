@@ -21,6 +21,8 @@ audited. See `.agents/skills/AUTHORING.md` for why they are separated.
 | Twenty chapters or fewer; four required eyebrows (`index`, `tl-dr`, `critique`, `sources`) | `research-doc`, `check-doc.mjs` | the owner's interview, after documents grew to 25–34 chapters. See § What the 2026-10-13 reader interview changed |
 | The lineage bar only where succession is documented | `research-doc` | the arrow reads as a slot to fill, and filling it chained unrelated projects and ended at work nobody built |
 | Slide density, figure anatomy, aria-label first | `references/visual.md` | See §What the visualization rules were measured against |
+| A document-wide refresh uses the current board grammar even when the original predates it; lens A reads rendered forms | `research-doc/SKILL.md`, `lens-reader.md` | OpenCodeReview PR #44 and #45 passed static checks but the owner rejected both documents' visual explanations. See §What the OpenCodeReview refresh exposed |
+| A time-specific refresh takes the old document's question and angle, then pins current sources before reusing any claim | `research-source/SKILL.md` | The owner asked for a new OpenCodeReview comparison without anchoring it to PR #44 or #45. See §What the OpenCodeReview refresh exposed |
 | Every rule carries the reason its ✗ fails; rule count is a cost | `AUTHORING.md` | instruction-shape ablations. See §Why a rule has to carry its reason |
 | Plain, not simplified. Over-compression eats the mechanism before the conclusion | `research-doc`, `references/prose-ko.md` | simplification measured as deletion. See §Why the documents are plain and not simplified |
 | No sentence-length rule | `references/prose-ko.md`, by omission | the numbers everyone quotes have no source, and the Korean evidence runs the other way. See §Why there is no sentence-length rule |
@@ -70,6 +72,32 @@ the skill would have.
 
 Skills get revised through `skill-creator`, and its eval workspaces are the record of
 whether a revision helped.
+
+## What the OpenCodeReview refresh exposed
+
+[PR #44](https://github.com/kywoo26/research-library/pull/44) and
+[PR #45](https://github.com/kywoo26/research-library/pull/45) both rewrote the same old
+document. Their PR bodies report that only 2/13 and 2/12 body chapters, respectively,
+contained a diagram. The authors reported looking at rendered pages and the static gates
+passed, yet the owner found the visual explanations poor. Those observations are a quality
+failure, not a measured difference between Claude and Codex: the old-document exception and
+the structural gate are shared.
+
+The exception said to leave any pre-board document in its old grammar when fixing it. A
+document-wide reappraisal therefore kept the old deck, while `check-doc.mjs` required the
+board shell only for newer document dates or files already marked as board. The rule now
+distinguishes a narrow correction from a full refresh. Lens A also checks the rendered
+mechanisms and decisions, since a syntactically present board can still fail to explain.
+The source step now takes the old document's original question and angle without treating
+its structure or claims as the current source. A refresh pins the current code and official
+documentation first, so an old report does not decide the comparison by inertia.
+The diagram fraction remains a diagnostic; a minimum would reward filler drawings and
+penalize a comparison whose table or trace is the clearest form.
+
+The two PRs also revealed a separate shared ship defect: different worktrees chose
+different `-fix-<time>` branches, and the old `ship.mjs` queried open PRs only for its
+own branch. It now stops before commit and push when another open PR uses the same document
+slug. Neither PR was merged or closed by this correction.
 
 ## Why the isolated-subagent read was dropped
 

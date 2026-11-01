@@ -3,14 +3,15 @@
 //   node .agents/skills/research-verify/scripts/test/paper-path.test.mjs
 // 전제: arXiv:2605.25480v2 가 고정돼 있을 것.
 //   node .agents/skills/research-verify/scripts/pin-paper.mjs 2605.25480 v2
-import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync as readFileSyncCompat } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync, existsSync, copyFileSync, readFileSync as readFileSyncCompat } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import { dirname, join as j } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
+import { paperCacheRoot } from '../../../../../scripts/lib/source-cache.mjs';
 // .git 을 찾을 때까지 올라간다. 스크립트를 어디로 옮겨도 같은 루트를 가리킨다.
 const ROOT = (() => {
   let d = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +24,9 @@ const ROOT = (() => {
 })();
 const SP = mkdtempSync(j(tmpdir(), 'paper-path-test-'));
 const CHECK = join(ROOT, '.agents/skills/research-verify/scripts/check-claims.mjs');
-const PAPERS = process.env.RESEARCH_PAPER_DIR || j(process.env.HOME, '.research-papers');
+const PAPER = '2605.25480v2.tex';
+const PAPERS = process.env.RESEARCH_PAPER_DIR ||
+  [paperCacheRoot(), join(homedir(), '.research-papers')].find((dir) => existsSync(join(dir, PAPER))) || paperCacheRoot();
 const WORK = join(SP, 'suite');
 
 const SHA = 'ea85e814fc6666e2c687a76390aeabaf25ba7f6049997db3bf8a6ba0dd3656f9';
@@ -128,6 +131,45 @@ for (const [expect, name, claims, opt = {}] of cases) {
   ok ? pass++ : fail++;
 
   const rules = [...new Set([...(r.stdout || '').matchAll(/\[([a-z-]+)\]/g)].map((m) => m[1]))];
+  console.log(`${ok ? ' ✓ ' : ' ✗ '}   ${expect}   ${name.padEnd(46)} ${rules.join(', ') || '-'}`);
+  if (!ok) console.log((r.stdout || r.stderr).split('\n').map((l) => '        ' + l).join('\n'));
+}
+
+// Default resolution is shared by Claude and Codex. The cases above pass --papers explicitly.
+for (const [expect, name, placement] of [
+  ['통과', '새 기본 cache 에서 논문 원문 선택', 'new'],
+  ['통과', '새 cache 가 없을 때 이전 cache fallback', 'legacy'],
+  ['차단', '새 cache 가 변조되면 이전 cache 로 우회하지 않음', 'tampered-new'],
+]) {
+  rmSync(WORK, { recursive: true, force: true });
+  mkdirSync(WORK, { recursive: true });
+  writeFileSync(join(WORK, 'sources.jsonl'), JSON.stringify(SRC) + '\n');
+  writeFileSync(join(WORK, 'claims.jsonl'), JSON.stringify(claim({ id: 'c-default', kind: 'doc',
+    text: '논문은 초기 구축 비용이 이후 질의에 분산된다고 적는다',
+    evidence: [{ source: 'p1', locator: '§6', quote: Q_COST }],
+  })) + '\n');
+  const caseRoot = join(SP, `default-${placement}`);
+  const caseHome = join(caseRoot, 'home');
+  const caseCache = join(caseRoot, 'cache', 'research-library', 'papers');
+  const legacy = join(caseHome, '.research-papers');
+  mkdirSync(caseHome, { recursive: true });
+  if (placement !== 'new') {
+    mkdirSync(legacy, { recursive: true });
+    copyFileSync(join(PAPERS, PAPER), join(legacy, PAPER));
+  }
+  if (placement !== 'legacy') {
+    mkdirSync(caseCache, { recursive: true });
+    const original = readFileSyncCompat(join(PAPERS, PAPER), 'utf8');
+    writeFileSync(join(caseCache, PAPER), original + (placement === 'tampered-new' ? '\n% tampered\n' : ''));
+  }
+  const env = { ...process.env, HOME: caseHome, XDG_CACHE_HOME: join(caseRoot, 'cache') };
+  delete env.RESEARCH_PAPER_DIR;
+  const r = spawnSync('node', [CHECK, 'research/2026-08-05-llm-wiki-retrieval-as-reasoning',
+    '--evidence', WORK], { encoding: 'utf8', cwd: ROOT, env });
+  const got = r.status === 0 ? '통과' : '차단';
+  const rules = [...new Set([...(r.stdout || '').matchAll(/\[([a-z-]+)\]/g)].map((m) => m[1]))];
+  const ok = got === expect && (placement !== 'tampered-new' || rules.includes('source-drift'));
+  ok ? pass++ : fail++;
   console.log(`${ok ? ' ✓ ' : ' ✗ '}   ${expect}   ${name.padEnd(46)} ${rules.join(', ') || '-'}`);
   if (!ok) console.log((r.stdout || r.stderr).split('\n').map((l) => '        ' + l).join('\n'));
 }

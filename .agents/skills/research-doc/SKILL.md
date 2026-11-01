@@ -132,8 +132,10 @@ claim the visible part has not already made.** What each kind keeps visible:
 | explainer | the mechanism as a board, one case in numbers, where it stops holding |
 | comparison | the call with its condition, the reader's situations on a ruler or in a table, the numbers that move the call, how to back out |
 
-Documents before the board shell use an `.eyebrow`, `.key` and `details.more`; leave them in
-that grammar when you fix one.
+For a narrow correction to a document from before the board shell, keep its `.eyebrow`,
+`.key` and `details.more` grammar. For a document-wide refresh, use the current board shell
+and chapter grammar while preserving the existing slug and URL. Choose the body that shows
+each chapter's claim; an old shell is not a reason to keep a text-only explanation.
 
 ## Quoting the source
 

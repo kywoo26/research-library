@@ -32,7 +32,15 @@ against bytes it never saw, and the honest outcome is a coverage chapter that sa
 ## Which skill to use
 
 Research, and fixes to a document, are handed to the `researcher` agent through the
-`research` skill. In Codex, the owner opens the researcher with `node scripts/codex-research.mjs`.
+`research` skill. In Codex, the supervised entrypoint is
+`node scripts/codex-research.mjs --run "<request>"`. In Paseo, a managed Codex supervisor agent
+with the configured research-capable permission profile can run it and return completion to the
+owner; otherwise the owner agent runs it and stays until it reports a verified pull request or
+a failure. The interactive `node scripts/codex-research.mjs` is for initial hook trust or manual
+inspection. For a progress request, use
+`node scripts/codex-research.mjs --status=<worktree>` before reading the run ledger.
+After a safeguard error, `--run --fresh-thread --resume=<worktree> "<original request>"`
+opens a new researcher context in that worktree.
 
 The researcher follows three skills, which hold the research method and the writing rules:
 
