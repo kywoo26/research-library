@@ -10,6 +10,7 @@ import { existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { createHash } from 'node:crypto';
 import { verdict } from './lib/ship-verdict.mjs';
+import { classifyDocPrs, isDocBranch } from './lib/ship-prs.mjs';
 
 const HELP = `사용법: node scripts/ship.mjs research/<slug>
 
@@ -32,7 +33,8 @@ const HELP = `사용법: node scripts/ship.mjs research/<slug>
 README.md 와 index.html 은 PR 에 넣지 않는다. merge 뒤 main 에서 Action 이 다시 만든다.
 
 새 문서는 doc/<slug>, 이미 main 에 있는 문서를 고치면 doc/<slug>-fix-<날짜시각> 브랜치로 연다.
-같은 브랜치에서 다시 부르면 그 커밋을 고쳐 쓴다(문서 하나에 커밋 하나).`;
+같은 브랜치에서 다시 부르면 그 커밋을 고쳐 쓴다(문서 하나에 커밋 하나).
+같은 문서의 다른 열린 PR 이 있으면 commit/push 전에 멈춘다.`;
 
 const arg = process.argv[2];
 if (!arg || arg === '--help' || arg === '-h') { console.log(HELP); process.exit(arg ? 0 : 1); }
@@ -111,8 +113,21 @@ const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
 // 앞선 ship 이 끝에 HEAD 를 떼어 두므로, 같은 worktree 에서 다시 부르면 current 가 비어 있다. 그때 HEAD 가 이 문서의
 // 열린 PR 브랜치 끝과 같으면 그 브랜치로 돌아간다(새 -fix- 브랜치와 두 번째 PR 을 만들지 않는다, #37).
 const reattach = !current && sh('git', ['branch', '-r', '--points-at', 'HEAD']).stdout.split('\n').map((r) => r.trim().replace(/^origin\//, ''))
-  .find((r) => r.startsWith(`doc/${slug}`));
-const branch = current.startsWith(`doc/${slug}`) ? current : reattach || (existing ? `doc/${slug}-fix-${stamp}` : `doc/${slug}`);
+  .find((r) => isDocBranch(r, slug));
+const branch = isDocBranch(current, slug) ? current : reattach || (existing ? `doc/${slug}-fix-${stamp}` : `doc/${slug}`);
+const remote = sh('git', ['remote', 'get-url', 'origin']).stdout.trim().replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/');
+const repo = remote.split('/').slice(-2).join('/');
+const openDocPrs = () => {
+  const result = sh('gh', ['pr', 'list', '-R', repo, '--state', 'open', '--limit', '1000', '--json', 'headRefName,url']);
+  if (result.status !== 0) die(`열린 PR 을 확인하지 못했다: ${tail(result.stdout + result.stderr, 3)}`);
+  let prs;
+  try { prs = JSON.parse(result.stdout); } catch { die('열린 PR 목록이 JSON 이 아니다'); }
+  if (!Array.isArray(prs)) die('열린 PR 목록이 배열이 아니다');
+  const found = classifyDocPrs(prs, slug, branch);
+  if (found.conflicts.length) die(`같은 문서의 다른 열린 PR 이 있다: ${found.conflicts.map((pr) => `${pr.url} (${pr.headRefName})`).join(', ')}. 어느 PR 을 이어 갈지 정한 뒤 그 브랜치에서 다시 부른다`);
+  return found.current;
+};
+openDocPrs();
 // 다시 부른 ship 은 그 commit 을 고친다. 문서 하나는 commit 하나다(떼어 둔 HEAD 에서 돌아온 경우도 같다).
 const amend = (current === branch || reattach === branch) && sh('git', ['log', '-1', '--format=%s']).stdout.trim() === run.commitSubject;
 const step = (c, a) => { const r = sh(c, a); if (r.status !== 0) die(`${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`); return r; };
@@ -136,8 +151,6 @@ step('git', ['push', '-q', ...(amend ? ['--force-with-lease'] : []), '-u', 'orig
 
 // 5. PR
 const head = sh('git', ['rev-parse', 'HEAD']).stdout.trim();
-const remote = sh('git', ['remote', 'get-url', 'origin']).stdout.trim().replace(/\.git$/, '').replace(/^git@github\.com:/, 'https://github.com/');
-const repo = remote.split('/').slice(-2).join('/');
 const ogUrl = (readFileSync(docPath, 'utf8').match(/property="og:url" content="([^"]+)"/) || [])[1] || '';
 const list = (xs) => (xs.length ? xs.map((x) => `- ${x}`).join('\n') : '- (없음)');
 const body = `문서: ${remote}/blob/${head}/research/${slug}/index.html
@@ -170,11 +183,11 @@ ${list(unfixed)}
 ${usageTable(run.usage)}
 ${isDraft ? `\n## draft 로 연 이유\n${list(v.reasons)}\n` : ''}
 ${ATTRIBUTION.footer}`;
-const existingPr = sh('gh', ['pr', 'list', '-R', repo, '--head', branch, '--state', 'open', '--json', 'url', '-q', '.[0].url']);
-if (existingPr.status === 0 && existingPr.stdout.trim()) {
+const existingPr = openDocPrs();
+if (existingPr) {
   step('gh', ['pr', 'edit', branch, '-R', repo, '--body', body]);
   sh('gh', ['pr', 'ready', branch, '-R', repo, ...(isDraft ? ['--undo'] : [])]);
-  console.log(`PR 갱신: ${existingPr.stdout.trim()}`);
+  console.log(`PR 갱신: ${existingPr.url}`);
 } else {
   const pr = step('gh', ['pr', 'create', '-R', repo, '--base', 'main', '--head', branch, '--title', run.commitSubject, '--body', body, ...(isDraft ? ['--draft'] : [])]);
   console.log(`PR: ${pr.stdout.trim().split('\n').pop()}${isDraft ? ' (draft)' : ''}`);

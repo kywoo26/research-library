@@ -1,25 +1,31 @@
 ---
 name: research
-description: Hands a research job for this repository to the researcher agent — a new document from a URL, an arXiv ID or a GitHub repository, or a fix to a document under research/ — which works in its own worktree and opens the pull request without asking anything. Use whenever the owner asks to research, analyze or write up a source here, or to fix an existing research document ("리서치 맡겨", "이거 조사해서 문서로 만들어", "start research on <url>", "이 문서 고쳐"), especially from a session doing other work.
+description: Hands a research job for this repository to the researcher agent — a new document from a URL, an arXiv ID or a GitHub repository, or a fix to a document under research/ — which works in its own worktree and opens the pull request without asking anything. Use whenever the owner asks to research, analyze or write up a source here, or to fix an existing research document ("리서치 맡겨", "이거 조사해서 문서로 만들어", "start research on a URL", "이 문서 고쳐"), especially from a session doing other work.
 ---
 
 # Handing off research
 
-Launch the `researcher` agent by name, in its own worktree, without waiting for it. Give
-it the owner's request verbatim, plus whatever this conversation already settled about it: the
-target, a question or an angle, or the slug of the document to fix. Do not ask the owner
-anything first, and add no ask of your own for more than its source states.
+Give the researcher the owner's request verbatim, plus whatever this conversation already
+settled about it: the target, a question or an angle, or the slug of the document to fix.
+Do not ask the owner anything first, and add no ask of your own for more than its source states.
+
+When a `researcher` agent type is available, launch that type in its own worktree without
+an instance name, and do not wait for it.
+Otherwise, if a managed agent can run the supervised researcher entrypoint named in
+`AGENTS.md` with its own required permissions and return a completion notification, delegate
+that entrypoint to it. Have the supervisor report the verified pull request or explicit
+failure. If that route is unavailable, run the entrypoint yourself and keep this owner turn
+active until it returns. Do not hand the owner a command to run. Report a start only after
+the researcher has started.
 
 Do not run the research skills in this session. The researcher's hooks apply only there.
 A session told to follow `references/researcher.md` is the researcher and keeps following it.
-If this harness has no `researcher` agent, give the owner the command that opens a researcher
-session: `node scripts/codex-research.mjs "<request>"`.
-
-Tell the owner in one line that it started.
 
 When the researcher reports, pass on its pull request link, what it decided and what it left
-for the owner, in a few lines. Asked how it is going before then, read `run.json` in its
-worktree (`git worktree list`), and `notes/hooks.json` beside it for `gates` and `reviews`.
+for the owner, in a few lines. Asked how it is going before then, use the supervised job
+status command in `AGENTS.md` if there is a job, and read `run.json` and `notes/hooks.json`
+in its worktree. A run marked `running` records a passed preflight; use the current turn or
+process status for liveness.
 
 When the owner answers something left for them, send the answer to that same
 researcher.

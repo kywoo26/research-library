@@ -15,9 +15,9 @@ extends = ":workspace"
 "~/.bun/install/cache" = "write"
 "~/.cache/ccusage" = "write"
 # :workspace already permits :slash_tmp and :tmpdir for Chrome's temporary profile.
-# scripts/codex-research.mjs adds the new worktree's exact gitdir to this map when it
-# starts the session: Codex 0.164 keeps a linked worktree's gitdir read-only, and only
-# that exact path (not the common dir or .git/worktrees) makes commits possible.
+# scripts/codex-research.mjs adds the worktree's exact gitdir and the common .git directory
+# to this map when it starts the session. Both are needed: index.lock is in the worktree
+# gitdir, while new commit objects are in the common .git/objects directory.
 
 [features]
 network_proxy = true

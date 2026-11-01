@@ -130,21 +130,29 @@ harness마다 다른 것은 agent 정의의 설정과 hook 등록뿐입니다. �
 | harness | 맡기는 법 | 처음 한 번 하는 준비 |
 |---|---|---|
 | Claude Code | 아무 세션에서 "리서치 맡겨 <url>" | 저장소 폴더를 trust 한다 |
-| Codex | `node scripts/codex-research.mjs "리서치 맡겨 <url>"` 로 연 세션 | 아래 |
+| Codex | 아무 세션에서 "리서치 맡겨 <url>". 관리형 agent 가 있으면 감독 실행을 맡기고, 없으면 소유자 agent 가 직접 기다려 결과를 전한다 | 아래 |
 
-Codex 는 `codex --worktree` 대신 시작 스크립트로 엽니다. Codex 의 sandbox 는 새 worktree 의 git 메타데이터를 읽기 전용으로 두고,
-그 worktree 의 gitdir 경로를 정확히 허용해야만 commit 할 수 있습니다. 스크립트는 origin/main 에서 worktree 를 만들고, 연구 profile 의
-권한을 상속해 그 경로만 더한 채 `codex --profile research` 를 띄웁니다. 뒤에 붙인 인자는 codex 에 그대로 넘어갑니다
-(예: `-m gpt-6.1-sol -c 'model_reasoning_effort="high"'`). 멈춘 연구는 `--resume=<worktree>` 로 이어 갑니다.
+Codex 는 `codex --worktree` 대신 시작 스크립트로 엽니다. Codex 의 sandbox 는 새 worktree 의 Git 메타데이터를 읽기 전용으로 두므로,
+스크립트는 worktree 의 gitdir 와 공용 `.git` 에 쓰기 권한을 더합니다. 실행 agent 는
+`node scripts/codex-research.mjs --run "리서치 맡겨 <url>"` 을 실행하고 완료 이벤트를 기다립니다.
+Paseo 가 있으면 Codex 감독 agent 에 이 실행을 맡겨 완료 알림을 소유자 세션에 돌립니다. 그 agent 에는
+profile 설치·worktree 생성에 필요한 권한이 있어야 합니다. 관리형 agent 가 없으면 소유자 agent 가 직접 실행하고 기다립니다.
+이 모드는 일시적인 모델 오류를 같은 thread 에서 제한적으로 재개하고, ship 게이트·종료 hook·열린 PR 을 확인한 결과만 전합니다.
+추가 인자는 모델(`-m`/`--model`)과 reasoning effort(`-c model_reasoning_effort=...`)만 받습니다.
+진행 상태는 `node scripts/codex-research.mjs --status=<worktree>` 로 봅니다. 이 명령은 감독 프로세스와 heartbeat 가
+끊긴 `running` 기록을 `stale`(프로세스 없음) 또는 `stalled`(heartbeat 중단)로 구분합니다. 멈춘 연구는
+`--run --resume=<worktree> "<원래 요청>"` 으로 이어 갑니다.
+안전장치 오류 뒤에는 `--run --fresh-thread --resume=<worktree> "<원래 요청>"` 으로
+같은 작업 트리에서 새 연구자 맥락을 엽니다.
+대화형 세션은 `node scripts/codex-research.mjs` 로 엽니다.
 
 Codex 준비:
 
 1. 저장소를 Codex 에서 trust 합니다(한 번). 스크립트가 만드는 worktree 에도 적용됩니다.
 2. 스크립트는 부를 때마다 연구 profile 을 `${CODEX_HOME:-~/.codex}/research.config.toml` 로 복사합니다. symlink 로 두지 않는 것은
    Codex 가 hook trust 기록을 그 파일에 쓰기 때문입니다.
-3. 연구 hook 을 아직 trust 하지 않았으면 스크립트가 요청을 넘기지 않고 알려 줍니다. 세션에서 `/hooks` 를 열어 네 hook 을 보고
-   trust(`t`)한 뒤 요청을 입력합니다. hook 정의가 바뀌면 다시 trust 해야 합니다. trust 전에 시작한 요청에서는 lens 의 시작·완료
-   hook 이 돌지 않아 PR 이 draft 로 열립니다.
+3. 연구 hook 을 아직 trust 하지 않았으면 감독 실행기는 연구를 시작하지 않고 준비가 필요하다고 알립니다. 대화형 세션에서
+   `/hooks` 를 열어 다섯 hook 을 보고 trust(`t`)한 뒤 다시 맡깁니다. hook 정의가 바뀌면 다시 trust 해야 합니다.
 4. 설정에 `sandbox_mode` 가 있으면 연구 권한보다 먼저 적용되므로 시작 스크립트가 멈춥니다.
 
 PR 본문의 "모델 확인" 줄은 실제 모델을 본 행위자의 수를 적습니다. 저절로 바뀐 것이 보이면 PR 을 열지 않습니다.

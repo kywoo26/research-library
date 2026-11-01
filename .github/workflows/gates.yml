@@ -23,4 +23,6 @@ jobs:
       - name: check-harness
         run: node scripts/check-harness.mjs
       - name: hook and ship tests
-        run: node scripts/test/hooks.test.mjs && node scripts/test/usage.test.mjs && node scripts/test/usage-codex.test.mjs
+        run: node scripts/test/hooks.test.mjs && node scripts/test/ship-prs.test.mjs && node scripts/test/usage.test.mjs && node scripts/test/usage-codex.test.mjs
+      - name: Codex research handoff tests
+        run: node --test scripts/test/codex-hook-trust.test.mjs scripts/test/codex-research-launcher-guard.test.mjs scripts/test/codex-research-runner.test.mjs
