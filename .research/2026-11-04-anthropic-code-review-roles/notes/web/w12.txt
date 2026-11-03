@@ -1,0 +1,967 @@
+NAS-139874 / 26.0.0-BETA.1 / Convert `zfs.dataset` encryption methods to use `truenas_pylibzfs` by creatorcary · Pull Request #18291 · truenas/middleware · GitHub
+Skip to content
+Navigation Menu
+Sign in
+Products
+Platform
+GitHub
+Repository hosting, code review, and collaboration
+Copilot
+AI coding agent for tasks, projects and automated work
+Build & Ship
+Actions
+CI/CD and automation
+Code Quality
+Quality analysis, fixes, and enforcement
+Codespaces
+Cloud development environments
+Secure
+Code Security
+Vulnerability detection and remediation
+Secret Protection
+Secret scanning and leak prevention
+All Features
+Developers
+Learn
+Documentation
+Training
+Certifications
+Build
+Build with Copilot
+Customize Copilot
+Integrations
+Explore
+Trending repos
+GitHub Sponsors
+Developer articles
+Changelog
+Changelog
+Your source for the latest features, improvements, and fixes across GitHub products, all in one place.
+Businesses
+By Stage
+Enterprises
+Team
+Startups
+Nonprofits
+By Industry
+Healthcare
+Financial services
+Manufacturing
+Government
+See all industries
+Evaluate GitHub
+Why GitHub
+Customer Stories
+Business insights
+Trust Center
+Add-ons
+GitHub Advanced Security
+Enterprise-grade code security
+Copilot for business
+Enterprise-grade AI features
+Premium Support
+Enterprise-grade 24/7 support
+Resources
+Learn & Connect
+Documentation
+Resource center
+Blog
+Events & webinars
+Community Forum
+Customer Stories
+Integrations
+Support
+Customer support
+Training
+GitHub Status
+Company
+About
+Partners
+Changelog
+GitHub Universe
+GitHub Universe
+The event for developers, by developers — talks, workshops, and what’s next for GitHub.
+Pricing
+Search
+/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window.
+Reload
+to refresh your session.
+You signed out in another tab or window.
+Reload
+to refresh your session.
+You switched accounts on another tab or window.
+Reload
+to refresh your session.
+Dismiss alert
+{{ message }}
+truenas
+middleware
+Repository navigation
+Code
+Pull requests
+26
+(
+26
+)
+Actions
+Projects
+Security and quality
+Insights
+More
+items
+NAS-139874 / 26.0.0-BETA.1 / Convert
+zfs.dataset
+encryption methods to use
+truenas_pylibzfs
+- #
+18291
+#
+18291
+Merged
+creatorcary
+merged 32 commits into
+master
+truenas/middleware:master
+from
+NAS-139874
+truenas/middleware:NAS-139874
+Copy head branch name to clipboard
+Mar 3, 2026
+Conversation
+Commits
+32
+(
+32
+)
+Checks
+Files changed
+Merged
+NAS-139874 / 26.0.0-BETA.1 / Convert
+zfs.dataset
+encryption methods to use
+truenas_pylibzfs
+#
+18291
+creatorcary
+merged 32 commits into
+master
+truenas/middleware:master
+from
+NAS-139874
+truenas/middleware:NAS-139874
+Copy head branch name to clipboard
+Conversation
+creatorcary
+commented
+Feb 24, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Copy link
+Copy Markdown
+Contributor
+Replace usage of the deprecated py-libzfs with truenas_pylibzfs for these private methods. This removes another use case of our process pool.
+Depends on changes made in
+truenas/truenas_pylibzfs#145
+.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+All reactions
+creatorcary
+added
+5
+commits
+February 23, 2026 11:15
+move remaining zfs.dataset methods
+2bbdacd
+don't need the methods
+41bd6cc
+replace libzfs
+3a7b8ea
+don't block event loop
+b86df0c
+doc, catch ValueErrors
+2ced671
+creatorcary
+added
+  the
+pending QA
+label
+Feb 24, 2026
+bugclerk
+changed the title
+Convert
+zfs.dataset
+encryption methods to use
+truenas_pylibzfs
+NAS-139874 / 26.0.0-BETA.1 / Convert
+zfs.dataset
+encryption methods to use
+truenas_pylibzfs
+Feb 24, 2026
+bugclerk
+commented
+Feb 24, 2026
+Copy link
+Copy Markdown
+Contributor
+Jira URL:
+https://ixsystems.atlassian.net/browse/NAS-139874
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Merge branch 'master' of
+https://github.com/truenas/middleware
+into N…
+…
+412ebc1
+…AS-139874-test
+yocalebo
+requested changes
+Feb 24, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/plugins/zfs/dataset_encryption.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+creatorcary
+added
+11
+commits
+February 25, 2026 09:24
+fix passing None to crypto
+390d811
+pass raw key, never bytes
+bc7a79d
+fix passing key and keylocation to resource_cryptography_config
+60ab1c6
+minimum pbkdf2iters increased
+36d6555
+prevent validation errors on previous version calls to `pool.dataset.…
+…
+54a29d4
+…change_key`
+use tls
+929cc20
+dead code
+7b0264d
+accept bytes for raw key
+f008151
+Merge branch 'master' of
+https://github.com/truenas/middleware
+into N…
+…
+b3f69ce
+…AS-139874-test
+pass bytes in
+pool.dataset.sync_db_keys
+c059890
+use
+pass_thread_local_storage
+3e7ee39
+creatorcary
+force-pushed
+the
+NAS-139874
+branch
+    from
+cc75cf9
+to
+f20e1d2
+Compare
+February 27, 2026 16:46
+creatorcary
+marked this pull request as ready for review
+February 27, 2026 16:47
+creatorcary
+requested a review
+  from
+yocalebo
+February 27, 2026 16:47
+creatorcary
+removed
+  the
+pending QA
+label
+Feb 27, 2026
+claude
+Bot
+reviewed
+Feb 27, 2026
+View reviewed changes
+claude
+Bot
+left a comment
+Copy link
+Copy Markdown
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others.
+Learn more
+.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide
+comment
+No bugs found, but this PR touches encryption-sensitive code paths across 8 files and depends on unreleased truenas_pylibzfs changes (PR
+#145
+). Worth a human review given the scope and security sensitivity.
+Extended reasoning...
+Overview
+This PR replaces the deprecated py-libzfs with truenas_pylibzfs for ZFS dataset encryption methods (
+load_key
+,
+check_key
+,
+change_key
+,
+change_encryption_root
+,
+bulk_check
+). The old
+zfs_/dataset_encryption.py
+(which ran in a process pool) is deleted, and new standalone functions are added in
+zfs/dataset_encryption.py
+. Service wrappers are added to
+resource_crud.py
+using
+@pass_thread_local_storage
+to provide thread-safe libzfs handles. Callers across KMIP, pool dataset encryption info/lock/operations are updated accordingly. The
+pbkdf2iters
+default and minimum are raised from 350,000 to 1,300,000 with a
+from_previous
+migration hook.
+Security risks
+This PR directly handles encryption key loading, verification, and rotation for ZFS datasets. While the code patterns look correct (proper error handling, thread-local libzfs handles, no key material logged), the security-critical nature of these operations means any subtle behavioral difference between the old py-libzfs and new truenas_pylibzfs implementations could have serious consequences (failed unlocks, key verification bypass, etc.).
+Level of scrutiny
+High scrutiny warranted. This is production-critical encryption infrastructure code. The changes span 8 files and replace the underlying ZFS library for all encryption operations. The
+from_previous
+migration for
+pbkdf2iters
+is a breaking API change that requires careful review.
+Other factors
+The PR description states it depends on unreleased truenas_pylibzfs changes (PR
+#145
+) and the author is "waiting for next nightly to test", suggesting the PR is not yet fully validated.
+A reviewer (yocalebo) previously raised an architectural concern about libzfs handle management that appears to have been addressed by using
+tls.lzh
+instead of opening new handles, and the comment is resolved.
+The removal of the generic
+bulk_process
+job (which dispatched by method name) in favor of the specific
+bulk_check
+function is a positive safety improvement.
+No test changes are included, which is expected since integration tests would cover this, but it means correctness depends on the nightly test run the author mentioned.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+All reactions
+yocalebo
+requested changes
+Mar 2, 2026
+View reviewed changes
+yocalebo
+left a comment
+Copy link
+Copy Markdown
+Contributor
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others.
+Learn more
+.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide
+comment
+This needs to be cleaned up and polished.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+All reactions
+Comment thread
+src/middlewared/middlewared/plugins/zfs/resource_crud.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/zfs/resource_crud.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/zfs/resource_crud.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/zfs/dataset_encryption.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/zfs/dataset_encryption.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+creatorcary
+added
+3
+commits
+March 2, 2026 09:59
+Merge branch 'master' of
+https://github.com/truenas/middleware
+into N…
+…
+a01467d
+…AS-139874
+id_ --> dataset
+5fd4fd6
+dataset_encryption.py --> encryption.py
+41a5813
+creatorcary
+added
+6
+commits
+March 2, 2026 15:41
+Merge branch 'master' of
+https://github.com/truenas/middleware
+into N…
+…
+14faa2f
+…AS-139874
+remove
+bulk_check
+1fbec37
+remove other private methods
+08601e2
+docstring format
+6d7f782
+rework exceptions
+3a37a84
+Merge branch 'master' of
+https://github.com/truenas/middleware
+into N…
+…
+558acf0
+…AS-139874
+creatorcary
+force-pushed
+the
+NAS-139874
+branch
+    from
+f20e1d2
+to
+558acf0
+Compare
+March 3, 2026 16:02
+appease mypy
+3f933a8
+creatorcary
+requested a review
+  from
+yocalebo
+March 3, 2026 16:24
+yocalebo
+reviewed
+Mar 3, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/plugins/pool_/dataset_encryption_info.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+yocalebo
+reviewed
+Mar 3, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/plugins/pool_/dataset_encryption_lock.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+creatorcary
+added
+2
+commits
+March 3, 2026 11:52
+use intermediate variables
+30d25cd
+compare IntEnum field
+8db5fce
+creatorcary
+requested a review
+  from
+yocalebo
+March 3, 2026 17:02
+yocalebo
+approved these changes
+Mar 3, 2026
+View reviewed changes
+claude
+Bot
+reviewed
+Mar 3, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/plugins/kmip/zfs_keys.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/pool_/dataset_encryption_operations.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+claude
+Bot
+reviewed
+Mar 3, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/plugins/kmip/zfs_keys.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/pool_/dataset_encryption_operations.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+creatorcary
+added
+2
+commits
+March 3, 2026 13:26
+pass tls
+14d2ef6
+fix enum value comparison
+bfe3651
+claude
+Bot
+reviewed
+Mar 3, 2026
+View reviewed changes
+Comment thread
+src/middlewared/middlewared/api/v26_0_0/pool_dataset.py
+Resolved
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Comment thread
+src/middlewared/middlewared/plugins/kmip/zfs_keys.py
+@@ -91,16 +95,18 @@ def push_zfs_keys(self, ids=None):
+return failed
+claude
+Bot
+Mar 3, 2026
+Copy link
+Copy Markdown
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others.
+Learn more
+.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide
+comment
+🟣 Pre-existing bug:
+self.zfs_keys = {k: v for k, v in self.zfs_keys.items() if k in existing_datasets}
+on lines 94 and 125 always produces an empty dict because
+existing_datasets
+is a
+list[dict]
+and
+k
+is a
+str
+. In Python,
+str in list[dict]
+checks element-wise equality (
+str == dict
+), which is always
+False
+, so the entire KMIP key cache is wiped after every push/pull call. Fix by building a set of names first:
+existing_names = {ds["name"] for ds in existing_datasets}
+and filtering with
+if k in existing_names
+.
+Extended reasoning...
+What the bug is
+get_encrypted_datasets()
+(line 34-52) returns a
+list[dict]
+— it initializes
+rv = list()
+and appends datastore record dicts via
+rv.append(ds_in_db[i["name"]])
+. On lines 94 and 125,
+self.zfs_keys
+is filtered with:
+self
+.
+zfs_keys
+=
+{
+k
+:
+v
+for
+k
+,
+v
+in
+self
+.
+zfs_keys
+.
+items
+()
+if
+k
+in
+existing_datasets
+}
+Here
+k
+is a string (dataset name like
+"pool/ds1"
+) and
+existing_datasets
+is a
+list[dict]
+. The
+in
+operator checks element-wise equality, and since
+str == dict
+is always
+False
+in Python, every key is filtered out.
+Step-by-step proof
+push_zfs_keys
+or
+pull_zfs_keys
+is called.
+existing_datasets = self.get_encrypted_datasets(filters)
+returns e.g.
+[{"name": "pool/ds1", "id": 1, ...}]
+.
+During the loop, keys are added to
+self.zfs_keys
+, e.g.
+self.zfs_keys["pool/ds1"] = "<hex_key>"
+.
+After the loop, the comprehension runs:
+k = "pool/ds1"
+,
+"pool/ds1" in [{"name": "pool/ds1", ...}]
+.
+Python evaluates:
+"pool/ds1" == {"name": "pool/ds1", ...}
+→
+False
+(string never equals dict).
+Result:
+self.zfs_keys = {}
+— all cached keys are lost.
+Quick verification:
+>
+>>
+existing_datasets
+=
+[{
+"name"
+:
+"pool/ds1"
+,
+"id"
+:
+1
+}]
+>
+>>
+"pool/ds1"
+in
+existing_datasets
+False
+Why existing code does not prevent it
+Python does not warn when comparing strings to dicts via
+in
+. The operation silently returns
+False
+for every element, producing an empty dict without any error or exception.
+Impact
+self.zfs_keys
+is the in-memory cache of ZFS encryption keys managed by KMIP. After every push or pull:
+All cached keys are lost, including keys for datasets not involved in the current operation.
+kmip.retrieve_zfs_keys
+returns
+{}
+, so
+query_encrypted_roots_keys
+cannot find KMIP-managed keys.
+This affects
+encryption_summary
+,
+sync_db_keys
+,
+export_keys
+, and unlock operations for KMIP-managed datasets.
+zfs_keys_pending_sync
+always thinks keys need syncing because
+ds["name"] not in self.zfs_keys
+is always
+True
+after the cache is wiped.
+How to fix
+Build a set of dataset names before filtering:
+existing_names
+=
+{
+ds
+[
+"name"
+]
+for
+ds
+in
+existing_datasets
+}
+self
+.
+zfs_keys
+=
+{
+k
+:
+v
+for
+k
+,
+v
+in
+self
+.
+zfs_keys
+.
+items
+()
+if
+k
+in
+existing_names
+}
+This needs to be applied on both line 94 (in
+push_zfs_keys
+) and line 125 (in
+pull_zfs_keys
+).
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+👍
+1
+claude[bot] reacted with thumbs up emoji
+👎
+1
+claude[bot] reacted with thumbs down emoji
+All reactions
+👍
+1 reaction
+👎
+1 reaction
+creatorcary
+Mar 3, 2026
+Copy link
+Copy Markdown
+Contributor
+Author
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others.
+Learn more
+.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide
+comment
+Needs separate PR
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+All reactions
+update
+PoolCreateEncryptionOptions
+with new pbkdf2iters default
+5be2032
+Hide details
+View details
+creatorcary
+merged commit
+0a12235
+into
+master
+Mar 3, 2026
+3 checks passed
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+creatorcary
+deleted the
+NAS-139874
+branch
+March 3, 2026 19:51
+bugclerk
+commented
+Mar 3, 2026
+Copy link
+Copy Markdown
+Contributor
+This PR has been merged and conversations have been locked.
+If you would like to discuss more about this issue please use our forums or raise a Jira ticket.
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+truenas
+locked as
+resolved
+and limited conversation to collaborators
+Mar 3, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to subscribe to this conversation on GitHub
+.
+      Already have an account?
+Sign in
+.
+Reviewers
+claude[bot]
+claude[bot] left review comments
+yocalebo
+yocalebo approved these changes
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+3 participants
+Add this suggestion to a batch that can be applied as a single commit.
+This suggestion is invalid because no changes were made to the code.
+Suggestions cannot be applied while the pull request is closed.
+Suggestions cannot be applied while viewing a subset of changes.
+Only one suggestion per line can be applied in a batch.
+Add this suggestion to a batch that can be applied as a single commit.
+Applying suggestions on deleted lines is not supported.
+You must change the existing code in this line in order to create a valid suggestion.
+Outdated suggestions cannot be applied.
+This suggestion has been applied or marked resolved.
+Suggestions cannot be applied from pending reviews.
+Suggestions cannot be applied on multi-line comments.
+Suggestions cannot be applied while the pull request is queued to merge.
+Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

@@ -1,0 +1,12 @@
+{
+  "title": "Anthropic Claude Code 팀의 코드 리뷰 역할과 책임",
+  "date": "2026-11-04",
+  "seq": 45,
+  "summary": "반복 코드 읽기를 AI로 옮긴 뒤 사람이 유지하는 목적·위험·근거·결과 책임과, 이를 지탱하는 평가·수렴·복구 체계를 분석한다.",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer",
+  "source": {
+    "url": "https://claude.dev/blog/solving-code-review-at-anthropic/"
+  }
+}

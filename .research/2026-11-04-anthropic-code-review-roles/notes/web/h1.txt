@@ -1,0 +1,77 @@
+{
+  "author": "RGS1811",
+  "children": [
+    {
+      "author": "jazzyjackson",
+      "children": [],
+      "created_at": "2026-10-16T21:24:02.000Z",
+      "created_at_i": 1792185842,
+      "id": 50124972,
+      "options": [],
+      "parent_id": 50124069,
+      "points": null,
+      "story_id": 50122951,
+      "text": "Yes it used to be said, the code is not the asset, the people who know what the code does and how to change it are the asset.<p>Now we’re just going to outsource our capacity to design and review because it’s faster that way, as if the thing that was wrong with the software industry was that releases weren’t being pushed out often enough.",
+      "title": null,
+      "type": "comment",
+      "url": null
+    },
+    {
+      "author": "mahogany",
+      "children": [
+        {
+          "author": "abalgir",
+          "children": [],
+          "created_at": "2026-10-17T20:58:20.000Z",
+          "created_at_i": 1792270700,
+          "id": 50135066,
+          "options": [],
+          "parent_id": 50126875,
+          "points": null,
+          "story_id": 50122951,
+          "text": "Fair assumption. I think humans, at least those who like to code and build solutions, will become better builders than coders. Understanding the code will become less important, but knowing how to put it all together will be essential.",
+          "title": null,
+          "type": "comment",
+          "url": null
+        }
+      ],
+      "created_at": "2026-10-17T01:18:58.000Z",
+      "created_at_i": 1792199938,
+      "id": 50126875,
+      "options": [],
+      "parent_id": 50124069,
+      "points": null,
+      "story_id": 50122951,
+      "text": "I think there is no magic trick here. The answer is simply that humans will no longer understand the code.<p>Although, following Anthropic’s ethos and taking this to its conclusion, I’m not even sure why they need human reviewers at all. What, they bring in a human to look at a diff of an “important” section of code that was written by agents and has changed a dozen times since last week through 12 PRs of churn? Obviously they don’t know what’s going on. So what’s a human to do? Do what the other approvers (if any) did: fire up a Claude to command it “verify this change has no regression; check carefully for edge cases”, then come back after a half hour of High Thinking to see “Change is clean (with some non-blocking findings below, in order of significance)” and click Approve. Not sure what the purpose of the human is in such a process.",
+      "title": null,
+      "type": "comment",
+      "url": null
+    },
+    {
+      "author": "abalgir",
+      "children": [],
+      "created_at": "2026-10-17T20:51:45.000Z",
+      "created_at_i": 1792270305,
+      "id": 50135030,
+      "options": [],
+      "parent_id": 50124069,
+      "points": null,
+      "story_id": 50122951,
+      "text": "I agree with you. A code reviewer from the same company, even with different models or efforts, shares the same blind spots. To review my code, I use a different company; if I code with Claude (usually Sonnet 5.5-medium), Codex reviews it, and vice versa. I get much better code this way. But more importantly, I always tell the reviewer to build its own test-scenario ledger and refute the coder&#x27;s claim that it is done. And the verdict is shared with the coder, but the coder cannot reject it.",
+      "title": null,
+      "type": "comment",
+      "url": null
+    }
+  ],
+  "created_at": "2026-10-16T20:22:19.000Z",
+  "created_at_i": 1792182139,
+  "id": 50124069,
+  "options": [],
+  "parent_id": 50122951,
+  "points": null,
+  "story_id": 50122951,
+  "text": "How is the ability of a human to understand the code via hands-on familiarity not a direct dependency of their ability to do manual code review? I don&#x27;t get it. Having claude write an explainer (something I do a lot!) doesn&#x27;t get you to the point where you can confidently assess a complex diff. And you&#x27;ve funneled your priors on what the diff says and does through the same system that already reviewed and approved it. This article isn&#x27;t bad but it doesn&#x27;t give enough weight to the human context-building part of the problem.",
+  "title": null,
+  "type": "comment",
+  "url": null
+}
