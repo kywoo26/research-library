@@ -1,0 +1,15 @@
+{
+  "by": "eranation",
+  "id": 48408272,
+  "kids": [
+    48472124,
+    48408448,
+    48410896,
+    48410752,
+    48409467
+  ],
+  "parent": 48406358,
+  "text": "Ran it on a subset of 10 of the 50 PRs in this benchmark <a href=\"https:&#x2F;&#x2F;codereview.withmartian.com\" rel=\"nofollow\">https:&#x2F;&#x2F;codereview.withmartian.com</a><p>- very good recall (~74%, e.g. found a lot of the golden issues)<p>- not so good precision (~12%, e.g. lots of false positives)<p>- the precision causes the F1 to tank (~20%, if this stays the same on the full 50 sample it would puts it almost last, even less than Kilo+Grok)",
+  "time": 1780636617,
+  "type": "comment"
+}

@@ -1,0 +1,147 @@
+{
+ "decided": [
+  {
+   "item": "purpose=explainer",
+   "reason": "문제·작동 원리·사례·실측 결과와 한계를 설명하여 새 사례의 동작을 예측하게 한다. 도입 판단은 범위 밖이다."
+  },
+  {
+   "item": "fresh isolation",
+   "reason": "과거 문서 및 원장을 읽지 않는다. 현재 sparse checkout을 유지한다. 공식 corpus만 새로 고정한다."
+  },
+  {
+   "item": "reading scope",
+   "reason": "paper 전체와 core review path를 직접 읽는다. 큰 source trace는 Sol high extraction을 쓸 수 있다."
+  },
+  {
+   "item": "counterexample question",
+   "reason": "추가된 null guard가 다른 파일에 있는 PR에서 후보가 유지될지, diff만 보는 reflection이 무엇을 놓칠지 예측한다."
+  },
+  {
+   "item": "identity link limitation",
+   "reason": "p1 abstract가 r1 URL을 직접 지정한다. pinned r1 전체에서 arxiv/2608.09290/논문 제목 검색과 공식 home HTML에서 역링크를 찾지 못했다. 저자 Alibaba 소속과 repo 소유 및 이름으로 보강하되 상호 링크 확인이라 주장하지 않는다."
+  },
+  {
+   "item": "measurements",
+   "reason": "논문 Table 3의 v1.3.1 결과를 최신 v1.13.5의 실측으로 바꾸지 않는다. ablation 미공개라 구성요소별 효과는 해석으로 둔다."
+  },
+  {
+   "item": "review fixes",
+   "reason": "현재 group path의 reflection 후 후보를 기준으로 다음 pass를 결정하도록 설명을 좁혔다. 위치 검색은 삭제 diff를 포함한 보관 집합 전체이고 group 밖 이동 후보는 현재 group reflection에서 빠짐을 명시했다. 모든 lens finding을 적용했고 recheck가 확인했다."
+  },
+  {
+   "item": "origin/main compatibility",
+   "reason": "origin/main 2e73f6cd735c728ec42f4cba1cba33ac7b2f4193의 scripts/check-doc.mjs를 원본 그대로 받아 새 문서만 보이는 검사 공간에서 실행했다. 커밋 직전 같은 SHA를 재조회했다."
+  },
+  {
+   "item": "publication scope",
+   "reason": "이번 새 research/.research slug의 문서와 근거만 ship.mjs로 출고한다. 기존 본문과 runtime overlay는 커밋 대상으로 추가하지 않는다."
+  }
+ ],
+ "question": "OpenCodeReview는 어느 결정을 코드로 고정하고 어느 판단을 LLM에 맡기며, 그 경계가 실제 리뷰 후보와 precision·recall·비용을 어떻게 바꾸는가?",
+ "flip_condition": "reflection에 전체 탐색 문맥이 넘어가거나 dispatch가 LLM 결정을 따르는 코드라면 정보 경계 설명을 바꾼다.",
+ "model": "gpt-6.1-sol",
+ "effort": "high",
+ "needs_owner": [],
+ "unfixed": [],
+ "unverified": [
+  "실제 model endpoint를 이용한 리뷰와 benchmark 재현은 실행하지 않았다. 행동 예측 21건은 가상 입력과 기본 prompt의 조건부 해석이다.",
+  "논문 수치는 v1.3.1 자기보고 실험이다. 최신 v1.13.5의 품질·비용, 개별 구성요소 ablation, agent 실행 분산은 확인하지 못했다.",
+  "extensions·ACP·pages UI·CI integration의 구현은 읽지 않아 IDE 표시와 CI 게시 경로는 설명 범위에서 제외했다.",
+  "공식 논문→repository 링크는 확인했다. repository→논문 역링크는 pinned tree와 공식 home에서 찾지 못했다."
+ ],
+ "rendered": "최종 수정 후 1280px desktop과 390px mobile의 표지·도식·그래프 및 변경 장 화면을 직접 확인했다. render gate의 배치 경고와 페이지 가로 넘침은 모두 0이다.",
+ "commitSubject": "OpenCodeReview의 최신 리뷰 경계와 실험 결과를 설명",
+ "commitBody": "OpenCodeReview의 파일 선택, 그룹핑, 도구 반복, 위치 결정과 reflection을 새 한국어 HTML explainer로 작성했다. 분기·반복·후보 상태 변화를 도식으로 설명하고, 같은 모델의 SEM-F1·precision·recall·토큰 사용량을 그래프로 비교했다.\n\n공식 repository alibaba/open-code-review의 abb7abcd5c5196fa0278dc87db85780fa269562f와 최신 release v1.13.5를 고정했다. 논문은 arXiv:2608.09290v2이며 실험 대상은 v1.3.1이다. 논문 LaTeX 텍스트 SHA-256은 0a3879de736f6a18c9f9e32a9699edc24a972cf98eae223ec85fb043a4ec327a다.\n\n기존 연구를 열지 않은 sparse 작업공간에서 source → doc → verify를 수행했다. 별도 맥락의 Sol high 두 lens를 병렬 실행했고 변경 장을 recheck했다. 주장 190개와 원문 인용을 대조했다. desktop 1280px·mobile 390px 화면을 직접 확인했다. 실제 모델 리뷰나 benchmark 재현은 실행하지 않았다. runtime 수정안과 root 생성물은 연구 커밋 범위에 넣지 않는다.",
+ "verification": {
+  "rounds": 1,
+  "parallel_lenses": [
+   "lens-numbers",
+   "lens-reader"
+  ],
+  "recheck": "변경 장 5·6·8·11·12 및 eFilterCall에 새 meaning/understanding 결함 없음",
+  "claims": 190,
+  "evidence_spans": 89,
+  "sources": 9,
+  "main_checker_commit": "2e73f6cd735c728ec42f4cba1cba33ac7b2f4193",
+  "main_checker_sha256": "38241621586646f511184e3197b2772a14ff1869af63dd9d2bddaff8ff7d6bd9",
+  "checks": {
+   "check-doc": "pass",
+   "check-prose": "pass",
+   "check-claims": "pass",
+   "render": "pass",
+   "origin/main check-doc": "pass"
+  },
+  "doc_sha256": "25656e885b3ecbe30a60d4a14cdb7b620d23a37e84b3f112c50e22598eac947a"
+ },
+ "shippedAt": "2026-11-03T18:06:12.811Z",
+ "usage": {
+  "tokens": 15488916,
+  "usd": 3.86,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 281092,
+    "cache_write": 0,
+    "cache_read": 11998976,
+    "output": 53353,
+    "usd": 2.7
+   },
+   "default": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 90172,
+    "cache_write": 0,
+    "cache_read": 974080,
+    "output": 7815,
+    "usd": 0.36
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 126816,
+    "cache_write": 0,
+    "cache_read": 1311744,
+    "output": 5490,
+    "usd": 0.44
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 59244,
+    "cache_write": 0,
+    "cache_read": 225920,
+    "output": 4105,
+    "usd": 0.18
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 58985,
+    "cache_write": 0,
+    "cache_read": 288128,
+    "output": 2996,
+    "usd": 0.18
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-04-opencodereview",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "25656e885b3ecbe30a60d4a14cdb7b620d23a37e84b3f112c50e22598eac947a",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/5, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}

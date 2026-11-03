@@ -1,0 +1,8 @@
+{
+  "by": "lizhengfeng101",
+  "id": 48472124,
+  "parent": 48408272,
+  "text": "Thank you for sharing these results and for running the evaluation! We noticed that in the version tested, there was an anomaly in a critical tool call that significantly impacted the overall performance — particularly contributing to the high false positive rate you observed. We were able to reproduce the issue on the benchmark and have since fixed it. We appreciate you taking the time to highlight this, and we look forward to seeing how it performs on the full 50-sample evaluation!",
+  "time": 1781071860,
+  "type": "comment"
+}
