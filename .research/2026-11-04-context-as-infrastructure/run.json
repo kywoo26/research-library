@@ -1,0 +1,229 @@
+{
+ "harness": "codex",
+ "decided": [
+  {
+   "what": "문서 kind",
+   "choice": "explainer",
+   "reason": "LLM Wiki를 아는 개발자가 읽기 비용과 충분성 판단을 새 사례에 적용하도록 메커니즘과 실증을 연결한다."
+  },
+  {
+   "what": "원문 연구 범위",
+   "choice": "기존 발행물과 원장을 참고할 수 있으며, 주요 주장과 수치는 공개 원출처에서 다시 확인한다.",
+   "reason": "초기 감독 요청이 과거 발행물 제외를 잘못 확대 적용했다. 사용자가 이번 연구에는 제외가 필요 없다고 정정하여 작업공간 제한을 해제했다. 실제 연구는 기존 발행물을 읽지 않고 공개 원출처로 진행했고, 연구자는 종료 전 교정을 확인했다."
+  },
+  {
+   "what": "검토 모델",
+   "choice": "gpt-6.1-sol / high",
+   "reason": "사용자 확정 기준"
+  },
+  {
+   "what": "핵심 해석",
+   "choice": "읽기 표현과 admission 제어를 분리하는 설계로 설명한다.",
+   "reason": "Table 4의 토큰 관측은 구조 정확도 개선이나 배포 가치 입증과 다른 근거다."
+  },
+  {
+   "what": "반대 가능성",
+   "choice": "wiki의 종합 효용은 남기고 특정 span 없는 wiki ablation을 일반화하지 않는다.",
+   "reason": "Karpathy 원출처는 raw 보존·citation·검색·갱신을 이미 포함한다."
+  },
+  {
+   "what": "공식 코드 시점",
+   "choice": "제출 직전 main snapshot과 조사 시 main snapshot을 각각 고정한다.",
+   "reason": "논문에는 실험 commit/config 매핑이 없으며 두 snapshot에는 dense claim 검색 분기가 있다."
+  },
+  {
+   "what": "독립 검토 반영",
+   "choice": "보조 논문의 최신 표현을 v3로 한정하고, 모바일 공급 도식을 보완했다.",
+   "reason": "Lens B의 확인 범위 지적과 Lens A의 가독성 판단을 반영했다."
+  },
+  {
+   "what": "기계 대조 입력",
+   "choice": "LaTeX에서 확인한 percent 수치를 같은 v1 PDF 고정 추출문과도 대조한다.",
+   "reason": "공용 gate가 escaped percent를 그대로 비교해 낸 오탐을 피하면서 원문 대조를 보존했다. 체인은 수정하지 않았다."
+  },
+  {
+   "what": "기존 PR 수정",
+   "choice": "explainer와 비용 논증을 유지하고 ingestion 도식·연속 정책 예시·공식 code path·RAG/Wiki 적용 seam을 보강",
+   "reason": "사용자 요청에 따라 같은 PR에 fast-forward commit으로 갱신한다. 별도 branch 생성은 사용자의 “기존 PR의 최신 head에서 별도 수정 branch를 만들어 작업” 지시에 따른다. ship은 기존 PR branch를 재사용하고 새 commit subject로 amend를 피한다."
+  },
+  {
+   "what": "구현 설명의 경계",
+   "choice": "논문 계약과 고정 Go 코드의 기본 동작을 구분하고, quote/offset 저장과 query projection/citation 전달을 따로 설명",
+   "reason": "soft 검증의 증거 제거·claim 보존, empty evidence 분기, 공백 정규화, verifier parse 실패 수락을 확인했다. Source version end-to-end enforcement는 이 코드 경로로 확인하지 못했다."
+  },
+  {
+   "what": "독자 검토 반영",
+   "choice": "미정산 조건으로 제목 한정, block 폐기 명시, 적용 표를 모바일 카드로 교체, 수정 작업 이력 제거 및 중복 caveat 압축",
+   "reason": "독립 reader의 지적 전부 반영. 원문의 비용 논증과 비교조건은 유지했다."
+  },
+  {
+   "what": "fallback 입력 예의 검증",
+   "choice": "list_chunks의 필수 intent를 추가하고 schema와 정적 대조",
+   "reason": "첫 recheck가 공개 tool schema의 required intent 누락을 발견했다. 실제 실행 실패로 과장하지 않고 입력 예를 수정했으며 마지막 recheck가 해소를 확인했다."
+  },
+  {
+   "what": "기존 PR 갱신 방식",
+   "choice": "원래 PR head를 부모로 하는 새 개선 commit을 ship으로 생성하고 일반 push로 기존 branch 갱신",
+   "reason": "사용자가 “기존 PR #50 head branch ... 를 안전한 fast-forward push로 갱신”을 명시했다. 기존 문서 commit을 amend하지 않도록 새 subject를 사용한다. 중복 PR·merge·배포는 하지 않는다."
+  },
+  {
+   "what": "이번 후속 수정의 범위",
+   "choice": "논문 번역체와 용어 선행 설명을 검색 상황·정책 사례·동작 중심의 한국어 보고서로 교정",
+   "reason": "사용자가 기존 ingestion·정책·Go 경로·적용 접점과 수치·한계를 재사용하고 새 조사나 코드 범위 확대를 하지 말라고 명시했다."
+  },
+  {
+   "what": "제목과 용어 도입",
+   "choice": "독자 제목을 검색 뒤 읽기 비용으로 바꾸고 공식 논문 정체성은 출처 문장에 보존. harness·claim/span·컴파일·gate·fallback을 역할 뒤에 소개",
+   "reason": "처음 만나는 개발자가 익숙한 검색 상황에서 원인과 동작을 따라갈 수 있도록 한다."
+  },
+  {
+   "what": "검토 뒤 추가 수정",
+   "choice": "두 독립 lens의 필수 고침이 없어 본문을 그대로 출고. 추가 recheck 없음",
+   "reason": "양쪽이 같은 최종 본문을 읽었고 그 뒤 본문 변경이 없다. Reader의 튜닝 접기 메모는 선호이며 기존 구현 설명 유지 요청을 따른다."
+  }
+ ],
+ "question": "LLM Wiki의 compilation 아이디어를 계승하면서 이 논문은 agent 검색의 어떤 병목을 바꾸며, 그 근거는 어디까지 유효한가?",
+ "flip_condition": "충분성 gate가 잘못 수락하거나 원문 fallback 비용·컴파일 갱신비가 절약을 넘으면 작은 context의 경제성과 정확도 보존은 성립하지 않는다.",
+ "needs_owner": [],
+ "unfixed": [],
+ "unverified": [
+  "부재 주장 2건에 재검색 명령 2건을 기록했다. 논문의 총 offline 비용과 실험 commit·전체 실행 설정 매핑은 찾지 못했다.",
+  "Behavioral 분류 14건은 코드 읽기에 따른 주장이다. RAGFlow 설치·가상 정책 tool 호출·benchmark는 실행하지 않았다. 기존 입력 예의 schema 정적 대조를 재사용했다.",
+  "구현 경계 3종(RetrievalService.Search, DocEngine.Search, deepReadService.FetchChunksByID)의 backend/adapter 내부 실행을 끝까지 추적하지 않았다. 권한 환경, compiler의 다른 template 전체, UI·배포 설정과 span·현재 버전·delivery의 다른 enforcement 경계도 미확인이다.",
+  "논문은 gate 오수락률, 실제 총 offline 비용, 사전 목표를 충족한 배포 효용 결과를 제공하지 않는다. 공개 코드 두 snapshot은 실험 commit으로 확인된 것이 아니다.",
+  "논문의 Karpathy X 링크 본문은 열지 못했다. 별도 본인 gist를 고정해 비교했다. check-claims의 web 신원 경고 1건은 이 unavailable source이며 해당 본문을 근거로 사용하지 않았다.",
+  "기계 대조의 논문 근거 138건 중 118건은 전체 문서에서 대조했다. 수치·산식·코드 동작의 의미와 조건은 이번 독립 Lens B가 pinned 원출처로 확인했다."
+ ],
+ "rendered": "최종 1280·390 렌더를 생성했고 작성자가 표지, ingestion, harness, 정책 분기, Go 구조·호출, 적용 카드 실제 이미지를 직접 열었다. 양 폭 layout warnings 0, overflowX=false. Lens A도 표지와 4·5·6·7·8·16장의 모든 tile을 직접 열었다. Lens B는 렌더를 보지 않았다.",
+ "verification": {
+  "claims": 153,
+  "evidence_references": 256,
+  "sources": 12,
+  "rounds": 1,
+  "lens_numbers": "수치·산식·날짜 50항목, 코드 동작 54항목을 pinned 원출처와 대조. 틀림·확인 못 함 없음. 조건·인과·역할 확대 없음.",
+  "lens_reader": "새 가상 출장 환급 정책에서 정상 수락, 지정 숙소 승인 예외 누락에 따른 fallback, 오수락과 인용의 한계를 본문만으로 시연. 용어·인과·문단 연결에 필수 수정 없음.",
+  "recheck": "이번 run은 두 lens 이후 본문 수정이 없어 추가 recheck 불필요. 이전 run의 recheck 기록은 proseRevision.previousVerification에 보존.",
+  "checks": [
+   "check-doc pass",
+   "check-prose pass",
+   "check-claims pass",
+   "render 1280/390 pass"
+  ],
+  "execution": "기존 코드·논문 근거를 읽고 재사용. RAGFlow·benchmark를 실행하지 않았다."
+ },
+ "commitSubject": "Context as Infrastructure의 설명을 검색 상황과 정책 사례로 풀어 썼다",
+ "commitBody": "검색 뒤에도 모델이 많이 읽는 이유를 먼저 설명하고, 질문 전에 만든 근거를 어떤 조건에서 답에 쓸 수 있는지 따라가도록 기존 보고서의 한국어 문장과 문단을 고쳤다. 공식 논문 제목과 정체성은 보존했다. 독자 제목은 “Context as Infrastructure가 검색 뒤의 읽기 비용을 줄이는 방법”으로 바꿨다.\n\n“knowledge compilation 설계”, “span 없는 prose wiki”, “typed artifact”, “derived channel”, “다섯 station”처럼 전문 표현이 설명에 앞서던 대목을 고쳤다. 도구·순서·종료를 관리하는 harness, 주장인 claim과 복사한 원문 구간인 span, 받은 근거로 답할 수 있는지 보는 gate를 역할과 함께 소개했다. “공급물의 사용 여부를 결정한다”는 추상 문장은 미정산 예외를 묻는 질문에서 누가 답할지 더 읽을지 정하는지로 풀었다.\n\n```mermaid\nflowchart LR\n  Q[검색했지만 긴 문서를 다시 읽는다] --> C[주장과 복사한 근거를 미리 만든다]\n  C --> G{이번 질문의 조건을 다루는가}\n  G -->|수락| A[짧은 근거로 답하고 인용한다]\n  G -->|거절| F[부족한 묶음을 버리고 원문을 더 읽는다]\n  F --> A\n  G -->|오수락| E[인용이 있어도 예외를 놓친 답이 될 수 있다]\n```\n\n기존 ingestion 도식, 연속 정책 사례, Go 구조·함수 연결과 RAG/Wiki 적용 접점·로그를 유지했다. 실제 코드 식별자와 schema 필드는 그대로 두고 저장 값과 모델에 전달되는 값의 차이, 원문 요청과 실제 전달의 차이를 설명했다. 관측→지연→비용 회수→gate 오류→개발자 판단 사이의 인과도 연결했다.\n\n주 근거는 기존 arXiv:2610.41172v1과 RAGFlow 2c4bbbc720fe24bd7ac509ab989325d4c1e8e532다. 제출 직전 snapshot 327cdb2d80d17d04ed07694ec8eb65d028549ec0, Karpathy gist, Pinecone Nexus 글과 Cochran arXiv:2605.18490v3도 고정본을 재사용했다. 수치, 비교조건, 구현 범위와 한계를 늘리지 않았다.\n\n독립 두 lens가 병렬로 읽었다. Reader는 본문만으로 새 출장 환급 정책의 수락·fallback·오수락을 시연했고 이해를 막는 결함을 찾지 못했다. B는 수치·산식·날짜 50항목과 코드 동작 54항목을 대조해 오류나 확인 불가 항목을 찾지 못했다. 검토 후 본문 수정이 없어 추가 recheck는 필요하지 않았다. 최종 153개 주장·256개 근거 참조가 기계 대조를 통과했다. 작성자는 최종 1280·390 실제 렌더를 열었다. 배치 경고와 페이지 가로 넘침은 없었다.\n\n기존 미확인 범위는 남는다. 시스템·benchmark를 실행하지 않았고, gate 오수락률·전체 컴파일 비용·배포 효용은 새로 측정하지 않았다. Span·현재 버전·delivery의 end-to-end 보장과 backend 내부 실행도 확인 범위 밖이다.\n\nPR #50의 remote head ec9e8e8에서 별도 수정 branch로 작업했다. 기존 PR branch에 새 commit을 일반 fast-forward push한다. 다른 worktree·root 생성물·runtime·hooks·profile·skills를 수정하지 않았다. Merge와 배포는 하지 않는다.",
+ "shippedAt": "2026-11-03T19:32:54.795Z",
+ "usage": {
+  "tokens": 6214047,
+  "usd": 1.87,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 249868,
+    "cache_write": 0,
+    "cache_read": 3933184,
+    "output": 28262,
+    "usd": 1.18
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 70308,
+    "cache_write": 0,
+    "cache_read": 395392,
+    "output": 4930,
+    "usd": 0.23
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 129590,
+    "cache_write": 0,
+    "cache_read": 1396224,
+    "output": 6289,
+    "usd": 0.46
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-04-context-as-infrastructure",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "2bac2905061beb0470bb22268747cdbb83762f68a582006ea560d6fe8703b6dd",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/3, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ },
+ "revision": {
+  "basePr": 50,
+  "baseHead": "47c2f6849ae5560a19e8a33b88d646db7e0a471b",
+  "workBranch": "revise/context-infrastructure-20261104",
+  "originalWorktreeTouched": false,
+  "externalActionsBeforeInterruption": "PR head 조회와 checkout, 별도 local branch 생성만 완료. commit/push/PR edit 없음.",
+  "resume": "기존 active run 2026-11-03-08b2dd를 유지. status는 supervisor process 부재로 stale이나 active preflight running. shipped 기록 또는 hook/profile/skills 변경 없이 같은 작업을 계속한다.",
+  "previousVerification": {
+   "claims": 111,
+   "evidence_references": 143,
+   "sources": 12,
+   "rounds": 1,
+   "lens_numbers": "수치 표기 141개(초고)·코드 동작 주장 8개·evidence 63개 대조. 틀림 없음. 최신 표현을 v3로 좁힘.",
+   "lens_reader": "explainer 과업 가능. 새 가상 사례의 수락·거절·오수락 경로와 비용·지연 조건 시연 성공.",
+   "recheck": "변경 3·4·8·13·17장 및 독자 과업 재검토. 새 의미·이해 결함 없음.",
+   "checks": [
+    "check-doc pass",
+    "check-prose pass",
+    "check-claims pass",
+    "render desktop/mobile pass"
+   ]
+  },
+  "newEvidenceRange": "e64–e120",
+  "reviewReports": [
+   "notes/lens-numbers-revision.md",
+   "notes/lens-reader-revision.md",
+   "notes/recheck-round1.md",
+   "notes/recheck-final.md"
+  ]
+ },
+ "proseRevision": {
+  "runId": "2026-11-03-5b950d",
+  "basePr": 50,
+  "baseHead": "ec9e8e837fa3ff589c3fd1c1c3029ecc16f5c127",
+  "workBranch": "revise/context-prose-20261104",
+  "remoteHeadConfirmed": "PR API와 ls-remote에서 ec9e8e8을 시작 및 출고 직전에 확인했다.",
+  "previousVerification": {
+   "claims": 156,
+   "evidence_references": 244,
+   "sources": 12,
+   "rounds": 2,
+   "lens_numbers": "수치·계산 34항목, 동작 주장 102항목과 evidence 108개 대조. 틀림·확인 못함 없음.",
+   "lens_reader": "explainer 과업 가능. 별도 가상 출장 정책으로 compilation·span·검색·충분성 분기·인용·RAG/Wiki 적용을 시연. block 문장·제목 범위·모바일 표와 작업 이력 개선을 요구해 모두 반영.",
+   "recheck": "첫 recheck는 reader findings 해소와 raw 경로를 확인하고 필수 intent 누락 1건을 발견했다. intent 수정 뒤 별도 최종 recheck는 새 의미·이해 결함 없음과 모바일/desktop 예제의 가독성을 확인했다.",
+   "checks": [
+    "check-doc pass",
+    "check-prose pass",
+    "check-claims pass",
+    "render 1280/390 pass",
+    "list_chunks required fields static check pass"
+   ],
+   "execution": "코드 읽기 및 정적 schema 대조. RAGFlow나 benchmark 실행 아님."
+  },
+  "sourceReuse": "sources.jsonl, evidence.jsonl, notes/web, figures와 고정 paper/repo cache를 재사용. 새 출처 없음.",
+  "reports": [
+   "notes/lens-reader-prose.md",
+   "notes/lens-numbers-prose.md",
+   "notes/verify-prose.md"
+  ],
+  "docSha": "2bac2905061beb0470bb22268747cdbb83762f68a582006ea560d6fe8703b6dd",
+  "scope": "현재 worktree만 사용. runtime/profile/hooks/skills와 root 생성물을 수정하지 않았다."
+ }
+}

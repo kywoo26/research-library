@@ -1,0 +1,236 @@
+[2610.41172] Context as Infrastructure: Knowledge Compilation for Retrieval in Agentic Systems with Harnesses
+Skip to main content
+Search
+Submit
+Donate
+Log in
+Search arXiv
+Press Enter to search ·
+Advanced search
+Computer Science > Information Retrieval
+arXiv:2610.41172
+(cs)
+[Submitted on 30 Oct 2026]
+Title:
+Context as Infrastructure: Knowledge Compilation for Retrieval in Agentic Systems with Harnesses
+Authors:
+Zhichang Yu
+,
+Baining Cao
+,
+Sbaaoui Idriss
+,
+Qi Wang
+,
+Gangqiang Xu
+,
+Ling Qin
+,
+Xiaoling Jin
+,
+An Liu
+,
+Shaohao Cai
+,
+Xiaoyang Bao
+,
+Shengle Chen
+,
+Changchang Ding
+,
+Pengfei Zhu
+,
+Jingxiang Xu
+,
+Yifeng Mao
+,
+Lu Liu
+,
+Hai Jin
+,
+Yingfeng Zhang
+View a PDF of the paper titled Context as Infrastructure: Knowledge Compilation for Retrieval in Agentic Systems with Harnesses, by Zhichang Yu and 17 other authors
+View PDF
+HTML (experimental)
+Abstract:
+Retrieval-augmented generation is becoming agentic. A search harness writes queries, reads results, reformulates, and decides when to stop. This largely solves accuracy: a harness with only BM25/grep and MiniMax M3 answers 85% of BrowseComp-Plus and 91% on multi-hop FRAMES in our runs, without compiled or vector indexes. It exposes a context problem: an undisciplined loop repeats queries, rereads documents, and fills the window with unused passages. The missing layer is knowledge compilation: a configurable ingestion pipeline where LLMs enrich documents with context no chunk contains alone--navigation hierarchies with claim-evidence leaves, entity graphs, timelines, mind maps, ontologies, wikis, and memory. Compilation is not a better retriever: under a competent harness, structural artifacts gave no detectable accuracy gain on FRAMES, and a PageIndex-style outline degraded at scale. It is a supply layer. A navigation tree whose leaves are claim-evidence pairs--the mechanism we measure--cuts query tokens by 91% when evidence suffices and adds 1.9% when it does not, a 38% average reduction; this implies a 2% break-even sufficiency rate and a measured rate near 43%. A decision gate cuts latency from 140 s to 30 s, though substitution's token saving is bought with retrieval rounds and carries its own latency cost. Other artifacts--ontology, graph, wiki, timeline, mind map, memory--pay off in deployment (governance, integration, onboarding, temporal orientation, continuity) where accuracy benchmarks cannot see them. We describe RAGFlow's pipeline and harness (open source at
+this https URL
+), which turns the loop into five disciplined stations and keeps the context entering the model the smallest sufficient set; together they form an agent-native database: a store that hands the agent compiled, governed context instead of a ranked list of passages.
+Comments:
+13 pages, 2 figures
+Subjects:
+Information Retrieval (cs.IR)
+; Artificial Intelligence (cs.AI); Computation and Language (cs.CL)
+Cite as:
+arXiv:2610.41172
+[cs.IR]
+(or
+arXiv:2610.41172v1
+[cs.IR]
+for this version)
+https://doi.org/10.48550/arXiv.2610.41172
+Focus to learn more
+arXiv-issued DOI via DataCite (pending registration)
+Submission history
+From: Yingfeng Zhang [
+view email
+]
+[v1]
+Fri, 30 Oct 2026 02:48:37 UTC (32 KB)
+Full-text links:
+Access Paper:
+View a PDF of the paper titled Context as Infrastructure: Knowledge Compilation for Retrieval in Agentic Systems with Harnesses, by Zhichang Yu and 17 other authors
+View PDF
+HTML (experimental)
+TeX Source
+view license
+Additional Features
+Audio Summary
+Current browse context:
+cs.IR
+< prev
+|
+next >
+new
+|
+recent
+|
+2026-10
+Change to browse by:
+cs
+cs.AI
+cs.CL
+References & Citations
+SciX
+Google Scholar
+Semantic Scholar
+export BibTeX citation
+Loading...
+BibTeX formatted citation
+×
+loading...
+Data provided by:
+Bookmark
+Bibliographic Tools
+Bibliographic and Citation Tools
+Bibliographic Explorer Toggle
+Bibliographic Explorer
+(
+What is the Explorer?
+)
+Connected Papers Toggle
+Connected Papers
+(
+What is Connected Papers?
+)
+Litmaps Toggle
+Litmaps
+(
+What is Litmaps?
+)
+scite.ai Toggle
+scite Smart Citations
+(
+What are Smart Citations?
+)
+Code, Data, Media
+Code, Data and Media Associated with this Article
+alphaXiv Toggle
+alphaXiv
+(
+What is alphaXiv?
+)
+Links to Code Toggle
+CatalyzeX Code Finder for Papers
+(
+What is CatalyzeX?
+)
+DagsHub Toggle
+DagsHub
+(
+What is DagsHub?
+)
+GotitPub Toggle
+Gotit.pub
+(
+What is GotitPub?
+)
+Huggingface Toggle
+Hugging Face
+(
+What is Huggingface?
+)
+ScienceCast Toggle
+ScienceCast
+(
+What is ScienceCast?
+)
+Demos
+Demos
+Replicate Toggle
+Replicate
+(
+What is Replicate?
+)
+Spaces Toggle
+Hugging Face Spaces
+(
+What is Spaces?
+)
+Spaces Toggle
+TXYZ.AI
+(
+What is TXYZ.AI?
+)
+Related Papers
+Recommenders and Search Tools
+Link to Influence Flower
+Influence Flower
+(
+What are Influence Flowers?
+)
+Core recommender toggle
+CORE Recommender
+(
+What is CORE?
+)
+Author
+Venue
+Institution
+Topic
+About arXivLabs
+arXivLabs: experimental projects with community collaborators
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+Have an idea for a project that will add value for arXiv's community?
+Learn more about arXivLabs
+.
+Which authors of this paper are endorsers?
+|
+Disable MathJax
+(
+What is MathJax?
+)
+We gratefully acknowledge support from our
+major funders
+,
+member institutions
+,
+,
+        and all contributors.
+About
+·
+Help
+·
+Contact
+·
+Subscribe
+·
+Copyright
+·
+Privacy
+·
+Accessibility
+·
+Operational Status
+(opens in new tab)

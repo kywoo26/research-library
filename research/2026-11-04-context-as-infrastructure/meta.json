@@ -1,0 +1,9 @@
+{
+  "title": "Context as Infrastructure가 검색 뒤의 읽기 비용을 줄이는 방법",
+  "date": "2026-11-04",
+  "seq": 44,
+  "summary": "검색한 문서에서 필요한 근거만 읽히는 방법을 정책 사례와 Go 구현으로 설명하고, 토큰 절약의 조건과 gate 오류·컴파일 비용의 한계를 짚는다.",
+  "category": "paper",
+  "format": "article",
+  "purpose": "explainer"
+}

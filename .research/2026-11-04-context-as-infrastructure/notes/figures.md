@@ -1,0 +1,9 @@
+Figure 1 — raw corpus → compilation artifacts → tools → harness의 공급과 제어 경계를 그린 네 층 구조. https://arxiv.org/html/2610.41172v1#S3.F1 ; e-print main.tex의 inline TikZ. HTML SVG를 직접 열어 확인했고, PDF page 4를 추가 확인한다. 원문 화살표는 context 흐름이며 제어 흐름이 아니다.
+Figure 2 — query token change와 decision-gate latency의 별도 막대. https://arxiv.org/html/2610.41172v1#S4.F2 ; e-print inline pgfplots coordinates: (hit,-91), (miss,1.9), (avg,-38); (no gate,140), (gate,30). 같은 실험 표본과 평균으로 합치지 않는다.
+Table 1 — artifact별 query 역할, FRAMES 정확도 방향, 배포 용도. https://arxiv.org/html/2610.41172v1#S3.T1 ; carrier-only navigation은 claim을 제거한 조건이다.
+Table 2 — production 평가 프로토콜, 아직 관측 열은 비어 있음. https://arxiv.org/html/2610.41172v1#S5.T2 ; wiki 신규 사용자가 domain questions 10개를 푸는 시간과 citation follow-through; audit resolvable span/current-version 비율은 100%를 요구하는 invariant.
+Table 3 — 구조 ablation은 점추정치 없이 single-run neutral/negative 방향을 보고한다. https://arxiv.org/html/2610.41172v1#S8.T3 ; RAPTOR neutral, PageIndex small neutral/FRAMES negative, wiki neutral, graph neutral, claim-leaf neutral accuracy/tokens -38%.
+Table 4 — 핵심 수치는 LaTeX 표에서 직접 확인했다. https://arxiv.org/html/2610.41172v1#S8.T4 ; baseline 324479 tokens/query, 46.7 s, 91.0%; hit -91%; miss +1.9%; FRAMES average -38%; decision gate with evidence arm -52%,155305 tokens,140→30 s; no-evidence gate arm -30%; BrowseComp-Plus harness-only ~3.0e6 tokens/query,85.0%. arm 평균 표본은 별도 미공개, 주 실험 N=200, paired latency n=7.
+
+설명용 ingestion 도식 — Figure 1의 supply 층을 §3.2의 Parse → Chunk → Enrich → Validate → Assemble → Register 및 §4.2 Tree template으로 펼친다. 공식 코드의 기본 동작과 동일하다고 주장하지 않는다.
+설명용 정책 분기 — 원문·claim·search·gate·fallback의 연속 가상 사례. ID와 revision 및 추출 누락은 가상이며 측정 수치를 제시하지 않는다.
