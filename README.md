@@ -12,6 +12,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-11-04 | [OpenCodeReview의 파일 선택과 리뷰 후보 처리](https://kywoo26.github.io/research-library/research/2026-11-04-opencodereview/) | 오픈소스 분석 |
 | 2026-10-26 | [subagent 를 main agent loop 로 fold 하라는 Anthropic 글이 기존 하네스 설계에서 바꾸는 것](https://kywoo26.github.io/research-library/research/2026-10-26-fold-subagents-into-main-loop/) | 메모 |
 | 2026-10-25 | [Harness² 가 모델 가중치를 고정한 채 agent 성능을 올리는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-harness2-recursive-agent-harnessing/) | 논문 분석 |
 | 2026-10-25 | [teamai-cli 가 팀의 agent 설정을 git 저장소와 PR 로 나눠 주는 방식](https://kywoo26.github.io/research-library/research/2026-10-25-teamai-cli-team-agent-config/) | 오픈소스 분석 |
@@ -23,7 +24,6 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 | 2026-09-30 | [Claude Sonnet 5.5 이전 안내: Sonnet 5 코드에서 바꿀 곳](https://kywoo26.github.io/research-library/research/2026-09-30-claude-sonnet-5-5-migration/) | 메모 |
 | 2026-09-30 | [Claude Opus 5.5 소개 글: 절마다 내 코드와 비용에서 달라지는 것](https://kywoo26.github.io/research-library/research/2026-09-30-claude-opus-5-5-introduction/) | 메모 |
 | 2026-09-21 | [Jev System One: 문장 대신 판단과 확률을 반환하는 모델](https://kywoo26.github.io/research-library/research/2026-09-21-jev-system-one/) | 주제 리서치 |
-| 2026-09-15 | [OpenCodeReview: agent의 코드 리뷰를 조직하는 실행 harness](https://kywoo26.github.io/research-library/research/2026-09-15-open-code-review/) | 오픈소스 분석 |
 | 2026-09-14 | [RAG-Safety-Bench: 검색 품질과 응답 안전을 따로 평가해야 하는 이유](https://kywoo26.github.io/research-library/research/2026-09-14-rag-safety-bench/) | 논문 분석 |
 | 2026-09-11 | [SkillAdam: 수정 이력과 평가 변동성으로 agent skill을 개선하는 문서 최적화](https://kywoo26.github.io/research-library/research/2026-09-11-skilladam/) | 논문 분석 |
 | 2026-09-09 | [Claude Platform 비용·성능: prompt cache, instructions, effort 세 축을 /claude-api 명령 셋이 돌린다](https://kywoo26.github.io/research-library/research/2026-09-09-claude-platform-cost-performance/) | 메모 |
