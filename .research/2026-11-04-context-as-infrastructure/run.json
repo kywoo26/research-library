@@ -40,6 +40,31 @@
    "what": "기계 대조 입력",
    "choice": "LaTeX에서 확인한 percent 수치를 같은 v1 PDF 고정 추출문과도 대조한다.",
    "reason": "공용 gate가 escaped percent를 그대로 비교해 낸 오탐을 피하면서 원문 대조를 보존했다. 체인은 수정하지 않았다."
+  },
+  {
+   "what": "기존 PR 수정",
+   "choice": "explainer와 비용 논증을 유지하고 ingestion 도식·연속 정책 예시·공식 code path·RAG/Wiki 적용 seam을 보강",
+   "reason": "사용자 요청에 따라 같은 PR에 fast-forward commit으로 갱신한다. 별도 branch 생성은 사용자의 “기존 PR의 최신 head에서 별도 수정 branch를 만들어 작업” 지시에 따른다. ship은 기존 PR branch를 재사용하고 새 commit subject로 amend를 피한다."
+  },
+  {
+   "what": "구현 설명의 경계",
+   "choice": "논문 계약과 고정 Go 코드의 기본 동작을 구분하고, quote/offset 저장과 query projection/citation 전달을 따로 설명",
+   "reason": "soft 검증의 증거 제거·claim 보존, empty evidence 분기, 공백 정규화, verifier parse 실패 수락을 확인했다. Source version end-to-end enforcement는 이 코드 경로로 확인하지 못했다."
+  },
+  {
+   "what": "독자 검토 반영",
+   "choice": "미정산 조건으로 제목 한정, block 폐기 명시, 적용 표를 모바일 카드로 교체, 수정 작업 이력 제거 및 중복 caveat 압축",
+   "reason": "독립 reader의 지적 전부 반영. 원문의 비용 논증과 비교조건은 유지했다."
+  },
+  {
+   "what": "fallback 입력 예의 검증",
+   "choice": "list_chunks의 필수 intent를 추가하고 schema와 정적 대조",
+   "reason": "첫 recheck가 공개 tool schema의 required intent 누락을 발견했다. 실제 실행 실패로 과장하지 않고 입력 예를 수정했으며 마지막 recheck가 해소를 확인했다."
+  },
+  {
+   "what": "기존 PR 갱신 방식",
+   "choice": "원래 PR head를 부모로 하는 새 개선 commit을 ship으로 생성하고 일반 push로 기존 branch 갱신",
+   "reason": "사용자가 “기존 PR #50 head branch ... 를 안전한 fast-forward push로 갱신”을 명시했다. 기존 문서 commit을 amend하지 않도록 새 subject를 사용한다. 중복 PR·merge·배포는 하지 않는다."
   }
  ],
  "question": "LLM Wiki의 compilation 아이디어를 계승하면서 이 논문은 agent 검색의 어떤 병목을 바꾸며, 그 근거는 어디까지 유효한가?",
@@ -47,74 +72,77 @@
  "needs_owner": [],
  "unfixed": [],
  "unverified": [
-  "부재 주장 2건 중 재검색 명령 2건. Offline 총비용과 실험 commit·완전한 실행 설정 매핑은 논문에서 찾지 못했다.",
-  "Behavioral 주장 2건은 코드만 읽었고 실행하지 않았다. 검색 engine 하위 실행과 권한·배달 검증 전체 2종의 경로는 끝까지 추적하지 않았다. 본문은 end-to-end 보장을 하지 않는다.",
-  "논문은 gate 오수락률, 실제 총 offline 비용, 목표를 충족한 배포 효용 결과를 제공하지 않는다. Benchmark 재실행도 하지 않았다.",
-  "논문의 Karpathy X 인용 1개는 본문을 열지 못했다. 별도 본인 gist를 고정해 분석했다.",
-  "기계 대조의 논문 근거 112건 중 93건은 문서 전체 범위에서 대조됐다. 의미·조건은 독립 수치 렌즈가 원출처와 확인했다."
+  "부재 주장 2건에 재검색 명령 2건을 기록했다. 논문의 총 offline 비용과 실험 commit·전체 실행 설정 매핑은 찾지 못했다.",
+  "Behavioral 주장 15건은 코드만 읽었다. RAGFlow 설치·가상 정책 tool 호출·benchmark는 실행하지 않았다. 입력 예는 공개 JSON schema의 필수 필드를 정적으로 대조했다.",
+  "구현 경계 3종(RetrievalService.Search, DocEngine.Search, deepReadService.FetchChunksByID)의 backend/adapter 내부 실행을 끝까지 추적하지 않았다. 권한 환경, compiler의 다른 template 전체, UI·배포 설정과 span·현재 버전·delivery의 다른 enforcement 경계도 미확인이다.",
+  "논문은 gate 오수락률, 실제 총 offline 비용, 사전 목표를 충족한 배포 효용 결과를 제공하지 않는다. 공개 코드 두 snapshot은 실험 commit으로 확인된 것이 아니다.",
+  "논문의 Karpathy X 링크 본문은 열지 못했다. 별도 본인 gist를 고정해 비교했다. check-claims의 web 신원 경고 1건은 이 unavailable source이며 해당 본문을 근거로 사용하지 않았다.",
+  "기계 대조의 논문 근거 135건 중 116건은 전체 문서 범위에서 대조됐다. 수치·계산의 의미와 조건은 독립 Lens B가 원출처와 확인했다."
  ],
- "rendered": "수정 후 desktop 1280·mobile 390 렌더를 생성하고 작성자가 표지·공급 구조·harness 분기·토큰 chart 및 변경 장을 실제로 열어 확인했다. 양 폭 layout warnings 0, page overflow 없음. Lens A와 recheck도 해당 screenshots를 직접 확인했다.",
+ "rendered": "최종 수정 뒤 1280·390 렌더를 생성했다. 작성자는 표지, ingestion·harness·정책 분기, 구현과 raw 입력 예, 적용 카드의 실제 이미지를 열었다. 양 폭 layout warnings 0, page overflow 없음. Reader와 두 recheck도 해당 변경 장의 실제 screenshots를 열었다.",
  "verification": {
-  "claims": 111,
-  "evidence_references": 143,
+  "claims": 156,
+  "evidence_references": 244,
   "sources": 12,
-  "rounds": 1,
-  "lens_numbers": "수치 표기 141개(초고)·코드 동작 주장 8개·evidence 63개 대조. 틀림 없음. 최신 표현을 v3로 좁힘.",
-  "lens_reader": "explainer 과업 가능. 새 가상 사례의 수락·거절·오수락 경로와 비용·지연 조건 시연 성공.",
-  "recheck": "변경 3·4·8·13·17장 및 독자 과업 재검토. 새 의미·이해 결함 없음.",
+  "rounds": 2,
+  "lens_numbers": "수치·계산 34항목, 동작 주장 102항목과 evidence 108개 대조. 틀림·확인 못함 없음.",
+  "lens_reader": "explainer 과업 가능. 별도 가상 출장 정책으로 compilation·span·검색·충분성 분기·인용·RAG/Wiki 적용을 시연. block 문장·제목 범위·모바일 표와 작업 이력 개선을 요구해 모두 반영.",
+  "recheck": "첫 recheck는 reader findings 해소와 raw 경로를 확인하고 필수 intent 누락 1건을 발견했다. intent 수정 뒤 별도 최종 recheck는 새 의미·이해 결함 없음과 모바일/desktop 예제의 가독성을 확인했다.",
   "checks": [
    "check-doc pass",
    "check-prose pass",
    "check-claims pass",
-   "render desktop/mobile pass"
-  ]
+   "render 1280/390 pass",
+   "list_chunks required fields static check pass"
+  ],
+  "execution": "코드 읽기 및 정적 schema 대조. RAGFlow나 benchmark 실행 아님."
  },
- "commitSubject": "Context as Infrastructure의 근거 공급과 검색 비용을 분석했다",
- "commitBody": "LLM Wiki를 아는 개발자를 위한 한국어 explainer를 작성했다. Karpathy의 공개 패턴, 논문의 span 없는 실험 wiki, claim–evidence 공급을 구분했다. Compilation과 harness의 책임, 충분성 오류와 원문 fallback, 조건부 토큰 절약·별도 serving arm·지연·offline 비용 모형을 연결했다.\n\n주 근거는 arXiv:2610.41172v1 전체와 LaTeX Table 1–4다. Karpathy 본인 gist, Pinecone 공식 Nexus 글, Cochran arXiv:2605.18490v3도 새로 읽었다. RAGFlow는 제출 직전 327cdb2d80d17d04ed07694ec8eb65d028549ec0과 조사 시 2c4bbbc720fe24bd7ac509ab989325d4c1e8e532를 고정했다. 두 코드의 dense claim 검색 분기와 논문의 lexical-only 실험 서술 사이에 재현 설정의 간극을 남겼다. 과거 발행물·다른 원장·개인 wiki를 연구 근거로 읽지 않았다.\n\n```mermaid\nflowchart LR\n  S[원문 corpus] --> C[claim–evidence compilation]\n  C --> T[검색·근거 공급 tools]\n  T --> G{harness 충분성 gate}\n  G -->|수락| A[답과 인용]\n  G -->|거절·block 폐기| R[검색 루프·원문 읽기]\n  R --> A\n```\n\n최종 111개 주장과 143개 근거 참조가 기계 대조를 통과했다. 두 독립 lens를 병렬 실행하고 변경 장을 recheck했다. 수정 후 desktop·mobile의 실제 렌더를 확인했다. Gate 오수락률, 총 offline 비용, 완료된 배포 효과는 원문에서 입증되지 않았으며 benchmark는 재실행하지 않았다.",
- "shippedAt": "2026-11-03T18:53:22.961Z",
+ "commitSubject": "Context as Infrastructure의 연속 사례와 구현 경로를 보강했다",
+ "commitBody": "기존 Context as Infrastructure explainer에서 ingestion의 여섯 단계와 Figure 1의 공급층·harness를 연결했다. 가상 탈퇴·미정산 정책을 원문, claim·span 데이터, 검색, 충분성 gate, 답변·인용 또는 원문 fallback까지 따라가게 했다. 실제 실행 trace와 설명용 데이터, 논문 사실과 적용 제안을 구별했다.\n\n공식 RAGFlow 2c4bbbc720fe24bd7ac509ab989325d4c1e8e532에서 Go Tree의 Claim/EvidenceRef, 추출·span 위치 검증, claim product와 source column 변환, anchor 기반 회수·추가 claim 검색·row filtering, 답변 support 검사, registry 및 service의 citation 조회를 연결했다. list_chunks의 필수 intent와 raw 요청·anchor 조회·후속 formatter 경계도 확인했다. 기본 soft 검증과 빈 evidence 보존, 공백 정규화 매칭, verifier parse 실패 수락을 논문의 검증 계약과 구별했다. Source version이 끝까지 재검증된다는 보장은 확인하지 못했다.\n\n주 근거는 arXiv:2610.41172v1과 고정한 공식 코드다. 기존 비용·정확도 논증과 Table 4의 비교조건을 유지하고 주요 수치를 LaTeX에서 다시 확인했다. 제출 직전 RAGFlow 327cdb2d80d17d04ed07694ec8eb65d028549ec0과 논문의 실험 설정 간극도 보존했다. Karpathy 본인 gist, Pinecone 공식 Nexus 글과 Cochran arXiv:2605.18490v3의 기존 비교를 유지했다.\n\n```mermaid\nflowchart LR\n  S[정책 원문] --> C[추출과 span 검증]\n  C --> D[claim payload와 source chunk ID]\n  D --> R[검색과 evidence page]\n  R --> G{충분성 판단}\n  G -->|수락| A[답과 원문 인용]\n  G -->|거절| F[tool loop와 원문 요청]\n  F --> P[formatter 후 실제 전달 확인]\n  P --> A\n```\n\n기존 RAG와 Wiki에서 ingestion, context 공급, 원문 읽기, citation에 추가할 책임과 query별 로그·독립 충분성 label을 구체화했다. 모바일에서 적용 표를 접점별 카드로 바꿨다.\n\n최종 156개 주장과 244개 근거 참조가 기계 대조를 통과했다. 두 독립 lens를 병렬로 실행하고 수정 뒤 두 recheck를 거쳤다. 작성자는 최종 1280·390 렌더를 직접 열었으며 양 폭 배치 경고와 페이지 가로 넘침이 없었다. RAGFlow·benchmark는 실행하지 않았고 실제 권한·저장 engine·버전 enforcement 전체는 미확인이다.\n\n사용자 요청대로 기존 PR #50을 새 개선 commit의 fast-forward push로 갱신한다. 원래 작성 worktree, root 생성물, runtime·hooks·profile·skills는 변경하지 않는다. Merge와 배포는 하지 않는다.",
+ "shippedAt": "2026-11-03T19:20:29.513Z",
  "usage": {
-  "tokens": 14927646,
-  "usd": 3.6,
+  "tokens": 14893784,
+  "usd": 3.19,
   "roles": {
    "researcher": {
     "models": [
      "gpt-6.1-sol"
     ],
-    "input": 441590,
+    "input": 233019,
     "cache_write": 0,
-    "cache_read": 12420480,
-    "output": 56245,
-    "usd": 2.83
+    "cache_read": 11734144,
+    "output": 41530,
+    "usd": 2.08
    },
    "lens-numbers": {
     "models": [
      "gpt-6.1-sol"
     ],
-    "input": 111787,
+    "input": 175240,
     "cache_write": 0,
-    "cache_read": 1101312,
-    "output": 5235,
-    "usd": 0.39
+    "cache_read": 1376768,
+    "output": 6742,
+    "usd": 0.56
    },
    "lens-reader": {
     "models": [
      "gpt-6.1-sol"
     ],
-    "input": 55128,
+    "input": 68959,
     "cache_write": 0,
-    "cache_read": 184320,
-    "output": 3037,
-    "usd": 0.16
+    "cache_read": 483456,
+    "output": 5035,
+    "usd": 0.24
    },
    "recheck": {
     "models": [
      "gpt-6.1-sol"
     ],
-    "input": 75360,
+    "input": 98655,
     "cache_write": 0,
-    "cache_read": 470400,
-    "output": 2752,
-    "usd": 0.23
+    "cache_read": 665216,
+    "output": 5020,
+    "usd": 0.31
    }
   }
  },
@@ -127,9 +155,39 @@
    "check-prose": true,
    "check-claims": true
   },
-  "docSha": "15b5ec681b79638e5e362ff5b05b95645bee853b4e70aa446d3673ca7a2e9a5a",
+  "docSha": "3e9e7d810eaffbbf61a63325107a77172106fe515ea636f0029a153594cb57fe",
   "unreviewed": false,
   "harness": "codex",
-  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/4, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/5, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ },
+ "revision": {
+  "basePr": 50,
+  "baseHead": "47c2f6849ae5560a19e8a33b88d646db7e0a471b",
+  "workBranch": "revise/context-infrastructure-20261104",
+  "originalWorktreeTouched": false,
+  "externalActionsBeforeInterruption": "PR head 조회와 checkout, 별도 local branch 생성만 완료. commit/push/PR edit 없음.",
+  "resume": "기존 active run 2026-11-03-08b2dd를 유지. status는 supervisor process 부재로 stale이나 active preflight running. shipped 기록 또는 hook/profile/skills 변경 없이 같은 작업을 계속한다.",
+  "previousVerification": {
+   "claims": 111,
+   "evidence_references": 143,
+   "sources": 12,
+   "rounds": 1,
+   "lens_numbers": "수치 표기 141개(초고)·코드 동작 주장 8개·evidence 63개 대조. 틀림 없음. 최신 표현을 v3로 좁힘.",
+   "lens_reader": "explainer 과업 가능. 새 가상 사례의 수락·거절·오수락 경로와 비용·지연 조건 시연 성공.",
+   "recheck": "변경 3·4·8·13·17장 및 독자 과업 재검토. 새 의미·이해 결함 없음.",
+   "checks": [
+    "check-doc pass",
+    "check-prose pass",
+    "check-claims pass",
+    "render desktop/mobile pass"
+   ]
+  },
+  "newEvidenceRange": "e64–e120",
+  "reviewReports": [
+   "notes/lens-numbers-revision.md",
+   "notes/lens-reader-revision.md",
+   "notes/recheck-round1.md",
+   "notes/recheck-final.md"
+  ]
  }
 }
