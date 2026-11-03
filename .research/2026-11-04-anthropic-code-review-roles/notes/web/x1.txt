@@ -1,0 +1,227 @@
+Boris Cherny on X: "13/ A final tip: probably the most important thing to get great results out of Claude Code -- give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result.
+
+Claude tests every single change I land to https://t.co/pEWPQoSq5t… / X
+Post
+Log in
+Sign up
+Post
+Log in
+Sign up
+Boris Cherny on X: "13/ A final tip: probably the most important thing to get great results out of Claude Code -- give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result.
+
+Claude tests every single change I land to https://t.co/pEWPQoSq5t using the Claude Chrome extension. It opens a browser, tests the UI, and iterates until the code works and the UX feels good.
+
+Verification looks different for each domain. It might be as simple as running a bash command, or running a test suite, or testing the app in a browser or phone simulator. Make sure to invest in making this rock-solid.
+
+https://t.co/m7wwQUmp1C"
+Boris Cherny
+@bcherny
+13/ A final tip: probably the most important thing to get great results out of Claude Code -- give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result.
+
+Claude tests every single change I land to
+claude.ai/code
+using the Claude Chrome extension. It opens a browser, tests the UI, and iterates until the code works and the UX feels good.
+
+Verification looks different for each domain. It might be as simple as running a bash command, or running a test suite, or testing the app in a browser or phone simulator. Make sure to invest in making this rock-solid.
+code.claude.com/docs/en/chrome
+Claude Code
+From claude.ai
+7:59 PM · Jan 2, 2026
+·
+574.1K
+Views
+93
+216
+3.6K
+2.4K
+Log in or sign up for X
+See what’s happening and join the conversation
+Continue with phone
+Continue with Apple
+Continue with Google
+or
+Log in with username or email
+Relevant people
+Boris Cherny
+@
+bcherny
+Follow
+Claude
+@anthropicai
+Trending now
+Terms
+·
+Privacy
+·
+Cookies
+·
+Accessibility
+·
+Ads Info
+·
+More
+© 2026 X Corp.
+Boris Cherny
+@bcherny
+Jan 2
+I'm Boris and I created Claude Code. Lots of people have asked how I use Claude Code, so I wanted to show off my setup a bit.
+
+My setup might be surprisingly vanilla! Claude Code works great out of the box, so I personally don't customize it much. There is no one correct way to
+Show more
+1.3K
+8.2K
+54K
+8.2M
+Boris Cherny
+@bcherny
+Jan 2
+1/ I run 5 Claudes in parallel in my terminal. I number my tabs 1-5, and use system notifications to know when a Claude needs input
+code.claude.com/docs/en/termin…
+113
+229
+3.2K
+1.2M
+Boris Cherny
+@bcherny
+Jan 2
+2/ I also run 5-10 Claudes on
+claude.ai/code
+, in parallel with my local Claudes. As I code in my terminal, I will often hand off local sessions to web (using &), or manually kick off sessions in Chrome, and sometimes I will --teleport back and forth. I also start a few
+Show more
+72
+86
+1.7K
+858K
+Boris Cherny
+@bcherny
+Jan 2
+3/ I use Opus 4.5 with thinking for everything. It's the best coding model I've ever used, and even though it's bigger & slower than Sonnet, since you have to steer it less and it's better at tool use, it is almost always faster than using a smaller model in the end.
+36
+79
+2.5K
+658K
+Boris Cherny
+@bcherny
+Jan 2
+4/ Our team shares a single
+CLAUDE.md
+for the Claude Code repo. We check it into git, and the whole team contributes multiple times a week. Anytime we see Claude do something incorrectly we add it to the
+CLAUDE.md
+, so Claude knows not to do it next
+Show more
+65
+118
+2.3K
+745K
+Boris Cherny
+@bcherny
+Jan 2
+5/ During code review, I will often tag @.claude on my coworkers' PRs to add something to the
+CLAUDE.md
+as part of the PR. We use the Claude Code Github action (/install-github-action) for this. It's our version of
+@danshipper
+'s Compounding Engineering
+23
+66
+1.7K
+653K
+Boris Cherny
+@bcherny
+Jan 2
+6/ Most sessions start in Plan mode (shift+tab twice). If my goal is to write a Pull Request, I will use Plan mode, and go back and forth with Claude until I like its plan. From there, I switch into auto-accept edits mode and Claude can usually 1-shot it. A good plan is really
+Show more
+24
+78
+2K
+546K
+Boris Cherny
+@bcherny
+Jan 2
+7/ I use slash commands for every "inner loop" workflow that I end up doing many times a day. This saves me from repeated prompting, and makes it so Claude can use these workflows, too. Commands are checked into git and live in .claude/commands/.
+
+For example, Claude and I use a
+Show more
+16
+38
+1.4K
+521K
+Boris Cherny
+@bcherny
+Jan 2
+8/ I use a few subagents regularly: code-simplifier simplifies the code after Claude is done working, verify-app has detailed instructions for testing Claude Code end to end, and so on. Similar to slash commands, I think of subagents as automating the most common workflows that I
+Show more
+54
+109
+2K
+525K
+Boris Cherny
+@bcherny
+Jan 2
+9/ We use a PostToolUse hook to format Claude's code. Claude usually generates well-formatted code out of the box, and the hook handles the last 10% to avoid formatting errors in CI later.
+9
+31
+1.3K
+417K
+Boris Cherny
+@bcherny
+Jan 2
+10/ I don't use --dangerously-skip-permissions. Instead, I use /permissions to pre-allow common bash commands that I know are safe in my environment, to avoid unnecessary permission prompts. Most of these are checked into .claude/settings.json and shared with the team.
+23
+53
+1.5K
+427K
+Boris Cherny
+@bcherny
+Jan 2
+11/ Claude Code uses all my tools for me. It often searches and posts to Slack (via the MCP server), runs BigQuery queries to answer analytics questions (using bq CLI), grabs error logs from Sentry, etc. The Slack MCP configuration is checked into our .mcp.json and shared with
+Show more
+23
+34
+1.1K
+379K
+Boris Cherny
+@bcherny
+Jan 2
+12/ For very long-running tasks, I will either (a) prompt Claude to verify its work with a background agent when it's done, (b) use an agent Stop hook to do that more deterministically, or (c) use the ralph-wiggum plugin (originally dreamt up by
+@GeoffreyHuntley
+). I will also use
+Show more
+36
+59
+1.2K
+435K
+Boris Cherny
+@bcherny
+13/ A final tip: probably the most important thing to get great results out of Claude Code -- give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result.
+
+Claude tests every single change I land to
+claude.ai/code
+using the Claude Chrome extension. It opens a browser, tests the UI, and iterates until the code works and the UX feels good.
+
+Verification looks different for each domain. It might be as simple as running a bash command, or running a test suite, or testing the app in a browser or phone simulator. Make sure to invest in making this rock-solid.
+code.claude.com/docs/en/chrome
+Claude Code
+From claude.ai
+7:59 PM · Jan 2, 2026
+·
+574.1K
+Views
+93
+216
+3.6K
+2.4K
+Boris Cherny
+@bcherny
+Jan 2
+I hope this was helpful! What are your tips for using Claude Code? What do you want to hear about next?
+280
+42
+2.6K
+346K
+am.will
+@LLMJunky
+Jan 2
+What's the best way to create quality validation loops? Or to learn how to create them? Iknow that's a nuanced question "it depends" but I'm more interested in learning how to think about building them, if that makes sense.
+1
+21
+12K
