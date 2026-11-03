@@ -20,6 +20,12 @@ function pairs(rs) {
   return out;
 }
 
+// 표현 취향은 남겨도 되지만, 사실은 맞아도 이해를 막는 결함은 출고를 막는다.
+export function publicationBlockers(items = []) {
+  return items.filter((x) => !x || typeof x !== 'object' || x.meaning !== false
+    || (x.impact != null && x.impact !== 'wording'));
+}
+
 export function verdict({ reviews = [], modelSwitches = [], docSha, harness = null, runId = null, modelLog = {}, needs = [], blocking = [] }) {
   const reasons = [];
   const auto = modelSwitches.filter((m) => m.source === 'auto');
@@ -56,7 +62,7 @@ export function verdict({ reviews = [], modelSwitches = [], docSha, harness = nu
   }
 
   if (needs.length) reasons.push('사람이 정할 것이 남았다');
-  if (blocking.length) reasons.push('의미가 원문과 다른 채 고치지 못한 것이 남았다');
+  if (blocking.length) reasons.push('사실이나 독자 이해를 막는 미해결 항목이 남았다');
 
   // 모델 확인은 보조 관찰이다. 모든 행위자에게서 실제 모델을 봤을 때만 "확인함"이라고 적는다.
   const actors = Object.values(modelLog);

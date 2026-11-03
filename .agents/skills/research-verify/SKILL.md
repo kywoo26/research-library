@@ -161,10 +161,15 @@ Re-run the machine checks after fixing, and have the `recheck` agent re-read the
 edits touched. Stop when a round turns up no new must-fix item; two rounds at most. After the
 last round's fixes `recheck` reads the touched chapters once more, and what it finds goes under
 `unfixed` rather than into another edit, so no change ships that only the author has read.
-Record each as `{"item", "meaning"}`: `meaning: true` when the sentence says what the source does
-not, which keeps the pull request a draft; `false` for wording, recorded and left alone, because
-each pass rewrites the document toward the gate and away from the reader. Record in `run.json` `rendered` (whether you looked
+Record each as `{"item", "meaning", "impact"}`: `meaning: true` when the sentence says what the
+source does not; `impact: "understanding"` when the reader cannot follow the explanation or do
+the task; `impact: "wording"` for a phrasing preference. Keep the pull request a draft when
+`meaning: true` or `impact: "understanding"`, including an understanding defect with
+`meaning: false`. Record in `run.json` `rendered` (whether you looked
 at the rendered page after the fixes), `unverified` and `unfixed`.
+
+Keep the reports, including the reader's task demonstration, in the existing notes. Give
+recheck the prior demonstration and reader findings for the changed chapters.
 
 **A fact lens A reports missing goes into the chapter whose claim it supports**, as a
 card, a note or in the fold; that is support, not a second claim. When no chapter's claim

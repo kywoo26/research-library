@@ -56,9 +56,11 @@ facts has to build the chain of cause alone.
 leaves the reader assembling the logic; one sentence packing several facts between commas
 leaves them parsing.
 
-**Write about 80% of the way to ASD-STE100.** One statement per sentence; name who acts
-(the team or person behind the source, the model, the reader) in the active voice; one term keeps one meaning; what the reader should
-do is an instruction. The connective that carries the reason stays: that is the other 20%.
+**Write about 80% of the way to ASD-STE100.** Keep sentences short, with one statement per
+sentence; name who acts (the team or person behind the source, the model, the reader) in the
+active voice; one term keeps one meaning; what the reader should do is an instruction.
+Keep the connective that carries the reason. Link short sentences without packing the whole
+explanation into one long sentence.
 
 **Keep one caveat where it changes what the reader does, and tie it to that action.**
 Everything else unknown, unread or self-reported goes once into the limits chapter. A caveat
@@ -78,7 +80,7 @@ or `의` hands the reader the particles to fill in. Metaphor and emphasis words 
 
 ## Choose the form by the shape of the content
 
-What `visual.md` leaves in text takes its form from the content:
+Prose and visuals share the explanation; choose each by what it carries:
 
 - An argument where each reason leads to the next: sentences joined by those reasons, as in
   the explanatory passage above.

@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { createHash } from 'node:crypto';
-import { verdict } from './lib/ship-verdict.mjs';
+import { verdict, publicationBlockers } from './lib/ship-verdict.mjs';
 import { classifyDocPrs, isDocBranch } from './lib/ship-prs.mjs';
 
 const HELP = `사용법: node scripts/ship.mjs research/<slug>
@@ -18,8 +18,8 @@ const HELP = `사용법: node scripts/ship.mjs research/<slug>
   commitSubject, commitBody   필수. AGENTS.md 의 Commits 규칙대로
   decided                     researcher 가 소유자 대신 정한 것 (kind, 질문 등)
   needs_owner                 소유자가 정할 것. 하나라도 있으면 draft
-  unverified, unfixed         검증하지 못한 것, 확인했지만 고치지 못한 것. unfixed 는 {item, meaning} 이고
-                              meaning 이 false(표현만 원문에 더 가까울 수 있음)가 아닌 것이 남으면 draft
+  unverified, unfixed         검증하지 못한 것, 확인했지만 고치지 못한 것. unfixed 는 {item, meaning, impact}.
+                              meaning 이 false 여도 impact=understanding 이면 draft. wording 만 비차단
   rendered                    렌더링한 화면을 봤는지 한 줄
 
 .research/<slug>/notes/hooks.json (hook 이 쓴다, git 이 무시한다):
@@ -99,9 +99,9 @@ const asList = (xs) => (Array.isArray(xs) ? xs : xs ? [String(xs)] : []).map((x)
   return parts.length ? parts.join(' — ') : Object.values(x).filter((v) => typeof v === 'string').join(' — ');
 });
 const unfixedRaw = Array.isArray(run.unfixed) ? run.unfixed : run.unfixed ? [run.unfixed] : [];
-const blocking = unfixedRaw.filter((x) => typeof x === 'string' || x.meaning !== false);
+const blocking = publicationBlockers(unfixedRaw);
 const needs = asList(run.needs_owner);
-const unfixed = unfixedRaw.map((x) => (typeof x === 'object' && x.meaning === false ? '(표현) ' : '') + asList([x])[0]);
+const unfixed = unfixedRaw.map((x) => (x?.impact === 'understanding' ? '(독자 이해) ' : x?.meaning === false ? '(표현) ' : '') + asList([x])[0]);
 const v = verdict({ reviews, modelSwitches, docSha: sha, harness, runId: active?.runId || null, modelLog: hooks.modelLog || {}, needs, blocking });
 if (v.refuse) die(v.refuse);
 const isDraft = v.reasons.length > 0;
@@ -132,7 +132,7 @@ openDocPrs();
 const amend = (current === branch || reattach === branch) && sh('git', ['log', '-1', '--format=%s']).stdout.trim() === run.commitSubject;
 const step = (c, a) => { const r = sh(c, a); if (r.status !== 0) die(`${c} ${a.join(' ')}: ${tail(r.stdout + r.stderr, 3)}`); return r; };
 if (current !== branch) {
-  step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
+  step('git', ['checkout', '--ignore-skip-worktree-bits', 'HEAD', '--', 'README.md', 'index.html']);
   const known = sh('git', ['rev-parse', '--verify', '-q', `refs/heads/${branch}`]).status === 0;
   step('git', reattach ? ['switch', '-C', branch] : known ? ['switch', branch] : ['switch', '-c', branch, 'origin/main']);
 }
@@ -142,7 +142,7 @@ run.shippedAt = new Date().toISOString();
 run.usage = await jobUsage(harness, process.cwd());
 run.ship = { branch, draft: isDraft, draftReasons: v.reasons, gates, docSha: sha, unreviewed: !!unreviewed, harness, modelCheck: v.modelCheck };
 writeFileSync(runPath, JSON.stringify(run, null, 1) + '\n');
-step('git', ['checkout', 'HEAD', '--', 'README.md', 'index.html']);
+step('git', ['checkout', '--ignore-skip-worktree-bits', 'HEAD', '--', 'README.md', 'index.html']);
 step('node', ['scripts/check-doc.mjs', `research/${slug}`]);
 step('git', ['add', `research/${slug}`, `.research/${slug}`]);
 step('git', amend ? ['commit', '-q', '--amend', '--no-edit']

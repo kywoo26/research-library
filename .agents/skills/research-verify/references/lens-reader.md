@@ -52,11 +52,19 @@ that leaves you unable to say who produced the material.
 If `purpose` is absent, infer the task from the cover and say which you took. Report
 what stopped you, and the sentence that should have let you.
 
+Demonstrate the substantive parts of the owner's question on a concrete case, including a
+condition that changes the answer. A comparison that also asks how a mechanism works needs
+that explanation tested as well as an adoption choice.
+Locate the passages that supply the premises and their connection. Do not supply a missing
+explanation from your own knowledge of the subject. If you can answer only by reconstructing
+the mechanism from scattered notes, report that obstacle even when the reconstruction works.
+Mark an invented test case as an illustration used to test the explanation.
+
 ## 4. What you could skip
 
 Open the existing screenshots in `.research/<slug>/notes/render/` for the cover and the
 chapters that explain a mechanism, a sequence or a decision. Check whether their visible
-forms let you follow the claim without reconstructing it from paragraphs. Report the
+forms and prose together let you follow the claim. Report the
 specific missing or unhelpful visual as a finding when it costs you the point; a table or
 trace can be the right form, and a diagram count alone is not a verdict. If screenshots
 are absent, say that you could not judge the rendered form.
@@ -66,6 +74,8 @@ talk, repeated qualifiers, outside material nobody asked for, a chapter that say
 already said, sentences carrying what has a shape (parts, steps, a loop, options side by side,
 a quantity) or parallel items, where a board, list or table would show them. A chapter the document's kind requires (cover,
 critique, setup, sources) is not one to cut. Say for each whether it can go, belongs in a fold, or needs another form.
+Keep paragraphs that explain a reason, transition or condition a visual does not convey;
+cut prose that only repeats its labels.
 Report too a claim that appears only inside a fold, and the forms listed in
 `../../research-doc/references/prose-ko.md` §Forms readers take as machine-written where
 they cost you the point, by location.
@@ -77,6 +87,10 @@ controlled comparison varied only one thing, whether the admitted limits reduce 
 conclusion, and whether limits the source admits are kept apart from limits the author
 asserts.
 
+Read the central explanation as Korean prose too: can you follow who does what and why the
+next sentence follows? Name a missing connection or a noun chain that forces reconstruction.
+Tables and cards need the same test; a set of correct labels can leave the reason unstated.
+
 ## Report format
 
 Write in Korean, leading with the finding, then the evidence. Give each finding your
@@ -85,6 +99,7 @@ confidence and tag it 고쳐야 or 판단.
 ```
 과업: <purpose>. 할 수 있는가: 예 / 일부 / 아니오
 첫 화면만 보고 잡은 답: (한 문장)
+과업 시연: 사례, 답, 조건이 바뀌면 달라지는 답, 이를 설명하는 장·문장
 
 ## 첫 화면에서 놓친 것
 - 위치(제목, 장 N 의 h2 나 .lead): 무엇을 잘못 잡았나, 실제로는 무엇인가

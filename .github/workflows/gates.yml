@@ -20,6 +20,8 @@ jobs:
         run: node scripts/check-prose.mjs
       - name: check-prose tests
         run: node scripts/test/check-prose.test.mjs
+      - name: explanation body tests
+        run: node --test scripts/test/check-doc-explanation.test.mjs
       - name: check-harness
         run: node scripts/check-harness.mjs
       - name: hook and ship tests

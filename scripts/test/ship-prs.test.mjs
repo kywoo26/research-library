@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { classifyDocPrs, isDocBranch } from '../lib/ship-prs.mjs';
 
 const slug = '2026-09-15-open-code-review';
@@ -60,6 +61,71 @@ exit 0
     const observed = readFileSync(calls, 'utf8');
     assert.match(observed, /gh pr list/);
     assert.doesNotMatch(observed, /git (checkout|switch|add|commit|push)|gh pr (create|edit)/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('ship carries old wording records and new understanding blockers into PR arguments', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ship-reader-impact-'));
+  try {
+    const bin = join(dir, 'bin');
+    const pub = join(dir, 'research', slug);
+    const evidence = join(dir, '.research', slug);
+    mkdirSync(bin);
+    mkdirSync(pub, { recursive: true });
+    mkdirSync(join(evidence, 'notes'), { recursive: true });
+    const html = '<html><body><section class="slide" data-role="mechanism">설명</section></body></html>';
+    const sha = createHash('sha256').update(html).digest('hex');
+    writeFileSync(join(pub, 'index.html'), html);
+    writeFileSync(join(evidence, 'claims.jsonl'), '{}\n');
+    writeFileSync(join(evidence, 'sources.jsonl'), '{}\n');
+    const calls = join(dir, 'calls.jsonl');
+    // 실제 ship의 판정·run 기록·PR 인자를 확인한다. 외부 명령은 기록만 하므로 git/gh를 실행하지 않는다.
+    for (const tool of ['node', 'git', 'gh', 'bunx']) {
+      const stub = `#!${process.execPath}
+import { appendFileSync } from 'node:fs';
+const args = process.argv.slice(2), tool = ${JSON.stringify(tool)};
+appendFileSync(process.env.TEST_CALLS, JSON.stringify({ tool, args }) + '\\n');
+if (tool === 'bunx') process.exit(1);
+if (tool === 'git' && args[0] === 'branch') console.log(${JSON.stringify(`doc/${slug}`)});
+if (tool === 'git' && args[0] === 'remote') console.log('https://example.test/fixture/research.git');
+if (tool === 'git' && args[0] === 'rev-parse') console.log('fixture-sha');
+if (tool === 'gh' && args[1] === 'list') console.log('[]');
+if (tool === 'gh' && args[1] === 'create') console.log('https://example.test/pr/1');
+`;
+      writeFileSync(join(bin, tool), stub, { mode: 0o755 });
+    }
+    const cases = [
+      { label: 'old wording', item: { item: '표현 선택', meaning: false }, draft: false },
+      { label: 'wording', item: { item: '표현 선택', meaning: false, impact: 'wording' }, draft: false },
+      { label: 'understanding', item: { item: '조건 경로를 따라갈 수 없다', meaning: false, impact: 'understanding' }, draft: true },
+      { label: 'fact', item: { item: '원문과 다른 사실', meaning: true, impact: 'wording' }, draft: true },
+    ];
+    for (const harness of ['claude', 'codex']) for (const c of cases) {
+      writeFileSync(calls, '');
+      writeFileSync(join(dir, '.research', 'active.json'), JSON.stringify({ runId: 'R', harness, state: 'running' }));
+      const review = (agent, event) => ({ agent, event, actor: agent, runId: 'R', harness, sha, psha: 'protected' });
+      writeFileSync(join(evidence, 'notes', 'hooks.json'), JSON.stringify({ reviews: [
+        review('lens-numbers', 'start'), review('lens-reader', 'start'),
+        review('lens-numbers', 'done'), review('lens-reader', 'done'),
+      ] }));
+      writeFileSync(join(evidence, 'run.json'), JSON.stringify({ commitSubject: '설명 수정', commitBody: '고정 출처', unfixed: [c.item] }));
+      const result = spawnSync(process.execPath, [resolve('scripts/ship.mjs'), `research/${slug}`], {
+        cwd: dir, encoding: 'utf8',
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, TEST_CALLS: calls },
+      });
+      assert.equal(result.status, 0, `${harness}/${c.label}: ${result.stderr}`);
+      const run = JSON.parse(readFileSync(join(evidence, 'run.json'), 'utf8'));
+      assert.equal(run.ship.draft, c.draft, `${harness}/${c.label}`);
+      const commands = readFileSync(calls, 'utf8').trim().split('\n').map((s) => JSON.parse(s));
+      const pr = commands.find((x) => x.tool === 'gh' && x.args[1] === 'create');
+      assert.ok(pr);
+      assert.equal(pr.args.includes('--draft'), c.draft, `${harness}/${c.label}`);
+      if (c.label === 'understanding') {
+        assert.match(pr.args[pr.args.indexOf('--body') + 1], /\(독자 이해\) 조건 경로를 따라갈 수 없다/);
+      }
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

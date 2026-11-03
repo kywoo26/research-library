@@ -90,7 +90,7 @@ const RULES = {
   //    section-grammar 대신 아래 규칙이 장 문법을 본다.
   'board-format': `${BOARD_FROM} 이후 문서는 board 셸(<html data-format="board">)로 쓰였는가`,
   'chapter-roles': 'board 문서: 첫 장이 data-role="cover" 이고 data-role="critique" 와 data-role="sources" 장이 있는가 (eyebrow-set 대신)',
-  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신)`,
+  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신)`,
   'h2-length': `board 문서: 장 제목(h2)이 공백 뺀 ${MAX_H2_CHARS}자 이하인가 (sources 장은 빼고 센다)`,
   'board-refs': 'board 문서: 상자의 data-col/data-lane 이 판의 data-cols/data-lanes 안에 있는가, .edge 의 data-from/data-to 가 같은 판의 상자 id 인가, 판에 aria-label 이 있는가, id 가 문서 안에서 겹치지 않는가',
   'card-length': `board 문서: 상자 제목(b)이 공백 뺀 ${CARD_TITLE}자, 줄(p, li) 하나가 ${CARD_LINE}자 이하이고, 줄이 ${CARD_LINES}개 이하인가. 문단은 상자에 넣지 않는다`,
@@ -247,11 +247,14 @@ function checkBoardDoc(html, meta, add) {
       if (!lead) lacks.push('p.lead');
       else {
         const sentences = textOf(lead[1]).split(/(?<=[.?!])\s+/).filter((x) => x.trim());
-        if (sentences.length > MAX_LEAD_SENTENCES) add('chapter-grammar', `${n}장 p.lead 가 ${sentences.length}문장이다 (상한 ${MAX_LEAD_SENTENCES}). 숫자와 사실은 판의 상자로 보낸다`);
+        if (sentences.length > MAX_LEAD_SENTENCES) add('chapter-grammar', `${n}장 p.lead 가 ${sentences.length}문장이다 (상한 ${MAX_LEAD_SENTENCES}). 자세한 설명은 본문으로 옮긴다`);
       }
-      const hasBody = /class="[^"]*\bboard\b/.test(s) || /<figure\b[^>]*class="[^"]*\bplot\b/.test(s) || /<table\b/.test(s)
+      const visible = s.replace(/<details\b[^>]*>[\s\S]*?<\/details>/g, '');
+      const explanation = /<div\b[^>]*class="[^"]*\bexplanation\b[^"]*"[^>]*>([\s\S]*?)<\/div>/.exec(visible);
+      const hasExplanation = explanation && [...explanation[1].matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].some((m) => textOf(m[1]).trim());
+      const hasBody = hasExplanation || /class="[^"]*\bboard\b/.test(s) || /<figure\b[^>]*class="[^"]*\bplot\b/.test(s) || /<table\b/.test(s)
         || /<pre\b/.test(s) || /class="[^"]*\bplate\b/.test(s) || /<ul\b[^>]*class="[^"]*\bpoints\b/.test(s);
-      if (!hasBody) lacks.push('본문(.board, figure.plot, table, pre, .plate, ul.points)');
+      if (!hasBody) lacks.push('본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points)');
     }
     if (lacks.length) add('chapter-grammar', `${n}장에 ${lacks.join(', ')} 가 없다`);
   });

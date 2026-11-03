@@ -8,5 +8,7 @@
 | 판단: 선택지를 칸으로, 조건과 결과를 줄로 | `decision-ruler.html` | 2026-09-09 claude-platform-cost-performance |
 | 절차: 번호 단계와 되돌아가는 화살표 | `procedure-steps.html` | 2026-08-28 opsharness-self-evolving-rca |
 | 경로 추적: `<pre>` 로 따라간 diff | `trace-pre.html` | 2026-09-30 claude-sonnet-5-5-migration |
+| 설명: 구체적 사례의 원인·결과를 문단으로 잇고 조건별 표를 붙임 | `explanation.html` | 가상의 작업 큐, 형식 견본 |
 
-모두 원 문서의 원장에 있는 사실과 숫자이고, board 셸의 `<main>` 에 넣으면 그대로 그려진다.
+실제 문서의 견본은 해당 원장의 사실과 숫자를 쓴다. 가상 견본은 형식만 참고한다.
+모두 board 셸의 `<main>` 에 넣으면 그려지며, 설명 문단은 표 없이도 본문이 된다.

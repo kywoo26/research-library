@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary">
 <style>
 /* ═══ board 셸 ═══════════════════════════════════════════════
-   장은 주장(h2) 하나와 그 주장을 담은 판(board) 하나다. 작성자는 상자가 어느 줄(lane)
+   장은 질문 하나에 답하는 설명과 필요한 시각 자료를 담는다. 작성자는 상자가 어느 줄(lane)
    어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
    html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
 
@@ -76,6 +76,9 @@ h3 { font-size:15px; margin:0 0 6px; }
 .answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
 p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
 .lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.explanation { max-width:46em; margin:18px 0; font-size:16px; line-height:1.85; }
+.explanation p { margin:0 0 1em; }
+.explanation p:last-child { margin-bottom:0; }
 .so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
 .block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
 ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
