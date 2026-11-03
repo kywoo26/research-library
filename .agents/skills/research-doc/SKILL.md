@@ -13,7 +13,7 @@ description: Writes a single-file HTML research document in Korean from a corpus
 Read before writing:
 
 - `references/prose-ko.md`, always.
-- `references/visual.md`, always: each chapter's board is chosen before its sentences.
+- `references/visual.md`, always: choose a form that explains the relationship.
 - `references/specimens/`, the cover and the chapters whose shapes yours take. They show the
   grammar filled in; their length is an example, and your content sets yours.
 - `references/paper.md`, `references/oss.md` or `references/web.md`, by what the corpus is.
@@ -33,8 +33,8 @@ well enough to explain it. What the document has to do for them depends on its k
 | `explainer` | predict the behavior on a case the source never shows | the mechanism at full depth, one case traced through it, where the principle stops holding |
 | `walkthrough` | find the code, or the request field, and follow the path to change it | the map of what talks to what, one path traced hop by hop, where a change would land |
 
-The adoption call belongs to the comparison. Comparisons with other systems and outside cases
-go in when the request asks for them, gathered in one chapter.
+The adoption call belongs to the comparison. Include outside comparisons when the request
+needs them, beside the claim they clarify.
 
 Plain is the goal, and a qualifier the claim needs survives the plainness. Describe how
 something was done at the depth the source gives; a step the source leaves out stays out, and
@@ -98,7 +98,9 @@ names what a chapter does; `cover`, `critique` and `sources` are required.
 Production records stay out of the document: retrieval times, archive attempts, hashes,
 rendering checks and file-count arithmetic go to `sources.jsonl`, `run.json` and the PR body.
 
-**Split a chapter that carries two claims**; neither gets checked while they share one.
+Keep one main claim per chapter, with its reason and worked case. Split independent claims;
+supporting facts need no chapter of their own. Develop prose and visuals together as the
+explanation needs. Mark invented cases as illustrations whose outcomes follow the evidence.
 
 ## The title
 
@@ -117,7 +119,7 @@ chapter is `<section class="slide" data-role="…" data-label="…">`, and insid
 ```
 h2            the claim, one sentence (Opus 5.5 의 통과율은 low 에서 medium 으로 갈 때 가장 크게 오른다)
 p.lead        at most two sentences: the condition the claim needs, and how to read the body
-body          the board visual.md picks; every number the chapter uses is here
+body          explanatory paragraphs, a visual, or both; the evidence and reasoning live here
 ul.notes      optional. One line each: provenance, a value read off coordinates, what is missing
 p.so          optional. 그래서: what follows for the reader
 details.orig  optional. The source's own words behind the claims, folded
@@ -129,7 +131,7 @@ claim the visible part has not already made.** What each kind keeps visible:
 | Kind | Visible |
 |---|---|
 | walkthrough | the diff or the path, the result codes, what to check with it |
-| explainer | the mechanism as a board, one case in numbers, where it stops holding |
+| explainer | the mechanism, one worked case, where it stops holding; use numbers when they explain the case |
 | comparison | the call with its condition, the reader's situations on a ruler or in a table, the numbers that move the call, how to back out |
 
 For a narrow correction to a document from before the board shell, keep its `.eyebrow`,
@@ -139,11 +141,9 @@ each chapter's claim; an old shell is not a reason to keep a text-only explanati
 
 ## Quoting the source
 
-The visible text says in Korean what the source says and names who says it; the source's own
-words go in the fold, inside `.q`, `.wl` or `<cite>`. A source sentence reworded into Korean with
-nobody named is the source's claim wearing yours, and an English passage in the middle of a
-Korean paragraph stops the reader. In a trace the quoted line is the hop itself, so it stays
-visible in the `<pre>` with its locator.
+Introduce source-dependent claims with clear attribution, following `prose-ko.md`; keep that
+attribution clear across the passage. Put verbatim source text in the fold, inside `.q`, `.wl`
+or `<cite>`. A quoted line that is itself a trace hop stays visible in `<pre>` with its locator.
 
 ```html
 ✓ <p>migration guide 는 between_tools 가 low, medium, high 에서만 받아들여지고 xhigh 나
@@ -172,7 +172,7 @@ add and renumber the items with the chapters, and do not delete them, or the rai
 
 Once `check-doc.mjs`, `check-prose.mjs` and `render.mjs` pass, read the
 document once from the first screen down, as the reader would, against the passages in
-`prose-ko.md`. This read is the one place prose is judged for its own sake.
+`prose-ko.md`.
 
 ## Hand off
 

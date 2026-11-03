@@ -7,7 +7,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, ex
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { verdict } from '../lib/ship-verdict.mjs';
+import { verdict, publicationBlockers } from '../lib/ship-verdict.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 let pass = 0, fail = 0;
@@ -50,6 +50,13 @@ ok('lens 하나의 관찰이 비면 확인 못 함, 그래도 draft 는 아니�
   return v.modelCheck.startsWith('확인 못 함') && v.reasons.length === 0;
 })());
 ok('관찰이 하나도 없으면 확인 못 함', verdict({ ...base, reviews: both }).modelCheck.startsWith('확인 못 함'));
+
+for (const harness of ['claude', 'codex']) {
+  ok(`${harness}: 새 readerCheck 필드 없는 기존 실행도 정상`, verdict({ ...base, harness, reviews: both }).reasons.length === 0);
+  draft(`${harness}: 사실이 맞아도 이해를 막는 결함은 draft`, verdict({ ...base, harness, reviews: both, blocking: publicationBlockers([{ item: '조건부 경로를 따라갈 수 없음', meaning: false, impact: 'understanding' }]) }), '독자 이해');
+}
+ok('표현 취향과 기존 meaning:false 기록은 비차단', publicationBlockers([{ item: '어휘 선택', meaning: false, impact: 'wording' }, { item: '옛 표현 메모', meaning: false }]).length === 0);
+ok('잘못된 사실과 불명확한 분류는 차단', publicationBlockers([{ item: '틀린 수치', meaning: true, impact: 'wording' }, { item: '알 수 없는 분류', meaning: false, impact: 'other' }, '옛 미해결']).length === 3);
 
 // ── hook 을 실제로 돌린다 ───────────────────────────────────────────────────
 const tmp = mkdtempSync(join(tmpdir(), 'hooks-test-'));

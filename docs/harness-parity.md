@@ -158,6 +158,34 @@ PR 결과까지 확인하도록 요청한다. 실전 요청을 종단 시험으�
   제공하는 관리형 agent 가 있으면 그 agent 가 `--run` 을 기다렸다가 소유자에게 보고한다. 2026-10-30 Paseo
   Codex agent 는 이 알림 경로를 실측했다. 그런 agent 가 없으면 소유자 turn 이 종료까지 살아 있어야 한다.
 
+### 독자 과업 판정과 설명 본문 수정 (2026-11-04)
+
+두 harness 는 조사·집필·검토 본문을 공유한다. 이번 수정은 공용 skill, 셸, 검사와
+출고 판정에 적용하며 모델·effort·agent 수는 바꾸지 않는다.
+독자의 구체적 과업 시연은 기존 검토 보고서에 남긴다. 별도 `readerCheck` 필드 의무화는
+효과 미확인과 기존 실행 호환성 때문에 철회했다. 기존 기록에 새 필드가 없다는 이유로
+출고 상태를 바꾸지 않는다. `unfixed`의 `impact: understanding`은 `meaning: false`여도
+draft다. 이 분류 역시 검토 결과를 작성자가 기록하며 기계가 이해도를 판정하지 않는다.
+
+설명 문단을 본문으로 인정하고, 재검토도 수정된 설명이 독자 과업을 막는지 다시 본다.
+배경 자료와 검증 한계는 `docs/method-provenance.md` 의 같은 날짜 항목을 따른다.
+Claude Sonnet 5.5에게 Claude 하네스·스킬 계약을 별도로 검토시켰다. 공유 링크 resolve,
+agent의 본문 참조, hook·보호 창·검토 상한, 기존 run 호환을 확인했다. 새 본문과 SVG를
+넣은 fixture도 검사·텍스트 추출·1280/390 렌더를 통과했다. 추가 도구나 권한은 필요 없다.
+미커밋 수정은 새 연구 worktree에 자동 반영되지 않으므로, 일반 launcher를 호출하는
+것만으로 이 수정안을 종단 시험했다고 할 수 없다.
+이후 Codex에서는 수정안을 적용한 새 worktree로 실제 연구를 완료했다([PR #48](https://github.com/kywoo26/research-library/pull/48)).
+과거 발행물·원장·검토 자료를 sparse checkout에서 제외하고 새 Sol high thread를 열었다.
+ship과 종료 hook의 세 검사가 통과했고, 병렬 lens와 마지막 recheck의 문서 hash가 맞았다.
+새 문서만 origin/main 검사기로 검사한 결과도 통과했다. 세션 설정은 Sol high로 기록됐지만
+서버 모델 관측은 비어 있으므로 실제 서버 모델을 독립 확인했다는 뜻은 아니다.
+Claude의 새 문서 작성부터 PR까지 실행한 전후 비교는 완료하지 않았다.
+
+sparse checkout에서 제외한 root 생성물을 출고 시 복원하려고 ship의 checkout에
+`--ignore-skip-worktree-bits`를 쓴다. 이 복원은 집필과 검토가 끝난 뒤에 일어나고,
+생성물은 연구 커밋에 포함하지 않는다. 원고 격리는 이 실행의 준비 절차였으며,
+일반 launcher가 모든 연구에서 과거 원고를 자동 제외하도록 바뀐 것은 아니다.
+
 ### 실측 기록
 
 | 날짜 | 무엇 | harness | 결과 |

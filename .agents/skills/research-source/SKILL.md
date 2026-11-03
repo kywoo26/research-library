@@ -50,9 +50,10 @@ Without them, coverage is decided by what is easy to reach, and the setup chapte
 accurate about the wrong reading. A paper's own structure pulls the reading toward what a
 reviewer checks; the reader's task is often in a different section or in none.
 
-Name the ways a reader could disagree: whether it scales, whether it is maintained,
-whether it locks them in. One reading order answers one of those, so go open what settles
-the others.
+Turn plausible disagreements into questions that could change the answer. Choose perspectives
+from the request and the material, then seek the evidence that distinguishes them; extra
+personas and source counts do not establish breadth. Record which alternatives the evidence
+settles and which remain open. Do not manufacture equal support for an unsupported position.
 
 **Scale the reading to the question.** A repository of 2,000 files whose answer lives in
 three gets read directly. Choose before opening the first file, because context spent on
@@ -249,6 +250,10 @@ files and writing an accurate document beats reading 200 and writing a vague one
 unneeded files closed.
 
 ## Hand off
+
+Before drafting, settle what the evidence supports and how it answers the question, including
+supported alternatives and unresolved conditions. Distinguish measurements, source claims
+and your inference. Use the existing notes and ledger; no separate synthesis file is required.
 
 When `sources.jsonl` and `evidence.jsonl` both exist and you know where the interesting
 code or sections are, invoke `research-doc` in the **same context**.

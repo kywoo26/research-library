@@ -1,13 +1,11 @@
 # Drawing the document
 
-The reader is defined in `../SKILL.md`. A reader takes in a structure faster from a picture
-than from sentences describing it, so a chapter here is a claim and a board: the heading says
-what is true, and the board shows it. The specimens in `specimens/` are the pattern; this file
-says how to choose and fill one.
+The reader is defined in `../SKILL.md`. Choose the visual for what the reader must understand.
+The specimens in `specimens/` are available forms, not a quota of pictures per chapter.
 
-## Choose the board before the sentences
+## Choose the form for the relationship
 
-Ask what shape the claim has, then pick:
+Once the claim and its reason are clear, ask what relationship the reader needs to see:
 
 | The claim is | Board (specimen) |
 |---|---|
@@ -19,13 +17,21 @@ Ask what shape the claim has, then pick:
 | one metric, several systems | `table.plot-data data-kind="bars"` |
 | several dimensions per row | a table |
 | one instance walked end to end | a `<pre>` trace or diff |
+| a reason, interpretation or transition that needs connected sentences | `<div class="explanation"><p>…</p></div>`, alone or beside a visual |
 | a list of limits or judgments with no shape | `ul.points` |
 
-A sentence that walks the board card by card is the one to cut.
+Cut prose that only repeats card labels. Keep the reason, worked case and interpretation
+that the picture does not explain. Keep a condition beside the claim it qualifies.
+
+Draw conditional paths with their conditions and loops with a returning edge. If a compact
+board cannot show a branch clearly, use separate cases or a trace. Check the normal and
+exception paths against the source; a row of boxes can conceal their difference. An arrow
+must mean a transition, dependency or cause supported by the source, not merely “read next”.
 
 Rows (`data-lanes`) and columns (`data-cols`) carry meaning: phases, actors, levels. Name a
 card's cell (`data-col="high..max" data-lane="1"`); the shell computes the layout, routes the
-arrows and reflows the board into one column on a phone. Never write coordinates.
+arrows and reflows the board into one column on a phone. Use these cells for boards; use an
+inline SVG when the relationship needs a different shape (§Check it).
 
 ## Write the aria-label first
 
@@ -62,8 +68,8 @@ said it, where and when, what they said, and the verdict from checking it agains
 
 Values come from the chart's `aria-label`, the SVG text or the table, never estimated from bar
 length; a value read off coordinates says so in the plot's figcaption. **Embed only a figure you have
-opened and read**; `notes/figures.md` holds the descriptions. **Name the source's central
-figure somewhere**, because a reader who has seen the source looks for it first.
+opened and read**; `notes/figures.md` holds the descriptions. Include the source's central
+figure when it answers the reader's question.
 
 Mechanics: a `data:` URI inside `.plate`, which keeps a white background under a light-source
 figure in dark mode; `alt` says what the figure shows and the figcaption carries the source's own
