@@ -1,0 +1,113 @@
+{
+  "sha": "abb7abcd5c5196fa0278dc87db85780fa269562f",
+  "node_id": "C_kwDOSgbPItoAKGFiYjdhYmNkNWM1MTk2ZmEwMjc4ZGM4N2RiODU3ODBmYTI2OTU2MmY",
+  "commit": {
+    "author": {
+      "name": "Trainingcqy",
+      "email": "trainingcqy@gmail.com",
+      "date": "2026-11-03T14:10:56Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-11-03T14:10:56Z"
+    },
+    "message": "fix(diff): retry new-side hunk match without blank lines (#1777)\n\nCo-authored-by: Kite <254839944+lizhengfeng101@users.noreply.github.com>",
+    "tree": {
+      "sha": "05f4089334be945f982353aa6f4df9f8c3938d37",
+      "url": "https://api.github.com/repos/alibaba/open-code-review/git/trees/05f4089334be945f982353aa6f4df9f8c3938d37"
+    },
+    "url": "https://api.github.com/repos/alibaba/open-code-review/git/commits/abb7abcd5c5196fa0278dc87db85780fa269562f",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq6etwCRC1aQ7uu5UhlAAArcMQAGB0NzfIUINBsqXcOvtYpQI9\n/cckkcHMsGmOctB7oL2WLhxu/BXUCTYsH/k5FPBvrSXkHhM1uB9svxma02gkkzBO\nqt9gN+AFqgQkLO6fODi/if1iPNfKVB96O49WgZTaHHW+rShtiInz4chYwCaneAm5\nXGfu1MZfD9wQ4Mc0+GUWhocNpq5bWvAf6NW7QKxoI/fM1sz8P6jSXQpiw1foj7cs\nK1dgDmmd6O2TneBBfYHt7Ypln5vBXzvp9SepCGeSaYkiJ8a0iDWmVmfFsjLyOTK/\nQ+onBY6pGaWv9uExFQPtFyc2JyNTxnND5u9Br8C/xUmiJwQqm4Iy+5AVaaLNMSHk\nWYNFgzNIL9t/y6r7IbuYR75v5b3Nl+Tsj7tcdAzDbQBrlFswWfQNKGRfRNL0dJ/c\n4GSgbzm6SkZ0ybOZ7EuCm0SAG6iL0Cdk6LoONpZHeMhWIWIUsABjnyOmdC7F/QQ3\n1zg422bKep25/lTlt9KtJm+wuHdz9+9WV/YtM+KOyuLx2w2NTBO3LWYvGIzgKlS/\n10X3lftskzisIEbJxaUKOM6eEAOsPUN4+B466KyQATzmLdxblTpk13k3GPpP4fen\ngPObrlOyShXL/t39i7gFTg2C6XkiBCgztHBCm/CuU51JNjJfHly7ImTV1p27Rz3Q\n9dt4RQE04ibMK3Q34rk5\n=bP5u\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 05f4089334be945f982353aa6f4df9f8c3938d37\nparent 98f1dfef8ea194a9af6d5eb4eb8018f64fc24ed7\nauthor Trainingcqy <trainingcqy@gmail.com> 1793715056 +0900\ncommitter GitHub <noreply@github.com> 1793715056 +0800\n\nfix(diff): retry new-side hunk match without blank lines (#1777)\n\nCo-authored-by: Kite <254839944+lizhengfeng101@users.noreply.github.com>",
+      "verified_at": "2026-11-03T14:10:57Z"
+    }
+  },
+  "url": "https://api.github.com/repos/alibaba/open-code-review/commits/abb7abcd5c5196fa0278dc87db85780fa269562f",
+  "html_url": "https://github.com/alibaba/open-code-review/commit/abb7abcd5c5196fa0278dc87db85780fa269562f",
+  "comments_url": "https://api.github.com/repos/alibaba/open-code-review/commits/abb7abcd5c5196fa0278dc87db85780fa269562f/comments",
+  "author": {
+    "login": "Trainingcqy",
+    "id": 213424245,
+    "node_id": "U_kgDODLiYdQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/213424245?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Trainingcqy",
+    "html_url": "https://github.com/Trainingcqy",
+    "followers_url": "https://api.github.com/users/Trainingcqy/followers",
+    "following_url": "https://api.github.com/users/Trainingcqy/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Trainingcqy/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Trainingcqy/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Trainingcqy/subscriptions",
+    "organizations_url": "https://api.github.com/users/Trainingcqy/orgs",
+    "repos_url": "https://api.github.com/users/Trainingcqy/repos",
+    "events_url": "https://api.github.com/users/Trainingcqy/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Trainingcqy/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "web-flow",
+    "id": 19864447,
+    "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/web-flow",
+    "html_url": "https://github.com/web-flow",
+    "followers_url": "https://api.github.com/users/web-flow/followers",
+    "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+    "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+    "organizations_url": "https://api.github.com/users/web-flow/orgs",
+    "repos_url": "https://api.github.com/users/web-flow/repos",
+    "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/web-flow/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "98f1dfef8ea194a9af6d5eb4eb8018f64fc24ed7",
+      "url": "https://api.github.com/repos/alibaba/open-code-review/commits/98f1dfef8ea194a9af6d5eb4eb8018f64fc24ed7",
+      "html_url": "https://github.com/alibaba/open-code-review/commit/98f1dfef8ea194a9af6d5eb4eb8018f64fc24ed7"
+    }
+  ],
+  "stats": {
+    "total": 120,
+    "additions": 118,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "1fd993d5d816622e959e9853f3a9ea79edaffd45",
+      "filename": "internal/diff/resolver.go",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 2,
+      "changes": 17,
+      "blob_url": "https://github.com/alibaba/open-code-review/blob/abb7abcd5c5196fa0278dc87db85780fa269562f/internal%2Fdiff%2Fresolver.go",
+      "raw_url": "https://github.com/alibaba/open-code-review/raw/abb7abcd5c5196fa0278dc87db85780fa269562f/internal%2Fdiff%2Fresolver.go",
+      "contents_url": "https://api.github.com/repos/alibaba/open-code-review/contents/internal%2Fdiff%2Fresolver.go?ref=abb7abcd5c5196fa0278dc87db85780fa269562f",
+      "patch": "@@ -4,6 +4,7 @@\n package diff\n \n import (\n+\t\"slices\"\n \t\"strings\"\n \n \t\"github.com/alibaba/open-code-review/internal/model\"\n@@ -146,8 +147,11 @@ type indexedLine struct {\n \n // resolveFromHunk tries to find startLine/endLine by matching ExistingCode\n // against hunk lines. It tries the new-side first (context + added lines →\n-// new-file line numbers), then falls back to old-side (context + deleted →\n-// old-file line numbers).\n+// new-file line numbers), then the new-side again without blank lines, which\n+// splitAndNormalize has already dropped from the target, then falls back to\n+// old-side (context + deleted → old-file line numbers). existing_code is\n+// meant to quote added lines, and an old-side match reports old-file line\n+// numbers, so old-side comes last and is not retried without blank lines.\n func resolveFromHunk(d *model.Diff, cm *model.LlmComment) bool {\n \thunks := ParseHunks(d.Diff)\n \tif len(hunks) == 0 {\n@@ -168,6 +172,15 @@ func resolveFromHunk(d *model.Diff, cm *model.LlmComment) bool {\n \t\t}\n \t}\n \n+\tfor i := range hunks {\n+\t\tnewSide := slices.DeleteFunc(extractSideLines(&hunks[i], true), func(l indexedLine) bool { return l.content == \"\" })\n+\t\tif start, end, ok := matchConsecutive(newSide, targetLines); ok {\n+\t\t\tcm.StartLine = start\n+\t\t\tcm.EndLine = end\n+\t\t\treturn true\n+\t\t}\n+\t}\n+\n \tfor i := range hunks {\n \t\toldSide := extractSideLines(&hunks[i], false)\n \t\tif start, end, ok := matchConsecutive(oldSide, targetLines); ok {"
+    },
+    {
+      "sha": "d84ffb60d5e6ee26dce900c40f588aa8e90e1548",
+      "filename": "internal/diff/resolver_test.go",
+      "status": "modified",
+      "additions": 103,
+      "deletions": 0,
+      "changes": 103,
+      "blob_url": "https://github.com/alibaba/open-code-review/blob/abb7abcd5c5196fa0278dc87db85780fa269562f/internal%2Fdiff%2Fresolver_test.go",
+      "raw_url": "https://github.com/alibaba/open-code-review/raw/abb7abcd5c5196fa0278dc87db85780fa269562f/internal%2Fdiff%2Fresolver_test.go",
+      "contents_url": "https://api.github.com/repos/alibaba/open-code-review/contents/internal%2Fdiff%2Fresolver_test.go?ref=abb7abcd5c5196fa0278dc87db85780fa269562f",
+      "patch": "@@ -748,6 +748,109 @@ func TestResolveFromHunk_NewSideAcrossDeletedLines(t *testing.T) {\n \t}\n }\n \n+func TestResolveFromHunk_BlankLineRetry(t *testing.T) {\n+\ttests := []struct {\n+\t\tname           string\n+\t\tdiff           string\n+\t\tnewFileContent string\n+\t\texistingCode   string\n+\t\twantStart      int\n+\t\twantEnd        int\n+\t}{\n+\t\t{\n+\t\t\tname: \"added block across blank line\",\n+\t\t\tdiff: `diff --git a/m.go b/m.go\n+--- a/m.go\n++++ b/m.go\n+@@ -5,1 +5,7 @@\n+ }\n++\n++func b() {\n++\tx := 1\n++\n++\treturn x\n++}`,\n+\t\t\tnewFileContent: \"func a() {\\n\\tx := 1\\n\\n\\treturn x\\n}\\n\\nfunc b() {\\n\\tx := 1\\n\\n\\treturn x\\n}\\n\",\n+\t\t\texistingCode:   \"\\tx := 1\\n\\n\\treturn x\\n}\",\n+\t\t\twantStart:      8,\n+\t\t\twantEnd:        11,\n+\t\t},\n+\t\t{\n+\t\t\tname: \"new side before old side\",\n+\t\t\tdiff: `diff --git a/m.go b/m.go\n+--- a/m.go\n++++ b/m.go\n+@@ -1,4 +1,2 @@\n+ func p() {\n+-\tX := New()\n+-\treturn X\n+ }\n+@@ -9,1 +7,6 @@\n+ }\n++func q() {\n++\tX := New()\n++\n++\treturn X\n++}`,\n+\t\t\texistingCode: \"\\tX := New()\\n\\n\\treturn X\",\n+\t\t\twantStart:    9,\n+\t\t\twantEnd:      11,\n+\t\t},\n+\t\t{\n+\t\t\tname: \"old side not retried\",\n+\t\t\tdiff: `diff --git a/m.go b/m.go\n+--- a/m.go\n++++ b/m.go\n+@@ -1,5 +1,2 @@\n+ func f() {\n+-\ta := 1\n+-\n+-\tb := 2\n+ }`,\n+\t\t\tnewFileContent: \"func f() {\\n}\\n\",\n+\t\t\texistingCode:   \"\\ta := 1\\n\\n\\tb := 2\",\n+\t\t\twantStart:      0,\n+\t\t\twantEnd:        0,\n+\t\t},\n+\t\t{\n+\t\t\tname: \"exact match before retry\",\n+\t\t\tdiff: `diff --git a/m.go b/m.go\n+--- a/m.go\n++++ b/m.go\n+@@ -1,1 +1,4 @@\n+ func a() {\n++\tx := 1\n++\n++\ty := 2\n+@@ -5,1 +8,3 @@\n+ func b() {\n++\tx := 1\n++\ty := 2`,\n+\t\t\tnewFileContent: \"func a() {\\n\\tx := 1\\n\\n\\ty := 2\\n}\\n\\n// mid\\nfunc b() {\\n\\tx := 1\\n\\ty := 2\\n}\\n\",\n+\t\t\texistingCode:   \"\\tx := 1\\n\\ty := 2\",\n+\t\t\twantStart:      9,\n+\t\t\twantEnd:        10,\n+\t\t},\n+\t\t{\n+\t\t\tname:         \"snippet without blank lines across context and repeated blank lines\",\n+\t\t\tdiff:         \"@@ -1,2 +1,7 @@\\n func a() {\\n+\\tx := 1\\n \\n+\\t// y\\n+\\n+\\n+\\tz := 3\",\n+\t\t\texistingCode: \"\\tx := 1\\n\\t// y\\n\\tz := 3\",\n+\t\t\twantStart:    2,\n+\t\t\twantEnd:      7,\n+\t\t},\n+\t}\n+\n+\tfor _, tt := range tests {\n+\t\tt.Run(tt.name, func(t *testing.T) {\n+\t\t\tdiffs := []model.Diff{{NewPath: \"m.go\", Diff: tt.diff, NewFileContent: tt.newFileContent}}\n+\t\t\tcm := ResolveLineNumbers([]model.LlmComment{{Path: \"m.go\", ExistingCode: tt.existingCode}}, diffs)[0]\n+\t\t\tif cm.StartLine != tt.wantStart || cm.EndLine != tt.wantEnd {\n+\t\t\t\tt.Errorf(\"expected %d..%d, got %d..%d\", tt.wantStart, tt.wantEnd, cm.StartLine, cm.EndLine)\n+\t\t\t}\n+\t\t})\n+\t}\n+}\n+\n // ---------------------------------------------------------------------------\n // ResolveLineNumbers integration tests (additional scenarios)\n // ---------------------------------------------------------------------------"
+    }
+  ]
+}

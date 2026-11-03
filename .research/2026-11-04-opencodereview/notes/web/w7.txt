@@ -1,0 +1,24 @@
+{
+  "node_id": "TA_kwDOSgbPItoAKGU3MzlkMzk0NzczNjI0Nzc2MGFlNTRkZDgyMGFlNzg5OGI3MjNlMWY",
+  "sha": "e739d3947736247760ae54dd820ae7898b723e1f",
+  "url": "https://api.github.com/repos/alibaba/open-code-review/git/tags/e739d3947736247760ae54dd820ae7898b723e1f",
+  "tagger": {
+    "name": "kite",
+    "email": "lizhengfeng.lzf@alibaba-inc.com",
+    "date": "2026-11-03T14:20:04Z"
+  },
+  "object": {
+    "sha": "abb7abcd5c5196fa0278dc87db85780fa269562f",
+    "type": "commit",
+    "url": "https://api.github.com/repos/alibaba/open-code-review/git/commits/abb7abcd5c5196fa0278dc87db85780fa269562f"
+  },
+  "tag": "v1.13.5",
+  "message": "Fix diff parsing, comment line resolution, and tracked gitignored file handling.\nHonor lower review tool-call limits and record the effective cap in manifests.\nAdd JSONC and template review support plus Scala-specific rules.\n-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAAZcAAAAHc3NoLXJzYQAAAAMBAAEAAAGBANMvIjIPD4BT1bUmJh6pBt\ntRLPtGlNVGrb/u7FKs6xe+2O/spNpNOqvDlVg1nf6TBQUio5NmJgk0cl33k8kjLIrgqHQ/\nAUP2R4k/TdMXgX39ahmCaIzZZMhhHCF54+4X2dk6ZRv5DtHLnSdP1qhf+kxW2TFzJ1oQWy\nF8PpZo+dtBuw2pw4vsTPZFhIaxpu03cYlqAwUywXzFCVEsY2Gi9SEZk6y/j3/RInR6AREn\n/mnJ7pwefxSiTfXqYnmPd6UE7NqMfrqYBYL/Hf9qqGBWjwOFvAf5/ErxMFcOsZMmInUG2O\nlzxS1KnWQwmFQyhHYnYEk4M58ffnHzmZbBj2d29tlHEU+dGbIckC6SRu18QmFihsHCZ+bR\nPjGwmzKI/elKh2VlyEn6kJ4zpkfB1r0vJXt3zCVaqgfSqpk/Af6nC01qLDXdQRq3JF0qus\n2dM7n2jKpsekb/qnvEaSHPN/1YUZN3LzQfOMIiGcOPvrlj1zRYtJKjfAT5KA0oIDLRmKuS\n9wAAAANnaXQAAAAAAAAABnNoYTUxMgAAAZQAAAAMcnNhLXNoYTItNTEyAAABgKgAq0aPG4\nzcMAOvEQA3AgVfdZKAI9bjBOa3j+hmhGZd/W9monP7yr9f2NO+nOeXpI1pYvU+NsWQX9pn\nOOcBlxjv+soGaCblUOLV61B2rno4LFIN/jYYGNATD8myPE/eYjmnj4loEAbikib2fNxV8P\nDMuIpZs3m2eHFWX+HSWccf1D/T18WPnB4YTfSry0mhh8IPMpZmvetTuPlh+D/fFgpwtyNS\nDdg/uZroOam1HZr9Z7jBgatIt4cCdIVA/oNI5Kt92UQXiI/k/OTM29aviHoUPoSAiyxgpJ\n05V7YDf/K/Fs68+7AgdLX8xPB2/8CcGeC+koMheSb5szKustC1Grw4MwdWMTtJEo/wR7iF\nubRK+xHzDahVr2WJZMgNDbk7owMlUcz+cb+c89yb5iiIaXtMzRuXWpZn6sZVKZducQjLd/\nQUlHO0HKAGvw3z9pTyHRxYdqUuPLU5biXXcWFbiE4vtIr54A0o/qqrkZjjVBruOV4+7u0L\nkxEFYHdFcVSrfg==\n-----END SSH SIGNATURE-----\n",
+  "verification": {
+    "verified": false,
+    "reason": "unknown_key",
+    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAAZcAAAAHc3NoLXJzYQAAAAMBAAEAAAGBANMvIjIPD4BT1bUmJh6pBt\ntRLPtGlNVGrb/u7FKs6xe+2O/spNpNOqvDlVg1nf6TBQUio5NmJgk0cl33k8kjLIrgqHQ/\nAUP2R4k/TdMXgX39ahmCaIzZZMhhHCF54+4X2dk6ZRv5DtHLnSdP1qhf+kxW2TFzJ1oQWy\nF8PpZo+dtBuw2pw4vsTPZFhIaxpu03cYlqAwUywXzFCVEsY2Gi9SEZk6y/j3/RInR6AREn\n/mnJ7pwefxSiTfXqYnmPd6UE7NqMfrqYBYL/Hf9qqGBWjwOFvAf5/ErxMFcOsZMmInUG2O\nlzxS1KnWQwmFQyhHYnYEk4M58ffnHzmZbBj2d29tlHEU+dGbIckC6SRu18QmFihsHCZ+bR\nPjGwmzKI/elKh2VlyEn6kJ4zpkfB1r0vJXt3zCVaqgfSqpk/Af6nC01qLDXdQRq3JF0qus\n2dM7n2jKpsekb/qnvEaSHPN/1YUZN3LzQfOMIiGcOPvrlj1zRYtJKjfAT5KA0oIDLRmKuS\n9wAAAANnaXQAAAAAAAAABnNoYTUxMgAAAZQAAAAMcnNhLXNoYTItNTEyAAABgKgAq0aPG4\nzcMAOvEQA3AgVfdZKAI9bjBOa3j+hmhGZd/W9monP7yr9f2NO+nOeXpI1pYvU+NsWQX9pn\nOOcBlxjv+soGaCblUOLV61B2rno4LFIN/jYYGNATD8myPE/eYjmnj4loEAbikib2fNxV8P\nDMuIpZs3m2eHFWX+HSWccf1D/T18WPnB4YTfSry0mhh8IPMpZmvetTuPlh+D/fFgpwtyNS\nDdg/uZroOam1HZr9Z7jBgatIt4cCdIVA/oNI5Kt92UQXiI/k/OTM29aviHoUPoSAiyxgpJ\n05V7YDf/K/Fs68+7AgdLX8xPB2/8CcGeC+koMheSb5szKustC1Grw4MwdWMTtJEo/wR7iF\nubRK+xHzDahVr2WJZMgNDbk7owMlUcz+cb+c89yb5iiIaXtMzRuXWpZn6sZVKZducQjLd/\nQUlHO0HKAGvw3z9pTyHRxYdqUuPLU5biXXcWFbiE4vtIr54A0o/qqrkZjjVBruOV4+7u0L\nkxEFYHdFcVSrfg==\n-----END SSH SIGNATURE-----\n",
+    "payload": "object abb7abcd5c5196fa0278dc87db85780fa269562f\ntype commit\ntag v1.13.5\ntagger kite <lizhengfeng.lzf@alibaba-inc.com> 1793715604 +0800\n\nFix diff parsing, comment line resolution, and tracked gitignored file handling.\nHonor lower review tool-call limits and record the effective cap in manifests.\nAdd JSONC and template review support plus Scala-specific rules.\n",
+    "verified_at": null
+  }
+}

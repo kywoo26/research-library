@@ -1,0 +1,13 @@
+{
+  "title": "OpenCodeReview의 파일 선택과 리뷰 후보 처리",
+  "date": "2026-11-04",
+  "seq": 43,
+  "summary": "최신 코드의 그룹핑과 reflection 조건을 따라가고, 논문 v1.3.1 실험의 precision·recall·토큰 사용량을 읽는다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "explainer",
+  "source": {
+    "url": "https://github.com/alibaba/open-code-review",
+    "commit": "abb7abcd5c5196fa0278dc87db85780fa269562f"
+  }
+}
