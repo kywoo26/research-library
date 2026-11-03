@@ -1,0 +1,135 @@
+{
+ "harness": "codex",
+ "decided": [
+  {
+   "what": "문서 kind",
+   "choice": "explainer",
+   "reason": "LLM Wiki를 아는 개발자가 읽기 비용과 충분성 판단을 새 사례에 적용하도록 메커니즘과 실증을 연결한다."
+  },
+  {
+   "what": "원문 연구 범위",
+   "choice": "기존 발행물과 원장을 참고할 수 있으며, 주요 주장과 수치는 공개 원출처에서 다시 확인한다.",
+   "reason": "초기 감독 요청이 과거 발행물 제외를 잘못 확대 적용했다. 사용자가 이번 연구에는 제외가 필요 없다고 정정하여 작업공간 제한을 해제했다. 실제 연구는 기존 발행물을 읽지 않고 공개 원출처로 진행했고, 연구자는 종료 전 교정을 확인했다."
+  },
+  {
+   "what": "검토 모델",
+   "choice": "gpt-6.1-sol / high",
+   "reason": "사용자 확정 기준"
+  },
+  {
+   "what": "핵심 해석",
+   "choice": "읽기 표현과 admission 제어를 분리하는 설계로 설명한다.",
+   "reason": "Table 4의 토큰 관측은 구조 정확도 개선이나 배포 가치 입증과 다른 근거다."
+  },
+  {
+   "what": "반대 가능성",
+   "choice": "wiki의 종합 효용은 남기고 특정 span 없는 wiki ablation을 일반화하지 않는다.",
+   "reason": "Karpathy 원출처는 raw 보존·citation·검색·갱신을 이미 포함한다."
+  },
+  {
+   "what": "공식 코드 시점",
+   "choice": "제출 직전 main snapshot과 조사 시 main snapshot을 각각 고정한다.",
+   "reason": "논문에는 실험 commit/config 매핑이 없으며 두 snapshot에는 dense claim 검색 분기가 있다."
+  },
+  {
+   "what": "독립 검토 반영",
+   "choice": "보조 논문의 최신 표현을 v3로 한정하고, 모바일 공급 도식을 보완했다.",
+   "reason": "Lens B의 확인 범위 지적과 Lens A의 가독성 판단을 반영했다."
+  },
+  {
+   "what": "기계 대조 입력",
+   "choice": "LaTeX에서 확인한 percent 수치를 같은 v1 PDF 고정 추출문과도 대조한다.",
+   "reason": "공용 gate가 escaped percent를 그대로 비교해 낸 오탐을 피하면서 원문 대조를 보존했다. 체인은 수정하지 않았다."
+  }
+ ],
+ "question": "LLM Wiki의 compilation 아이디어를 계승하면서 이 논문은 agent 검색의 어떤 병목을 바꾸며, 그 근거는 어디까지 유효한가?",
+ "flip_condition": "충분성 gate가 잘못 수락하거나 원문 fallback 비용·컴파일 갱신비가 절약을 넘으면 작은 context의 경제성과 정확도 보존은 성립하지 않는다.",
+ "needs_owner": [],
+ "unfixed": [],
+ "unverified": [
+  "부재 주장 2건 중 재검색 명령 2건. Offline 총비용과 실험 commit·완전한 실행 설정 매핑은 논문에서 찾지 못했다.",
+  "Behavioral 주장 2건은 코드만 읽었고 실행하지 않았다. 검색 engine 하위 실행과 권한·배달 검증 전체 2종의 경로는 끝까지 추적하지 않았다. 본문은 end-to-end 보장을 하지 않는다.",
+  "논문은 gate 오수락률, 실제 총 offline 비용, 목표를 충족한 배포 효용 결과를 제공하지 않는다. Benchmark 재실행도 하지 않았다.",
+  "논문의 Karpathy X 인용 1개는 본문을 열지 못했다. 별도 본인 gist를 고정해 분석했다.",
+  "기계 대조의 논문 근거 112건 중 93건은 문서 전체 범위에서 대조됐다. 의미·조건은 독립 수치 렌즈가 원출처와 확인했다."
+ ],
+ "rendered": "수정 후 desktop 1280·mobile 390 렌더를 생성하고 작성자가 표지·공급 구조·harness 분기·토큰 chart 및 변경 장을 실제로 열어 확인했다. 양 폭 layout warnings 0, page overflow 없음. Lens A와 recheck도 해당 screenshots를 직접 확인했다.",
+ "verification": {
+  "claims": 111,
+  "evidence_references": 143,
+  "sources": 12,
+  "rounds": 1,
+  "lens_numbers": "수치 표기 141개(초고)·코드 동작 주장 8개·evidence 63개 대조. 틀림 없음. 최신 표현을 v3로 좁힘.",
+  "lens_reader": "explainer 과업 가능. 새 가상 사례의 수락·거절·오수락 경로와 비용·지연 조건 시연 성공.",
+  "recheck": "변경 3·4·8·13·17장 및 독자 과업 재검토. 새 의미·이해 결함 없음.",
+  "checks": [
+   "check-doc pass",
+   "check-prose pass",
+   "check-claims pass",
+   "render desktop/mobile pass"
+  ]
+ },
+ "commitSubject": "Context as Infrastructure의 근거 공급과 검색 비용을 분석했다",
+ "commitBody": "LLM Wiki를 아는 개발자를 위한 한국어 explainer를 작성했다. Karpathy의 공개 패턴, 논문의 span 없는 실험 wiki, claim–evidence 공급을 구분했다. Compilation과 harness의 책임, 충분성 오류와 원문 fallback, 조건부 토큰 절약·별도 serving arm·지연·offline 비용 모형을 연결했다.\n\n주 근거는 arXiv:2610.41172v1 전체와 LaTeX Table 1–4다. Karpathy 본인 gist, Pinecone 공식 Nexus 글, Cochran arXiv:2605.18490v3도 새로 읽었다. RAGFlow는 제출 직전 327cdb2d80d17d04ed07694ec8eb65d028549ec0과 조사 시 2c4bbbc720fe24bd7ac509ab989325d4c1e8e532를 고정했다. 두 코드의 dense claim 검색 분기와 논문의 lexical-only 실험 서술 사이에 재현 설정의 간극을 남겼다. 과거 발행물·다른 원장·개인 wiki를 연구 근거로 읽지 않았다.\n\n```mermaid\nflowchart LR\n  S[원문 corpus] --> C[claim–evidence compilation]\n  C --> T[검색·근거 공급 tools]\n  T --> G{harness 충분성 gate}\n  G -->|수락| A[답과 인용]\n  G -->|거절·block 폐기| R[검색 루프·원문 읽기]\n  R --> A\n```\n\n최종 111개 주장과 143개 근거 참조가 기계 대조를 통과했다. 두 독립 lens를 병렬 실행하고 변경 장을 recheck했다. 수정 후 desktop·mobile의 실제 렌더를 확인했다. Gate 오수락률, 총 offline 비용, 완료된 배포 효과는 원문에서 입증되지 않았으며 benchmark는 재실행하지 않았다.",
+ "shippedAt": "2026-11-03T18:53:22.961Z",
+ "usage": {
+  "tokens": 14927646,
+  "usd": 3.6,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 441590,
+    "cache_write": 0,
+    "cache_read": 12420480,
+    "output": 56245,
+    "usd": 2.83
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 111787,
+    "cache_write": 0,
+    "cache_read": 1101312,
+    "output": 5235,
+    "usd": 0.39
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 55128,
+    "cache_write": 0,
+    "cache_read": 184320,
+    "output": 3037,
+    "usd": 0.16
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 75360,
+    "cache_write": 0,
+    "cache_read": 470400,
+    "output": 2752,
+    "usd": 0.23
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-04-context-as-infrastructure",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "15b5ec681b79638e5e362ff5b05b95645bee853b4e70aa446d3673ca7a2e9a5a",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/4, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}

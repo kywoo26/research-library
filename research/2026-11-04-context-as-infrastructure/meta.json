@@ -1,0 +1,9 @@
+{
+  "title": "Context as Infrastructure의 claim–evidence 공급과 검색 harness",
+  "date": "2026-11-04",
+  "seq": 44,
+  "summary": "LLM Wiki의 사전 축적을 claim–evidence 공급과 충분성 gate로 확장한 설계와 토큰·지연·재현의 한계를 분석한다.",
+  "category": "paper",
+  "format": "article",
+  "purpose": "explainer"
+}
