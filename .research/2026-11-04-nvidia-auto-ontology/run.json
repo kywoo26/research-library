@@ -1,0 +1,150 @@
+{
+ "question": "Auto Ontology는 어떤 업무 의미를 어떻게 구축하고 agent의 답변을 어떻게 제약하며, enterprise에서 무엇까지 실증했는가?",
+ "decided": [
+  {
+   "item": "explainer",
+   "reason": "개념과 구현 및 enterprise 근거를 설명하고 새로운 업무 사례의 동작을 예측하는 요청이다."
+  },
+  {
+   "item": "코드 경로와 외부 실증을 분리한다",
+   "reason": "NVIDIA의 전체 생태계 적용이 이 OSS의 단독 성능 검증으로 오인되는 것을 막는다."
+  },
+  {
+   "item": "최신 agent 생태계를 공식 NVIDIA 구성과 Palantir·Fabric 역할로 설명",
+   "reason": "온톨로지 표준, 분석용 semantic layer, operational ontology의 범위를 혼동하지 않도록 했다."
+  },
+  {
+   "item": "과거 BIRD 지연은 collaborator 보고로만 제시",
+   "reason": "원 rollout과 현재 revision의 paired 결과를 확보하지 못했으므로 현재 성능으로 일반화하지 않았다."
+  },
+  {
+   "item": "독립 reader가 불필요하다고 본 제작 과정 문장 삭제",
+   "reason": "본문에는 읽은 범위와 제품의 실행 한계를 남기고 보조 독해·렌더링 과정은 run 기록으로 옮겼다."
+  }
+ ],
+ "needs_owner": [],
+ "executions": [
+  {
+   "cwd": "notes/run",
+   "command": "python probe.py",
+   "result": "복사한 r2 exec_match scorer에서 gold [(7,)]와 pred [(7,),(7,)] 일치 True; wrong-value control False",
+   "credentials": "none",
+   "installed": "nothing"
+  },
+  {
+   "cwd": "notes/run",
+   "command": "python revenue_case.py",
+   "result": "가상 SQLite fixture의 naive join net=230, order-grain preaggregation net=130",
+   "credentials": "none",
+   "installed": "nothing",
+   "limits": "Auto Ontology product 실행 아님"
+  }
+ ],
+ "unverified": [
+  "전체 Auto Ontology stack, model API, 고객 DB를 실행하지 않았다.",
+  "최신 paired benchmark 점수와 원 rollout을 확보하지 못했다.",
+  "connector별 실행 전체와 Kumo native SDK 내부를 깊게 읽지 않았다.",
+  "인증·tenant·source read·전송 정책의 실제 배포 효과는 측정하지 않았다."
+ ],
+ "rendered": "수정 후 desktop/mobile 및 light/dark render 통과. 표지·architecture·SQL 경로·매출 사례·비용 그래프와 변경한 10·11·17장의 화면을 직접 열어 확인했다.",
+ "unfixed": [],
+ "verification": {
+  "claims": 70,
+  "evidenceReferences": 75,
+  "sources": 20,
+  "round": 1,
+  "reports": [
+   "notes/verify.md"
+  ],
+  "changedChapters": [
+   10,
+   11,
+   17
+  ],
+  "recheck": "10·11·17장에 새 must-fix 없음. 기존 reader·locator 지적 해결.",
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true,
+   "render": true
+  },
+  "absence_claims": 3,
+  "absence_with_search": 3,
+  "behavioral_claims": 10,
+  "behavioral_executed": 1,
+  "unread_callee_categories": 2
+ },
+ "commitSubject": "NVIDIA Auto Ontology의 의미 구축과 enterprise 검증 근거를 분석한다",
+ "commitBody": "NVIDIA Auto Ontology의 metadata 기반 Term·attribute·semantic FK 구축, LLM SQL 생성·검사·repair와 certification 경계를 설명한다.\n\nNVIDIA/auto-ontology caced11e69e19663dfa0f73778dbecbcb71e87a0 및 auto-ontology-eval ec41b2c5b795637759297b90c1d19b42693200f9를 기준으로 했다. W3C와 NVIDIA·Dell·Palantir·Microsoft 공식 문서, Hacker News, 외부 코드 리뷰 및 공개 issue를 대조했다.\n\n18장 보고서에 source architecture, 구현 다이어그램, 가상 매출 SQL 계산, 과거 collaborator 지연 차트를 포함했다. 독립 reader·number lens와 recheck, 정적·산문·인용 검사 및 desktop/mobile 렌더링으로 검증했다. 전체 제품 benchmark와 고객 production 환경은 실행하지 않았다.",
+ "shippedAt": "2026-11-04T14:07:08.265Z",
+ "usage": {
+  "tokens": 18098843,
+  "usd": 3.97,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 215012,
+    "cache_write": 0,
+    "cache_read": 10626560,
+    "output": 46611,
+    "usd": 1.96
+   },
+   "default": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 247368,
+    "cache_write": 0,
+    "cache_read": 4021504,
+    "output": 21149,
+    "usd": 1.11
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 144057,
+    "cache_write": 0,
+    "cache_read": 2089216,
+    "output": 9928,
+    "usd": 0.6
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 51113,
+    "cache_write": 0,
+    "cache_read": 440064,
+    "output": 4118,
+    "usd": 0.19
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 43530,
+    "cache_write": 0,
+    "cache_read": 136960,
+    "output": 1653,
+    "usd": 0.12
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-04-nvidia-auto-ontology",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "538651db9bff31d16ab6275b1348481bd0729f383bcb4f0f49eeba0f64d6b4ab",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/6, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}

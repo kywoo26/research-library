@@ -1,0 +1,13 @@
+{
+  "title": "NVIDIA Auto Ontology가 enterprise 데이터의 의미를 구축하고 agent 질의에 쓰는 방식",
+  "date": "2026-11-04",
+  "seq": 46,
+  "summary": "Metadata에서 Term·SQL·join 관계를 구축하는 코드와 agent 검증 경계, enterprise 실증 및 외부 반응을 분석한다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "explainer",
+  "source": {
+    "url": "https://github.com/NVIDIA/auto-ontology",
+    "commit": "caced11e69e19663dfa0f73778dbecbcb71e87a0"
+  }
+}

@@ -1,0 +1,192 @@
+NVIDIA Auto Ontology Shows That Text to SQL Was Never the Hard Part
+About Us
+Sponsor Us
+Github Repo
+Search
+Log In
+Subscribe
+Search
+Home
+Posts
+NVIDIA Auto Ontology Shows That Text to SQL Was Never the Hard Part
+Mohinish S
+SnackOnAI Blog
+NVIDIA Auto Ontology Shows That Text to SQL Was Never the Hard Part
+The usual fix for unreliable data agents is a better model writing better SQL. NVIDIA's open-source Auto Ontology starts from the opposite premise: an agent can write flawless SQL against the right database and still return the wrong revenue number, because nobody told it which of three "revenue" columns finance actually means. The interesting part is not the agent. It is the 79,000 lines of Python built to tell the agent what the data means.
+In partnership with
+SnackOnAI Engineering | Senior AI Systems Researcher | Technical Deep Dive | November 3, 2026
+The promise: by the end of this issue you will understand how Auto Ontology compiles a semantic layer from database metadata, how its text-to-SQL graph validates and repairs queries, and which of its headline promises are enforced in code versus left to the agent.
+The fence: we cover the Auto Ontology repository (1,354 commits since April 6, 2026, latest November 3), its MCP server and agent skills, and the separate evaluation harness (367 commits since June 15). For context we use Spider 2.0 and BEAVER, two enterprise text-to-SQL benchmarks. We did not deploy the stack or run the benchmark; this is a code and docs read plus our own analysis. The web UI is out of scope.
+What It Actually Does
+Auto Ontology sits between your databases and your agents. It connects to a warehouse, extracts the schema, and uses an LLM to compile a semantic layer: a catalog of business terms ("Customer", "Open Order", "Net Revenue"), each mapped to real columns and to reviewed SQL attributes (expressions like a margin or a rolling total), plus inferred foreign keys and relationships. Agents then ask it questions or read that layer directly.
+Property
+Value
+License
+Apache 2.0; not accepting outside contributions
+Backend
+FastAPI + LangChain/LangGraph, Python 3.12+ (~79K lines, plus ~44K lines of tests)
+Frontend
+Next.js 16, Better Auth, Prisma (~44K lines TS)
+Storage
+Postgres for catalog and ontology, pgvector for embeddings, optional HashiCorp Vault
+Default models
+nemotron-3-nano-30b-a3b (LLM), nemotron-3-embed-1b (embeddings), llama-nemotron-rerank-vl-1b-v2 (rerank) via NVIDIA NIM; any OpenAI-compatible endpoint works
+Sources
+Connectors for Postgres, MySQL, Snowflake, Databricks, DuckDB, SQLite, Trino, ClickHouse, Kyuubi, HeavyDB
+Agent interfaces
+MCP (9 read-only tools), REST API with tokens, CLI, three agent skills
+Deployment
+Docker Compose or Helm
+The pitch has four verbs: Discover (generate an ontology from metadata), Ground (give agents trusted business meaning), Validate (check queries against certified definitions and lineage) and Learn (fold certified corrections back in). The first two are deep in the code. The second two are thinner than the README suggests.
+The Architecture, Unpacked
+Caption: Meaning is compiled once per table and stored; every question then flows through a validate, execute and repair loop that checks SQL against the live database, not against the catalog's certification flags.
+Four design decisions matter most.
+One: compile meaning from metadata. For each table, the LLM proposes foreign keys, describes columns and extracts a business term. Three workers run in parallel, but commits land in table order so the catalog stays deterministic.
+Two: retrieval before generation. The graph first classifies intent, extracts entities and retrieves candidate tables, terms and SQL attributes from pgvector before any SQL is written. Reuse of a reviewed SQL attribute is preferred over inventing arithmetic.
+Three: check against the data, not just the parser. Validation probes the database: are the filter literals real stored values, do joins follow valid paths, did a LIKE return nothing because of casing? Failures route to a reconstruct node with the error attached.
+Four: read-only for agents, writes for humans. MCP exposes nine read tools by design. Edits to terms, attributes and certification go through the authenticated REST API and UI.
+The Code, Annotated
+First, the repair loop's budget, verbatim from auto_ontology/retrieval/text_to_sql/text_to_sql_graph.py (trimmed).
+copy# Stop after seven reconstruction calls.
+MAX_RECONSTRUCTION_ATTEMPTS = 7
+def route_sql_validation(state: AgentState) -> str:
+if state["decision"] == "unconstructable":
+return "unconstructable"                    # e.g. unreachable DB: no rewrite can fix it
+failed_attempt_count = len(state["path_state"].get("failed_attempts") or [])
+if state["decision"] == "invalid_sql":
+if failed_attempt_count >= MAX_RECONSTRUCTION_ATTEMPTS:
+return "unconstructable"               # ← give up honestly instead of returning bad SQL
+return "invalid_sql"                       # loop back to reconstruct_sql with the error
+return "valid_sql"
+Caption: With _MAX_FULL_PIPELINE_ATTEMPTS = 2 in main.py, one question can trigger up to 16 SQL generations. Reliability is bought with retries, and retries cost latency and tokens.
+Second, how the validation chain is wired, from the same file (trimmed).
+copygraph.add_conditional_edges("validate_sql_query", route_sql_validation, {
+"valid_sql": pre_execute_target,           # → precheck_combined: literal, join-path, JSONB-path probes
+"invalid_sql": "reconstruct_sql",
+"unconstructable": "unconstructable_sql_response",
+})
+graph.add_conditional_edges("execute_sql_query", route_sql_execution, {
+"valid_sql": "check_empty_like_result",    # empty result from a LIKE? maybe a casing problem
+"invalid_sql": "reconstruct_sql",
+"unconstructable": "unconstructable_sql_response",
+})
+graph.add_conditional_edges("check_value_repair", _make_soft_check_router("check_value_repair"), {
+"valid_sql": "format_and_respond",
+"invalid_sql": "reconstruct_sql",          # ← an empty answer is treated as a bug, not an answer
+})
+Caption: Successful execution is not the finish line. An empty result triggers value repair, because "no rows" is more often a wrong literal than a true zero.
+Third, the agent-facing contract, verbatim from mcp/auto_ontology_mcp/tools.py (trimmed).
+copy# Ordered roughly as an agent would work: understand the vocabulary, then ask.
+CURATED: tuple[ToolSpec, ...] = (
+ToolSpec(method="GET", path="/api/terms", name="search_terms",
+description="Search the business glossary ... Use this first to learn what a "
+"business word actually means in this deployment ..."),
+ToolSpec(method="GET", path="/api/terms/{term_id}/sql-attributes", name="get_term_sql_attributes",
+description="... reviewed SQL expressions such as a margin, a ratio, or a rolling total. "
+"Prefer reusing one of these over inventing the arithmetic yourself."),  # ← the whole thesis
+ToolSpec(method="POST", path="/api/question-entity-coverage", name="check_answerable",
+description="A cheap pre-flight ... before paying for ask_question, "
+"which is far slower and more expensive."),
+)
+Caption: The MCP surface teaches an agent a workflow, not just an API: look up meaning, reuse governed arithmetic, check coverage, and only then ask. Writes are deliberately absent.
+Fourth, our analysis of the code and eval docs.
+copy# worst-case SQL generations per question: (1 + 7 reconstructions) x 2 pipelines = 16
+# eval postmortem: 60 BIRD questions -> 1,126 HTTP calls, 747 (66%) were 429s -> "13.3%" that was fiction
+# semantic compile: ~3 structured LLM calls per table, 3 workers
+#   BEAVER NW (366 tables) ~1.1K calls ~1 h · 1,000 tables ~3K calls ~2.8 h · 10,000 tables ~30K calls ~28 h  (at 10 s/call)
+# context: Spider 2.0 best agent 21.3% (vs 73.0% on BIRD); BEAVER: GPT-4o 0.0% (vs 30.9% on BIRD)
+Caption: Per-query retries and per-table compilation are the two cost centers. The compile estimate assumes 10 seconds per call; real warehouses with wide tables will be slower.
+It In Action
+Input: "calculate the customer count by state province name", one of the eval harness's WideWorldImporters questions, asked through MCP ask_question against a Postgres copy of Microsoft's sample database.
+Step one, ground. The agent calls search_terms for "customer" and "state province". The compiled layer maps "Customer" to sales.customers and finds that state names live in application.stateprovinces, two hops away through application.cities.
+Step two, retrieve. Inside ask_question, intent classification routes to CALCULATION, entity extraction pulls "customer count" and "state province name", and candidate retrieval brings back the three tables with their inferred foreign keys.
+Step three, construct and validate. The model writes SQL. The value check confirms no filter literals are needed; the join-path precheck confirms deliverycityid → cityid → stateprovinceid is a valid path, not a guess.
+Step four, execute and respond. The query runs, returns rows, skips value repair because the result is not empty, and streams back over SSE with the SQL as provenance.
+Output: the gold SQL from the eval dataset, which a correct run must match:
+copyselect sp.stateprovincename as state_province_name, count(c.customerid) as customer_count
+from sales.customers c
+join application.cities ct on c.deliverycityid = ct.cityid
+join application.stateprovinces sp on ct.stateprovinceid = sp.stateprovinceid
+group by sp.stateprovincename
+order by state_province_name desc;
+Caption: The question and gold SQL come from the eval dataset; the step-by-step path is our illustration of how the graph handles it. A schema-only agent must guess that "state" means delivery city's province, not a billing address; the compiled join path is what removes that guess.
+Knob
+Value (from code and eval docs)
+Reconstruction attempts
+7 per pipeline run
+Full pipeline attempts
+2
+Conversation context
+5 most recent turns, capped at 12,000 characters
+Clean eval concurrency
+3 workers on the tested sk- key; 8 caused mass rate limiting
+Hidden parity flags
+calculation_only and validate_sql_values: omitting them "cost about two points"
+Why This Design Works, and What It Trades Away
+Why it works. Enterprise text-to-SQL fails on meaning, not syntax. BEAVER's warehouses average 77.5 tables per database and 4 joins per query, and GPT-4o scored 0.0% there against 30.9% on BIRD. Spider 2.0's best agent solved 21.3% of enterprise tasks against 73.0% on BIRD. Compiling terms, relationships and reviewed SQL attributes in advance turns "find the right three tables among hundreds" into a retrieval problem, and database-backed validation catches the errors parsers cannot see.
+What it trades away.
+Compile cost scales with table count. Roughly three LLM calls per table with three workers: under an hour for a few hundred tables, more than a day for a 10,000-table lakehouse at our assumed call time.
+Latency per question. Up to 16 SQL generations, plus retrieval and probes. The MCP server itself calls ask_question "far slower and more expensive" than the read tools.
+Credentials at rest. Connections added through the UI are stored as plaintext JSON in Postgres unless Vault is fully configured; a partial Vault config falls back to plaintext with only a log warning.
+A trusted internal port. The FastAPI service accepts an x-auto-ontology-user-id header without verifying it; the docs say that port must never be exposed publicly.
+The default model is not the tested one. Defaults are Nemotron NIMs, but the eval harness is tested with Claude Opus 4.8 and Sonnet 5.5 through NVIDIA's inference gateway.
+Technical Moats
+Database-grounded repair. Literal checks against stored values, join-path probes, empty-LIKE detection and value repair are tedious, dialect-specific engineering across ten connectors. That is where most homegrown text-to-SQL agents quietly fail.
+Honest evaluation tooling. The eval harness uses deterministic execution match (each benchmark's official rule), a schema-only control arm, and refuses to print a headline number if more than 5% of either arm's runs are broken.
+Agent-ready packaging. A read-only MCP surface, signed agent skills synced to NVIDIA's skills catalog, and evals for the skills themselves.
+NVIDIA distribution. Default wiring to NIM endpoints and Nemotron models, plus an optional KumoRFM predictive-query path in the same graph.
+Insights
+Insight One: "validate against certified definitions" is a workflow, not a guarantee. The README promises that agents "check generated queries against certified definitions and lineage." In the code, certification is a set of boolean flags (name_certified, description_certified, certified) that humans toggle through the API. The text-to-SQL graph never reads them; its validation checks SQL against the live database. The project's own management skill is blunt: "Current Auto Ontology certification fields are not an atomic review/promotion system... do not claim atomic certification, promotion, supersession, or rollback." The query skill then asks agents to verify grain, joins and lineage themselves. That is a sensible design, but "certified" governance currently lives in instructions to the agent, not in an enforced gate.
+Insight Two: an accuracy layer launched without an accuracy number. The README sends readers to the benchmark repository for results. That repository publishes none: no BIRD, BEAVER or FDABench delta, only the tooling to compute one. Its README also warns that the BIRD configuration it calls "the reported BIRD delta" gives the ontology arm question-specific few-shot examples and value anchors that the schema-only control "cannot be given," so that delta "covers those inputs as well as the ontology grounding." Credit to NVIDIA for documenting this so candidly. But until a clean, ontology-only delta is published, "more reliable SQL" is a hypothesis, and enterprises should run the harness on their own schema before believing it.
+Surprising Takeaway
+The most instructive file in the project is a postmortem about a fake result. A 60-question BIRD run once scored 13.3% execution accuracy. Two thirds of its 1,126 HTTP calls had been rate-limit rejections, so 37 of 60 questions produced empty SQL that looked exactly like a weak model. NVIDIA's response was to make the comparison tool refuse to print a headline whenever more than 5% of an arm's runs are broken. For anyone evaluating agent accuracy, the lesson transfers directly: an evaluation that cannot distinguish "wrong" from "never ran" is measuring your rate limit, not your agent.
+TL;DR For Engineers
+Auto Ontology compiles business terms, SQL attributes and relationships from your schema with an LLM, stores them in Postgres and pgvector, and serves them to agents over read-only MCP, REST and CLI.
+Its text-to-SQL graph validates against the live database (literals, join paths, empty results) with up to 7 reconstructions and 2 full retries per question.
+"Certified definitions" are flags humans set; the query graph does not enforce them. Governance relies on agent skills.
+No benchmark numbers are published. Run the eval harness's control-versus-ontology comparison on your own warehouse.
+Configure Vault before adding connections, keep the FastAPI port private, and budget hours of compile time for large schemas.
+Explain It Like I'm New
+Companies keep their numbers in huge databases with thousands of tables and cryptic column names. Ask an AI assistant "what was revenue last quarter?" and it can write a database query in seconds. The problem is that "revenue" might live in five places, each meaning something slightly different, and only the finance team knows which one is official.
+Auto Ontology tries to write that knowledge down once, for every AI tool to share. It reads the database's structure, then uses an AI model to build a dictionary of business terms: what "customer" means here, which tables connect to which, and how key numbers like margins are calculated.
+When an assistant gets a question, it consults the dictionary first, like a new employee checking the company glossary before pulling a report. Then it writes the query, tests it against the real data, and fixes it if the results look wrong.
+The idea is sound. The open questions are how much it actually improves accuracy, which NVIDIA has not yet published, and who keeps the dictionary correct as the business changes.
+As companies deploy many AI agents at once, a shared, trusted definition of their data may matter more than any single smarter model.
+See It In Action
+Auto Ontology repository and architecture, NVIDIA. GitHub. The architecture diagram, Docker Compose quickstart and API token examples for scripting against a running instance.
+Ontology SQL eval harness, NVIDIA. GitHub. How to ingest BIRD, BEAVER, FDABench or WideWorldImporters and measure a schema-only control against the ontology-grounded agent.
+MCP integration guide, NVIDIA. docs/mcp.md. Connecting Cursor or Claude Desktop to Auto Ontology's nine read-only tools.
+Agent skills, NVIDIA. AGENTS.md. The setup, management and query skills that encode the validation workflow agents are expected to follow.
+Community Conversation
+Charly Wargnier, post on X. Frames the release as a semantic layer that "tackles a problem that better SQL alone won't fix": an agent can query the right database and still return the wrong answer.
+AlphaSignal, coverage. Notes the project launched with no accuracy figures, about 200 stars, and a heavy dependence on metadata quality.
+MarkTechPost, release write-up. Positions Auto Ontology as an open semantic layer that grounds agent SQL in certified business definitions.
+BEAVER authors, enterprise benchmark. The evidence behind the whole category: models that look strong on public benchmarks score near zero on real enterprise warehouses.
+Meaning Is the Product, Proof Is the Gap
+Auto Ontology gets the diagnosis right. Enterprise data agents fail because they do not know what the data means, and NVIDIA has built a substantial system to compile that meaning, serve it safely to agents and test queries against real data before trusting them. Its evaluation tooling is unusually honest about how benchmarks lie. What is missing is the result those tools were built to produce, and an enforcement path for the "certified" definitions the pitch leans on. Use it as a semantic layer and a well-engineered repair loop today. Treat "governed, certified SQL" as a roadmap until the numbers and the gate ship.
+References
+Spider 2.0: Evaluating Language Models on Real-World Enterprise Text-to-SQL Workflows, Lei et al., ICLR 2025. 632 enterprise tasks; the best agent solved 21.3%.
+BEAVER: An Enterprise Benchmark for Text-to-SQL, Chen et al. Private warehouses where GPT-4o scored 0.0% execution accuracy.
+Text-to-SQL Benchmarks Toward Enterprise Realities: Under Massive Scopes, Complex Schemas and Scattered Knowledge, Findings of EMNLP 2026. A survey of how benchmarks are shifting toward enterprise scale.
+Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs, Li et al. BIRD, the benchmark the eval harness scores by default.
+NVIDIA Auto Ontology compiles a semantic layer of business terms, SQL attributes and relationships from enterprise metadata and serves it to agents through read-only MCP, with a text-to-SQL graph that validates and repairs queries against live data. Its engineering is substantial, but certification is not enforced in the query path and no benchmark results have been published.
+Sponsored Ad If you enjoy practical AI insights, check out SnackOnAI and support the newsletter by subscribing, sharing, and exploring our sponsored ad—it helps us keep building and delivering value 🚀
+Frontier models perform better in Attio’s agent harness.
+We gave GPT-6 Astra the same job twice: analyze 100 sales calls and draft the follow-ups, once in Ask Attio and once in ChatGPT.
+Ask Attio finished in 4 minutes 49 seconds. ChatGPT took 26 minutes 11 seconds, about 5.4 times as long.
+The most ambitious GTM work requires more than frontier intelligence. It requires architecture that can put that intelligence to work at scale.
+Learn about Attio’s hybrid architecture.
+Recommended for you
+View all
+caret-right
+Quick Links
+Subscribe
+Archive
+Subscription
+Signup
+Reset Password
+Update Password
+Search
+Socials
+© 2026 Snack On AI.
+beehiivPowered by beehiiv
