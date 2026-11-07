@@ -1,0 +1,137 @@
+{
+ "decided": [
+  {
+   "what": "대상",
+   "choice": "Anthropic 「The components of agent memory」(2026-11-06, Lance Martin)",
+   "why": "소유자가 준 Threads 링크(@choi.openai 게시물, 'Dreaming', 포켓몬, 기업 문서 35만 개)가 가리키는 원글이다. 스레드는 출처로 달지 않았다"
+  },
+  {
+   "what": "kind",
+   "choice": "explainer",
+   "why": "요청은 원글을 읽고 분석해 이해하기 쉽게 설명하는 것이다. 도입 판단을 묻지 않았다"
+  },
+  {
+   "what": "question",
+   "choice": "agent memory 는 어떤 층으로 이뤄지고, 각 층에 무엇을 언제 적으며, dreaming 은 무엇을 고치고 언제 도움이 되는가",
+   "why": "스레드의 관점(기억을 어떻게 설계하고 dreaming 으로 어떻게 고치는가)과 원글의 구성을 합쳤다"
+  },
+  {
+   "what": "flip condition",
+   "choice": "답이 한 문서에서 text search 로 찾히면 wiki 이득이 없고, transcript 에 반대 기록이 없으면 dreaming 은 노트를 고치지 못한다",
+   "why": "원글 Figure 11 과 Mt Moon 사례에서 나온다"
+  },
+  {
+   "what": "보조 출처",
+   "choice": "Claude Code memory 문서(200줄/25KB, transcript 보존), Managed Agents 발표(dreaming 제공 상태)만 더했다",
+   "why": "원글의 Claude Code 사례를 확인하고 독자가 dreaming 을 쓸 수 있는 곳을 알리기 위해서다. sleep-time compute 논문과 cookbook 은 열지 않았다"
+  },
+  {
+   "what": "그림",
+   "choice": "원글 그림 9개(Figure 1, 4, 7, 8, 10, 11, 12, 14, 15)를 webp 로 내장하고 Figure 3, 5 는 값으로 다시 그렸다. Figure 2, 6, 9, 13 은 Figure 1 의 강조 변형이라 표로 대신했다",
+   "why": "소유자가 원글 그림과 도식을 요청했다. 1MB 한도 안에서 703KB"
+  },
+  {
+   "what": "도식",
+   "choice": "사람과 agent 의 기억 정리 비교, learning loop, Mt Moon 교정 전후, 지시문 개선 loop, MEMORY.md 색인 구조를 board 로 그렸다",
+   "why": "소유자가 도식을 요청했다"
+  },
+  {
+   "what": "lens A 반영",
+   "choice": "표지에 층 이름과 독자가 할 확인을 넣고, 3장 표에 쓰는 주체와 시점을 더했다. 4장의 이득 비교, 5장의 모델 세대 교란, 6장의 서로 다른 두 지시, 8장의 dreaming 입력 차이, 10장의 동시 변경을 본문에 밝혔다",
+   "why": "독자가 층별로 무엇을 언제 적는지와 dreaming 의 조건을 예측하지 못했다"
+  },
+  {
+   "what": "lens A 거절",
+   "choice": "11장을 8·9장에 합치지 않았고, 2장 사람의 수면 비유를 줄이지 않았다",
+   "why": "11장은 원글의 '세션이 남긴 빈틈 메우기' 절과 그림을 따로 담는다. 수면 비유는 소유자가 가리킨 관점이다"
+  },
+  {
+   "what": "Claude Duet 문단",
+   "choice": "10장에서 뺐다",
+   "why": "소개 없이 나오고 질문과 관계가 없다"
+  },
+  {
+   "what": "7장 문장 충돌",
+   "choice": "본문의 '근거가 없었다' 를 지우고 원글이 쓴 사실(노트를 고치지 않음, 'I overshot far west' 로 해석, transcript 가 ground truth)로 바꿨다. 그래서 줄의 '같은 기록' 단정도 뺐다",
+   "why": "소유자가 고치라고 했다. 원글은 Claude 가 떨어진 것을 잘못 해석했다고만 쓴다. recheck 가 모순 해소를 확인했다"
+  },
+  {
+   "what": "10장과 14장 추측 문장",
+   "choice": "10장은 개선된 wiki 의 크기가 원글에 없다고 밝히고 나머지를 추측으로 표시했다. 14장은 '다시 돌릴 수 없다' 를 '글에는 코퍼스를 받을 곳이 없으므로 되풀이하기 어렵다' 로 바꿨다",
+   "why": "마지막 recheck 가 원글에 없는 말로 지적했고, 소유자가 막는 것이 없으면 ready 로 내라고 했다. 두 recheck 가 해소를 확인했다"
+  }
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "부재 주장 9건은 고정 사본에 grep 을 다시 돌려 확인했다. 원글 밖(cookbook, 후속 글)에 그 내용이 있는지는 보지 않았다.",
+  "행동 주장 0건. 코드나 API 를 실행하지 않았다. Claude Code 와 Managed Agents 의 동작은 공식 문서와 발표 글의 서술이다.",
+  "callee 를 열지 않은 주장: 해당 없음(웹 출처).",
+  "Mt Moon 교정에서 dreaming 이 transcript 의 어느 기록을 근거로 삼았는지는 원글에 없다.",
+  "Figure 3 과 Figure 5 가 같은 run 묶음인지는 원글에 없다. 6장의 0.264 중 0.234 는 두 그림을 겹친 계산이다.",
+  "Managed Agents 의 transcript 보존 규칙은 확인하지 못했다."
+ ],
+ "unfixed": [
+  {
+   "item": "13장 도입 문장은 조건을 7장 해석과 결론부 열린 질문으로 묶지만, '모델이 약할 때' 는 §Steering 에서 왔다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "14장 '숫자는 모두 Anthropic 이 잰 값' 은 문서가 계산한 차이와 Claude Code 사양까지 덮는다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "9장 그래서 'search 만으로 충분하다' 는 원글의 'no clear gain' 보다 한 걸음 더 나간다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "13장 조건 목록에 transcript 보존 기간(3장에만 있음)이 없다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "7장 본문 '세 번 떨어지는 동안 노트를 고치지 않았고, 떨어진 일을 \"I overshot far west\" 로 해석했다' 는 원글이 첫 낙하 뒤 한 번만 적은 해석을 세 번에 걸어 조금 넓게 읽힌다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "7장 앞 단락 '노트를 의심하는 대신' 은 원글에 없는 표현이다. 원글은 맞는 쪽에 있었다고 결론 내렸다고만 쓴다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "10장 '조건을 그대로 옮기면 page 가 길어지기 쉬우므로' 는 추측 표시가 붙은 문장 안의 근거 없는 중간 단계다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "9장 '이 사례에서 끌어낸 해석은 wiki 가 … 원본보다 작아야 하고' 는 누구의 해석인지 모호하게 읽힐 수 있다. 원글은 'abstracted nothing' 까지만 말한다",
+   "meaning": false,
+   "impact": "wording"
+  }
+ ],
+ "rendered": "수정 뒤 headless Chrome 으로 1280px 과 390px 에서 16장을 모두 찍었다. layout warning 0건, 가로 넘침 없음. 저자가 표지, 3, 4, 6, 7, 12, 13장 화면을 직접 열어 보았다. 390px 에서 3장 표가 넘치던 것을 고친 뒤 다시 찍었다. 7장 수정 뒤 다시 찍었다.",
+ "commitSubject": "Anthropic 의 agent memory 설계와 dreaming 을 설명한다",
+ "commitBody": "Anthropic Engineering 의 Lance Martin 이 쓴 「The components of agent memory」(2026-11-06)를 읽고, agent memory 의 층(transcript, 노트, wiki, 매 session 에 싣는 맥락)과 dreaming 이 노트를 transcript 와 대조해 고치고 wiki 로 엮는 방식을 설명한다. CL-Bench, Pokémon Red, Stainless 문서 wiki, Harvey LAB 실험의 결과와 그 한계를 함께 정리했다.\n\n원글 전체와 그림 15개를 2026-11-07 사본으로 고정했다. Claude Code memory 문서와 Claude Managed Agents 발표 글로 MEMORY.md 의 200줄/25KB 한도, transcript 보존, dreaming 제공 상태를 확인했다. 원글 그림 9개를 내장하고 Figure 3, 5 는 값으로 다시 그렸다.\n\n수치 lens 와 독자 lens 를 병렬로 돌린 뒤 두 번 고치고 recheck 했다. 소유자 요청으로 7장의 문장 충돌과 10장, 14장의 추측 문장을 고치고 다시 recheck 했다.",
+ "shippedAt": "2026-11-07T04:43:02.308Z",
+ "usage": null,
+ "ship": {
+  "branch": "doc/2026-11-07-components-of-agent-memory",
+  "draft": true,
+  "draftReasons": [
+   "lens-numbers 의 시작과 완료가 짝지어진 기록이 없다",
+   "lens-reader 의 시작과 완료가 짝지어진 기록이 없다"
+  ],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "47c2fbabd5ececd53763c1df63e513e61ee594e86783e0db68dd9732da5ee647",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/0, lens 일부 없음(agent 기록에 남은 응답 모델). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}
