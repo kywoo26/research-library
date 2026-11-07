@@ -17,7 +17,8 @@ flowchart TD
   subgraph Claude Code
     C1["CLAUDE.md = @AGENTS.md"]
     C2[".claude/skills/* → symlink"]
-    C3[".claude/agents/*.md\n설정 + loader 한 문장 + hook 등록"]
+    C3[".claude/agents/*.md\n설정 + loader 한 문장"]
+    C4[".claude/settings.json\nhook 등록(agent_type 으로 역할)"]
   end
   subgraph Codex
     X1["AGENTS.md 직접"]
@@ -28,6 +29,7 @@ flowchart TD
   C1 --> A
   C2 --> K
   C3 --> K
+  C4 --> P
   C3 --> P
   X1 --> A
   X2 --> K
@@ -51,17 +53,17 @@ flowchart TD
 | 6 | lens 맥락 격리 | 이름 있는 subagent 는 새 맥락으로 시작한다. 띄운 프롬프트를 start 기록에 남긴다 | 모델이 `fork_turns` 를 고른다(probe 에서 `"all"` 을 골랐다). `"none"` 이 아니면 pretool 이 거부한다. hook 입력의 spawn 메시지는 암호화돼 있어 남기지 않는다 | V3 프롬프트 기록(Claude), hooks.test, probe 2026-10-27 |
 | 7 | lens 병렬 | 같은 메시지의 두 Agent 호출 | profile `[agents] max_concurrent_threads_per_session = 4` | 판정: start 둘이 첫 done 보다 앞선다 |
 | 8a | Codex profile 설치 | 해당 없음 | 시작 스크립트가 부를 때마다 `harness/codex/research.config.toml` 을 `${CODEX_HOME}/research.config.toml` 로 복사하고 `[hooks.state]` 를 이어 붙인다 | V3(Codex) 2026-10-27: 저장소 파일이 바뀌지 않았다 |
-| 8 | researcher 권한 | researcher frontmatter 의 PreToolUse 가 허용한다 | permission profile `research` + 시작 스크립트의 `research-run`(상속 + 정확한 gitdir 와 공용 .git 쓰기) | 2026-10-29: 공용 `.git/objects` 를 빠뜨리면 `begin.mjs` 의 `hash-object -w` 가 read-only 로 실패; 두 경로 허용 뒤 preflight 통과 (Codex 0.164.0) |
+| 8 | researcher 권한 | `.claude/settings.json` 의 PreToolUse 가 `agent_type` 이 연구 역할일 때만 허용한다. 소유자 세션에는 아무것도 정하지 않는다 | permission profile `research` + 시작 스크립트의 `research-run`(상속 + 정확한 gitdir 와 공용 .git 쓰기) | 2026-10-29: 공용 `.git/objects` 를 빠뜨리면 `begin.mjs` 의 `hash-object -w` 가 read-only 로 실패; 두 경로 허용 뒤 preflight 통과 (Codex 0.164.0) |
 | 9 | lens 쓰기 막기 | `disallowedTools` + pretool 의 쓰기 도구 거부 | pretool 이 `agent_type` 으로 `apply_patch` 거부 | hooks.test |
-| 10 | 검토 시작 기록 | researcher 의 PreToolUse(Agent) | profile 의 `SubagentStart`(matcher = REVIEWERS) | hooks.test, V3·V5 |
-| 11 | 검토 완료 기록 | lens 정의의 Stop(→SubagentStop) | profile 의 `SubagentStop`(matcher = REVIEWERS) | hooks.test, V3·V5 |
-| 12 | 게이트 | researcher 정의의 Stop(→SubagentStop) → `gates.mjs` | profile 의 Stop → `gates.mjs`; `ship.mjs` 와 같은 기본 원문 cache 를 읽어야 한다 | V3·V5, 2026-10-29 paper cache 불일치 수정 |
-| 13 | hook trust | 폴더 trust. 없으면 frontmatter hook 을 건너뛴다(trust 키는 worktree 가 아니라 저장소 root) | `/hooks` 의 hash trust. 기록은 profile 파일의 `[hooks.state]` 에 쓰인다(그래서 profile 은 symlink 가 아니라 복사본). `--run` 은 Codex `hooks/list` 가 계산한 현재 hash 와 저장된 hash 를 비교한 뒤에만 요청을 넘긴다. trust 전에 시작한 turn 에서는 SubagentStart·SubagentStop 이 돌지 않는다 | V3(Claude), V5·V3(Codex) 2026-10-27; 2026-10-30 낡은 hash 거부 실측 |
+| 10 | 검토 시작 기록 | settings 의 PreToolUse(Agent), `agent_type` = researcher 일 때만 | profile 의 `SubagentStart`(matcher = REVIEWERS) | hooks.test, V3·V5 |
+| 11 | 검토 완료 기록 | settings 의 `SubagentStop`(matcher = REVIEWERS) | profile 의 `SubagentStop`(matcher = REVIEWERS) | hooks.test, V3·V5 |
+| 12 | 게이트 | settings 의 `SubagentStop`(matcher = `^researcher$`) → `gates.mjs` | profile 의 Stop → `gates.mjs`; `ship.mjs` 와 같은 기본 원문 cache 를 읽어야 한다 | V3·V5, 2026-10-29 paper cache 불일치 수정 |
+| 13 | hook 등록 위치와 trust | agent frontmatter 의 `hooks` 는 폴더 trust 가 있어야 돈다. 저장소 root 가 trust 되지 않았거나 trust 를 줄 수 없는 세션(Paseo 가 띄운 stream-json 세션, `claude -p`)에서는 하나도 돌지 않았다(2.1.317 실측). trust 와 상관없이 돌지 않는다는 보고도 있다([#95650](https://github.com/anthropics/claude-code/issues/95650)). `.claude/settings.json` 의 hook 은 같은 세션에서 돌았다. 그래서 모든 hook 을 `.claude/settings.json` 에 두고, payload 의 `agent_type` 으로 역할을 가른다. settings 의 hook 은 이 저장소의 모든 세션에 걸리므로 스크립트는 연구 역할이 아니면 넘긴다. check-harness `claude-hooks` 가 frontmatter 에 hook 이 다시 생기면 막는다. settings·agent 정의·skill 본문은 researcher 를 띄운 소유자 세션의 checkout 에서 읽히고, hook 명령도 그 checkout 의 `$CLAUDE_PROJECT_DIR/scripts/hooks` 를 돈다. 소유자 세션이 이 등록이 없는 브랜치에 있으면 hook 이 없다 | `/hooks` 의 hash trust. 기록은 profile 파일의 `[hooks.state]` 에 쓰인다(그래서 profile 은 symlink 가 아니라 복사본). `--run` 은 Codex `hooks/list` 가 계산한 현재 hash 와 저장된 hash 를 비교한 뒤에만 요청을 넘긴다. trust 전에 시작한 turn 에서는 SubagentStart·SubagentStop 이 돌지 않는다 | V3(Claude), V5·V3(Codex) 2026-10-27; 2026-10-30 낡은 hash 거부 실측; 2026-11-07 Paseo 세션에서 띄운 Claude run 에서 frontmatter hook 이 하나도 돌지 않아 lens 기록이 비었다(PR #53, `~/.claude.json` 에 저장소 trust 없음). settings 로 옮긴 뒤 haiku probe 에서 lens start(프롬프트 포함)·done, 게이트, modelLog, 거부 실측 |
 | 14 | 모델 관찰(보조) | researcher transcript, lens 의 PostToolUse `resolvedModel`·`modelsUsed`(foreground 만). V3 에서 행위자 4/4, v8(background lens) 에서 5/5 | `logs_2.sqlite` 의 "server reported model". 0.164.0 실제 서버 세션에서는 0줄이라 늘 "확인 못 함" | §2 임시 어댑터 |
 | 15 | 사용량 | `scripts/hooks/usage/claude.mjs` | `scripts/hooks/usage/codex.mjs`(thread 누적, 자식 모름) | V3·V5 hooks.json `usage` |
 | 16 | 서명 | `Co-Authored-By: Claude` | `Generated-with: Codex CLI` | ship.mjs `ATTRIBUTION` |
 | 17 | lens 가 읽는 동안 | 렌즈 start 때 `.research/lens-window.json` 을 열고 두 done 에 닫는다. 편집 도구로 문서·원장을 쓰면 pretool 이 거부, 셸로 바뀌면 PostToolUse(Bash) 의 `window.mjs` 가 바뀐 파일을 알린다 | 같은 창을 SubagentStart·Stop 이 연다·닫는다. `apply_patch` 의 파일 줄로 거부, PostToolUse(`Bash`/`apply_patch`) 로 알림 | hooks.test, 창 없을 때 호출당 약 19ms(빈 node 13ms) |
-| 18 | recheck 상한 | 세 번째 recheck 를 pretool 이 거부 | 같음 | hooks.test |
+| 18 | recheck 상한과 띄우는 방식 | 네 번째 recheck 를 pretool 이 거부(두 라운드 + 마지막 좁히기). 검토 역할은 `run_in_background: false` 인 새 Agent 호출로만 띄우고, researcher 의 SendMessage 는 거부한다. ship 뒤 문서가 바뀐 채 끝나려 하면 gates.mjs 가 막는다 | 상한은 같음 | hooks.test; 2026-11-07 PR #54: background 로 이어 부른 recheck 가 start 없이 돌아 draft, 결과는 소유자 세션으로 갔다 |
 | 19 | 검토 모델 등급 | `scripts/lib/roles.mjs` 의 TIER·MODEL, check-harness `role-model` | 같음 | 2026-10-28: frontier 로 올린 run 도 함정을 놓쳤으나 effort 가 medium 이었다. workhorse 를 high 로 돌린 v8 이 잡아 workhorse 유지 |
 | 20 | 역할 effort | `scripts/lib/roles.mjs` 의 harness 별 EFFORT. agent frontmatter `effort`(세션 값보다 우선). researcher medium(Opus 5.5 권장 출발점), 검토 역할 high | researcher·검토 역할 모두 high(Sol 의 장기 연구 권장). lens·recheck 는 `.codex/agents/*.toml`, researcher 는 profile 의 `model_reasoning_effort` | 2026-10-28: 정하지 않은 Claude lens 가 세션 기본(Opus 5.5 medium)을 물려받아 Codex(high)와 달랐다. 같은 이름이 모델마다 다른 양이라 harness 별로 둔다(공식 effort 문서). check-harness `role-effort` |
 | 21 | job 사용량 | `scripts/lib/usage/claude.mjs`: researcher worktree 이름(agent-<id>)으로 기록을 찾고 `meta.json` 의 `parentAgentId` 로 자손을 골라 `bunx ccusage@latest claude session` 에 넘긴다 | `scripts/lib/usage/codex.mjs`: `CODEX_THREAD_ID` 와 worktree cwd 로 research 세션을 찾고 rollout 의 `thread_spawn.parent_thread_id` 로 자손(보조 agent 포함)을 골라 `bunx ccusage@latest codex session` 에 넘긴다. 2026-10-28: 부모 1·자식 3 에서 thread 별 마지막 누계 합 = 고유 response 118개 합 = adapter 12,114,142 tokens. 역할은 root=researcher, 자식은 `agent_role`(없으면 default). sandbox 안에서 `CODEX_THREAD_ID` 가 보인다 | ship.mjs 가 commit 직전에 `run.json` 의 `usage` 와 PR 본문 표에 역할별 토큰 유형(input·cache write·cache read·output)과 API 환산 금액을 남긴다. 금액을 모르는 역할은 미확인. 세션 id 는 남기지 않는다. Codex research 권한에 `~/.bun/install/cache`·`~/.cache/ccusage` 쓰기가 있어야 한다 |

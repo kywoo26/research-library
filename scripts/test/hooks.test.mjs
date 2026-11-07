@@ -2,6 +2,7 @@
 // hook 정책과 ship 판정의 시험. 두 harness 의 입력 모양으로 hook 을 실제로 돌려 notes/hooks.json 과 응답을 본다.
 //   node scripts/test/hooks.test.mjs
 // harness 가 실측에서 남긴 payload 는 scripts/test/fixtures/<harness>/*.json 에 있고, 있으면 정규화도 시험한다.
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -83,33 +84,33 @@ const run = (script, args, input) => {
 
 // Claude: researcher 가 lens 를 띄우고, lens 가 끝난다
 writeFileSync(join(repo, '.research', 'active.json'), JSON.stringify({ runId: 'R1', harness: 'claude', state: 'running', startedAt: new Date().toISOString() }));
-let r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-numbers', prompt: 'Document: research/x' }, agent_type: 'researcher', agent_id: 'r1', session_id: 's1' });
+let r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-numbers', prompt: 'Document: research/x', run_in_background: false }, agent_type: 'researcher', agent_id: 'r1', session_id: 's1' });
 ok('claude pretool 은 허용한다', r.out?.hookSpecificOutput?.permissionDecision === 'allow', r.stderr);
 writeFileSync(join(repo, '.gate-fail'), '');
 { const n = (hooksJson().reviews || []).length;
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x' }, agent_type: 'researcher', agent_id: 'r1', session_id: 's1' });
+  r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x', run_in_background: false }, agent_type: 'researcher', agent_id: 'r1', session_id: 's1' });
   ok('게이트를 통과하지 못한 초고에는 lens 를 띄우지 못한다', r.out?.hookSpecificOutput?.permissionDecision === 'deny' && (hooksJson().reviews || []).length === n, JSON.stringify(r.out)); }
 rmSync(join(repo, '.gate-fail'));
 { const s0 = hooksJson().reviews?.at(-1) || {};
   ok('claude spawn 은 run 과 프롬프트를 담은 start 를 남긴다', s0.event === 'start' && s0.agent === 'lens-numbers' && s0.runId === 'R1' && s0.prompt === 'Document: research/x', JSON.stringify(s0)); }
-r = run('review.mjs', ['--harness=claude', '--role=lens-numbers'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'l1', session_id: 's1' });
+r = run('review.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'l1', session_id: 's1' });
 ok('claude lens Stop 은 done 을 남긴다', hooksJson().reviews?.at(-1)?.event === 'done' && hooksJson().reviews.at(-1).agent === 'lens-numbers' && hooksJson().reviews.at(-1).runId === 'R1');
 { const n = (hooksJson().reviews || []).length;
-  run('review.mjs', ['--harness=claude', '--role=lens-numbers'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'l1', session_id: 's1' });
+  run('review.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'l1', session_id: 's1' });
   ok('handback 으로 같은 subagent 의 Stop 이 한 번 더 와도 done 은 하나다', (hooksJson().reviews || []).length === n); }
-r = run('review.mjs', ['--harness=claude', '--role=researcher', '--event=PostToolUse'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader' }, tool_response: { resolvedModel: 'claude-sonnet-5-5', agentId: 'l2' }, agent_type: 'researcher' });
+r = run('review.mjs', ['--harness=claude', '--event=PostToolUse'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader' }, tool_response: { resolvedModel: 'claude-sonnet-5-5', agentId: 'l2' }, agent_type: 'researcher' });
 ok('claude lens 의 응답 모델을 modelLog 에 남긴다', hooksJson().modelLog?.l2?.role === 'lens-reader' && hooksJson().modelLog.l2.matched === 1, JSON.stringify(hooksJson().modelLog));
-r = run('review.mjs', ['--harness=claude', '--role=researcher', '--event=PostToolUse'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader' }, tool_response: { resolvedModel: 'claude-sonnet-5-5', modelsUsed: ['claude-sonnet-5-5', 'claude-haiku-5-5'], agentId: 'l3' }, agent_type: 'researcher' });
+r = run('review.mjs', ['--harness=claude', '--event=PostToolUse'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader' }, tool_response: { resolvedModel: 'claude-sonnet-5-5', modelsUsed: ['claude-sonnet-5-5', 'claude-haiku-5-5'], agentId: 'l3' }, agent_type: 'researcher' });
 ok('claude modelsUsed 가 둘이면 자동 전환으로 남긴다', (hooksJson().modelSwitches || []).some((m) => m.detectedBy === 'modelsUsed' && m.source === 'auto'));
 for (const [name, tool, input] of [['Write', 'Write', { file_path: `.research/${slug}/notes/hooks.json`, content: '{}' }],
   ['셸 덮어쓰기', 'Bash', { command: `echo {} > .research/${slug}/notes/hooks.json` }], ['apply_patch', 'apply_patch', { command: `*** Update File: .research/${slug}/notes/hooks.json` }]]) {
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: tool, tool_input: input, agent_type: 'researcher', agent_id: 'r1' });
+  r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: tool, tool_input: input, agent_type: 'researcher', agent_id: 'r1' });
   ok(`hooks.json 을 고치는 ${name} 는 거부한다`, r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
 }
-r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: `cat .research/${slug}/notes/hooks.json` }, agent_type: 'researcher', agent_id: 'r1' });
+r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: `cat .research/${slug}/notes/hooks.json` }, agent_type: 'researcher', agent_id: 'r1' });
 ok('hooks.json 읽기는 허용한다', r.out?.hookSpecificOutput?.permissionDecision === 'allow', JSON.stringify(r.out));
 for (const cmd of [`jq . .research/${slug}/notes/hooks.json 2>/dev/null`, `node -e "JSON.parse(require('fs').readFileSync('.research/${slug}/notes/hooks.json')).reviews.map(r=>r.agent)"`]) {
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: cmd }, agent_type: 'researcher', agent_id: 'r1' });
+  r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: cmd }, agent_type: 'researcher', agent_id: 'r1' });
   ok(`hooks.json 을 읽기만 하는 명령은 허용한다: ${cmd.slice(0, 30)}`, r.out?.hookSpecificOutput?.permissionDecision === 'allow', JSON.stringify(r.out));
 }
 
@@ -119,14 +120,14 @@ for (const cmd of [`jq . .research/${slug}/notes/hooks.json 2>/dev/null`, `node 
   rmSync(join(repo, '.research', 'lens-window.json'), { force: true });
   writeFileSync(join(repo, '.research', 'active.json'), JSON.stringify({ runId: 'RW', harness: 'claude', state: 'running', startedAt: new Date().toISOString() }));
   const P = { hook_event_name: 'PreToolUse', cwd: repo, agent_type: 'researcher', agent_id: 'r1', session_id: 's1' };
-  const post = (cmd) => run('window.mjs', ['--harness=claude', '--role=researcher'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: cmd } });
+  const post = (cmd) => run('window.mjs', ['--harness=claude'], { hook_event_name: 'PostToolUse', cwd: repo, tool_name: 'Bash', tool_input: { command: cmd } });
   ok('창이 없으면 window.mjs 는 아무 말도 하지 않는다', JSON.stringify(post('ls').out) === '{}', JSON.stringify(post('ls')));
-  run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-numbers', prompt: 'x' } });
-  run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x' } });
+  run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-numbers', prompt: 'x', run_in_background: false } });
+  run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x', run_in_background: false } });
   ok('lens 를 띄우면 창이 열린다', existsSync(join(repo, '.research', 'lens-window.json')));
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Write', tool_input: { file_path: join(repo, 'research', slug, 'index.html'), content: 'x' } });
+  r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Write', tool_input: { file_path: join(repo, 'research', slug, 'index.html'), content: 'x' } });
   ok('창이 열린 동안 편집 도구로 문서를 고치면 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Write', tool_input: { file_path: join(repo, '.research', slug, 'claims.jsonl'), content: '{}' } });
+  r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Write', tool_input: { file_path: join(repo, '.research', slug, 'claims.jsonl'), content: '{}' } });
   ok('창이 열린 동안에도 claims.jsonl 은 쓸 수 있다', r.out?.hookSpecificOutput?.permissionDecision === 'allow', JSON.stringify(r.out));
   r = run('pretool.mjs', ['--harness=codex', '--role=researcher'], { hook_event_name: 'PreToolUse', cwd: repo, tool_name: 'apply_patch', tool_input: { command: `*** Begin Patch\n*** Update File: .research/${slug}/evidence.jsonl\n@@\n*** End Patch` }, session_id: 'P' });
   ok('창이 열린 동안 apply_patch 로 원장을 고치면 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
@@ -135,13 +136,19 @@ for (const cmd of [`jq . .research/${slug}/notes/hooks.json 2>/dev/null`, `node 
   const w1 = post('python3 build.py');
   ok('셸로 문서가 바뀌면 바뀐 파일을 알린다', (w1.out?.hookSpecificOutput?.additionalContext || '').includes('index.html'), JSON.stringify(w1.out));
   ok('같은 변경은 다시 알리지 않는다', JSON.stringify(post('python3 build.py').out) === '{}');
-  run('review.mjs', ['--harness=claude', '--role=lens-numbers'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'n9' });
+  run('review.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-numbers', agent_id: 'n9' });
   ok('lens 하나가 끝나도 창은 남는다', existsSync(join(repo, '.research', 'lens-window.json')));
-  run('review.mjs', ['--harness=claude', '--role=lens-reader'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-reader', agent_id: 'r9' });
+  run('review.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-reader', agent_id: 'r9' });
   ok('두 lens 가 끝나면 창이 닫힌다', !existsSync(join(repo, '.research', 'lens-window.json')));
-  for (const i of [1, 2]) run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x' } });
-  r = run('pretool.mjs', ['--harness=claude', '--role=researcher'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x' } });
-  ok('세 번째 recheck 는 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
+  for (const i of [1, 2, 3]) run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x', run_in_background: false } });
+  r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x', run_in_background: false } });
+  ok('네 번째 recheck 는 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
+  r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x' } });
+  ok('claude 검토 역할을 background 로 띄우면 막는다(기본값도)', r.out?.hookSpecificOutput?.permissionDecision === 'deny' && /foreground/.test(r.out.hookSpecificOutput.permissionDecisionReason), JSON.stringify(r.out));
+  r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'SendMessage', tool_input: { to: 'af0da6ab', message: 'recheck again' } });
+  ok('researcher 가 SendMessage 로 agent 를 이어 부르면 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
+  r = run('pretool.mjs', ['--harness=claude'], { hook_event_name: 'PreToolUse', cwd: repo, session_id: 'owner', tool_name: 'SendMessage', tool_input: { to: 'x', message: 'y' } });
+  ok('소유자 세션의 SendMessage 는 막지 않는다', !r.out?.hookSpecificOutput, JSON.stringify(r.out));
   writeFileSync(join(repo, 'research', slug, 'index.html'), '<html>v1</html>');
   rmSync(join(repo, '.research', 'active.json'));
 }
@@ -185,6 +192,33 @@ rmSync(join(repo, '.research', 'active.json'));
   ok('codex reroute 로그가 보이면 막고 증거를 남긴다', r.out?.hookSpecificOutput?.permissionDecision === 'deny'
     && (hooksJson().modelSwitches || []).some((m) => m.detectedBy === 'codex-log' && m.to === 'gpt-5.2') && hooksJson().modelLog?.P?.evidence?.length === 1, JSON.stringify(hooksJson()));
   rmSync(join(repo, '.research', 'active.json'));
+}
+
+// Claude 의 hook 은 .claude/settings.json 에 있어 소유자 세션(agent_type 없음)에도 걸린다. 연구 체인의 일만 정한다.
+{
+  const O = { hook_event_name: 'PreToolUse', cwd: repo, session_id: 'owner' };
+  r = run('pretool.mjs', ['--harness=claude'], { ...O, tool_name: 'Write', tool_input: { file_path: join(repo, 'research', slug, 'index.html'), content: 'x' } });
+  ok('소유자 세션의 편집은 정하지 않고 넘긴다', r.status === 0 && !r.out?.hookSpecificOutput, JSON.stringify(r.out));
+  r = run('pretool.mjs', ['--harness=claude'], { ...O, tool_name: 'Edit', tool_input: { file_path: join(repo, 'scripts', 'hooks', 'pretool.mjs'), old_string: 'a', new_string: "deny('notes/hooks.json 은 기록이다')" } });
+  ok('검증 기록의 이름을 담은 코드를 고치는 것은 막지 않는다', !r.out?.hookSpecificOutput, JSON.stringify(r.out));
+  r = run('pretool.mjs', ['--harness=claude'], { ...O, tool_name: 'Write', tool_input: { file_path: join(repo, '.research', slug, 'notes', 'hooks.json'), content: '{}' } });
+  ok('누구든 검증 기록 파일을 편집 도구로 쓰면 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
+  const n = (hooksJson().reviews || []).length;
+  r = run('pretool.mjs', ['--harness=claude'], { ...O, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x' } });
+  ok('소유자가 띄운 lens 는 start 를 남기지 않는다', !r.out?.hookSpecificOutput && (hooksJson().reviews || []).length === n, JSON.stringify(r.out));
+  const gates0 = JSON.stringify(hooksJson().gates || null);
+  r = run('gates.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-reader', agent_id: 'x1' });
+  ok('researcher 가 아닌 행위자의 Stop 에는 게이트를 돌리지 않는다', r.status === 0 && !r.out?.decision && JSON.stringify(hooksJson().gates || null) === gates0, JSON.stringify(r.out));
+  // ship 뒤 이어 받은 수정: 문서가 ship 때와 다르면 끝나지 못한다
+  writeFileSync(join(repo, '.research', 'active.json'), JSON.stringify({ runId: 'R9', harness: 'claude', state: 'shipped' }));
+  writeFileSync(join(repo, '.research', slug, 'run.json'), JSON.stringify({ ship: { docSha: 'old' } }));
+  r = run('gates.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'researcher', agent_id: 'R', stop_hook_active: false });
+  ok('ship 뒤 문서가 바뀐 채 끝나려 하면 막는다', r.out?.decision === 'block' && /마지막 ship 뒤에 바뀌었다/.test(r.out.reason), JSON.stringify(r.out));
+  const cur = createHash('sha256').update(readFileSync(join(repo, 'research', slug, 'index.html'))).digest('hex');
+  writeFileSync(join(repo, '.research', slug, 'run.json'), JSON.stringify({ ship: { docSha: cur } }));
+  r = run('gates.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'researcher', agent_id: 'R', stop_hook_active: false });
+  ok('ship 한 판 그대로면 끝난다', r.status === 0 && !r.out?.decision, JSON.stringify(r.out));
+  rmSync(join(repo, '.research', 'active.json')); rmSync(join(repo, '.research', slug, 'run.json'));
 }
 
 // 실측 payload 가 있으면 정규화가 깨지지 않는지 본다

@@ -1,6 +1,6 @@
 You re-read a research document after its author fixed findings; you are not reviewing the
-whole document. The caller gives you the document path, the chapters changed, what was
-applied and what was rejected rather than applied. Corpus identity is
+whole document. The caller gives you the document path, the chapters changed (for the last
+pass, only the sentences), what was applied and what was rejected rather than applied. Corpus identity is
 `.research/<slug>/sources.jsonl`, the author's evidence `.research/<slug>/evidence.jsonl`.
 If the caller names a render directory, look at the changed chapters' screenshots there.
 

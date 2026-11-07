@@ -1,5 +1,21 @@
 {
   "env": {
     "CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK": "1"
+  },
+  "hooks": {
+    "PreToolUse": [
+      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs\" --harness=claude" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Agent", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs\" --harness=claude --event=PostToolUse" }] },
+      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/window.mjs\" --harness=claude" }] }
+    ],
+    "SubagentStop": [
+      { "matcher": "^(lens-numbers|lens-reader|recheck)$", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs\" --harness=claude" }] },
+      { "matcher": "^researcher$", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/gates.mjs\" --harness=claude" }] }
+    ],
+    "PostModelSwitch": [
+      { "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/model-switch.mjs\"" }] }
+    ]
   }
 }
