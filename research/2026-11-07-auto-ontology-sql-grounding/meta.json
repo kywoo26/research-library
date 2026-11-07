@@ -1,0 +1,9 @@
+{
+  "title": "NVIDIA Auto Ontology가 메타데이터로 의미를 만들고 SQL을 검사하는 방식",
+  "date": "2026-11-07",
+  "seq": 46,
+  "summary": "LLM이 만든 Term과 join이 SQL 작성의 안내가 되고, 기본 검사는 오류와 빈 결과를 잡으며 certify 표시는 답변에 쓰이지 않는다",
+  "category": "oss",
+  "format": "article",
+  "purpose": "explainer"
+}

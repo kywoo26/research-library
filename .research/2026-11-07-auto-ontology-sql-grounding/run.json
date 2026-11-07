@@ -1,0 +1,93 @@
+{
+ "commitSubject": "NVIDIA Auto Ontology가 메타데이터로 의미를 만들고 SQL을 검사하는 방식을 분석한다",
+ "commitBody": "NVIDIA Auto Ontology가 DB 메타데이터와 쿼리 이력에서 Term, SQL attribute, semantic FK를 만들고, 그 정의로 LLM이 SQL을 쓰고 검사하고 다시 쓰는 경로를 코드로 따라갔다. certify 값이 답변 경로에서 쓰이는지, NVIDIA가 내세운 기업 근거가 무엇을 뒷받침하는지도 확인했다.\n\n출처:\n- NVIDIA/auto-ontology 커밋 c447003f72a822301e927196a4ecb5b597c308d5 (shallow)\n- NVIDIA/ontology-sql-eval 커밋 ec41b2c5b795637759297b90c1d19b42693200f9 (shallow)\n- NVIDIA 블로그 NVIDIA Agent Toolkit Expands, Grounding Enterprise Agents in Company Data (Erik Pounds, 2026-10-21)\n- NVIDIA Developer Building an Agent Knowledge Foundation 주제 페이지",
+ "decided": [
+  {
+   "item": "문서 종류",
+   "choice": "explainer",
+   "reason": "요청이 의미 구성, SQL 생성과 검사·수리, certify의 끝을 묻는다. 채택 판단은 묻지 않았다"
+  },
+  {
+   "item": "slug",
+   "choice": "2026-11-07-auto-ontology-sql-grounding",
+   "reason": "2026-11-07-nvidia-auto-ontology는 닫힌 PR #54 브랜치의 것이라 피했다"
+  },
+  {
+   "item": "corpus",
+   "choice": "auto-ontology 저장소, 같은 회사의 평가 저장소, NVIDIA 블로그와 Developer 페이지",
+   "reason": "기업 근거를 NVIDIA 자신의 1차 자료로 확인하려고 골랐다. 2차 보도(MarkTechPost 등)는 403이거나 1차 자료를 옮긴 것이라 넣지 않았다"
+  },
+  {
+   "item": "검증할 사례",
+   "choice": "maintainer 주석의 treatments 표(prescribing/reviewing clinician)",
+   "reason": "원문이 직접 든 예라 가상 사례가 원문 밖으로 나가지 않는다"
+  },
+  {
+   "item": "lens A의 '역할을 SQL attribute로 정의하라' 지적",
+   "choice": "그 조언을 지우고 model export의 use_in_join_paths 확인으로 바꿨다",
+   "reason": "원래 조언은 코드 근거가 없었다"
+  },
+  {
+   "item": "2차 run: 이전 run의 meaning: true 두 건",
+   "choice": "5장 둘째 문단에 user prompt의 역할 허용 문구를 더하고, join 경로 검사가 표시하는 경우를 새 문단으로 모두 적고 각주 범위를 262-479로 넓혔다. 근거 e77-e84",
+   "reason": "개정된 research-verify §6과 coordinator 지시. 고친 문장만 새 recheck가 읽었다"
+  },
+  {
+   "item": "3차 run: 5장 재작성",
+   "choice": "이전 unfixed 세 건(두 prompt의 조건, WHERE 등호, unverified)을 고치고, 같은 run의 lens A와 B를 5장에 돌린 뒤 지적을 반영해 5장을 다시 썼다. 표 셋째 열을 관계없는 id join에서 reviewing으로 맞게 쓴 SQL로 바꾸고, join 경로 검사의 동작은 목록으로 옮겼다",
+   "reason": "lens A가 셋째 열과 긴 문단이 장의 사례에서 벗어난다고 지적했다. 맞게 쓴 SQL이 기본 쌍으로 고쳐질 수 있다는 점이 독자의 예측에 필요하다"
+  },
+  {
+   "item": "lens A의 판단 항목: 5장 흐름도, 표지 권고의 범위",
+   "choice": "흐름도는 넣지 않았고 표지 문단은 바꾸지 않았다",
+   "reason": "표가 설정별 분기를 이미 보여 준다. 표지는 이번 run의 범위(5장) 밖이고, 5장 h2와 so 줄이 권고의 범위를 좁힌다"
+  }
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "코드를 실행하지 않았다. 5장의 표와 목록은 분기와 기본값에서 만든 예측이다",
+  "의도 판정 LLM이 역할 오류를 실제로 얼마나 잡는지, 모델이 join 경로를 얼마나 따르는지는 모른다",
+  "INTENT_VALIDATION_JOINS_VALIDATED_ELSEWHERE를 배포에서 따로 설정하는지는 코드로 알 수 없다",
+  "부재 주장 2건(답변 경로가 certify를 읽지 않음, column__semantic_fk에 certified 없음)은 claims.jsonl의 search 명령으로 다시 돌릴 수 있다",
+  "frontend, helm, vendor, alembic, tests, connectors, ingestion_service 대부분은 열지 않았다"
+ ],
+ "unfixed": [
+  {
+   "item": "5장 둘째 문단의 \"분명히 망가뜨리는 join만 표시\"는 원문의 \"nonsensical or clearly break\" 중 nonsensical을 뺐다(prompts.py:550-551). 이 사례는 실제 FK라 결론은 같다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "5장 셋째 문단의 \"기본 연동으로\"는 INTENT_VALIDATION_JOINS_VALIDATED_ELSEWHERE가 기본으로 DB_PROBE_JOIN_PATH_CHECK를 따른다는 점을 본문에 적지 않았다(sql_parse_validation.py:75-79)",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "5장 표 1행 2열의 \"질문과 어긋난다고 따로 판단\"은 본문의 \"분명히 망가뜨린다\"보다 문턱이 낮게 읽힌다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "5장 목록의 \"경로를 모르는 쌍\"에 공유 hub도 없다는 조건이 없고, hub 항목에 대상이 그 표의 PK이고 두 FK 모두 join 경로에 쓰인다는 조건이 없다(db_probe/join_path_check.py:397-440, dal/attributes.py:1161-1166)",
+   "meaning": false,
+   "impact": "wording"
+  }
+ ],
+ "rendered": "render.mjs로 1280과 390 너비를 다시 찍었고 5장 화면(1280)을 직접 봤다. 배치 경고는 없다",
+ "shippedAt": "2026-11-07T19:39:12.235Z",
+ "usage": null,
+ "ship": {
+  "branch": "doc/2026-11-07-auto-ontology-sql-grounding",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "ccc4cc1e1d4f23db4a9112d0f62ac94b78f3cf3850c430d4b87d48aa3659ec61",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "관찰된 전환 없음, 행위자 11개 모두 확인(agent 기록에 남은 응답 모델)"
+ }
+}
