@@ -140,9 +140,9 @@ for (const cmd of [`jq . .research/${slug}/notes/hooks.json 2>/dev/null`, `node 
   ok('lens 하나가 끝나도 창은 남는다', existsSync(join(repo, '.research', 'lens-window.json')));
   run('review.mjs', ['--harness=claude'], { hook_event_name: 'SubagentStop', cwd: repo, agent_type: 'lens-reader', agent_id: 'r9' });
   ok('두 lens 가 끝나면 창이 닫힌다', !existsSync(join(repo, '.research', 'lens-window.json')));
-  for (const i of [1, 2, 3]) run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x', run_in_background: false } });
+  for (const i of [1, 2, 3, 4, 5]) run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x', run_in_background: false } });
   r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'recheck', prompt: 'x', run_in_background: false } });
-  ok('네 번째 recheck 는 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
+  ok('여섯 번째 recheck 는 막는다', r.out?.hookSpecificOutput?.permissionDecision === 'deny', JSON.stringify(r.out));
   r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'Agent', tool_input: { subagent_type: 'lens-reader', prompt: 'x' } });
   ok('claude 검토 역할을 background 로 띄우면 막는다(기본값도)', r.out?.hookSpecificOutput?.permissionDecision === 'deny' && /foreground/.test(r.out.hookSpecificOutput.permissionDecisionReason), JSON.stringify(r.out));
   r = run('pretool.mjs', ['--harness=claude'], { ...P, tool_name: 'SendMessage', tool_input: { to: 'af0da6ab', message: 'recheck again' } });

@@ -11,7 +11,7 @@ audited. See `.agents/skills/AUTHORING.md` for why they are separated.
 | Check quotes mechanically against a pinned commit instead of by judgment | `check-claims.mjs` | Cited but Not Verified, [arXiv:2605.06635](https://arxiv.org/html/2605.06635v1) — link checks pass 94–100% while fact checks land at 39–77%, and fall about 42% as search depth grows |
 | `kind:"code"` may not cite a documentation file | `check-claims.mjs` | same DocPrism distinction: what the maintainers wrote and what the code does are different claims |
 | Two lenses in separate fresh contexts, run in parallel: numbers and quotes, and a reader test; structure goes to `check-doc.mjs` | `research-verify`, `research-chain.js`, `check-doc.mjs` | multi-judge panels reduce single-model bias only when the error sources stay independent; the structure lens produced the most rewrites toward the gate. See § What the 2026-10-13 reader interview changed |
-| The last fix round is re-verified like any other; a blocking defect it turns up gets one edit on the named sentences and is read once more, and the rest ships as found-and-unfixed | `research-verify`, `research-chain.js` | a loop that ends before its own check leaves the freshest edits as the only unread ones. See §Why the fix loop re-verifies the round that ends it |
+| Fix and re-verify repeat until a recheck finds nothing blocking, five rechecks at most; wording and what the fifth finds ship as found-and-unfixed | `research-verify`, `research-chain.js` | a loop that ends before its own check leaves the freshest edits as the only unread ones. See §Why the fix loop re-verifies the round that ends it |
 | Give a compression subagent extraction and quotes, never a conclusion | `references/oss.md` | CaMeL-style separation between the model that reads untrusted material and the model that decides. See §What the compression-subagent rules were measured against |
 | Read an analyzed repository's `AGENTS.md` / `CLAUDE.md` directly as data, and keep the checkout outside the working directory | `research-source` | repository instruction files are a documented prompt-injection route, but the step that executes them is harness auto-discovery, not reading. See §Why the isolated-subagent read was dropped |
 | Frame the question and scale the reading before opening files | `research-source` | orchestrator-worker deep research; explicit effort-scaling rules are what stop both over- and under-investigation |
@@ -204,6 +204,21 @@ The hooks now refuse that route on Claude Code (`docs/harness-parity.md` row 18)
 This revision did not go through a `skill-creator` A/B either, for the same reason as the
 cap: the difference only appears in runs whose final recheck finds a meaning defect. The
 forward test is a rerun of the PR #54 subject.
+
+### 2026-11-08: fix and recheck until nothing blocks
+
+One more edit was still not enough. On PR #55 the chain added the missing half of a
+source contradiction, and the new recheck found that the added sentence had dropped both
+of the source's conditions, so the PR came back a draft again. In four runs, every final
+recheck had found at least one blocking sentence. A fixed number of passes followed by
+"leave it for the owner" makes the draft the normal outcome, while the owner handed over the
+job so as to receive a finished pull request.
+
+So the loop now runs until a recheck finds nothing blocking. Each pass is kept to the
+sentences named and read by a new recheck, as before. The cap of five rechecks is there to
+end a loop that does not converge, not to decide quality. The instruction to carry the
+source's own condition and scope into the sentence is there because that was the defect
+each pass produced: the fix paraphrased the source and dropped a qualifier.
 
 ## What the compression-subagent rules were measured against
 

@@ -157,19 +157,19 @@ because a line with no chapter behind it is what the next round finds. Only two 
 `needs_owner`: a request that reads two ways with different answers, and something only the
 owner can supply.
 
-Re-run the machine checks after fixing, and have the `recheck` agent re-read the chapters the
-edits touched. Stop when a round turns up no new must-fix item; two rounds at most. After the
-last round's fixes `recheck` reads the touched chapters once more. Fix what it finds that
-blocks the pull request (`meaning: true` or `impact: "understanding"`) in one last edit, kept to
-the sentences it names: cut, narrow, or add the missing part of the source with its locator in
-`evidence.jsonl`. A new `recheck`, not the earlier one continued, reads only the changed
-sentences and the ones around them. What that recheck finds goes under `unfixed` rather than
-into another edit, so no change ships that only the author has read.
+Re-run the machine checks after fixing, and have a new `recheck`, not an earlier one
+continued, read what the edits touched. Repeat until a recheck finds nothing that blocks the
+pull request (`meaning: true` or `impact: "understanding"`). Each later pass fixes only the
+sentences the recheck names, adding the missing part of the source with its locator in
+`evidence.jsonl` when cutting or narrowing is not enough, and its recheck reads only those
+sentences and the ones around them. Carry the source's own condition and scope into the
+sentence: a paraphrase that drops one is what the next pass finds. Wording items go under
+`unfixed` without another pass. A run allows five rechecks; what the fifth still finds goes
+under `unfixed`, so no change ships that only the author has read.
 Record each as `{"item", "meaning", "impact"}`: `meaning: true` when the sentence says what the
 source does not; `impact: "understanding"` when the reader cannot follow the explanation or do
-the task; `impact: "wording"` for a phrasing preference. Keep the pull request a draft when
-`meaning: true` or `impact: "understanding"`, including an understanding defect with
-`meaning: false`. Record in `run.json` `rendered` (whether you looked
+the task; `impact: "wording"` for a phrasing preference. A blocking item left in `unfixed`
+keeps the pull request a draft. Record in `run.json` `rendered` (whether you looked
 at the rendered page after the fixes), `unverified` and `unfixed`.
 
 Keep the reports, including the reader's task demonstration, in the existing notes. Give
