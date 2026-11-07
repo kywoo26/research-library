@@ -1,0 +1,12 @@
+{
+  "title": "Anthropic 의 agent memory 설계와 dreaming",
+  "date": "2026-11-07",
+  "seq": 46,
+  "summary": "Anthropic 이 agent memory 를 층으로 나누고, dreaming 으로 틀린 노트를 transcript 와 대조해 고치고 wiki 로 엮는 방식을 Pokémon 과 wiki 실험으로 설명한다.",
+  "category": "note",
+  "format": "article",
+  "purpose": "explainer",
+  "source": {
+    "url": "https://www.anthropic.com/research/components-of-agent-memory"
+  }
+}
