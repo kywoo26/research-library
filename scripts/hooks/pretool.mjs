@@ -5,7 +5,7 @@
 //   누구든 notes/hooks.json 을 고치려 할 때. 검증 기록은 hook 만 쓴다(읽기는 된다).
 //   게이트(check-doc, check-prose)를 통과하지 못한 초고에 lens 를 띄울 때.
 //   lens 가 읽는 동안 편집 도구로 문서나 원장을 고칠 때(셸로 쓴 것은 window.mjs 가 그 뒤에 알린다).
-//   이번 run 에서 네 번째 recheck 를 띄울 때. 수정은 두 라운드와 마지막 좁히기까지다.
+//   이번 run 에서 여섯 번째 recheck 를 띄울 때. 막는 지적이 없어질 때까지 고치되 다섯 번에서 멈춘다.
 //   Claude 에서 검토 역할을 background 로 띄우거나, researcher 가 SendMessage 로 agent 를 이어 부를 때.
 //   Codex 에서 lens·recheck 를 저자의 대화를 물려주며(fork_turns 가 "none" 이 아니게) 띄울 때.
 //   모델이 저절로 바뀐 것이 보일 때.
@@ -70,7 +70,7 @@ if (ev.harness === 'claude' && role === 'researcher' && ev.tool === 'SendMessage
 if (ev.spawned === 'recheck' && root) {
   const runId = activeRun(root)?.runId;
   const n = Math.max(0, ...slugs.map((s) => (readHooks(root, s).reviews || []).filter((r) => r.agent === 'recheck' && r.event === 'start' && r.runId === runId).length));
-  if (n >= 3) deny(ev, 'recheck 는 이번 run 에서 이미 세 번 돌았다. 남은 지적은 run.json 의 unfixed 에 적고 ship 한다.');
+  if (n >= 5) deny(ev, 'recheck 는 이번 run 에서 이미 다섯 번 돌았다. 남은 지적은 run.json 의 unfixed 에 적고 ship 한다.');
 }
 
 // lens 는 게이트를 통과한 초고를 읽는다. 통과하지 못한 초고에 lens 를 쓰면 그 보고는 고친 뒤에 다시 받아야 한다.
