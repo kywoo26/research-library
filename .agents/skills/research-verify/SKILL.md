@@ -1,8 +1,8 @@
 ---
 name: research-verify
 description: Adversarially reviews a finished research document draft. Two lenses read it
-  in separate contexts and in parallel (the number and quote checker, and a reader who
-  tests whether the document answers its question), claims are extracted from the
+  in separate contexts and in parallel (the number and quote checker, and the owner's reader
+  who checks the request, the message, the prose and the diagrams), claims are extracted from the
   sentences that shipped, check-claims.mjs verifies them against the pinned corpus, and
   check-doc.mjs carries the structural checks. Invoked by the researcher agent after
   research-doc, or on a fix to an existing document. In any other session, hand the job to
@@ -24,11 +24,17 @@ and the verifier reads the text the reader will.
 that wrote a sentence re-reads it by the same route and reaches the same conclusion. B and
 A run in parallel, blind to each other and to the author.
 
-**A finding makes a claim in the document wrong, stops the reader from doing what its
-`purpose` promises, or, for the reader lens, costs the reader the point: a title, `h2` or `.lead`
-that misleads a scanning reader, or material the reader could skip.** Things that would be nice to add, sources that could also be read,
-and wording you would have chosen differently are not findings: one line each under 메모,
-or leave them out.
+**A finding is something that would change the document the owner gets.** One of:
+- a claim a reader would come away believing that the source does not support;
+- an ask from `run.json` the document does not answer;
+- a first screen or a chapter that loses the point;
+- prose the owner would read as machine-written, or would have to read twice;
+- a diagram that does not show its structure, or a structure left undrawn.
+
+A dropped qualifier is a meaning finding only when it changes what the reader believes. Things
+that would be nice to add, sources that could also be read, and wording you would have chosen
+differently are not findings: one line each under 메모, or leave them out. A list of small
+true objections buries the one that matters, and every fix risks a new error.
 
 ## Where this runs
 
@@ -39,8 +45,10 @@ verified looks exactly like one that passed.
 
 ### 1. Establish the target
 
-Open the draft `research/<slug>/index.html`, its `meta.json`, whose `purpose` says what the
-document was meant to do, and `.research/<slug>/sources.jsonl`, which may be absent.
+Open the draft `research/<slug>/index.html`, `.research/<slug>/run.json`, whose `request` and
+`asks` say what the document was meant to answer, and `.research/<slug>/sources.jsonl`, which
+may be absent. A document from before 2026-11-08 has `purpose` in `meta.json` in place of
+`asks`.
 
 `sources.jsonl` fixes what the numbers are checked against: `repo` + `commit` for code,
 `arxiv_id` + `version` for papers, and no local paths. `../research-source/SKILL.md` owns
@@ -60,10 +68,10 @@ Say what was skipped at the top of the report, before the findings.
 
 ### 2. Launch the lenses
 
-Once the draft passes `check-doc.mjs` and `check-prose.mjs` and you have read it through,
-launch `lens-numbers` (B) and `lens-reader` (A) by name, both at once, each with the values
-its reference file asks for; give `lens-reader` the question and the angle the request named,
-when it named them. Until both reports are back, leave the document and its ledgers as they
+Once the draft passes `check-doc.mjs` and `check-prose.mjs`, renders, and you have read it
+through, launch `lens-numbers` (B) and `lens-reader` (A) by name, both at once and in the
+foreground, each with the values its reference file asks for. Give `lens-reader` the run
+record and the render directory; it reads the owner's request itself. Until both reports are back, leave the document and its ledgers as they
 are; extracting claims (§3) is the work for that time.
 Spawning them is the step; asking permission for it is not. If they cannot be spawned, run
 what you can and declare the gap at the top of the report, as a missing `sources.jsonl` is
@@ -92,7 +100,7 @@ object out only for a span the ledger lacks.
 `path:line` in a repository); `scope` beside it is prose and stays Korean. `quote` is the
 sentence or table row that carries the claim; a paragraph pins nothing.
 
-**Extract numbers, comparisons, causal claims, anything the reader's task rests on,
+**Extract numbers, comparisons, causal claims, the claims the message rests on,
 calculations the source did not make, absence claims and conditional behavior claims.** Skip
 background, term definitions, navigation text and common knowledge. Drop a sentence too
 ambiguous to pin down, and leave each one whole; one sentence per claim is where a
@@ -166,16 +174,16 @@ sentences and the ones around them. Carry the source's own condition and scope i
 sentence: a paraphrase that drops one is what the next pass finds. Wording items go under
 `unfixed` without another pass. A run allows five rechecks; what the fifth still finds goes
 under `unfixed`, so no change ships that only the author has read.
-Record each as `{"item", "meaning", "impact"}`: `meaning: true` when the sentence says what the
-source does not; `impact: "understanding"` when the reader cannot follow the explanation or do
-the task; `impact: "wording"` for a phrasing preference. A blocking item left in `unfixed`
+Record each as `{"item", "meaning", "impact"}`: `meaning: true` when a reader would come away
+believing what the source does not support; `impact: "understanding"` when the owner cannot
+follow the explanation or an ask goes unanswered; `impact: "wording"` for a phrasing preference. A blocking item left in `unfixed`
 keeps the pull request a draft. Record in `run.json` `rendered` (whether you looked
 at the rendered page after the fixes), `unverified` and `unfixed`.
 
-Keep the reports, including the reader's task demonstration, in the existing notes. Give
-recheck the prior demonstration and reader findings for the changed chapters.
+Keep the lens reports in the existing notes. Give recheck the reader findings for the changed
+chapters.
 
-**A fact lens A reports missing goes into the chapter whose claim it supports**, as a
+**A fact or an ask lens A reports missing goes into the chapter whose explanation it supports**, as a
 card, a note or in the fold; that is support, not a second claim. When no chapter's claim
 covers it, it needs a chapter, and that is a needs-judgment item rather than a line squeezed
 into the nearest one. What lens A reports the reader could skip is the author's to cut or fold

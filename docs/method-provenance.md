@@ -220,6 +220,46 @@ end a loop that does not converge, not to decide quality. The instruction to car
 source's own condition and scope into the sentence is there because that was the defect
 each pass produced: the fix paraphrased the source and dropped a qualifier.
 
+## Why the chain was rebuilt around the owner's request (2026-11-08)
+
+Three runs on one subject (NVIDIA Auto Ontology: Codex PR #52, Claude PR #54 and #55) all
+passed every gate and both lenses, and the owner judged all three useless: no diagram that
+explained the thing, no visible point, verbose. Reading the transcripts showed the same causes
+on both harnesses.
+
+- The question was fixed before the source was read, to fit a document kind. Codex wrote it
+  30 seconds into the run, and the owner's asks about the ontology concept, NVIDIA's view and
+  community reaction got 11% of the text. The Claude reruns were briefed from PR #52's summary
+  rather than the original request, so they lost those asks outright.
+- The `explainer` kind defined success as predicting a case the source never shows, and where
+  the principle stops holding. Every document made an invented failure case its centerpiece.
+- One claim per chapter, character caps on titles and leads, and a required argument board on
+  the cover cut the explanation into eighteen fragments that repeated one caveat.
+- The board was the only drawing form in practice. It drew chains of sentences, and no
+  document drew the subject's structure. The Codex author drew a correct end-to-end diagram
+  in its plan, and it never reached the document.
+- Evidence spans for every sentence turned the author into a quote collector. Latin script
+  outnumbered Hangul in PR #52's body.
+- The reader lens judged "can the reader do the kind's task". It approved all three documents
+  and never asked whether the owner's request was answered or the prose was readable.
+
+What changed:
+- The request is stored verbatim with its asks, and a ship check requires a chapter for every
+  ask.
+- An analysis step comes before planning.
+- A plan is reviewed in a separate context before writing.
+- The kinds are gone.
+- The grammar caps no longer block.
+- Structure maps in SVG are first-class.
+- Spans are kept for numbers, quotes and the claims the message rests on.
+- The reader lens reads as the owner, against the request and the rendered pages.
+- The judgment roles moved to the frontier model. The researcher went to high effort on
+  Claude and was pinned to sol on Codex.
+- The evidence layer stayed as it was: pinning, check-claims, the hooks and ship.
+
+This revision did not go through a `skill-creator` A/B. The test is a blind comparison of
+the old and the new chain on the original NVIDIA request, judged by the owner.
+
 ## What the compression-subagent rules were measured against
 
 A scale probe on 2026-08-07 against `getpaseo/paseo` @ `deb5e5c`, 3,682 files of which 27

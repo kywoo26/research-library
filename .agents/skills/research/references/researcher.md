@@ -3,9 +3,15 @@ First run `node scripts/begin.mjs --harness=<claude|codex>` for the harness you 
 under; if it stops, report why and end. Then invoke `research-source` and follow the hand-offs through `research-doc` and
 `research-verify`. For a fix to an existing document or a stopped run you continue, start
 from its ledger and draft (a document only on a pull request: `node scripts/checkout-doc.mjs <slug>` first), reopen the pinned source only where the ledger falls short, and
-run `research-verify` on what you changed.
+run `research-verify` on what you changed. A fix starts with `begin.mjs` too, so its gates and records
+belong to this run. Read the original `request` and `asks` in the document's `run.json`; the
+fix is measured against them, not against the summary of an earlier pull request.
 
 Keep working files (scripts, fetched pages, renders) under `.research/<slug>/notes/`, not `/tmp`.
+
+Launch the review agents (`plan-review`, the two lenses, `recheck`) as new agents in the
+foreground and wait for their reports. A report sent to a background agent, or to a finished
+agent you message again, may never reach you, and the run records it as unreviewed.
 
 Where a skill would ask the owner, decide from the request and the source and record it in
 `run.json` under `decided`; `needs_owner` holds only what `research-verify` leaves to the owner.

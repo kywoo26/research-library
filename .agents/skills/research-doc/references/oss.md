@@ -1,22 +1,21 @@
 # Documenting an open-source project
 
 How the chapters get filled when the corpus is a repository. Read `prose-ko.md` and
-`visual.md` alongside this. The reader and the three kinds are defined in `../SKILL.md`; a
-repository gets a `comparison`, an `explainer` or a `walkthrough` depending on what the
-reader has to do with it, and the adoption checks below belong to the comparison.
+`visual.md` alongside this; the reader is defined in `../SKILL.md`. Take from the table what
+the plan's asks need.
 
-## Chapter contents
+## What a repository offers the chapters
 
-| Chapter | What goes here | Kinds |
-|---|---|---|
-| `problem` | The manual work this project removed: what people did before it existed | all |
-| architecture | Package boundaries, what talks to what, where state lives | walkthrough, explainer |
-| comparison | The alternative someone would otherwise reach for | comparison |
-| trace | One request through the code, every hop with a quote and a `file:line` | walkthrough |
-| `setup` | Commit SHA, files read, directories not opened, whether the clone was shallow | all |
-| `result` | What the code does; benchmarks only if the project publishes them, marked self-reported | all |
-| `critique` | Code not read, README-versus-code discrepancies, what reading alone cannot establish | all |
-| adoption call | adopt / trial / assess / hold, with the grounds and the cost of keeping it running | comparison |
+| Chapter | What goes here |
+|---|---|
+| purpose | What the project is for, who made it and why: the problem it removes, from its README, docs and announcements |
+| structure | The parts and how they relate: packages, what each holds, where state lives, what talks to what. Draw it (`visual.md`) |
+| how it works | The path a request or a build takes, explained in prose with the structure diagram beside it; a `<pre>` trace when the owner needs the code path itself |
+| comparison | The alternatives a practitioner would otherwise use, by name |
+| evidence | What the project measured or claims, marked as self-reported, and what you ran yourself |
+| reception | Issues, reviews and community discussion, checked against the code |
+| adoption | Only when the request asks whether to use it: the checks below |
+| sources | Commit, files read, directories not opened and what that costs the document |
 
 ## Compression subagents
 
@@ -43,27 +42,28 @@ chapter from the notes and reopen the file whenever a sentence needs more than t
 A quote from the notes goes into `evidence.jsonl` only after you reopen it at its locator:
 the span is yours to take, and the note is a pointer to it.
 
-## The trace carries the walkthrough
+## A trace, when the owner needs the code path
 
-Anyone can restate a README; a traced request path is what a reader cannot get without
-opening the repo. Each hop needs a verbatim quote of 40+ characters and a `file:line`
-locator at the pinned commit, and the gate checks the quote sits at the locator.
+A traced request path is what a reader cannot get without opening the repo. Each hop needs a
+verbatim quote of 40+ characters and a `file:line` locator at the pinned commit, kept in
+`evidence.jsonl` and the fold; the gate checks the quote sits at the locator. The visible
+chapter explains the path in Korean and points at the diagram.
 
 Pick a path that **ends inside one process boundary**; crossing packages means one subagent
 per hop, stitched together by you. Too narrow is a single-function trace that teaches
 nothing, and too wide is a grand traversal with invented middle steps, which is worse
 because it is confidently wrong. Both pass every gate.
 
-A failure to avoid: because the source is already text, `<pre>` and tables absorb everything
-and the document never draws the architecture. A kernel, a state machine, a request path and a
-retry loop all have shapes (`visual.md`).
+A failure to avoid: because the source is already text, `<pre>`, tables and identifiers absorb
+everything and the document never draws the architecture. A kernel, a state machine, a data
+model and a retry loop all have shapes (`visual.md`).
 
 **Write locators relative to the repository root.** Verification runs
 `git show <commit>:<path>`, so when the interesting code sits several levels down, the path
 you have been reading is not the path that resolves: `sub/pkg/src/thing.ts:806`, not
 `src/thing.ts:806`. Rewrite them from the root before they reach the document.
 
-## The adoption call: what a developer checks
+## Adoption, when the request asks: what a developer checks
 
 - License. Read the `LICENSE` file; the badge and the GitHub API field are not enough. An API
   value of `NOASSERTION` or "Other" usually means the file carries a preamble the classifier
@@ -83,7 +83,7 @@ you have been reading is not the path that resolves: `sub/pkg/src/thing.ts:806`,
   removes them. A defensible side effect still belongs in the document.
 - Reversibility: what backing out requires.
 
-A comparison missing these cannot support an adoption decision, however well it explains the
+An adoption answer missing these cannot support the decision, however well it explains the
 architecture.
 
 ## Identity comes out of structure
@@ -118,7 +118,7 @@ Report a discrepancy where adoption rests on it. **Name the handful of things th
 turns on and check only those.** Asked in general whether the docs match the code, you will
 flag nearly everything, and a report that flags everything says nothing.
 
-## The `setup` chapter for a repository
+## What was read, in the sources chapter
 
 ```
 커밋 <sha> 의 코드를 읽었다. <N>개 파일 중 <M>개를 열었고, <디렉터리> 는 열지 않아서 <몇 장>의 설명은 그 경로를 빼고 한 것이다.

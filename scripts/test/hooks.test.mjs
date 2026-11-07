@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, ex
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { verdict, publicationBlockers } from '../lib/ship-verdict.mjs';
+import { verdict, publicationBlockers, requestCoverage } from '../lib/ship-verdict.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 let pass = 0, fail = 0;
@@ -27,6 +27,13 @@ draft('lens 하나만 끝나면 draft', verdict({ ...base, reviews: [S('lens-num
 const both = [S('lens-numbers', 'A'), S('lens-reader', 'A'), D('lens-numbers', 'A'), D('lens-reader', 'A')];
 ok('lens 둘이 함께 돌고 바뀐 것이 없으면 정상', verdict({ ...base, reviews: both }).reasons.length === 0, why(verdict({ ...base, reviews: both })));
 draft('lens 뒤 문서가 바뀌었는데 recheck 가 없으면 draft', verdict({ ...base, docSha: 'B', reviews: both }), 'recheck');
+draft('새 문서에 plan-review 기록이 없으면 draft', verdict({ ...base, reviews: both, needPlan: true }), 'plan-review');
+ok('plan-review 가 돌았으면 새 문서도 정상', verdict({ ...base, reviews: [S('plan-review', 'A'), D('plan-review', 'A'), ...both], needPlan: true }).reasons.length === 0);
+{ const html = '<section class="slide" data-role="cover" data-label="표지"></section><section class="slide" data-role="body" data-label="구조"></section>';
+  ok('요청 항목이 모두 있는 장을 가리키면 통과', requestCoverage({ request: 'r', asks: [{ id: 'a1', chapters: ['구조'] }] }, html).length === 0);
+  ok('요청 원문이 없으면 걸린다', requestCoverage({ asks: [{ id: 'a1', chapters: ['구조'] }] }, html).some((x) => /request/.test(x)));
+  ok('장이 없는 요청 항목은 걸린다', requestCoverage({ request: 'r', asks: [{ id: 'a1', chapters: ['구조'] }, { id: 'a2' }, { id: 'a3', chapters: ['없음'] }] }, html).length === 2);
+  draft('요청 항목 누락은 draft 사유가 된다', verdict({ ...base, reviews: both, coverage: requestCoverage({ request: 'r', asks: [{ id: 'a2' }] }, html) }), 'a2'); }
 ok('고친 문서를 recheck 가 끝까지 읽었으면 정상', verdict({ ...base, docSha: 'B', reviews: [...both, S('recheck', 'B'), D('recheck', 'B')] }).reasons.length === 0);
 draft('recheck 뒤 또 바뀌면 draft', verdict({ ...base, docSha: 'C', reviews: [...both, S('recheck', 'B'), D('recheck', 'B')] }), '바뀌었다');
 draft('lens 가 도는 동안 보호 파일이 바뀌면 draft',

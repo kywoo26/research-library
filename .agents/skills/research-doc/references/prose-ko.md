@@ -2,7 +2,10 @@
 
 The document is Korean, in plain declarative (`~한다`, `~이다`). Technical terms a developer
 would search for stay English: RAG, embedding, chunk, baseline, ablation, agent, tool call,
-F1, commit, locator, and the like. Quotes, identifiers and paths stay verbatim. Where a plain
+F1, commit, locator, and the like. Quotes, identifiers and paths stay verbatim, and stay out
+of the body unless the reader will search for them or type them: name the thing in Korean and
+leave `semantic_fk.py:287` to the fold. A body thick with identifiers reads like a code
+review, whatever the sentences around them say. Where a plain
 Korean phrase says the same thing, use it; a coined Korean rendering of an English term
 (착지 for land, 곁 루프 for outer loop) reads as a second, unfamiliar concept.
 `check-prose.mjs --help` lists the few forms the gate blocks.
@@ -13,8 +16,8 @@ These passages are the target. They are illustrative: the topic and length come 
 document, the way the sentences move comes from here.
 
 A first screen. The title says what the whole document is about, one paragraph answers the
-question, and a line under it says whose material it is. The flow board under them is in
-`specimens/cover-flow.html`.
+question, and a line under it says whose material it is. Under them, one figure shows the
+subject's structure (`specimens/structure-svg.html`).
 
 > **Sonnet 5 코드를 Sonnet 5.5로 옮길 때 바꿔야 하는 곳**
 >
@@ -88,7 +91,7 @@ Prose and visuals share the explanation; choose each by what it carries:
   things to do): a list, one short sentence per item. Strung into a paragraph they read as an
   enumeration the reader has to count and hold.
 - Several things compared on the same attributes: a table.
-- A shape (parts, steps, a loop, options along a level): a board (`visual.md`).
+- A shape (parts, layers, steps, a loop, options along a level): a diagram (`visual.md`).
 
 Say a thing once in a chapter. When a table holds the cases, the paragraphs around it explain
 what the table cannot show; they do not walk through the same cases again.

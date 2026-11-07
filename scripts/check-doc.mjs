@@ -79,7 +79,7 @@ const RULES = {
   'stat-sub': '모든 .stat 에 .sub 가 있는가 (단독 숫자 금지)',
   'em-dash': '본문에 em dash 가 없는가',
   'process-narration': '문서를 어떻게 만들었는지 쓰지 않았는가',
-  'meta-purpose': `meta.json 의 purpose 가 ${'comparison / explainer / walkthrough'} 중 하나인가 (${'2026-09-30'} 이후 문서)`,
+  'meta-purpose': `meta.json 의 purpose 가 2026-11-08 이후 문서는 report, 2026-09-30 ~ 2026-11-07 문서는 comparison / explainer / walkthrough 중 하나인가`,
   'section-grammar': '표지 뒤 모든 장에 h2 와 .key 가 있는가 (sources 장은 .key 없이 된다. 2026-09-30 이후 문서. .dek 는 그 전 문서의 이름). board 문서는 chapter-grammar 가 대신한다',
   'heading-form': '제목, h2, .key(board 문서는 .lead) 가 라벨과 콜론·마침표, 쉼표 목록, 개수 세기, 문서의 자기 언급으로 시작하거나 이뤄지지 않았는가 (2026-10-14 이후 문서와 board 문서)',
   'title-copies': 'meta.json title, <title>, og:title, 표지 h1 이 같은 문자열인가 (2026-10-14 이후 문서)',
@@ -89,9 +89,9 @@ const RULES = {
   // ── board 문서. <html data-format="board"> 가 있는 문서에만 적용한다. 이 표시가 있으면 eyebrow-set 과
   //    section-grammar 대신 아래 규칙이 장 문법을 본다.
   'board-format': `${BOARD_FROM} 이후 문서는 board 셸(<html data-format="board">)로 쓰였는가`,
-  'chapter-roles': 'board 문서: 첫 장이 data-role="cover" 이고 data-role="critique" 와 data-role="sources" 장이 있는가 (eyebrow-set 대신)',
-  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신)`,
-  'h2-length': `board 문서: 장 제목(h2)이 공백 뺀 ${MAX_H2_CHARS}자 이하인가 (sources 장은 빼고 센다)`,
+  'chapter-roles': 'board 문서: 첫 장이 data-role="cover" 이고 data-role="sources" 장이 있는가. report 전 문서는 data-role="critique" 장도 (eyebrow-set 대신)',
+  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신). report 문서는 p.lead 를 요구하지 않고 문장 수를 세지 않으며, 표지에 p.answer 와 전체 그림(figure.diagram, .plate, .board)이 있는가만 본다`,
+  'h2-length': `board 문서(report 전): 장 제목(h2)이 공백 뺀 ${MAX_H2_CHARS}자 이하인가 (sources 장은 빼고 센다)`,
   'board-refs': 'board 문서: 상자의 data-col/data-lane 이 판의 data-cols/data-lanes 안에 있는가, .edge 의 data-from/data-to 가 같은 판의 상자 id 인가, 판에 aria-label 이 있는가, id 가 문서 안에서 겹치지 않는가',
   'card-length': `board 문서: 상자 제목(b)이 공백 뺀 ${CARD_TITLE}자, 줄(p, li) 하나가 ${CARD_LINE}자 이하이고, 줄이 ${CARD_LINES}개 이하인가. 문단은 상자에 넣지 않는다`,
   'board-size': `board 문서: 판 하나에 상자 ${BOARD_CARDS}개, 화살표 ${BOARD_EDGES}개, 주장 상자(t-key) 1개 이하인가`,
@@ -131,6 +131,10 @@ function headingForms(text, { heading }) {
   return found;
 }
 const PURPOSES = ['comparison', 'explainer', 'walkthrough'];
+// 2026-11-08 부터 새 문서는 종류가 없고 purpose 가 report 다. 장 구성은 소유자 요청의 항목이 정하고(run.json asks),
+// 장 문법의 글자 수·문장 수 상한과 critique 장 요구, 표지 흐름 판 요구를 걷어 낸다(docs/method-provenance.md).
+const V2_FROM = '2026-11-08';
+const isV2 = (meta) => meta?.purpose === 'report';
 
 // 제목은 목록에서 한 줄로 읽힌다. 라이브러리나 시스템 이름이 없으면 무엇에 관한
 // 문서인지 열어보기 전에는 알 수 없다. slug 에 이미 대상 이름이 들어 있으므로
@@ -211,7 +215,7 @@ function checkBoardDoc(html, meta, add) {
   const roleOf = (s) => attrOf(s.slice(0, s.indexOf('>')), 'data-role');
   const roles = sections.map(roleOf);
   if (roles[0] !== 'cover') add('chapter-roles', `첫 장의 data-role 이 cover 가 아니다 (${JSON.stringify(roles[0])}). 표지가 문서의 첫 장이다`);
-  for (const need of ['critique', 'sources']) {
+  for (const need of isV2(meta) ? ['sources'] : ['critique', 'sources']) {
     if (!roles.includes(need)) add('chapter-roles', `data-role="${need}" 장이 없다`);
   }
   // 표지의 링크는 장 번호로 간다. 장을 합치거나 옮기면 번호가 밀리므로 목록 글과 대상 장을 맞춰 본다
@@ -232,19 +236,22 @@ function checkBoardDoc(html, meta, add) {
     const n = k + 1;
     if (k === 0) {
       if (!/<p\b[^>]*class="[^"]*\banswer\b/.test(s)) add('chapter-grammar', '표지에 p.answer 가 없다. 질문에 대한 답 문단이 첫 화면에 있어야 한다');
-      if (!/class="[^"]*\bboard\b/.test(s)) add('chapter-grammar', '표지에 논증 흐름 판(.board)이 없다');
+      if (isV2(meta)) {
+        if (!/<figure\b[^>]*class="[^"]*\bdiagram\b|<svg\b|class="[^"]*\b(board|plate)\b/.test(s)) add('chapter-grammar', '표지에 주제의 전체 그림(figure.diagram, 원문 그림 .plate, 또는 .board)이 없다');
+      } else if (!/class="[^"]*\bboard\b/.test(s)) add('chapter-grammar', '표지에 논증 흐름 판(.board)이 없다');
       return;
     }
     const lacks = [];
     const h2 = /<h2\b[^>]*>([\s\S]*?)<\/h2>/.exec(s);
     if (!h2) lacks.push('h2');
-    else if (roles[k] !== 'sources') {
+    else if (roles[k] !== 'sources' && !isV2(meta)) {
       const chars = textOf(h2[1]).replace(/\s/g, '').length;
       if (chars > MAX_H2_CHARS) add('h2-length', `${n}장 h2 「${textOf(h2[1]).slice(0, 40)}…」 이 공백 뺀 ${chars}자다 (상한 ${MAX_H2_CHARS}). 주장 하나만 남기고 나머지는 p.lead 나 판으로 보낸다`);
     }
     if (roles[k] !== 'sources') {
       const lead = /<p\b[^>]*class="[^"]*\blead\b[^"]*"[^>]*>([\s\S]*?)<\/p>/.exec(s);
-      if (!lead) lacks.push('p.lead');
+      if (isV2(meta)) { /* p.lead 는 쓰고 싶을 때만, 문장 수 상한 없음 */ }
+      else if (!lead) lacks.push('p.lead');
       else {
         const sentences = textOf(lead[1]).split(/(?<=[.?!])\s+/).filter((x) => x.trim());
         if (sentences.length > MAX_LEAD_SENTENCES) add('chapter-grammar', `${n}장 p.lead 가 ${sentences.length}문장이다 (상한 ${MAX_LEAD_SENTENCES}). 자세한 설명은 본문으로 옮긴다`);
@@ -253,7 +260,8 @@ function checkBoardDoc(html, meta, add) {
       const explanation = /<div\b[^>]*class="[^"]*\bexplanation\b[^"]*"[^>]*>([\s\S]*?)<\/div>/.exec(visible);
       const hasExplanation = explanation && [...explanation[1].matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].some((m) => textOf(m[1]).trim());
       const hasBody = hasExplanation || /class="[^"]*\bboard\b/.test(s) || /<figure\b[^>]*class="[^"]*\bplot\b/.test(s) || /<table\b/.test(s)
-        || /<pre\b/.test(s) || /class="[^"]*\bplate\b/.test(s) || /<ul\b[^>]*class="[^"]*\bpoints\b/.test(s);
+        || /<pre\b/.test(s) || /class="[^"]*\bplate\b/.test(s) || /<ul\b[^>]*class="[^"]*\bpoints\b/.test(s)
+        || /<figure\b[^>]*class="[^"]*\bdiagram\b/.test(s) || (isV2(meta) && /<(p|ul|ol)\b/.test(visible));
       if (!hasBody) lacks.push('본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points)');
     }
     if (lacks.length) add('chapter-grammar', `${n}장에 ${lacks.join(', ')} 가 없다`);
@@ -425,7 +433,9 @@ function checkDoc(doc, byslug) {
       }
     }
     if (!meta.summary) add('meta-summary', 'meta.json 에 summary 없음');
-    if (meta.date >= NEW_GRAMMAR_FROM && !PURPOSES.includes(meta.purpose)) {
+    if (meta.date >= V2_FROM && meta.purpose !== 'report') {
+      add('meta-purpose', `${V2_FROM} 이후 문서의 purpose 는 report 다: ${JSON.stringify(meta.purpose)}. 종류 대신 소유자 요청의 항목이 장을 정한다`);
+    } else if (meta.date >= NEW_GRAMMAR_FROM && meta.date < V2_FROM && !PURPOSES.includes(meta.purpose)) {
       add('meta-purpose', `purpose 가 ${PURPOSES.join(' / ')} 중 하나가 아니다: ${JSON.stringify(meta.purpose)}. 독자가 이 문서로 무엇을 하는지가 장 구성을 정한다`);
     }
 

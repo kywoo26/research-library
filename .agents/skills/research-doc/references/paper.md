@@ -1,25 +1,24 @@
 # Documenting a paper
 
 How the chapters get filled when the corpus is a paper. Read `prose-ko.md` and `visual.md`
-alongside this; the reader and the three kinds are defined in `../SKILL.md`. A paper is the
-corpus most likely to pull the chapters back toward its own structure, so pick the chapters
-by the kind and let the paper's section order go.
+alongside this; the reader is defined in `../SKILL.md`. A paper is the corpus most likely to
+pull the chapters back toward its own structure, so take from the table below what the plan's
+asks need, and let the paper's section order go.
 
-## Chapter contents
+## What a paper offers the chapters
 
-| Chapter | What goes here | Kinds |
-|---|---|---|
-| `problem` | The failure mode of the existing approach: what breaks, under what conditions, by how much | all |
-| mechanism | Enough that a reader can predict its behavior on a case the paper does not show | explainer in full; comparison only what the decision needs |
-| comparison | The baselines the paper actually ran, named | comparison, explainer when it explains why |
-| trace | One example run end to end through the mechanism | explainer |
-| `setup` | Sections and appendices read, which conditions the setup controlled and which it did not | all |
-| `result` | Results, read from the tables | all |
-| `critique` | Limits with attribution: which the paper admits, which you assert | all |
-| adoption call | When adopting makes sense, including what it costs to keep running | comparison |
+| Chapter | What goes here |
+|---|---|
+| `problem` | The failure mode of the existing approach: what breaks, under what conditions, by how much |
+| mechanism | How it works, deep enough that the reader could explain it to a colleague |
+| comparison | The baselines the paper actually ran, named |
+| trace | One example run end to end through the mechanism |
+| sources | Sections and appendices read, which conditions the setup controlled and which it did not |
+| `result` | Results, read from the tables |
+| `critique` | Limits with attribution: which the paper admits, which you assert |
+| adoption call | When adopting makes sense, including what it costs to keep running |
 
-An explainer moves derivations and proofs the reader will not reuse into `details.orig` or an
-appendix chapter.
+Derivations and proofs the reader will not reuse go into `details.orig` or an appendix chapter.
 
 ## Numbers
 

@@ -2,7 +2,8 @@
 
 | 장의 모양 | 파일 | 원 문서 |
 |---|---|---|
-| 표지: 답 문단, 출처 줄, 논증 흐름 판, 흐름 밖 장의 목록 | `cover-flow.html` | 2026-10-07 meta-organizational-second-brain |
+| 구조도: 포함은 묶음, 참조는 점선, 화살표는 실제로 지나가는 길 하나 (SVG, figure.diagram) | `structure-svg.html` | 가상의 작업 큐, 형식 견본 |
+| 표지(2026-11-08 전 문서): 답 문단, 출처 줄, 논증 흐름 판, 흐름 밖 장의 목록 | `cover-flow.html` | 2026-10-07 meta-organizational-second-brain |
 | 원리: 층을 칸으로 잇는 판과 주장 상자에 붙은 반응 | `mechanism-layers.html` | 2026-10-25 openai-frontier-training-containment |
 | 결과: 표에서 그린 선과 막대 | `result-plot.html` | 2026-09-30 claude-opus-5-5-introduction |
 | 판단: 선택지를 칸으로, 조건과 결과를 줄로 | `decision-ruler.html` | 2026-09-09 claude-platform-cost-performance |

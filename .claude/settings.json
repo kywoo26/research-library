@@ -11,7 +11,7 @@
       { "matcher": "Bash", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/window.mjs\" --harness=claude" }] }
     ],
     "SubagentStop": [
-      { "matcher": "^(lens-numbers|lens-reader|recheck)$", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs\" --harness=claude" }] },
+      { "matcher": "^(lens-numbers|lens-reader|recheck|plan-review)$", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs\" --harness=claude" }] },
       { "matcher": "^researcher$", "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/gates.mjs\" --harness=claude" }] }
     ],
     "PostModelSwitch": [

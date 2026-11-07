@@ -205,6 +205,16 @@ export function visiblePerSlide(html) {
   };
 }
 
+// 접지 않은 본문의 영문 비율과 코드 식별자·파일 위치 수. 본문이 식별자로 차면 코드 리뷰처럼 읽힌다(2026-11-08,
+// PR #52 는 영문 글자가 한글보다 많았다). 막지 않는다. lens-reader 가 판정의 단서로 쓴다.
+export function bodyLatinOf(html) {
+  const body = visibleProse(html.replace(/<details\b[\s\S]*?<\/details>/gi, ' ').replace(/<pre\b[\s\S]*?<\/pre>/gi, ' '));
+  const ko = (body.match(/[가-힣]/g) || []).length, la = (body.match(/[A-Za-z]/g) || []).length;
+  const ids = new Set(body.match(/\b[A-Za-z]+(?:_[A-Za-z0-9]+)+\b|\b[a-z]+[A-Z][A-Za-z0-9]*\b|\b[A-Za-z_]+\(\)/g) || []);
+  const locs = (body.match(/\b[\w./-]+\.(?:py|ts|tsx|js|mjs|go|rs|java|rb|md|toml|yaml|yml|json):\d+/g) || []).length;
+  return { latin: ko + la ? la / (ko + la) * 100 : 0, identifiers: ids.size, locators: locs };
+}
+
 export function densityOf(html) {
   const prose = visibleProse(html);
   const ko = (prose.match(/[가-힣]/g) || []).length;
@@ -214,6 +224,7 @@ export function densityOf(html) {
     counts: DENSITY.map(([n, rx]) => [n, (prose.match(rx) || []).length]),
     conn: commaAfterConnective(prose),
     comma: ko ? (prose.match(/[,，]/g) || []).length / ko * 100 : 0,
+    body: bodyLatinOf(html),
   };
 }
 
@@ -278,6 +289,11 @@ if (argv.includes('--counts')) {
   console.log('\n아래 두 줄이 사람이 쓴 기술 블로그의 중앙값이다. 같은 방법으로 잰 것이라 위와 나란히 놓을 수 있다.');
   console.log('밴드는 양방향이다. 사람 값보다 한참 낮은 열도 사람 글이 아니다. 밴드는 진단용이고 쓰는 목표가 아니다.');
   console.log('마지막 세 열은 슬라이드마다 첨언(details)을 접은 채 보이는 한글 수의 중앙값·최대와, 첨언으로 접힌 비율이다. 견본(.agents/skills/research-doc/references/specimens/)은 예시이고 기준이 아니다.');
+  console.log('\n접지 않은 본문(pre 제외)의 영문 비율, 서로 다른 코드 식별자 수, 파일:줄 위치 수. 본문이 식별자로 차면 코드 리뷰처럼 읽힌다.');
+  for (const slug of selected) {
+    const b = bodyLatinOf(await readFile(join(RESEARCH_DIR, slug, 'index.html'), 'utf8'));
+    console.log(`${slug.slice(0, 31).padEnd(32)}영문 ${b.latin.toFixed(0).padStart(3)}%  식별자 ${String(b.identifiers).padStart(3)}  파일위치 ${String(b.locators).padStart(3)}`);
+  }
   process.exit(0);
 }
 

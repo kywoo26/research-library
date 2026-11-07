@@ -162,13 +162,13 @@ PR 본문의 "모델 확인" 줄은 실제 모델을 본 행위자의 수를 적
 ## 문서 추가하기
 
 ```bash
-node scripts/new-doc.mjs YYYY-MM-DD-slug paper explainer --title "제목" --summary "한 줄 설명"
+node scripts/new-doc.mjs YYYY-MM-DD-slug paper --title "제목" --summary "한 줄 설명"
 # 내용을 채운 뒤
 node scripts/check-doc.mjs research/YYYY-MM-DD-slug
 node scripts/build-index.mjs
 ```
 
-`new-doc.mjs` 가 출발용 골격이 들어간 `index.html` 과 `meta.json`, 그리고 `.research/<slug>/` 의 작업 파일을 함께 만듭니다. 인자 둘이 장 구성을 정합니다. corpus(`paper`, `oss`, `web`)는 읽은 범위와 결과 장의 힌트를, 문서 종류(`comparison`, `explainer`, `walkthrough`)는 가운데 장을 정하고 `meta.json` 의 `purpose` 로 남습니다. 도입 판단 장은 `comparison` 에만 있습니다. 종류는 조사를 시킨 말에서 고르고 기본값은 없습니다. 만든 직후 `check-doc.mjs` 를 통과합니다. 장은 합치거나 빼서 20개 안쪽으로 둡니다. 게이트가 요구하는 장은 eyebrow 넷(`index`, `tl-dr`, `critique`, `sources`)이고, 나머지 구조 규칙은 `--help` 가 알려 줍니다.
+`new-doc.mjs` 가 출발용 골격이 들어간 `index.html` 과 `meta.json`, 그리고 `.research/<slug>/` 의 작업 파일을 함께 만듭니다. corpus(`paper`, `oss`, `web`)는 장마다 무엇을 채울지의 힌트를 정합니다. 2026-11-08 부터는 문서 종류를 고르지 않습니다. 소유자 요청을 `run.json` 의 `request` 에 원문 그대로, `asks` 에 항목으로 적고, 계획(`notes/plan.md`)이 항목마다 장을 정합니다. `meta.json` 의 `purpose` 는 `report` 이고, 그 전 문서에는 옛 종류(`comparison`, `explainer`, `walkthrough`)가 남아 있습니다. 게이트가 요구하는 장은 표지(`cover`)와 출처(`sources`)이고, 나머지 구조 규칙은 `--help` 가 알려 줍니다.
 
 문서의 CSS 와 JS 는 `assets/deck-shell.html` 에 있습니다. 기본은 장을 이어 읽는 연속 문서(`<body data-mode="article">`)이고 덱은 토글입니다. 문서마다 복붙되던 셸을 파일 하나로 모았습니다.
 

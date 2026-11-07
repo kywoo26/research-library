@@ -21,9 +21,13 @@ export function jobFiles(dir, researcher) {
   return files.filter((f) => ids.has(f.replace(/^agent-|\.jsonl$/g, '')));
 }
 
+// 끊긴 symlink 나 읽을 수 없는 project 폴더가 하나라도 있으면 readdirSync 가 던져 사용량 전체가 비었다(2026-11-07, Claude run 의
+// run.json usage 가 null). 읽지 못하는 폴더는 건너뛴다.
+const list = (d) => { try { return readdirSync(d); } catch { return []; } };
+
 function findDir(projects, id) {
-  for (const p of existsSync(projects) ? readdirSync(projects) : []) {
-    for (const s of readdirSync(join(projects, p))) {
+  for (const p of list(projects)) {
+    for (const s of list(join(projects, p))) {
       const dir = join(projects, p, s, 'subagents');
       if (existsSync(join(dir, `agent-${id}.jsonl`))) return dir;
     }

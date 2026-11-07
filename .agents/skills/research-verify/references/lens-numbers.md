@@ -9,7 +9,7 @@ its base; one you would have presented differently is not.
 Document: `{DOC_PATH}`
 Corpus identity: `{SOURCES_PATH}`
 Checkout: `{CHECKOUT}`
-Where the document says what it read: its `setup` chapter. The sweep covers the whole document.
+Where the document says what it read: its sources chapter (`setup` in documents before 2026-11-08). The sweep covers the whole document.
 
 The caller fills the `{...}` values. Where `.research/<slug>/evidence.jsonl` holds a span for a
 number, check the document against the span and the span against the source.

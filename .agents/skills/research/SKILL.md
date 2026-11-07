@@ -9,6 +9,12 @@ Give the researcher the owner's request verbatim, plus whatever this conversatio
 settled about it: the target, a question or an angle, or the slug of the document to fix.
 Do not ask the owner anything first, and add no ask of your own for more than its source states.
 
+When the job reruns or fixes an existing document, the request that governs it is the
+original one. Give the researcher the slug, and the original request from that document's
+`run.json` (`request`) or from the conversation where the owner made it. Do not paraphrase
+the subject from the pull request summary: a summary carries the last author's narrowing, and
+the rerun inherits it.
+
 When a `researcher` agent type is available, launch that type in its own worktree without
 an instance name, and do not wait for it.
 Otherwise, if a managed agent can run the supervised researcher entrypoint named in

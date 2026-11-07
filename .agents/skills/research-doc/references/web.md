@@ -2,20 +2,20 @@
 
 How the chapters get filled when the corpus is a page with no commit and no arXiv version:
 a vendor guide, an announcement, a blog post. Read `prose-ko.md` and `visual.md` alongside
-this; the reader and the three kinds are defined in `../SKILL.md`. A guide is written in
-the vendor's order; pick the chapters by the kind and let that order go.
+this; the reader is defined in `../SKILL.md`. A guide is written in the vendor's order; take
+from the table below what the plan's asks need, and let that order go.
 
-## Chapter contents
+## What a page offers the chapters
 
-| Chapter | What goes here | Kinds |
-|---|---|---|
-| `problem` | The question the page answers, and what a developer hits without the answer | all |
-| map | The layers that change (request, response, conversation history, account), and what each change does | walkthrough, explainer |
-| trace | One path through the page: each hop with a verbatim quote and its `§Heading` | walkthrough |
-| comparison | The alternative the page itself sets against its subject | comparison |
-| `setup` | The pages and sections read, and in one line the linked sub-pages left unopened with the chapter they would deepen. `retrieved_at` and archive links stay in `sources.jsonl` | all |
-| `result` | The page's own charts and tables, redrawn (`visual.md` §The source's own figures) | all |
-| `critique` | What the page does not say, separated from what you inferred; a vendor's numbers marked as the vendor's | all |
+| Chapter | What goes here |
+|---|---|
+| `problem` | The question the page answers, and what a developer hits without the answer |
+| map | The layers that change (request, response, conversation history, account), and what each change does |
+| trace | One path through the page: each hop with a verbatim quote and its `§Heading` |
+| comparison | The alternative the page itself sets against its subject |
+| sources | The pages and sections read, and in one line the linked sub-pages left unopened with the chapter they would deepen. `retrieved_at` and archive links stay in `sources.jsonl` |
+| `result` | The page's own charts and tables, redrawn (`visual.md` §The source's own figures) |
+| `critique` | What the page does not say, separated from what you inferred; a vendor's numbers marked as the vendor's |
 
 ## Locators and the fixed copy
 
