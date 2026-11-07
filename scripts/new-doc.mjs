@@ -170,7 +170,7 @@ function buildReportCover(chapters, { title }) {
     '  <p class="answer">TODO 무엇인지 한 문장, 이 리서치가 찾은 것과 소유자에게 갖는 의미 (공백 뺀 280자 이하)</p>',
     '  <p class="src">TODO 누가 낸 어떤 자료인가 (조직과 팀, 또는 저자와 역할)와 고정한 판</p>',
     '  <figure class="diagram">',
-    '    <svg viewBox="0 0 720 300" role="img" aria-label="TODO 주제의 전체 구조를 한 문장으로"></svg>',
+    '    <svg viewBox="0 0 720 300" role="img" aria-label="TODO 메시지를 실어 나르는 그림을 한 문장으로. 그릴 구조가 없으면 figure 를 지운다"></svg>',
     '    <figcaption>TODO 그림이 보여 주는 것과 출처</figcaption>',
     '  </figure>',
     '  <div class="toc">',

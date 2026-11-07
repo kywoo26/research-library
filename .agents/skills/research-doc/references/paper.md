@@ -1,65 +1,37 @@
-# Documenting a paper
+# Reading a paper for the document
 
-How the chapters get filled when the corpus is a paper. Read `prose-ko.md` and `visual.md`
-alongside this; the reader is defined in `../SKILL.md`. A paper is the corpus most likely to
-pull the chapters back toward its own structure, so take from the table below what the plan's
-asks need, and let the paper's section order go.
-
-## What a paper offers the chapters
-
-| Chapter | What goes here |
-|---|---|
-| `problem` | The failure mode of the existing approach: what breaks, under what conditions, by how much |
-| mechanism | How it works, deep enough that the reader could explain it to a colleague |
-| comparison | The baselines the paper actually ran, named |
-| trace | One example run end to end through the mechanism |
-| sources | Sections and appendices read, which conditions the setup controlled and which it did not |
-| `result` | Results, read from the tables |
-| `critique` | Limits with attribution: which the paper admits, which you assert |
-| adoption call | When adopting makes sense, including what it costs to keep running |
-
-Derivations and proofs the reader will not reuse go into `details.orig` or an appendix chapter.
+A paper pulls the document back toward its own section order. Take from it what the asks need
+and let the order go. Derivations the reader will not reuse go in the fold.
 
 ## Numbers
 
-Read every number out of the tables, not the text or a summarizer's output, because papers
-restate their numbers loosely in prose and the table is what got reviewed. Take table
-values from the LaTeX source (`../../research-source/SKILL.md` §6). Before a number ships,
-check what lens B checks: value, direction, unit, range and base
-(`../../research-verify/references/lens-numbers.md`). Cite `arxiv_id` plus `version`,
-because a revision changes numbers and "the paper" sends the reader to whatever edition
-arXiv serves that day.
+Read every number from the tables, not from the text or a summary: papers restate their
+numbers loosely in prose, and the table is what got reviewed. Take table values from the
+LaTeX source (`../../research-source/SKILL.md` §6), and cite `arxiv_id` with `version`,
+because a revision changes numbers.
 
 ## Ablations
 
-The ablation is usually where the paper's claim is tested, and it is the section summaries
-drop, so read it and give it a chapter. Check that it varied one thing. A traversal ablation
-that also cut the budget cannot answer a budget-asymmetry objection, because two things
-moved.
+The ablation is usually where the paper's claim gets tested, and summaries drop it. Read it,
+and use it beside the mechanism claim it tests. Check that it varied one thing: a traversal
+ablation that also cut the budget cannot answer a budget objection, because two things moved.
 
 ## Limits
 
-**Separate what the paper admits from what you assert.** Without a marker like `논문이 이
-점을 명시한다`, the reader cannot tell who is accountable for a reservation, and the paper's
-candor gets credited to you or your inference to the paper. Papers rarely volunteer these,
-so look for them:
+Separate what the paper admits from what you assert. Without a marker such as `논문이 이 점을
+명시한다`, the reader cannot tell who is accountable for a reservation. Papers rarely volunteer
+these, so look for them:
+- conditions not controlled across a comparison;
+- unreported cost;
+- a benchmark the authors built;
+- whether anyone outside the group has reproduced the result.
 
-- Conditions not controlled across the comparison
-- Cost not reported, in dollars, GPU-hours or wall-clock
-- A benchmark the authors built themselves
-- Whether anyone outside the group has reproduced it
-- Training cost, when the method trains and the paper reports only inference
-
-If a study reports a contrary result, find it and carry it. A limits chapter with no outside
-voice restates the authors' own limits section.
+When a study reports a contrary result, find it and weigh it on its evidence and conditions.
 
 ## Series
 
-When a second paper extends the first, split only if the papers are **different in kind**:
-a methods paper and a systems paper crammed together blur both, and a paper that extends one
-section of another needs no document of its own. If you split, connect them with the same
-`series` value in `meta.json`, a line in each cover's `p.src`, and `../<slug>/#p<N>` links
-to specific chapters. When the earlier document called something unverified and the later
-one settles it, go back and link from that spot, or readers keep taking away the stale
-conclusion. Chapter numbers shift and the links have to follow; `check-doc.mjs` checks that
-they resolve.
+When a second paper extends the first, write a separate document only if the two are different
+in kind, such as a methods paper and a systems paper. Connect them with the same `series` in
+`meta.json`, a line in each `p.src`, and `../<slug>/#p<N>` links. When the later paper settles
+something the earlier document left open, link from that spot, or readers keep the stale
+conclusion.

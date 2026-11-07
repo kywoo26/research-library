@@ -1,6 +1,8 @@
 <!-- 구조도 견본(가상의 작업 큐, 형식만 참고). 무엇이 무엇을 담고, 무엇이 무엇을 참조하는지를 보여 준다.
      화살표는 데이터가 실제로 지나가는 길 하나에만 쓰고, 나머지 관계는 묶음(포함)과 점선(참조)으로 그린다.
-     aria-label 을 먼저 쓰고, 그 문장이 그림에 다 있는지 보고 그린다. -->
+     aria-label 을 먼저 쓰고, 그 문장이 그림에 다 있는지 보고 그린다.
+     셸의 클래스: .d-box(상자, t-key 같은 톤을 더할 수 있다), .d-group(포함하는 묶음), .d-label/.d-sub(글),
+     .d-line(선, .d-dash 는 점선), 화살촉은 marker 와 .d-fill-wire. 색은 셸 변수라 밝고 어두운 테마를 따른다. -->
 <section class="slide" data-role="body" data-label="구조">
 <h2>Qux 는 큐와 worker 풀 사이에 용어 사전을 두고, worker 는 사전을 거쳐 작업을 해석한다</h2>
 <div class="explanation">

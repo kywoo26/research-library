@@ -69,7 +69,8 @@ is a time constant.
 ## Report format
 
 Write in Korean, one line per finding. Give the counts, then only what is wrong or
-unverifiable.
+unverifiable. Wrong means a reader would come away believing what the source does not support; a
+paraphrase that changes nothing the reader believes is not a finding.
 
 ```
 수치 42개, 동작 주장 18개 대조.

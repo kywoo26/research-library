@@ -2,10 +2,8 @@
 
 The document is Korean, in plain declarative (`~한다`, `~이다`). Technical terms a developer
 would search for stay English: RAG, embedding, chunk, baseline, ablation, agent, tool call,
-F1, commit, locator, and the like. Quotes, identifiers and paths stay verbatim, and stay out
-of the body unless the reader will search for them or type them: name the thing in Korean and
-leave `semantic_fk.py:287` to the fold. A body thick with identifiers reads like a code
-review, whatever the sentences around them say. Where a plain
+F1, commit, locator, and the like. Quotes, identifiers and paths stay verbatim (and mostly in
+the fold, `../SKILL.md` §4). Where a plain
 Korean phrase says the same thing, use it; a coined Korean rendering of an English term
 (착지 for land, 곁 루프 for outer loop) reads as a second, unfamiliar concept.
 `check-prose.mjs --help` lists the few forms the gate blocks.
@@ -59,18 +57,13 @@ facts has to build the chain of cause alone.
 leaves the reader assembling the logic; one sentence packing several facts between commas
 leaves them parsing.
 
-**Write about 80% of the way to ASD-STE100.** Keep sentences short, with one statement per
-sentence; name who acts (the team or person behind the source, the model, the reader) in the
-active voice; one term keeps one meaning; what the reader should do is an instruction.
-Keep the connective that carries the reason. Link short sentences without packing the whole
-explanation into one long sentence.
+**Name who acts, and keep one term to one meaning.** The team behind the source, the model,
+the reader: an actor in the active voice tells the reader who is responsible. A term that drifts
+in meaning becomes two concepts.
 
-**Keep one caveat where it changes what the reader does, and tie it to that action.**
-Everything else unknown, unread or self-reported goes once into the limits chapter. A caveat
-repeated wherever a claim recurs buries the claim it protects.
-
-**End on what follows for the reader.** A sentence that ends on an absence (`공개하지 않는다`,
-`정할 수 없다`) leaves them nothing to do; say what the gap means for their use.
+**A caveat repeated wherever a claim recurs buries the claim it protects.** Keep the condition
+that changes the claim beside it, and say what a gap means for the reader's use rather than
+ending on the absence.
 
 **A number carries its base, and a claim carries its condition.** 62.6 alone is unreadable
 and 62.6 (baseline 56.3) can be judged; "문서 2개 이상이 필요한 질문에서" is part of the
@@ -119,9 +112,6 @@ The ✗ side is short on purpose; write toward the ✓ side.
 - ✓ 학습 데이터 구성이 논문에 나와 있지 않아서, 같은 결과를 내 보려면 데이터부터 직접 맞춰야 한다.
   ✗ 논문은 학습 데이터 구성을 공개하지 않는다.
   End on what the absence means for the reader.
-- ✓ 이 동작은 코드에서 읽은 것이라, 운영에 넣기 전에 npm test로 한 번 확인하는 편이 안전하다.
-  ✗ 이 문서는 테스트를 실행하지 않았다.
-  Korean drops the subject; tie the limit to what the reader should do.
 - ✓ 저자가 A100 한 장에서 잰 값이라, 소비자용 GPU에서 돌릴 계획이라면 모델이 24GB 메모리에 들어가는지부터 확인해야 한다.
   ✗ 저자 환경의 값이다. 재현은 확인되지 않았다. 유의성도 없다.
   Keep the caveat that changes the next step; the rest go to the limits chapter.
@@ -134,8 +124,8 @@ The ✗ side is short on purpose; write toward the ✓ side.
 
 ## Forms readers take as machine-written
 
-Each of these shows the shape of the writing in place of its content, and each has
-neighbours it turns into when one form is avoided:
+Each of these shows the shape of the writing in place of its content. They are signs to look
+at a sentence again, not forms to swap for a neighbour: rewrite toward the target passages above.
 
 - counting openers (`~은 셋이다`, `다른 점은 둘이다`, `세 가지로 나뉜다`)
 - the contrast family (`A가 아니라 B`, `A라기보다 B`, `X도 Y도 아니다`, a trailing `~지 ~는 아니다`)

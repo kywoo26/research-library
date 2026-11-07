@@ -16,7 +16,7 @@ const HELP = `사용법: node scripts/ship.mjs research/<slug>
 
 .research/<slug>/run.json 에서 읽는 것:
   commitSubject, commitBody   필수. AGENTS.md 의 Commits 규칙대로
-  decided                     researcher 가 소유자 대신 정한 것 (kind, 질문 등)
+  decided                     researcher 가 소유자 대신 정한 것 (질문, 장 구성, 범위 등)
   needs_owner                 소유자가 정할 것. 하나라도 있으면 draft
   unverified, unfixed         검증하지 못한 것, 확인했지만 고치지 못한 것. unfixed 는 {item, meaning, impact}.
                               meaning 이 false 여도 impact=understanding 이면 draft. wording 만 비차단

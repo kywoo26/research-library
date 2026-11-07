@@ -9,8 +9,8 @@ Document: `{DOC_PATH}`
 Run record: `.research/<slug>/run.json` holds the owner's `request` verbatim and the `asks`.
 Rendered pages: `.research/<slug>/notes/render/`, or the directory the caller names.
 
-Read the request first, in the owner's words. A document from before 2026-11-08 has no `asks`;
-use `purpose` in `meta.json` and the cover to infer what it was meant to answer, and say so.
+Read the request first, in the owner's words. (A document from before 2026-11-08 has no `asks`;
+infer them from `meta.json` `purpose` and the cover, and say so.)
 
 ## 1. The first screen
 
@@ -20,14 +20,15 @@ what you would tell a colleague. Report as findings:
 
 - a message that would fit any document on the subject;
 - a first screen that never says what the subject is for, or whose material it is;
-- a cover figure that does not show the subject's structure.
+- a subject with a structure worth seeing, and no picture of it on the first screen.
 
 ## 2. The request
 
 For each ask, find the chapter that answers it and say whether it answers at the weight the
 owner gave it. An ask that shrank to a line while a narrower question took over the document
-is the most important finding you can make. An ask the document explicitly cannot answer,
-with the reason given where the reader will see it, is not a finding.
+is the most important finding you can make. When the document says an ask cannot be answered,
+check that the reason holds and that the search behind it was enough; an unanswered ask with a
+weak reason is still a finding.
 
 ## 3. Reading it through
 

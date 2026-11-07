@@ -90,7 +90,7 @@ const RULES = {
   //    section-grammar 대신 아래 규칙이 장 문법을 본다.
   'board-format': `${BOARD_FROM} 이후 문서는 board 셸(<html data-format="board">)로 쓰였는가`,
   'chapter-roles': 'board 문서: 첫 장이 data-role="cover" 이고 data-role="sources" 장이 있는가. report 전 문서는 data-role="critique" 장도 (eyebrow-set 대신)',
-  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신). report 문서는 p.lead 를 요구하지 않고 문장 수를 세지 않으며, 표지에 p.answer 와 전체 그림(figure.diagram, .plate, .board)이 있는가만 본다`,
+  'chapter-grammar': `board 문서: 표지 뒤 모든 장에 h2, p.lead(${MAX_LEAD_SENTENCES}문장 이하), 본문(.explanation의 설명 문단, .board, figure.plot, table, pre, .plate, ul.points 중 하나)이 있는가. sources 장은 h2 만. 표지에는 p.answer 와 .board 가 있는가 (section-grammar 대신). report 문서는 p.lead 를 요구하지 않고 문장 수를 세지 않으며, 표지에는 p.answer 만 본다`,
   'h2-length': `board 문서(report 전): 장 제목(h2)이 공백 뺀 ${MAX_H2_CHARS}자 이하인가 (sources 장은 빼고 센다)`,
   'board-refs': 'board 문서: 상자의 data-col/data-lane 이 판의 data-cols/data-lanes 안에 있는가, .edge 의 data-from/data-to 가 같은 판의 상자 id 인가, 판에 aria-label 이 있는가, id 가 문서 안에서 겹치지 않는가',
   'card-length': `board 문서: 상자 제목(b)이 공백 뺀 ${CARD_TITLE}자, 줄(p, li) 하나가 ${CARD_LINE}자 이하이고, 줄이 ${CARD_LINES}개 이하인가. 문단은 상자에 넣지 않는다`,
@@ -236,9 +236,9 @@ function checkBoardDoc(html, meta, add) {
     const n = k + 1;
     if (k === 0) {
       if (!/<p\b[^>]*class="[^"]*\banswer\b/.test(s)) add('chapter-grammar', '표지에 p.answer 가 없다. 질문에 대한 답 문단이 첫 화면에 있어야 한다');
-      if (isV2(meta)) {
-        if (!/<figure\b[^>]*class="[^"]*\bdiagram\b|<svg\b|class="[^"]*\b(board|plate)\b/.test(s)) add('chapter-grammar', '표지에 주제의 전체 그림(figure.diagram, 원문 그림 .plate, 또는 .board)이 없다');
-      } else if (!/class="[^"]*\bboard\b/.test(s)) add('chapter-grammar', '표지에 논증 흐름 판(.board)이 없다');
+      // report 문서의 표지 그림은 주제에 그릴 구조가 있을 때만이라 요구하지 않는다.
+      if (isV2(meta)) { /* p.answer 만 본다 */ }
+      else if (!/class="[^"]*\bboard\b/.test(s)) add('chapter-grammar', '표지에 논증 흐름 판(.board)이 없다');
       return;
     }
     const lacks = [];
