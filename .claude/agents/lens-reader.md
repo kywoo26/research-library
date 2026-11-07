@@ -5,15 +5,6 @@ effort: high
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write, NotebookEdit, Agent
 model: sonnet
-hooks:
-  PreToolUse:
-    - hooks:
-        - type: command
-          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs" --harness=claude --role=lens-reader
-  Stop:
-    - hooks:
-        - type: command
-          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs" --harness=claude --role=lens-reader
 ---
 
 Read `.agents/skills/research-verify/references/lens-reader.md` and follow it.

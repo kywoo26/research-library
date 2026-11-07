@@ -2,15 +2,17 @@
 // researcher 가 끝날 때의 hook. 손대고 있는 문서가 있으면 게이트를 돌려 notes/hooks.json 에 남기고, 막히면 끝나지 못하게 한다.
 // 게이트 결과가 에이전트의 "통과했다"가 아니라 스크립트가 본 사실이 되게 하려는 것이다.
 // 같은 실패로 한 번 더 멈추려 하면 놓아 주고 사용자에게 알린다. 고칠 수 없는 실패에 세션이 맴돌지 않게.
-//   claude: researcher 정의의 Stop(→SubagentStop)   codex: 연구 profile 의 Stop(root = researcher)
+//   claude: .claude/settings.json 의 SubagentStop(matcher = researcher)   codex: 연구 profile 의 Stop(root = researcher)
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { repoRoot, docsInProgress, updateHooks, activeRun } from './docs.mjs';
+import { repoRoot, docsInProgress, updateHooks, activeRun, docSha } from './docs.mjs';
 import { readEvent, block, pass } from './io.mjs';
 import { checkModel } from './model.mjs';
 
 const ev = readEvent();
+// Claude 는 matcher 가 researcher 만 고르지만, 다른 행위자의 Stop 이 오면 게이트를 돌리지 않는다.
+if (ev.harness === 'claude' && ev.agentType !== 'researcher') pass(ev);
 const root = repoRoot(ev.cwd);
 if (!root) pass(ev);
 const slugs = docsInProgress(root);
@@ -45,6 +47,12 @@ for (const slug of slugs) {
 await checkModel(ev, root, slugs);
 // 게이트가 통과해도 ship.mjs 를 부르지 않고 끝나면 PR 이 없다. 연구 run 이 열려 있으면 한 번 막는다.
 const active = activeRun(root);
+// ship 한 뒤 이어 받은 수정: 문서가 마지막 ship 때와 다르면 PR 에 아직 안 올라간 것이다.
+if (active?.state === 'shipped') for (const slug of slugs) {
+  let shipped = null;
+  try { shipped = JSON.parse(readFileSync(join(root, '.research', slug, 'run.json'), 'utf8')).ship?.docSha || null; } catch {}
+  if (shipped && docSha(root, slug) !== shipped) failures.push(`${slug} 가 마지막 ship 뒤에 바뀌었다: 바뀐 장을 recheck 에 넘긴 뒤 node scripts/ship.mjs research/${slug} 를 다시 부른다.`);
+}
 if (active?.state === 'running') failures.push('ship 하지 않았다: run.json 에 commitSubject 와 commitBody 를 쓰고 node scripts/ship.mjs research/<slug> 를 부른다. 멈춰야 하는 이유가 있으면 보고에 적고 멈춘다.');
 if (!failures.length) pass(ev);
 

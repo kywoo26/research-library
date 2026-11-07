@@ -2,7 +2,7 @@
 // lens·recheck 의 시작과 끝을 notes/hooks.json 의 reviews 에 남긴다. 그때의 문서 sha 와 보호 집합 sha, run 과 actor 를 함께 적는다.
 // ship.mjs 는 이것으로 lens 마다 시작과 완료가 짝지어졌는지, 둘이 함께 돌았는지, 읽은 뒤 문서가 바뀌었는지 본다.
 // 게이트는 돌리지 않는다. 게이트는 researcher 가 끝날 때 gates.mjs 가 돌린다.
-//   claude: lens 정의의 Stop(→SubagentStop) 이 done. start 는 pretool.mjs 가 남긴다.
+//   claude: .claude/settings.json 의 SubagentStop(matcher = REVIEWERS) 이 done. start 는 pretool.mjs 가 남긴다.
 //           researcher 의 PostToolUse(Agent) 는 돌아온 lens 의 모델만 본다.
 //   codex:  profile 의 SubagentStart 가 start, SubagentStop 이 done.
 import { repoRoot, docsInProgress, updateHooks, docSha, protectedSha, activeRun, openWindow, closeWindow } from './docs.mjs';
@@ -14,8 +14,9 @@ const ev = readEvent();
 const root = repoRoot(ev.cwd);
 const slugs = root ? docsInProgress(root) : [];
 
+// Claude 의 이 hook 은 .claude/settings.json 에 있어 소유자 세션의 Agent 호출에도 걸린다. researcher 가 띄운 것만 본다.
 if (ev.harness === 'claude' && ev.event === 'PostToolUse') {
-  await checkModel(ev, root, slugs);
+  if (ev.agentType === 'researcher') await checkModel(ev, root, slugs);
   pass(ev);
 }
 

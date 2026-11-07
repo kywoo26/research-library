@@ -5,15 +5,6 @@ effort: high
 tools: Read, Grep, Glob, Bash, WebFetch
 disallowedTools: Edit, Write, NotebookEdit, Agent
 model: sonnet
-hooks:
-  PreToolUse:
-    - hooks:
-        - type: command
-          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/pretool.mjs" --harness=claude --role=recheck
-  Stop:
-    - hooks:
-        - type: command
-          command: node "$CLAUDE_PROJECT_DIR/scripts/hooks/review.mjs" --harness=claude --role=recheck
 ---
 
 Read `.agents/skills/research-verify/references/recheck.md` and follow it.

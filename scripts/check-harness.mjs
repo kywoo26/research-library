@@ -24,7 +24,10 @@ const HELP = `사용법: node scripts/check-harness.mjs [--words[=<git ref>]] [-
   role-effort      모든 역할의 정의(Codex researcher 는 profile)가 쓰는 effort 가 scripts/lib/roles.mjs 의 harness 별 EFFORT 와 같다
   profile-state    저장소의 Codex profile 에 hook trust 기록([hooks.state])이 없다. 그것은 사용자 CODEX_HOME 의 복사본에만 쌓인다
   description      같은 역할의 description 이 harness 사이에 같다(Codex profile 은 description 이 없다)
-  hook-scripts     Claude 정의와 Codex profile 의 hook 명령이 가리키는 스크립트가 있고 --harness 가 맞다
+  claude-hooks     Claude 의 hook 은 .claude/settings.json 에만 둔다. agent 정의 frontmatter 의 hooks 는 trust 없는
+                   세션에서 돌지 않는다(docs/harness-parity.md 13행). settings 의 SubagentStop matcher 는 REVIEWERS 하나,
+                   researcher 하나다
+  hook-scripts     .claude/settings.json 과 Codex profile 의 hook 명령이 가리키는 스크립트가 있고 --harness 가 맞다
   --words          두 harness 가 실제로 읽는 지침의 단어 수를 센다. =<ref> 를 주면 그 ref 와 비교한다(일회성 확인용)
   --versions       설치된 Claude Code·Codex 버전을 docs/harness-parity.md 가 확인한 버전과 비교한다. 다르면 다시 볼
                    대응표 행을 알린다. 막지는 않는다`;
@@ -106,12 +109,21 @@ for (const r of ROLES) {
 }
 if (/^\[hooks\.state\]/m.test(profile || '')) err('profile-state', 'harness/codex/research.config.toml 에 [hooks.state] 가 있다. 지운다(시작 스크립트가 CODEX_HOME 의 복사본에 둔다)');
 
-// Claude 정의와 Codex profile 의 hook 명령
+// Claude 의 hook 등록: agent 정의에는 없고 .claude/settings.json 에만 있다.
 for (const [r, d] of Object.entries(defs.claude)) {
-  for (const m of d.text.matchAll(/scripts\/hooks\/([\w-]+\.mjs)"?([^\n]*)/g)) {
-    if (!existsSync(join('scripts', 'hooks', m[1]))) err('hook-scripts', `claude/${r}: scripts/hooks/${m[1]} 가 없다`);
-    if (m[1] !== 'model-switch.mjs' && !/--harness=claude/.test(m[2])) err('hook-scripts', `claude/${r}: ${m[1]} 에 --harness=claude 가 없다`);
-  }
+  if (/^hooks:/m.test(d.head || '')) err('claude-hooks', `claude/${r}: frontmatter 에 hooks 가 있다. trust 없는 세션에서 돌지 않고, settings 와 겹치면 기록이 두 번 남는다. .claude/settings.json 에 둔다`);
+}
+let claudeHooks = {};
+try { claudeHooks = JSON.parse(read(join('.claude', 'settings.json')) || '{}').hooks || {}; } catch { err('claude-hooks', '.claude/settings.json 을 읽지 못했다'); }
+const stopMatchers = (claudeHooks.SubagentStop || []).map((h) => h.matcher);
+if (!stopMatchers.includes(`^(${REVIEWERS.join('|')})$`)) err('claude-hooks', `.claude/settings.json: SubagentStop matcher ^(${REVIEWERS.join('|')})$ 가 없다`);
+if (!stopMatchers.includes('^researcher$')) err('claude-hooks', '.claude/settings.json: SubagentStop matcher ^researcher$ 가 없다');
+for (const ev of ['PreToolUse', 'PostToolUse', 'PostModelSwitch']) if (!claudeHooks[ev]?.length) err('claude-hooks', `.claude/settings.json: ${ev} 등록이 없다`);
+for (const [ev, list] of Object.entries(claudeHooks)) for (const h of list) for (const c of h.hooks || []) {
+  const m = /scripts\/hooks\/([\w-]+\.mjs)"?(.*)/.exec(c.command || '');
+  if (!m) continue;
+  if (!existsSync(join('scripts', 'hooks', m[1]))) err('hook-scripts', `claude settings ${ev}: scripts/hooks/${m[1]} 가 없다`);
+  if (m[1] !== 'model-switch.mjs' && !/--harness=claude/.test(m[2])) err('hook-scripts', `claude settings ${ev}: ${m[1]} 에 --harness=claude 가 없다`);
 }
 for (const m of (profile || '').matchAll(/scripts\/hooks\/([\w-]+\.mjs)([^"\n]*)/g)) {
   if (!existsSync(join('scripts', 'hooks', m[1]))) err('hook-scripts', `codex profile: scripts/hooks/${m[1]} 가 없다`);

@@ -11,7 +11,7 @@ audited. See `.agents/skills/AUTHORING.md` for why they are separated.
 | Check quotes mechanically against a pinned commit instead of by judgment | `check-claims.mjs` | Cited but Not Verified, [arXiv:2605.06635](https://arxiv.org/html/2605.06635v1) — link checks pass 94–100% while fact checks land at 39–77%, and fall about 42% as search depth grows |
 | `kind:"code"` may not cite a documentation file | `check-claims.mjs` | same DocPrism distinction: what the maintainers wrote and what the code does are different claims |
 | Two lenses in separate fresh contexts, run in parallel: numbers and quotes, and a reader test; structure goes to `check-doc.mjs` | `research-verify`, `research-chain.js`, `check-doc.mjs` | multi-judge panels reduce single-model bias only when the error sources stay independent; the structure lens produced the most rewrites toward the gate. See § What the 2026-10-13 reader interview changed |
-| The last fix round is re-verified like any other, and what it turns up ships as found-and-unfixed | `research-verify`, `research-chain.js` | a loop that ends before its own check leaves the freshest edits as the only unread ones. See §Why the fix loop re-verifies the round that ends it |
+| The last fix round is re-verified like any other; a blocking defect it turns up gets one edit on the named sentences and is read once more, and the rest ships as found-and-unfixed | `research-verify`, `research-chain.js` | a loop that ends before its own check leaves the freshest edits as the only unread ones. See §Why the fix loop re-verifies the round that ends it |
 | Give a compression subagent extraction and quotes, never a conclusion | `references/oss.md` | CaMeL-style separation between the model that reads untrusted material and the model that decides. See §What the compression-subagent rules were measured against |
 | Read an analyzed repository's `AGENTS.md` / `CLAUDE.md` directly as data, and keep the checkout outside the working directory | `research-source` | repository instruction files are a documented prompt-injection route, but the step that executes them is harness auto-discovery, not reading. See §Why the isolated-subagent read was dropped |
 | Frame the question and scale the reading before opening files | `research-source` | orchestrator-worker deep research; explicit effort-scaling rules are what stop both over- and under-investigation |
@@ -180,6 +180,30 @@ This revision did not go through a `skill-creator` A/B. It adds one rule and mov
 branch sits; a pass-rate benchmark does not discriminate between a loop that checks its
 last round and one that does not, because the difference only appears in runs that reach
 the cap.
+
+### 2026-11-07: the last finding gets one more edit, then is read again
+
+Sending every final-recheck finding to `unfixed` turned one-word defects into owner work.
+PR #53 shipped as a draft because one body sentence contradicted the next; PR #54 because
+one sentence dropped "대개" and another said "이름이나 설명" where the code reacts only to a
+rename. Each had one correct answer, and in each the answer was to remove or narrow words,
+not to write new ones. The owner had handed over the whole job and got the PR back to finish.
+
+The reason the list existed still holds: an edit nobody but the author has read must not ship.
+So the last edit stays on the sentences the finding names, and a new recheck reads them
+against the source before ship. The first version allowed only a cut or a narrowing. PR #55
+showed that was too tight: the defect there was half of a contradiction the source states
+(the system prompt flags a wrong role, the user prompt in the same call allows it), and only
+an added sentence fixes an omission. The new recheck reads an addition against the source
+the same way it reads a cut, so allowing it does not ship an unread claim; the recheck cap,
+not the kind of edit, is what ends the loop. "A new recheck, not the earlier one continued"
+is there because PR #54's final recheck was a resumed agent: it ran with no start record,
+in the background, and its result reached the owner session instead of the author.
+The hooks now refuse that route on Claude Code (`docs/harness-parity.md` row 18).
+
+This revision did not go through a `skill-creator` A/B either, for the same reason as the
+cap: the difference only appears in runs whose final recheck finds a meaning defect. The
+forward test is a rerun of the PR #54 subject.
 
 ## What the compression-subagent rules were measured against
 
