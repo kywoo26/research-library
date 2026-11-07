@@ -1,0 +1,9 @@
+{
+  "title": "NVIDIA Auto Ontology가 메타데이터로 만든 의미를 text-to-SQL에 쓰는 방식과 인증의 범위",
+  "date": "2026-11-07",
+  "seq": 46,
+  "summary": "Auto Ontology의 compile이 LLM으로 만든 Term, semantic FK, SQL attribute가 답 경로에서 힌트로 쓰이고, 사람의 인증 플래그는 그 경로에 닿지 않으며, eval 저장소에는 정확도 결과가 없다는 것을 코드로 따라간다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "explainer"
+}

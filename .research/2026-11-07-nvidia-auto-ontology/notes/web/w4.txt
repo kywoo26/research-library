@@ -1,0 +1,73 @@
+compare dd78d0689ef9a8e062af90a294fa903cb6643015...c447003f72a822301e927196a4ecb5b597c308d5
+status ahead
+ahead_by 18
+behind_by 0
+
+commits:
+68c85581de3fd4ecb290e0ae4667692763ba1f02 2026-10-28T23:09:14Z Keep the SQL tool description from asking for the model's reasoning
+6c4fb71e20c1f9fc4b6059aa1c99f55b697d60b0 2026-11-02T22:45:45Z Send system messages first to Claude models (#399)
+b73ade466580386a9b5b29cb44cc4103a2c7b961 2026-11-03T07:41:08Z Leave the time of day out of the text-to-SQL system prompt (#400)
+fb496d406acfd34db0af3c5d188080097779021f 2026-11-03T07:57:57Z Prune semantic FKs from empty or disjoint source columns (#401)
+cdaf61e1bd0cf3820d11d72b43bb460816aebbd3 2026-11-03T08:41:39Z Merge pull request #393 from NVIDIA/fix/sql-tool-description
+e69a236ab3c97d03b9ce3e017ca6c11931333b32 2026-11-04T00:51:18Z Rewrite README around using Auto-Ontology and why it matters
+5d6da683a72ee0efea8ab8a422cc02e386e93395 2026-11-04T01:00:37Z Clarify what Auto-Ontology is and how it answers questions
+8b2b5ed14745bd3e5bbf4c04aa23ecc555f24e25 2026-11-04T01:07:53Z Address review: connection order, credentials, port 3001, SSE end, KumoRFM upload
+6f2e5f7a0ee467476e135f7c50a84afe1cbffade 2026-11-04T01:17:46Z Address review: Postgres password, port 3002, [DONE] frame
+6d56ab2203d5042701b2deb2a8ae9c1fb23f3959 2026-11-04T01:25:31Z Merge pull request #404 from NVIDIA/docs/readme-refresh
+a512fdae9eb25faddfe347566d0990f69c27191b 2026-11-04T01:33:01Z Default nvapi- keys to Nemotron 3.5 models; move the Q&A screenshot
+344d12a9d4ff0e7251743e0b94d3f5ec4863f570 2026-11-04T01:49:18Z Address review: test nvapi- defaults, limit the embed text prefix to nvfp4
+52baab5b24a959cee0283ec86b485f4c3fb1dc69 2026-11-04T01:55:42Z Type the endpoint fixture in the hosted-embedding test
+caced11e69e19663dfa0f73778dbecbcb71e87a0 2026-11-04T02:02:42Z Merge pull request #405 from NVIDIA/nemotron-3.5-defaults
+f33af6f803fdf102991ad98ed2d435b83fa047fd 2026-11-04T19:13:39Z Replace the retired Nemotron nano model in nvapi- defaults (#402)
+2a24f5d34ef6b6e168a7f22d308504d3ab36a198 2026-11-04T19:31:16Z Install the Ossie converter from apache/ossie-converters (#413)
+c4495670947eb7b4616f0dd9900e5ced2a48ca1e 2026-11-05T14:45:27Z Bump version to 1.2.0 (#426)
+c447003f72a822301e927196a4ecb5b597c308d5 2026-11-06T16:45:57Z Pin Python 3.12.16 in the backend and MCP images (#438)
+
+files changed 47
+.env.example +6 -6
+.github/ISSUE_TEMPLATE/integration.yml +51 -0
+AGENTS.md +10 -10
+CLAUDE.md +2 -2
+CONTAINER_THIRD_PARTY_NOTICES.md +2 -2
+CONTRIBUTING.md +11 -8
+DEPLOYMENT.md +1 -1
+Dockerfile +10 -3
+README.md +327 -153
+THIRD_PARTY_NOTICES.md +3 -3
+auto_ontology/dal/attributes.py +15 -0
+auto_ontology/dal/tests/dal_surface.json +1 -0
+auto_ontology/retrieval/text_to_sql/models.py +9 -3
+auto_ontology/retrieval/text_to_sql/prompts.py +1 -2
+auto_ontology/retrieval/text_to_sql/tests/test_sql_from_semantic.py +12 -0
+auto_ontology/semantic/semantic_fk.py +58 -0
+auto_ontology/semantic/tests/test_semantic_fk.py +36 -0
+auto_ontology/utils/embedding.py +4 -2
+auto_ontology/utils/llm_invoke.py +36 -4
+auto_ontology/utils/model_config.py +5 -5
+auto_ontology/utils/tests/test_embedding.py +16 -0
+auto_ontology/utils/tests/test_llm_invoke.py +73 -2
+auto_ontology/utils/tests/test_model_config.py +70 -0
+dev_tools/README.md +4 -4
+dev_tools/fixtures/sql/README.md +2 -2
+docs/assets/ontology-graph.png +0 -0
+docs/assets/qa-example.png +0 -0
+docs/authentication.md +73 -0
+docs/connections.md +71 -0
+docs/conversation-api.md +105 -0
+docs/mcp.md +19 -21
+docs/openapi/README.md +2 -2
+docs/openapi/auto-ontology-api.json +1 -1
+frontend/CONTAINER_THIRD_PARTY_NOTICES.md +2 -2
+frontend/THIRD_PARTY_NOTICES.md +3 -3
+frontend/package.json +1 -1
+helm/auto-ontology/Chart.yaml +2 -2
+helm/auto-ontology/values.yaml +3 -3
+mcp/CONTAINER_THIRD_PARTY_NOTICES.md +2 -2
+mcp/Dockerfile +5 -2
+mcp/README.md +10 -11
+mcp/THIRD_PARTY_NOTICES.md +3 -3
+mcp/auto_ontology_mcp/auto-ontology-api.json +1 -1
+mcp/pyproject.toml +1 -1
+mcp/uv.lock +1 -1
+pyproject.toml +2 -2
+uv.lock +3 -3

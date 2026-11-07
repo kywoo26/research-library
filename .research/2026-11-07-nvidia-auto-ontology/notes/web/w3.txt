@@ -1,0 +1,20 @@
+commit fb496d406acfd34db0af3c5d188080097779021f
+author date 2026-11-03T07:57:57Z
+committer date 2026-11-03T07:57:57Z
+
+Prune semantic FKs from empty or disjoint source columns (#401)
+
+An inferred semantic FK is a guess from column names and descriptions.
+Right after the edges are built, and before each group's join default is
+chosen, check each one against the data and delete it when the source
+column shares no value with its target, or holds no value at all.
+Joining through either returns no rows, yet it was still offered as a
+join path.
+
+No overlap at all is the only test: real references in loaded data can
+miss most of their target, so a low share is no proof.
+
+Taken from a453e7b and e2181ec on fix/text-to-sql-message-order without
+their role links and SQLite FK changes. On BEAVER dw it removed 17 of
+137 edges (10 disjoint, 7 empty); MySQL confirms each, and none is a join
+in the 300 gold queries.

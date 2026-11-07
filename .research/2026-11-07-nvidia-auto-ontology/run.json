@@ -1,0 +1,103 @@
+{
+ "runId": "2026-11-07-5b87dc",
+ "harness": "claude",
+ "decided": [
+  {
+   "item": "purpose=explainer",
+   "reason": "요청은 의미 구축, SQL 생성·검사·수리, 인증이 끝나는 자리를 설명하라는 것이다. 도입 판단을 묻지 않았으므로 comparison 이 아니다. 독자가 예측할 사례: 자기 warehouse 에 compile 을 돌렸을 때 무엇이 사람 검토 없이 답에 들어가는가."
+  },
+  {
+   "item": "fresh start",
+   "reason": "PR #52 의 브랜치, 원장, 초안을 열지 않았다. 새 slug 2026-11-07-nvidia-auto-ontology 로 시작했다."
+  },
+  {
+   "item": "corpus pin",
+   "reason": "auto-ontology 는 PR #52 의 caced11e 대신 현재 main c447003f (v1.2.0 직후)로 고정했다. caced11e 이후 바뀐 것은 Ossie 설치, 버전, Python 고정이라 설명이 달라지지 않지만 가장 최근 것을 읽는 편이 맞다. auto-ontology-eval 은 ec41b2c5 가 여전히 HEAD 라 그대로 썼다. eval 이 실제로 실행하는 리비전 dd78d068 을 r3 으로 따로 고정해, 측정 대상과 설명 대상의 차이를 보였다."
+  },
+  {
+   "item": "question",
+   "reason": "Auto Ontology 가 메타데이터에서 만든 의미(Term, attribute, semantic FK)는 SQL 생성에서 어떤 무게로 쓰이고, 사람의 인증은 그 경로의 어디에 닿으며, 공개된 근거는 그 효과를 얼마나 보여 주는가?"
+  },
+  {
+   "item": "flip condition",
+   "reason": "질의 경로가 certified 플래그로 후보를 거르거나 순위를 바꾸는 코드가 있으면 '인증은 답 경로에 닿지 않는다'는 결론이 뒤집힌다. absence 검색으로 확인했다."
+  },
+  {
+   "item": "reading scope",
+   "reason": "semantic/ 의 compile 경로와 retrieval/text_to_sql 의 graph, 생성, 검증, 수리 노드를 직접 읽었다. kumo, interactive(BIRD-Interact), frontend, connectors 는 질문 밖이라 열지 않았다."
+  },
+  {
+   "item": "archive",
+   "reason": "web.archive.org 가 429 를 돌려 w1 보관본을 만들지 못했다. 텍스트 사본과 sha256 은 남겼다."
+  },
+  {
+   "item": "round 1 fixes",
+   "reason": "lens B 의 틀림 1건(관계를 관리 API 로 지운다는 서술)을 관리 skill 근거로 바꿨다. lens A 의 고쳐야 항목(Term 의 역할, ontology 밖 스키마, 편집 경로, 선언 FK 가지치기, 용어 정의, 5장과 6장의 충돌, custom analysis 권고)을 모두 반영했다. 6장의 인증 행은 조건별 예측표라 남겼다."
+  },
+  {
+   "item": "round 2 fixes",
+   "reason": "recheck 가 찾은 Term 설명의 영향 경로(열 색인이 아니라 주어 Term 검색)를 코드대로 고치고 6장 표에 설명 편집 행을 더했다. 9장에 기본 설정을, 3장에 같은 이름 후보 조건과 선언 FK 예외를 더했다."
+  }
+ ],
+ "question": "Auto Ontology 가 메타데이터에서 만든 의미는 SQL 생성에서 어떤 무게로 쓰이고, 사람의 인증은 그 경로의 어디에 닿으며, 공개된 근거는 그 효과를 얼마나 보여 주는가?",
+ "flip_condition": "질의 경로가 certified 플래그를 읽는 코드가 있으면 결론이 뒤집힌다.",
+ "commands": [
+  {
+   "cmd": "python3 -I notes/tools/wwi_overlap.py <r2>/datasets/wideworldimporters",
+   "result": "questions 41 analyses 19; 4 analyses identical to gold SQL (question_id 32, 34, 35, 40)"
+  }
+ ],
+ "rendered": true,
+ "needs_owner": [],
+ "unfixed": [
+  {
+   "item": "6장 표 '사람이 Term의 설명을 고쳤다' 행의 '만들어 주어 Term과' 가 '만들어 줘서' 와 '주어 Term' 두 가지로 읽힌다. 4장처럼 '질문의 주어로 잡히는 Term' 으로 쓰는 편이 낫다.",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "7장 'Term의 이름이나 설명을 고치면 ... 4장의 두 길을 거쳐 다음 질문의 후보가 바뀔 수 있다' 는 과하다. refresh_dependent_attrs 는 이름이 바뀔 때만 True 라서, 설명만 고치면 둘째 길(주어 Term 검색)에만 닿는다 (r1 server/terms/router.py:236-254, terms/service.py:184-204).",
+   "meaning": true,
+   "impact": "wording"
+  },
+  {
+   "item": "6장 표 새 행의 '후보가 바뀌어도 join은 같은 잘못된 경로로 소개된다' 가 무조건으로 쓰였다. 후보가 바뀌면 기준 열과 경로도 바뀔 수 있으므로 '대개' 가 필요하다.",
+   "meaning": true,
+   "impact": "wording"
+  },
+  {
+   "item": "9장 '비교 도구는 기본 설정에서 어느 한 arm에서' 의 '에서' 가 겹쳐 어색하다.",
+   "meaning": false,
+   "impact": "wording"
+  }
+ ],
+ "unverified": [
+  "Auto Ontology 스택을 실행하지 않았다. compile 결과, 프롬프트의 실제 모양, 6장의 예측, 10장의 Opus 5.5 실패 가능성은 코드와 커밋 메시지에서 읽은 것이다.",
+  "모델이 프롬프트의 무게 표현을 얼마나 따르는지는 재지 않았다.",
+  "frontend 를 읽지 않아 UI 가 인증 상태로 무엇을 막는지는 확인하지 않았다.",
+  "join_path_check.py 본문은 읽지 않고 config.py 의 설명과 recheck 의 docstring 확인에 기댔다.",
+  "90%, 17/137, 0/3 은 NVIDIA 의 자기 보고다."
+ ],
+ "commitSubject": "NVIDIA Auto Ontology가 메타데이터로 만든 의미를 text-to-SQL에 쓰는 방식과 인증의 범위를 분석한다",
+ "commitBody": "NVIDIA Auto Ontology 의 compile 이 LLM 으로 만든 Term, semantic FK, SQL attribute 가 답 경로에서 어떤 무게로 쓰이는지, 사람의 인증 플래그가 그 경로에 닿지 않는다는 것, 기본 설정의 검사 범위, eval 저장소가 재는 것과 공개하지 않은 것을 코드로 따라간다.\n\n출처: NVIDIA/auto-ontology c447003f72a822301e927196a4ecb5b597c308d5, NVIDIA/auto-ontology-eval ec41b2c5b795637759297b90c1d19b42693200f9, eval 이 고정한 NVIDIA/auto-ontology dd78d0689ef9a8e062af90a294fa903cb6643015, NVIDIA Agent Knowledge Foundation 페이지, 커밋 68c8558 과 fb496d4 의 메시지.",
+ "shippedAt": "2026-11-07T08:50:15.404Z",
+ "usage": null,
+ "ship": {
+  "branch": "doc/2026-11-07-nvidia-auto-ontology",
+  "draft": true,
+  "draftReasons": [
+   "lens-numbers 가 읽은 뒤 문서가 바뀌었는데, 지금 문서를 recheck 가 끝까지 읽은 기록이 없다",
+   "lens-reader 가 읽은 뒤 문서가 바뀌었는데, 지금 문서를 recheck 가 끝까지 읽은 기록이 없다",
+   "사실이나 독자 이해를 막는 미해결 항목이 남았다"
+  ],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "4cbc362cccd0a4cba473e7f9715b1f19c6959aef62ce1e6048edb02166aef5cc",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "관찰된 전환 없음, 행위자 4개 모두 확인(agent 기록에 남은 응답 모델)"
+ }
+}

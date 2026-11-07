@@ -1,0 +1,22 @@
+commit 68c85581de3fd4ecb290e0ae4667692763ba1f02
+author date 2026-10-28T23:09:14Z
+committer date 2026-10-28T23:09:14Z
+
+Keep the SQL tool description from asking for the model's reasoning
+
+SQLGenerationModel's docstring said ``thought`` comes first "to drain
+reasoning before it writes the clean output fields". That was a note for
+developers, but langchain sends a schema's docstring to the model as the tool
+description, so the model read it as a request to write out its reasoning.
+Claude Opus 5.5, which thinks before it answers, refused every such call
+(finish_reason content_filter, no tool call), and SQL generation ended with
+"LLM failed to produce a response".
+
+On one SQL-generation prompt through safe_invoke_with_structured_output, Opus
+5.5 returned SQL 0 of 3 times on Bedrock and on Azure before, and 3 of 3 on
+both after; Opus 4.8 is unaffected. Pinned with the tool description alone:
+refused 5 of 5 with the sentence, answered 5 of 5 without it.
+
+The note moves to a comment beside the field, where the model does not see
+it. Field order, which it explains, is unchanged. A test checks the tool
+description no longer mentions reasoning.

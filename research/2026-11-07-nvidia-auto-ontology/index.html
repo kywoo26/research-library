@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="ko" data-format="board">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NVIDIA Auto Ontology가 메타데이터로 만든 의미를 text-to-SQL에 쓰는 방식과 인증의 범위</title>
+<meta name="description" content="Auto Ontology의 compile이 LLM으로 만든 Term, semantic FK, SQL attribute가 답 경로에서 힌트로 쓰이고, 사람의 인증 플래그는 그 경로에 닿지 않으며, eval 저장소에는 정확도 결과가 없다는 것을 코드로 따라간다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVIDIA Auto Ontology가 메타데이터로 만든 의미를 text-to-SQL에 쓰는 방식과 인증의 범위">
+<meta property="og:description" content="Auto Ontology의 compile이 LLM으로 만든 Term, semantic FK, SQL attribute가 답 경로에서 힌트로 쓰이고, 사람의 인증 플래그는 그 경로에 닿지 않으며, eval 저장소에는 정확도 결과가 없다는 것을 코드로 따라간다.">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-11-07-nvidia-auto-ontology/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ═══ board 셸 ═══════════════════════════════════════════════
+   장은 질문 하나에 답하는 설명과 필요한 시각 자료를 담는다. 작성자는 상자가 어느 줄(lane)
+   어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
+   html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
+
+/* ── tokens. tone 의 뜻은 모든 문서에서 같다 ── */
+:root {
+  color-scheme: light;
+  --paper:#f6f6f3; --card:#ffffff; --ink:#1f2328; --ink-2:#424a53; --muted:#6e7781; --rule:#d8dee4; --wire:#6e7781;
+  --s1:#0969da; --s2:#cf4a22; --dim:#afb8c1;
+  --n-bg:#ffffff; --n-bd:#c9d1d9; --n-ink:#1f2328;   /* 기본: 대상 하나 */
+  --k-bg:#eef4ff; --k-bd:#0969da; --k-ink:#0550ae;   /* t-key: 판에서 장이 주장하는 상자 하나 (판마다 하나까지) */
+  --g-bg:#effbf2; --g-bd:#1a7f37; --g-ink:#116329;   /* t-good: 좋아진다, 권한다 */
+  --w-bg:#fff8c5; --w-bd:#9a6700; --w-ink:#7d4e00;   /* t-warn: 조건, 주의 */
+  --b-bg:#ffebe9; --b-bd:#cf222e; --b-ink:#a40e26;   /* t-bad: 실패, 나빠진다 */
+  --p-bg:#fff0f6; --p-bd:#bf3989; --p-ink:#99286e;   /* t-person: 사람이 하는 일 */
+  --q-bg:#f6f8fa; --q-bd:#afb8c1; --q-ink:#424a53;   /* t-quiet: 배경, 재지 않은 것 */
+  --r-bg:#f8f5ff; --r-bd:#8250df; --r-ink:#6639ba;   /* react: 원문 밖의 반응 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper:#0d1117; --card:#161b22; --ink:#e6edf3; --ink-2:#b1bac4; --muted:#8b949e; --rule:#30363d; --wire:#8b949e;
+    --s1:#4493f8; --s2:#f0883e; --dim:#545d68;
+    --n-bg:#161b22; --n-bd:#3d444d; --n-ink:#e6edf3;
+    --k-bg:#0c2240; --k-bd:#4493f8; --k-ink:#79b8ff;
+    --g-bg:#0f2a19; --g-bd:#3fb950; --g-ink:#7ee787;
+    --w-bg:#2a2110; --w-bd:#d29922; --w-ink:#e3b341;
+    --b-bg:#3a1418; --b-bd:#f85149; --b-ink:#ff8e86;
+    --p-bg:#33152a; --p-bd:#db61a2; --p-ink:#f2a3cf;
+    --q-bg:#1b2029; --q-bd:#545d68; --q-ink:#b1bac4;
+    --r-bg:#1f1733; --r-bd:#a371f7; --r-ink:#d2a8ff;
+  }
+}
+
+/* ── page ── */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
+h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
+.topbar { --top:46px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:8px; height:var(--top); padding:0 20px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:saturate(1.4) blur(8px); -webkit-backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--rule); }
+.topbar > a:first-child { color:var(--s1); text-decoration:none; font-weight:700; padding:5px 8px; margin-left:-8px; border-radius:7px; }
+.topbar > a:first-child:hover { background:color-mix(in srgb, var(--s1) 10%, transparent); }
+.topbar .now { flex:1 1 auto; min-width:0; display:flex; align-items:baseline; gap:8px; color:var(--ink-2); white-space:nowrap; overflow:hidden; }
+.topbar .now-n { font:600 11.5px var(--mono); color:var(--s1); }
+.topbar .now-l { font-weight:700; color:var(--ink); }
+.topbar .now-h { min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--muted); }
+.topbar .now-h::before { content:"· "; }
+.topbar .now-h:empty { display:none; }
+main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:45px; }
+section.slide > h1[tabindex], section.slide > h2[tabindex] { outline:none; }
+section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
+.chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
+h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
+h2 { font-size:clamp(22px,2.5vw,29px); line-height:1.28; letter-spacing:-.015em; margin:0 0 10px; max-width:30em; text-wrap:balance; }
+h3 { font-size:15px; margin:0 0 6px; }
+.answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
+p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
+.lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.explanation { max-width:46em; margin:18px 0; font-size:16px; line-height:1.85; }
+.explanation p { margin:0 0 1em; }
+.explanation p:last-child { margin-bottom:0; }
+.so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
+.block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
+ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
+ul.notes li::before { content:"· "; }
+ul.points { list-style:none; margin:0; padding:0; display:grid; gap:10px; max-width:64em; }
+ul.points li { background:var(--card); border:1px solid var(--rule); border-radius:9px; padding:10px 14px; font-size:14.5px; }
+ul.points li > b:first-child { display:block; margin-bottom:2px; }
+ul.sources { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; }
+ul.sources a { color:var(--s1); overflow-wrap:anywhere; }
+ul.sources .t { color:var(--ink-2); }
+details.orig { margin:18px 0 0; font-size:13.5px; color:var(--ink-2); }
+details.orig summary { cursor:pointer; color:var(--muted); font-size:13px; font-weight:600; }
+details.orig p { margin:8px 0; max-width:70em; }
+span.q { color:var(--ink-2); }
+a.xref, .lead a, .so a, ul.notes a, ul.points a { color:var(--s1); text-underline-offset:2px; }
+code { font:12.5px var(--mono); background:var(--q-bg); padding:1px 4px; border-radius:4px; }
+pre { font:12px/1.62 var(--mono); background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; overflow-x:auto; margin:0 0 14px; color:var(--ink-2); }
+pre b { color:var(--ink); } pre code { background:none; padding:0; }
+pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--b-ink); }
+.good { color:var(--g-ink); font-weight:700; } .bad { color:var(--b-ink); font-weight:700; }
+.plate { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:10px; }
+.plate img { display:block; width:100%; height:auto; }
+.tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--rule); border-radius:10px; margin:0 0 14px; }
+table { border-collapse:collapse; font-size:13px; width:100%; }
+td,th { padding:7px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--rule); line-height:1.5; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr:last-child td { border-bottom:0; }
+:focus-visible { outline:2px solid var(--s1); outline-offset:2px; border-radius:3px; }
+
+/* ── board ── */
+.board { position:relative; display:grid; column-gap:40px; row-gap:20px; align-items:stretch;
+  background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:22px 24px; margin:0; }
+.board.dense { column-gap:18px; }
+.board > .edge { position:absolute; z-index:3; font-size:11.5px; line-height:1.3; color:var(--ink-2); background:var(--card);
+  padding:1px 5px; border-radius:4px; white-space:nowrap; }
+.board > .edge:empty { display:none; }
+svg.wires { position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+svg.wires path { stroke:var(--wire); stroke-width:1.6; fill:none; }
+svg.wires path.head { fill:var(--wire); stroke:none; }
+svg.wires path.tether { stroke:var(--r-bd); stroke-dasharray:3 3; stroke-width:1.4; }
+.lane-label { font-size:13px; font-weight:700; color:var(--ink-2); align-self:center; }
+.lane-rule { align-self:start; height:0; border-top:1px dashed var(--rule); margin-top:-10px; }
+.axis-h { font:700 12.5px var(--mono); color:var(--ink-2); text-align:center; padding:0 0 6px; border-bottom:2px solid var(--rule); align-self:end; }
+.board[data-axis-arrow] .axis-h { border-bottom-color:transparent; }
+.axis-arrow { height:0; border-top:2px solid var(--muted); align-self:end; position:relative; margin-bottom:-1px; }
+.axis-arrow::after { content:""; position:absolute; right:-2px; top:-6px; border:5px solid transparent; border-left:8px solid var(--muted); }
+.axis-cap { font-size:11.5px; line-height:1.35; color:var(--muted); align-self:end; padding-bottom:4px; }
+
+/* ── card ── */
+.card { position:relative; z-index:1; display:block; background:var(--n-bg); border:1px solid var(--n-bd); border-radius:9px;
+  padding:11px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); text-decoration:none; }
+.card > b { display:block; font-size:14.5px; line-height:1.4; color:var(--n-ink); margin:0 0 3px; }
+.card p { margin:0 0 2px; }
+.card .ev { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:6px; }
+.card .big { display:block; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--n-ink); margin-top:2px; }
+.card .big small { font-size:14px; font-weight:600; color:var(--ink-2); }
+.card ul { margin:2px 0 0; padding-left:16px; } .card li { margin:1px 0; }
+.card a { color:var(--s1); }
+.chip { display:inline-block; font:600 11.5px/1.5 var(--mono); padding:0 6px; border-radius:5px; border:1px solid var(--n-bd); color:var(--ink-2); margin:0 4px 4px 0; background:var(--card); }
+.card .colchip, .card .to { display:none; }
+.card.slim { padding:7px 12px; }
+.card.slim > b { font-size:15px; margin:0; }
+.card.slim .ev { margin-top:0; }
+.t-key { --n-bg:var(--k-bg); --n-bd:var(--k-bd); --n-ink:var(--k-ink); }
+.t-good { --n-bg:var(--g-bg); --n-bd:var(--g-bd); --n-ink:var(--g-ink); }
+.t-warn { --n-bg:var(--w-bg); --n-bd:var(--w-bd); --n-ink:var(--w-ink); }
+.t-bad { --n-bg:var(--b-bg); --n-bd:var(--b-bd); --n-ink:var(--b-ink); }
+.t-person { --n-bg:var(--p-bg); --n-bd:var(--p-bd); --n-ink:var(--p-ink); }
+.t-quiet { --n-bg:var(--q-bg); --n-bd:var(--q-bd); --n-ink:var(--q-ink); }
+a.card[href]:hover { outline:2px solid var(--n-bd); outline-offset:1px; }
+a.inert { cursor:default; }
+/* 원문 밖의 반응. 바꾸는 주장(data-on) 바로 아래에 붙고 혼자 서지 않는다 */
+.card.react { --n-bg:var(--r-bg); --n-bd:var(--r-bd); --n-ink:var(--r-ink); border-style:dashed; border-width:1.5px; font-size:13px; }
+.card.react .who { display:block; font:600 11.5px/1.5 var(--mono); color:var(--r-ink); margin:0 0 4px; }
+.card.react .who::before { content:"외부 반응 · "; }
+.card.react .check { margin-top:6px; color:var(--ink-2); }
+.card.react .check::before { content:"원문 대조: "; font-weight:700; color:var(--ink); }
+.verdict { display:inline-block; font:700 11px/1.5 var(--mono); padding:0 6px; border-radius:5px; margin-right:4px; }
+.verdict.holds { background:var(--g-bg); color:var(--g-ink); border:1px solid var(--g-bd); }
+.verdict.contra { background:var(--b-bg); color:var(--b-ink); border:1px solid var(--b-bd); }
+.verdict.open { background:var(--q-bg); color:var(--q-ink); border:1px solid var(--q-bd); }
+
+/* ── split, panel, ladder ── */
+.split { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:18px; align-items:start; }
+.split.even { grid-template-columns:1fr 1fr; }
+.panel { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:18px 20px; }
+.panel > .block-title:first-child { margin-top:0; }
+.panel > .ev { font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+.ladder { display:grid; gap:16px; }
+.ladder > .card:not(:first-child)::before { content:""; position:absolute; left:22px; top:-16px; height:15px; border-left:1.6px solid var(--wire); }
+.meter { display:block; height:6px; border-radius:3px; background:var(--rule); margin:6px 0 2px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--n-bd); }
+
+/* ── plot: 표가 데이터이고 그림은 셸이 그린다 ── */
+figure.plot { margin:0; }
+.fig-title { font-size:14.5px; font-weight:700; margin:0 0 2px; }
+.fig-sub { font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+.plot-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-2); margin:0 0 4px; }
+.plot-legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.plot-canvas svg { display:block; }
+.plot-canvas .grid { stroke:var(--rule); stroke-width:1; }
+.plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
+.plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
+.plot-canvas .dot { stroke:var(--card); stroke-width:2; }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
+.plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
+.plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
+.plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
+ol.plot-marks { margin:4px 0 0; padding-left:0; list-style:none; font-size:12px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; }
+ol.plot-marks b { font-family:var(--mono); }
+.bars { display:grid; gap:9px; }
+.bar-row { display:grid; grid-template-columns:minmax(80px,140px) 1fr; gap:10px; align-items:center; }
+.bar-name { font-size:12.5px; color:var(--ink-2); text-align:right; }
+.bar-row.is-em .bar-name, .bar-row.is-em .bar-val { color:var(--ink); font-weight:700; }
+.bar-set { display:grid; gap:2px; }
+.bar-line { display:grid; grid-template-columns:1fr minmax(3.6em, max-content); gap:8px; align-items:center; }
+.bar-track { height:11px; background:repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%); border-radius:2px; }
+.bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
+.bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
+figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+details.vals { margin-top:6px; font-size:12.5px; }
+details.vals summary { cursor:pointer; color:var(--muted); }
+details.vals table { width:auto; font-size:12.5px; }
+details.vals td, details.vals th { padding:3px 10px 3px 0; }
+
+/* ── cover: 논증 흐름과 나머지 장의 짧은 목록 ── */
+.board .card[data-center] { align-self:center; }
+.toc { margin:18px 0 0; }
+.toc-h { font-size:13px; font-weight:700; color:var(--ink-2); margin:0 0 6px; }
+.toc ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+.toc li { display:grid; grid-template-columns:64px auto 1fr; gap:10px; align-items:baseline; font-size:13.5px; padding:5px 0; border-bottom:1px solid var(--rule); }
+.toc .g { font-size:12px; color:var(--muted); }
+.toc a { color:var(--ink); text-decoration:none; font-weight:600; white-space:nowrap; }
+.toc a[href]:hover { color:var(--s1); text-decoration:underline; }
+.toc .f { color:var(--muted); font-size:12.5px; }
+
+/* ── 목차: 셸이 장에서 만든다. 넓은 화면(≥1400px)은 왼쪽 rail, 그보다 좁으면 위 막대의 목차 단추가 여는 sheet ──
+   점이 이어진 선이 문서의 순서다. 채운 점은 표지 흐름 판이 가리키는 장, 빈 점은 표지 목록의 장이고 그 무리 이름이 머리말이 된다.
+   선은 지금 읽는 장까지 s1 로 찬다. */
+.tb-btn { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; height:30px; min-width:30px; padding:0 8px;
+  border:1px solid transparent; border-radius:7px; background:none; color:var(--ink-2); font:600 13px var(--sans); cursor:pointer; text-decoration:none; }
+.tb-btn:hover { background:color-mix(in srgb, var(--ink) 7%, transparent); color:var(--ink); }
+.tb-btn[aria-disabled="true"] { opacity:.35; pointer-events:none; }
+.tb-toc { border-color:var(--rule); background:var(--card); }
+.tb-toc::before { content:""; width:13px; height:10px; background:linear-gradient(currentColor 0 0) top/100% 2px no-repeat, linear-gradient(currentColor 0 0) center/70% 2px no-repeat, linear-gradient(currentColor 0 0) bottom/85% 2px no-repeat; background-position:left top, left center, left bottom; }
+.tb-steps { flex:none; display:flex; gap:2px; margin-left:auto; }
+.tb-step { padding:0; width:30px; }
+.tb-step::before { content:""; width:7px; height:7px; border:solid currentColor; border-width:2px 2px 0 0; transform:translateY(2px) rotate(-45deg); }
+.tb-step[rel="next"]::before { transform:translateY(-2px) rotate(135deg); }
+.tb-progress { position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--s1); transform-origin:left; transform:scaleX(0); pointer-events:none; }
+
+.toc-head { display:flex; align-items:baseline; gap:8px; padding:0 10px 10px; }
+.toc-title { font-size:12px; font-weight:800; letter-spacing:.06em; color:var(--ink); }
+.toc-count { font:600 11px var(--mono); color:var(--muted); }
+ol.toc-list, ol.toc-list ol { list-style:none; margin:0; padding:0; }
+ol.toc-list { position:relative; }
+ol.toc-list::before, .toc-fill { content:""; position:absolute; left:16px; top:16px; width:2px; margin-left:-1px; border-radius:1px; background:var(--rule); }
+ol.toc-list::before { bottom:16px; }
+.toc-fill { height:0; background:var(--s1); transition:height .25s ease; }
+.ti > a { position:relative; display:grid; grid-template-columns:22px minmax(0,1fr); column-gap:6px; padding:6px 10px 6px 32px; border-radius:8px;
+  color:var(--ink-2); text-decoration:none; font-size:13.5px; line-height:20px; }
+.ti > a::before { content:""; position:absolute; z-index:1; left:12px; top:12px; width:8px; height:8px; border-radius:50%; box-sizing:border-box;
+  background:var(--paper); border:1.5px solid var(--dim); transition:transform .2s ease, background-color .2s ease, border-color .2s ease; }
+.ti.is-flow > a::before { background:var(--ink-2); border-color:var(--ink-2); }
+.ti.is-past > a::before { border-color:var(--s1); }
+.ti.is-flow.is-past > a::before { background:var(--s1); }
+.ti > a:hover { background:color-mix(in srgb, var(--ink) 6%, transparent); color:var(--ink); }
+.ti-n { font:600 11px/20px var(--mono); color:var(--muted); font-variant-numeric:tabular-nums; }
+.ti-l { display:block; font-weight:600; word-break:keep-all; overflow-wrap:break-word; }
+.ti-h { font-size:12px; line-height:1.45; color:var(--muted); font-weight:400; margin:2px 0 1px; word-break:keep-all; overflow-wrap:break-word;
+  overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.rail .ti:not([data-cur]) .ti-h { display:none; }
+.ti[data-cur] > a { background:color-mix(in srgb, var(--s1) 11%, transparent); color:var(--ink); }
+.ti[data-cur] .ti-l { color:var(--k-ink); font-weight:700; }
+.ti[data-cur] .ti-n { color:var(--s1); }
+.ti[data-cur] > a::before { background:var(--card); border:2.5px solid var(--s1); transform:scale(1.35); box-shadow:0 0 0 3px color-mix(in srgb, var(--s1) 22%, transparent); }
+.tg-h { display:block; padding:12px 10px 3px 60px; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--muted); }
+.toc-key { display:flex; flex-wrap:wrap; gap:4px 14px; margin:14px 10px 0; padding-top:10px; border-top:1px solid var(--rule); font-size:11.5px; color:var(--muted); }
+.toc-key span::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:0; box-sizing:border-box; border:1.5px solid var(--dim); background:var(--paper); }
+.toc-key .k-flow::before { background:var(--ink-2); border-color:var(--ink-2); }
+
+.rail { display:none; }
+@media (min-width: 1400px) {
+  body { display:grid; grid-template-columns:272px minmax(0,1fr); }
+  .topbar { grid-column:1 / -1; }
+  .rail { display:block; grid-column:1; align-self:start; position:sticky; top:46px; height:calc(100vh - 46px); overflow-y:auto; overscroll-behavior:contain;
+    padding:22px 12px 40px 14px; border-right:1px solid var(--rule); scrollbar-width:thin; scrollbar-color:var(--rule) transparent; }
+  main { grid-column:2; width:100%; }
+  .tb-toc { display:none; }
+}
+
+dialog.toc-sheet { padding:0; margin:0; border:0; color:var(--ink); background:var(--paper); overflow:hidden;
+  position:fixed; inset:0 auto 0 0; width:min(400px, 92vw); max-width:none; height:100%; max-height:none; border-right:1px solid var(--rule);
+  box-shadow:0 10px 40px rgba(0,0,0,.22); }
+dialog.toc-sheet::backdrop { background:rgba(13,17,23,.42); backdrop-filter:blur(2px); }
+dialog.toc-sheet[open] { animation:sheet-in .2s ease-out; }
+@keyframes sheet-in { from { transform:translateX(-24px); opacity:0; } }
+.sheet-in { display:flex; flex-direction:column; height:100%; }
+.sheet-head { flex:none; display:flex; align-items:center; gap:8px; height:46px; padding:0 10px 0 24px; border-bottom:1px solid var(--rule); }
+.sheet-head .toc-title { font-size:13px; }
+.sheet-x { margin-left:auto; }
+.sheet-body { flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:14px 12px 28px; }
+.toc-sheet .ti-h { display:-webkit-box; -webkit-line-clamp:2; }
+html { scrollbar-gutter:stable; }   /* sheet 가 열려 스크롤을 잠가도 막대 자리가 남아 판이 다시 그려지지 않는다 */
+html:has(dialog.toc-sheet[open]) { overflow:hidden; }
+
+/* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
+@media (max-width: 760px) {
+  .topbar { padding:0 10px 0 16px; gap:6px; }
+  .topbar .now-h { display:none; }
+  dialog.toc-sheet { inset:auto 0 0 0; width:100%; height:auto; max-height:86dvh; border-right:0; border-top:1px solid var(--rule); border-radius:16px 16px 0 0; }
+  dialog.toc-sheet[open] { animation-name:sheet-up; }
+  .sheet-in { height:auto; max-height:86dvh; }
+  .sheet-head { position:relative; height:52px; padding-top:6px; }
+  .sheet-head::before { content:""; position:absolute; left:50%; top:7px; width:36px; height:4px; margin-left:-18px; border-radius:2px; background:var(--rule); }
+  .ti > a { padding-top:9px; padding-bottom:9px; }
+  .ti > a::before { top:15px; }
+  main { padding:0 14px 80px; }
+  section.slide { padding:36px 0 26px; }
+  .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
+  .board .lane-rule, .board .axis-h, .board .axis-arrow, .board .axis-cap, .board > .edge, .board > svg.wires { display:none; }
+  .board .lane-label { margin:10px 0 0; font-size:12.5px; color:var(--muted); }
+  .card .colchip { display:inline-block; }
+  .card .to { display:block; font-size:12.5px; color:var(--ink-2); margin-top:6px; }
+  .split, .split.even { grid-template-columns:1fr; }
+  .toc ul { grid-template-columns:1fr; grid-template-rows:none !important; grid-auto-flow:row; }
+  .toc li { grid-template-columns:1fr; gap:0; }
+  .toc .g:empty { display:none; }
+  .toc a { white-space:normal; }
+  .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
+}
+@keyframes sheet-up { from { transform:translateY(40px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { dialog.toc-sheet[open] { animation:none; } .toc-fill, .ti > a::before { transition:none; } }
+@media print { .topbar, .rail, dialog.toc-sheet { display:none !important; } body { display:block; } section.slide { break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="#p1">지도</a><span class="now"></span></div>
+<main>
+
+  <section class="slide" data-role="cover" data-label="표지">
+  <h1>NVIDIA Auto Ontology가 메타데이터로 만든 의미를 text-to-SQL에 쓰는 방식과 인증의 범위</h1>
+  <p class="answer">NVIDIA Auto Ontology는 데이터베이스의 스키마, 표본 값, 질의 이력에서 Term, attribute, join 관계를 LLM으로 뽑아 agent의 text-to-SQL 문맥으로 쓰는 오픈소스 라이브러리다. 코드를 읽어 보면 LLM이 추론한 join 관계는 SQL 프롬프트에 검증된 경로로 들어가고, 사람이 켜는 인증 플래그는 이 경로를 바꾸지 않는다. 그래서 운영 전에 semantic FK 목록과 답의 SQL을 사람이 직접 봐야 한다. 공개된 정확도 수치는 아직 없다.</p>
+  <p class="src">NVIDIA의 Auto-Ontology 팀이 GitHub에 공개한 라이브러리 저장소(NVIDIA/auto-ontology, v1.2.0 직후 커밋 c447003)와 같은 팀이 관리하는 평가 저장소(NVIDIA/auto-ontology-eval, 커밋 ec41b2c)다. NVIDIA 개발자 사이트의 소개 문구와 관리자의 커밋 메시지 두 건을 함께 읽었다.</p>
+  <div class="board flow" data-cols="생성|사용|검사|근거" data-lanes="1|2" aria-label="compile 단계에서 LLM이 제안한 Term, semantic FK, SQL attribute가 저장되고, 답을 만들 때 각각 다른 무게로 프롬프트에 들어가며, 기본 설정의 검사는 실행 오류와 빈 결과에서만 SQL을 고친다. 사람의 인증은 이 경로 밖에 있고, 효과의 크기를 보여 주는 공개 수치는 없다">
+    <a class="card" id="f-gen" href="#p3" data-col="생성" data-lane="1"><b>LLM이 제안하고 데이터로는 겹침 0만 거른다</b><p>BEAVER dw에서 semantic FK 137개 중 17개가 이 검사로 지워졌다</p></a>
+    <a class="card" id="f-use" href="#p4" data-col="사용" data-lane="1"><b>추론한 join은 검증된 경로로 프롬프트에 들어간다</b><p>SQL attribute는 참고로, 기준 열은 강한 힌트로 소개된다</p></a>
+    <a class="card" id="f-chk" href="#p5" data-col="검사" data-lane="1"><b>기본 설정은 실행 오류와 빈 결과에서만 고친다</b><p>결과가 나오는 틀린 SQL은 그대로 답이 된다</p></a>
+    <a class="card t-key" id="f-cert" href="#p7" data-col="생성..검사" data-lane="2"><b>사람의 인증 플래그는 이 경로를 바꾸지 않는다</b><p>배지 계산에만 쓰이고, 인증만 바꾸면 검색 색인도 다시 만들지 않는다</p></a>
+    <a class="card t-warn" id="f-ev" href="#p9" data-col="근거" data-lane="1..2" data-center><b>정확도 개선 폭은 공개되지 않았다</b><p>eval 저장소에는 harness만 있고 결과 파일은 커밋되지 않는다</p></a>
+    <span class="edge" data-from="f-gen" data-to="f-use"></span>
+    <span class="edge" data-from="f-use" data-to="f-chk"></span>
+  </div>
+  <div class="toc">
+    <p class="toc-h">논증 밖에서 더 보는 장</p>
+    <ul>
+      <li><span class="g">배경</span><a href="#p2">2 · 초안</a><span class="f">Term, SQL attribute, semantic FK, custom analysis가 무엇인가</span></li>
+      <li><span class="g">예측</span><a href="#p6">6 · 틀린 join</a><span class="f">값이 조금 겹치는 잘못된 FK는 끝까지 살아남는다</span></li>
+      <li><span class="g">근거</span><a href="#p8">8 · eval 설계</a><span class="f">실험군은 Chat 기본값보다 검사를 더 켜고 돈다</span></li>
+      <li><span class="g"></span><a href="#p10">10 · 고정 리비전</a><span class="f">eval이 설치하는 판에는 11월 3일의 수정 두 건이 없다</span></li>
+      <li><span class="g">범위</span><a href="#p11">11 · 한계</a><span class="f">코드를 읽은 결과이고 스택을 실행하지는 않았다</span></li>
+      <li><span class="g"></span><a href="#p12">12 · 읽은 범위</a><span class="f">frontend, kumo, BIRD-Interact 경로는 열지 않았다</span></li>
+      <li><span class="g"></span><a href="#p13">13 · 출처</a><span class="f">저장소 세 판과 웹 사본 네 건</span></li>
+    </ul>
+  </div>
+  </section>
+
+  <section class="slide" data-role="problem" data-label="초안">
+  <h2>Auto Ontology는 agent가 읽을 의미 사전의 초안을 메타데이터에서 만든다</h2>
+  <p class="lead">agent가 "매출"을 물으면 먼저 그 말이 어느 테이블의 어느 열인지, 어떤 join을 거쳐야 하는지 알아야 한다. Auto Ontology는 이 대응을 사람이 처음부터 쓰는 대신 연결된 데이터베이스에서 초안을 뽑는다.</p>
+  <div class="explanation">
+    <p>NVIDIA는 README에서 동작을 생성, 사람의 인증, 답변의 순서로 설명한다. 생성 단계는 사람의 손을 거치지 않는다. ingestion이 스키마와 표본 값을 catalog에 넣고, semantic compile이 LLM을 불러 아래 표의 앞 세 가지 정의를 Postgres와 pgvector에 쓴다. custom analysis는 사람이 따로 등록한다.</p>
+    <p>NVIDIA 개발자 사이트는 이 결과를 업무 전문가가 시험하고 다듬고 인증할 "starting ontology"라고 부르고, NVIDIA 테스트에서 ontology 작성 시간이 90% 줄었다고 적는다. 측정 조건은 페이지에 없어서, 자기 팀의 작업 시간이 얼마나 줄지는 이 숫자로 가늠할 수 없다.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>정의</th><th>무엇인가</th><th>만드는 재료</th></tr></thead>
+    <tbody>
+      <tr><td>Term</td><td>Customer, Invoice Line 같은 업무 개념. 설명과 동의어를 갖고 열에 연결된다</td><td>테이블 이름과 설명, 열 이름과 표본 값을 LLM에 보여 준다</td></tr>
+      <tr><td>SQL attribute</td><td>Term 아래에 둔 이름 붙은 SQL 식. 마진, 필터, 누계 같은 것</td><td>Term마다 질의 이력에서 실행이 많은 식 10개를 뽑아 LLM이 고른다</td></tr>
+      <tr><td>관계 (semantic FK)</td><td>어느 열이 어느 테이블의 키를 가리키는지. join 경로의 재료다</td><td>선언된 FK, 없으면 vector 검색 후보 가운데 LLM이 고른 것</td></tr>
+      <tr><td>custom analysis</td><td>이름과 설명을 붙여 등록한 완성된 SQL 질의</td><td>사람이 등록한다. eval은 데이터셋에 딸린 파일에서 넣는다</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes"><li>agent는 MCP의 읽기 전용 도구, 웹 Chat, REST의 <code>/api/chat/completions</code>로 이 정의를 쓴다. 쓰기는 웹 앱의 API로만 한다.</li></ul>
+  <details class="orig"><summary>원문</summary>
+    <p>README 「How it works」: <span class="q">“Auto-Ontology works in three stages: it generates an ontology, people certify”</span></p>
+    <p>NVIDIA Agent Knowledge Foundation 페이지: <span class="q">“Generates a starting ontology from enterprise data and documentation that business experts can test, refine, and certify. It complements existing ontology platforms and reduced ontology creation time by 90% in NVIDIA testing.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="compile">
+  <h2>compile은 LLM의 제안을 저장하고 데이터로는 겹침이 없는 join만 지운다</h2>
+  <p class="lead">compile은 Term, semantic FK, SQL attribute 순서로 돈다. 단계마다 LLM이 고르고, 데이터에 대 보는 검사는 semantic FK의 값이 하나도 겹치지 않을 때만 정의를 지운다.</p>
+  <div class="board" data-cols="Term|semantic FK|SQL attribute" data-lanes="LLM이 고르는 것|코드와 데이터가 거르는 것" aria-label="Term을 만들고 나서 semantic FK를, 그다음 SQL attribute를 만든다. 위 줄은 LLM이 정하는 것이고 아래 줄은 코드가 거르는 것이다. 데이터로 정의를 지우는 검사는 semantic FK의 겹침 0 검사뿐이다">
+    <div class="card" id="c3-t" data-col="Term" data-lane="1"><b>테이블마다 Term을 제안한다</b><p>테이블 하나에 Term 하나를 강하게 권한다. 후보 열은 앞 40개까지 보여 준다</p><p class="ev">semantic/term_extractor.py:38, :233</p></div>
+    <div class="card" id="c3-f" data-col="semantic FK" data-lane="1"><b>후보 가운데 참조 대상을 고른다</b><p>vector 검색으로 다른 테이블의 unique 열 후보를 모으고 LLM이 하나를 고른다. 기권하면 이름이 같은 후보 가운데 FK의 표본 값이 모두 들어 있는 열을 고른다</p><p class="ev">semantic/semantic_fk.py:20, :538</p></div>
+    <div class="card" id="c3-s" data-col="SQL attribute" data-lane="1"><b>자주 쓴 식을 이름 붙은 정의로 올린다</b><p>Term마다 3개월 실행 횟수로 상위 10개 식을 골라 LLM이 판정한다</p><p class="ev">semantic/sql_attribute_suggester.py:512</p></div>
+    <div class="card t-quiet" id="c3-t2" data-col="Term" data-lane="2"><b>이름을 정리하고 남은 열을 붙인다</b><p>LLM이 배정하지 않은 열은 첫 Term으로 들어간다</p><p class="ev">semantic/term_extractor.py:186</p></div>
+    <div class="card t-key" id="c3-f2" data-col="semantic FK" data-lane="2"><b>값이 하나도 겹치지 않으면 지운다</b><p>선언된 FK도 같이 본다. 원본 열이 비어 있어도 지우고, 조금이라도 겹치면 남긴다</p><p class="ev">semantic/semantic_fk.py:108</p></div>
+    <div class="card t-quiet" id="c3-s2" data-col="SQL attribute" data-lane="2"><b>SQL이 catalog로 풀리는지 보고 저장한다</b><p>catalog의 테이블과 열로 풀리지 않거나 같은 이름이 있으면 건너뛴다</p><p class="ev">server/sql_attributes/service.py:235</p></div>
+    <span class="edge" data-from="c3-t" data-to="c3-f"></span>
+    <span class="edge" data-from="c3-f" data-to="c3-s"></span>
+  </div>
+  <div class="explanation">
+    <p>semantic FK가 이 구조에서 가장 무게가 크다. 4장에서 보듯 답을 만들 때 join 경로가 이 그래프에서 나오기 때문이다. 선언된 FK가 있으면 대개 그대로 옮기지만(대상 열에 attribute가 없으면 LLM 단계로 넘긴다), 선언이 없는 warehouse에서는 열 이름과 설명이 비슷한 후보 가운데 LLM이 고른 것이 join 경로가 된다. 그 뒤에 데이터로 확인하는 기준은 겹침 0 하나다. 이 검사는 선언된 FK와 추론한 FK를 가리지 않고 모든 semantic FK에 돈다. 그래서 아직 적재되지 않아 비어 있는 열의 선언된 FK도 지워진다. 관리자는 실제 참조도 대상 값의 대부분을 놓칠 수 있어서 겹침 비율이 낮다는 것만으로는 틀렸다고 할 수 없다고 설명한다. 그래서 값이 조금이라도 겹치는 잘못된 FK는 남는다.</p>
+    <p>이 가지치기는 2026-11-03에 들어왔다. BEAVER는 사설 data warehouse에서 가져온 enterprise text-to-SQL benchmark다. 관리자는 커밋 메시지에서 BEAVER의 dw 데이터베이스에 적용했을 때 semantic FK 137개 가운데 17개(값이 겹치지 않는 것 10개, 원본 열이 빈 것 7개)가 지워졌고, 지워진 것 가운데 정답 질의 300개에 join으로 쓰인 것은 없었다고 적었다. 남은 120개가 모두 맞는지는 이 측정이 말해 주지 않는다.</p>
+  </div>
+  <p class="so">그래서: 선언된 FK가 적은 데이터베이스에 붙인다면, compile 직후 semantic FK 목록부터 사람이 훑어보길 권한다. 답의 join이 모두 여기서 나오므로, 코드를 읽은 결과로는 검토 한 번의 효과가 가장 크다고 본다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>semantic/semantic_fk.py:108: <span class="q">“No overlap at all is the only test applied: real references in loaded data can still miss most of their target, so a low share is no proof.”</span></p>
+    <p>커밋 fb496d4 메시지: <span class="q">“On BEAVER dw it removed 17 of 137 edges (10 disjoint, 7 empty); MySQL confirms each, and none is a join in the 300 gold queries.”</span></p>
+    <p>semantic/term_extractor.py:186: <span class="q">“# Any unassigned columns fall back to the first Term.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="답 경로">
+  <h2>SQL 프롬프트에서 추론한 join은 따라야 할 경로로 소개된다</h2>
+  <p class="lead">질문이 오면 agent는 vector 검색으로 Term의 열, SQL attribute, custom analysis 후보와 원래 catalog의 테이블을 모으고, LLM 하나가 SQL을 쓴다. 프롬프트는 정의마다 다른 무게를 붙이는데, 가장 무거운 것이 semantic FK에서 온 join 경로다.</p>
+  <div class="board" data-cols="검색|준비|생성" data-lanes="1|2|3" aria-label="질문의 개체마다 vector 검색으로 후보를 모으고 LLM이 걸러 낸 뒤, 기준 열과 semantic FK 최단 경로를 준비해 SQL 생성 프롬프트에 넣는다. 프롬프트에서 join 경로는 검증된 조건으로, 기준 열은 강한 힌트로, SQL attribute는 참고로 소개된다">
+    <div class="card" id="c4-r" data-col="검색" data-lane="1..3" data-center><b>개체마다 두 vector DB를 찾는다</b><p>나온 후보를 LLM이 질문 의도로 거른다</p><p class="ev">text_to_sql/agents/candidates_retrieval.py:9</p></div>
+    <div class="card" id="c4-p" data-col="준비" data-lane="1..3" data-center><b>기준 열과 join 경로를 준비한다</b><p>join 경로는 semantic FK 그래프에서 두 테이블 사이의 최단 경로다</p><p class="ev">dal/attributes.py:1038</p></div>
+    <div class="card t-key" id="c4-j" data-col="생성" data-lane="1"><b>join 경로: 검증된 조건</b><p>경로를 고르면 중간 테이블과 hop은 모두 필수라고 적는다</p><p class="ev">text_to_sql/prompts.py:444, :446</p></div>
+    <div class="card" id="c4-h" data-col="생성" data-lane="2"><b>기준 열: 강한 힌트</b><p>맞으면 쓰고, 질문과 맞지 않으면 억지로 쓰지 말라고 적는다</p><p class="ev">text_to_sql/prompts.py:442</p></div>
+    <div class="card" id="c4-s" data-col="생성" data-lane="3"><b>SQL attribute: 참고</b><p>질문 의도와 맞으면 식이나 SQL 모양을 가져다 쓰라고 적는다</p><p class="ev">text_to_sql/agents/sql_from_semantic.py:258</p></div>
+    <span class="edge" data-from="c4-r" data-to="c4-p"></span>
+    <span class="edge" data-from="c4-p" data-to="c4-j"></span>
+    <span class="edge" data-from="c4-p" data-to="c4-h"></span>
+    <span class="edge" data-from="c4-p" data-to="c4-s"></span>
+  </div>
+  <div class="explanation">
+    <p>Term은 프롬프트에 따로 한 덩어리로 들어가지 않고, 두 길로 검색에 영향을 준다. 첫째, 열(ColumnAttribute)을 색인할 때 열 이름 옆에 Term의 이름과 동의어를 붙이므로, 이 둘이 어떤 열이 걸리는지를 바꾼다. LLM은 걸린 열 가운데 하나를 기준 열로 고르고, 동의어는 "TERM GLOSSARY"로도 프롬프트에 붙는다. 둘째, 질문의 주어로 Term 하나를 따로 검색하는데, 이 색인에는 Term의 설명이 들어간다. 여기서 걸린 Term에 묶인 테이블이 후보 테이블에 더해진다. 그래서 Term의 설명을 고치면 어느 Term이 주어로 잡히는지, 곧 어떤 테이블이 후보에 오르는지가 달라질 수 있다.</p>
+    <p>모델이 보는 스키마는 ontology에 한정되지 않는다. 준비 단계는 질문과 개체로 원래 catalog의 테이블도 따로 검색해 "AVAILABLE TABLES"로 넣고, SQL이 실패해 데이터가 모자라다고 판단되면 재구성 단계가 테이블을 더 찾는다. 따라서 ontology에 없는 테이블도 쓰일 수 있지만, join 조건만큼은 semantic FK 경로가 가장 강한 지시를 받는다.</p>
+    <p>README는 SQL attribute를 "검토된 SQL 식"이라 부르고, agent가 이를 재사용하므로 같은 지표는 늘 같은 방식으로 계산된다고 설명한다. 프롬프트에서는 같은 정의가 참고 자료로 들어가므로, 모델이 다른 식을 쓰면 같은 지표도 질문마다 다르게 계산될 수 있다. custom analysis는 질문과 가까우면 전체 SQL을 출발점으로 그대로 써도 된다고 소개된다. 반대로 join 경로는 compile이 추론한 semantic FK에서 왔는데도 "verified"라는 말과 함께 들어간다. 모델은 이 경로를 고르면 그대로 따르라는 지시를 받는다.</p>
+  </div>
+  <ul class="notes"><li>무게는 프롬프트 문구에서 읽은 것이다. 모델이 실제로 얼마나 따르는지는 잰 자료가 없다.</li></ul>
+  <p class="so">그래서: 같은 지표가 늘 같은 식으로 계산돼야 한다면, 답에 붙은 SQL에 그 SQL attribute의 식이 들어갔는지 사람이 확인해야 한다. 코드에는 그 일치를 확인하는 단계가 없다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>README: <span class="q">“- **SQL attributes.** Reviewed SQL expressions under a term, such as a margin or a rolling total. The agent reuses them, so answers compute each measure the same way.”</span></p>
+    <p>text_to_sql/prompts.py:442–446: <span class="q">“paths derived from the semantic model. Treat it as a strong hint: prefer it”</span> <span class="q">“- SUGGESTED JOIN PATHS show verified column-level join conditions:”</span> <span class="q">“Follow hops in order when the path spans more than one table. Once you choose a path, every intermediate/bridge table and every listed hop is mandatory.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="procedure" data-label="검사와 수리">
+  <h2>기본 설정은 실행 오류와 빈 결과가 날 때만 SQL을 고친다</h2>
+  <p class="lead">생성된 SQL은 정적 검사, LLM의 의도 검증, 실행을 거친다. 어디서 걸리든 재구성 노드로 돌아가고, 일곱 번 실패하면 답할 수 없다고 응답한다.</p>
+  <div class="board" data-cols="1|2|3|4|5" aria-label="SQL을 생성한 뒤 정적 검사와 LLM 의도 검증을 거쳐 실행하고, 결과가 비었을 때만 값을 대 보는 수리를 한다. 어느 단계에서 걸려도 재구성으로 돌아가며, 재구성이 일곱 번을 넘으면 답할 수 없다는 응답으로 끝난다">
+    <div class="card" id="c5-g" data-col="1"><b>① SQL 생성</b><p>앞 장의 프롬프트로 LLM이 쓴다</p></div>
+    <div class="card" id="c5-s" data-col="2"><b>② 정적 검사</b><p>parse, 자리표시 SQL, 집계 누락을 코드로 본다</p><p class="ev">sql_parse_validation.py:930</p></div>
+    <div class="card t-warn" id="c5-i" data-col="3"><b>③ LLM 의도 검증</b><p>질문에 답할 수 있어 보이면 통과시키라고 관대하게 지시한다</p><p class="ev">prompts.py:574</p></div>
+    <div class="card" id="c5-e" data-col="4"><b>④ 실행</b><p>DB 오류가 나면 되돌아간다</p></div>
+    <div class="card t-key" id="c5-v" data-col="5"><b>⑤ 빈 결과일 때만 수리</b><p>필터 값을 실제 값과 대 보고, 그래도 비면 한 번 다시 만든다</p><p class="ev">empty_result_value_repair.py:7, :23</p></div>
+    <span class="edge" data-from="c5-g" data-to="c5-s"></span>
+    <span class="edge" data-from="c5-s" data-to="c5-i"></span>
+    <span class="edge" data-from="c5-i" data-to="c5-e"></span>
+    <span class="edge" data-from="c5-e" data-to="c5-v"></span>
+    <span class="edge" data-from="c5-v" data-to="c5-g">②~⑤ 어디서 걸려도 재구성, 최대 7번</span>
+  </div>
+  <div class="explanation">
+    <p>README는 답변 단계가 필터 값과 질의를 데이터베이스에 대 보고 검사가 실패하면 SQL을 고친다고 설명한다. 코드에서 그 검사의 상당수는 켜야 도는 선택 사항이다. 그래서 결과가 비어 있지 않은 SQL은 값이 틀려도 ⑤를 그냥 지나간다. 또 실행 전 검사와 빈 결과 수리 같은 보조 검사는 재구성이 다섯 번을 넘으면 더 막지 않고 SQL을 통과시킨다.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>검사</th><th>기본</th><th>무엇을 잡는가</th></tr></thead>
+    <tbody>
+      <tr><td>parse, 자리표시 SQL, 집계 누락</td><td>켜짐</td><td>catalog에 없는 테이블, <code>WHERE 1=0</code>, GROUP BY 아래의 정의되지 않은 열</td></tr>
+      <tr><td>LLM 의도 검증</td><td>켜짐</td><td>질문과 크게 어긋난 SQL. 관대하게 판정한다</td></tr>
+      <tr><td>빈 결과의 값 수리와 한 번의 재생성</td><td>켜짐</td><td>대소문자나 철자가 조금 다른 필터 값</td></tr>
+      <tr><td>vacuous GROUP BY</td><td>꺼짐 (<code>DETECT_VACUOUS_GROUP_BY</code>)</td><td>행마다 유일한 열로 묶어 집계가 아무 일도 하지 않는 SQL</td></tr>
+      <tr><td>실행 전 literal 검사</td><td>꺼짐 (<code>DB_PROBE_PROACTIVE</code>)</td><td>결과는 나오지만 데이터에 없는 범주 값</td></tr>
+      <tr><td>실행 전 join 경로 검사</td><td>꺼짐 (<code>DB_PROBE_JOIN_PATH_CHECK</code>)</td><td>semantic FK 그래프에 없는 join. 그래프에 있는 잘못된 FK는 통과한다</td></tr>
+      <tr><td>실행 전 JSONB 경로 검사</td><td>꺼짐 (<code>DB_PROBE_JSONB_PATH_CHECK</code>)</td><td>없는 JSON 키. Postgres만</td></tr>
+      <tr><td>실행 전 값 검증 노드</td><td>꺼짐 (요청의 <code>validate_sql_values</code>)</td><td>필터 값이 실제로 있는지. Chat 경로는 이 값을 넣지 않는다</td></tr>
+    </tbody>
+  </table></div>
+  <p class="so">그래서: 결과가 나오지만 틀린 SQL을 줄이려면 <code>DB_PROBE_PROACTIVE</code>와 <code>DB_PROBE_JOIN_PATH_CHECK</code>를 켜고 늘어나는 지연을 재 본다. 다만 join 경로 검사는 semantic FK 그래프를 기준으로 삼으므로, 그래프에 들어간 잘못된 FK는 6장처럼 사람이 직접 찾아야 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>README 「How it works」: <span class="q">“4. Checks the filter values and the query against the database, repairing the SQL when a check fails.”</span></p>
+    <p>text_to_sql/db_probe/config.py:36: <span class="q">“Off by default: unlike the empty-result check this runs on every query with a categorical filter (a few cheap DISTINCT probes)”</span></p>
+    <p>text_to_sql/main.py:230: <span class="q">“"validate_sql_values": payload.get("validate_sql_values", False),”</span></p>
+    <p>text_to_sql/prompts.py:574: <span class="q">“IMPORTANT: Be generous in your validation. If the SQL could reasonably answer the question, mark it as valid.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="case" data-label="틀린 join">
+  <h2>값이 조금 겹치는 잘못된 FK는 compile부터 답까지 살아남는다</h2>
+  <p class="lead">아래는 앞의 세 장에서 읽은 규칙으로 결과를 예측한 가상의 예다. 실제 데이터에서 돌려 본 결과는 아니다.</p>
+  <div class="explanation">
+    <p>선언된 FK가 없는 warehouse에 <code>orders.region_id</code>라는 열이 있다고 하자. 이 열은 원래 <code>sales_regions.id</code>를 가리키지만, 이름이 비슷한 <code>warehouses.id</code>도 1부터 50까지의 정수 키다. compile에서 LLM이 <code>warehouses.id</code>를 고르면, 두 열의 값이 겹치므로 겹침 0 검사는 이 FK를 남긴다.</p>
+    <p>사용자가 "지역별 매출"을 물으면 준비 단계는 이 FK가 든 경로를 SQL 프롬프트에 검증된 join으로 넣는다. 의도 검증 LLM도 의미 모델에서 온 경로를 따른 join은 유지하라는 지시를 받는다. SQL은 창고 이름별 합계를 돌려주고 결과가 비지 않으므로 빈 결과 수리도 돌지 않는다. 답은 SQL과 함께 정상으로 나간다. 실행 전 join 경로 검사를 켜도 결과는 같다. 이 검사는 먼저 semantic FK 그래프에 그 edge가 있는지 보는데, 잘못된 edge가 그래프에 있기 때문이다.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>상황</th><th>Auto Ontology의 동작</th><th>사용자가 받는 것</th></tr></thead>
+    <tbody>
+      <tr><td>잘못 고른 FK의 값이 대상과 하나도 겹치지 않는다</td><td>compile이 FK를 지운다 (2026-11-03 이후 판)</td><td>그 경로는 프롬프트에 오지 않는다</td></tr>
+      <tr><td>잘못 고른 FK의 값이 조금 겹친다</td><td>FK가 남아 검증된 join으로 프롬프트에 들어간다</td><td>틀린 숫자가 SQL과 함께 정상 답으로 온다</td></tr>
+      <tr><td>틀린 join 때문에 결과가 비었다</td><td>값 수리를 하고 진단 없이 한 번 다시 만든다</td><td>다른 경로로 고쳐질 수도 있고, 빈 답이 올 수도 있다</td></tr>
+      <tr><td>사람이 그 Term을 인증했다</td><td>질의 경로는 달라지지 않는다</td><td>같은 답이 온다</td></tr>
+      <tr><td>사람이 Term의 설명을 고쳤다</td><td>색인을 다시 만들어 주어 Term과 후보 테이블이 달라질 수 있다. semantic FK는 그대로다</td><td>후보가 바뀌어도 join은 같은 잘못된 경로로 소개된다</td></tr>
+      <tr><td>사람이 관계를 고치려 한다</td><td>관계를 직접 고치는 공개 API가 없다. 관리자 skill은 model export와 import를 쓰라고 한다</td><td>import로 바꿔도 빠뜨린 semantic FK가 남을 수 있다는 issue #250로 기록되어 있다</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes"><li>테이블과 열 이름은 설명을 위해 지었다. 각 행의 동작은 3·4·5·7장에서 읽은 코드 규칙과 관리자 skill의 문장이다.</li></ul>
+  <p class="so">그래서: 숫자 하나가 의심스러우면 답에 붙은 SQL의 join을 semantic FK 목록과 대 보는 것이 가장 빠른 확인이다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>text_to_sql/agents/sql_parse_validation.py:1029: <span class="q">“"AUTHORITATIVE JOIN PATHS " "(keep joins that follow these verified paths):\n"”</span></p>
+    <p>text_to_sql/db_probe/config.py:59: <span class="q">“Off by default, same trade-off as the other proactive checks: on the common case (join already correct) it's a handful of cheap existence checks against the ``SEMANTIC_FK`` graph per query”</span></p>
+    <p>skills/nvidia-ontology-management/references/modeling.md:73: <span class="q">“Auto Ontology has no direct public create-empty-Term endpoint and no complete direct structural relationship mutation workflow.”</span></p>
+    <p>publication.md:69: <span class="q">“- [issue #250](https://github.com/NVIDIA/auto-ontology/issues/250): replacement may retain an omitted semantic FK;”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="인증">
+  <h2>인증 플래그는 배지를 바꾸고 답을 만드는 경로에는 닿지 않는다</h2>
+  <p class="lead">인증은 Term의 이름과 설명, 열 attribute, SQL attribute마다 사람이 켜는 boolean이다. 질의 경로의 코드는 이 플래그를 읽지 않는다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>인증 플래그가 쓰이는 곳</th><th>쓰이지 않는 곳</th></tr></thead>
+    <tbody>
+      <tr><td>Term 카드의 배지. 플래그를 세어 모두 켜졌으면 certified, 하나도 없으면 pending, 그 사이는 partial이다</td><td>후보 검색. vector 검색 조건에 인증 여부가 없다</td></tr>
+      <tr><td>전역 검색 결과의 표시</td><td>SQL 생성 프롬프트. 인증된 정의와 아닌 정의가 같은 모양으로 들어간다</td></tr>
+      <tr><td>관리 API의 PATCH 응답</td><td>검색 색인. 인증만 바꾸면 VDB를 다시 만들지 않는다</td></tr>
+    </tbody>
+  </table></div>
+  <div class="explanation">
+    <p>README는 Validate 항목에서 생성된 질의를 인증된 정의와 lineage에 대 본다고 소개한다. 그런데 <code>auto_ontology/retrieval</code>, <code>semantic</code>, <code>vdb</code>에서 "certif"를 찾으면 literal 검사의 예시 문자열 두 줄만 나온다. 관리자들이 저장소에 함께 둔 agent skill도 지금의 인증 필드가 원자적인 검토와 승격 체계가 아니라고 적고, 인증을 그런 것처럼 말하지 말라고 지시한다.</p>
+    <p>사람이 답에 닿는 길은 인증이 아니라 편집이다. Term의 이름이나 설명을 고치면 검색 색인을 다시 만들어, 4장의 두 길을 거쳐 다음 질문의 후보가 바뀔 수 있다. SQL attribute와 custom analysis는 지울 수 있다. semantic FK는 6장에서 보듯 직접 고치는 API가 없다. 그러니 인증하지 않은 SQL attribute와 LLM이 고른 semantic FK도 compile 직후부터 답에 쓰인다. 인증은 사람이 어디까지 봤는지 기록하는 장부로 보는 편이 코드와 맞다.</p>
+  </div>
+  <p class="so">그래서: 검토한 정의만 답에 쓰여야 한다면, 검토가 끝나기 전에는 Chat이나 MCP를 사용자에게 열지 말아야 한다. 검토에서 틀린 SQL attribute는 지우고, 틀린 semantic FK는 model import로 고친 뒤 export해서 실제로 빠졌는지 확인한다.</p>
+  <ul class="notes"><li>부재의 근거: 인증 필드의 이름은 <code>name_certified</code>, <code>description_certified</code>, <code>certified</code>다. r1 커밋에서 <code>grep -rn -i certif auto_ontology/retrieval auto_ontology/semantic auto_ontology/vdb</code>의 결과가 <code>literal_check.py:765–766</code>의 예시 문자열뿐이다. frontend는 읽지 않았다.</li></ul>
+  <details class="orig"><summary>원문</summary>
+    <p>README: <span class="q">“- Validate: check generated queries against certified definitions and lineage; return provenance with every answer.”</span></p>
+    <p>server/terms/service.py:108: <span class="q">“The certification flag carries no embedding content, so a certification-only update skips the VDB refresh entirely.”</span></p>
+    <p>server/terms/router.py:240: <span class="q">“# Certification flags carry no embedding content; only name/description”</span></p>
+    <p>skills/nvidia-ontology-management/references/publication.md:98: <span class="q">“Current Auto Ontology certification fields are not an atomic review/promotion system.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="eval 설계">
+  <h2>eval의 정확도 차이에는 agent의 수리 루프와 켜 둔 검사가 함께 들어간다</h2>
+  <p class="lead">auto-ontology-eval은 같은 모델에 같은 질문을 두 번 묻고 실행 결과로 채점한다. 두 쪽이 받는 것이 ontology 말고도 다르므로, 차이를 ontology의 효과로만 읽으면 안 된다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>대조군 <code>schema_only_sql</code></th><th>실험군 <code>auto_ontology_sql</code></th></tr></thead>
+    <tbody>
+      <tr><td>모델이 받는 것</td><td>질문과 데이터베이스 전체의 스키마 dump</td><td>질문. Auto Ontology agent가 검색으로 고른 열, 테이블, join 경로, custom analysis</td></tr>
+      <tr><td>시도</td><td>한 번에 답한다. 도구가 없다</td><td>검증, 실행, 재구성을 최대 7번까지 돈다</td></tr>
+      <tr><td>값 검증 노드</td><td>없다</td><td>켠다. 관리자는 실행 시간의 가장 큰 몫이라고 적는다</td></tr>
+      <tr><td>의도 분류</td><td>없다</td><td>계산 질문으로 고정한다</td></tr>
+      <tr><td>채점</td><td colspan="2">각 SQL과 정답 SQL을 같은 DB에서 실행해 결과를 비교한다. LLM 심판은 없다</td></tr>
+    </tbody>
+  </table></div>
+  <div class="explanation">
+    <p>eval README는 BIRD용 예시 SQL과 값 힌트를 켜면 차이가 그 입력까지 함께 재게 된다고 스스로 경고한다. 같은 이유가 기본 설정에도 해당한다. 실험군은 실행 결과를 보고 SQL을 고칠 기회가 있고 대조군에는 없으므로, 차이에는 ontology와 수리 루프가 섞인다. 또 실험군은 Chat의 기본값과 달리 값 검증 노드를 켜고 돈다. 그래서 eval의 숫자를 웹 Chat의 정확도로 옮겨 읽을 수 없다.</p>
+    <p>저장소에 들어 있는 Wide World Importers 질문 41개는 custom analysis 19개와 함께 ingest된다. 두 파일을 비교해 보면 analysis 4개의 SQL이 정답 SQL과 공백과 대소문자만 빼고 같았다(question_id 32, 34, 35, 40). 실험군은 vector 검색으로 이 analysis를 찾아 SQL을 그대로 가져다 쓸 수 있으므로, WWI의 차이에는 정답을 미리 본 질문이 섞인다.</p>
+  </div>
+  <p class="so">그래서: 자기 데이터로 eval을 돌린다면 custom analysis를 질문과 겹치지 않게 만들고, 대조군에도 같은 재시도를 주는 세 번째 arm을 두어야 ontology의 몫을 따로 볼 수 있다.</p>
+  <ul class="notes"><li>WWI 비교는 <code>datasets/wideworldimporters</code>의 두 JSON을 읽어 공백과 대소문자를 맞춘 뒤 같은 문자열인지 본 것이다. 의미가 같지만 모양이 다른 SQL은 세지 않았다.</li></ul>
+  <details class="orig"><summary>원문</summary>
+    <p>eval README: <span class="q">“| Control   | `schema_only_sql`   | The question and a schema dump, in one prompt with no tools                     |”</span> <span class="q">“a difference measured with them covers those inputs as well as the ontology.”</span></p>
+    <p>resources_servers/auto_ontology_sql/app.py:381–383: <span class="q">“# Enables the validate_sql_values node, which checks filter literals”</span> <span class="q">“# single largest contributor to wall clock -- but the legacy harness”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="result" data-label="공개 수치">
+  <h2>공개된 숫자 가운데 정확도 개선 폭을 보여 주는 것은 없다</h2>
+  <p class="lead">두 저장소와 NVIDIA 페이지에서 찾은 숫자를 모두 모았다. 정확도에 관한 숫자는 망가진 실행 하나뿐이다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>숫자</th><th>무엇을 쟀나</th><th>누가, 어디서</th></tr></thead>
+    <tbody>
+      <tr><td>작성 시간 90% 감소</td><td>ontology 작성 시간. 비교 대상과 조건은 없다</td><td>NVIDIA 개발자 사이트, "in NVIDIA testing"</td></tr>
+      <tr><td>BIRD 60문항 정확도 13.3%</td><td>HTTP 호출 1126번 중 747번이 429였던 실행. 관리자가 허구라고 부른다</td><td>eval의 <code>resources_servers/README.md</code></td></tr>
+      <tr><td>semantic FK 137개 중 17개 삭제</td><td>BEAVER dw에서 겹침 0 가지치기가 지운 수 (3장)</td><td>커밋 fb496d4 메시지</td></tr>
+      <tr><td>Opus 5.5의 SQL 반환 3번 중 0번 → 3번</td><td>도구 설명의 한 문장을 고치기 전과 후 (10장)</td><td>커밋 68c8558 메시지</td></tr>
+    </tbody>
+  </table></div>
+  <div class="explanation">
+    <p>eval 저장소는 결과를 비교하는 도구와 실행 상태 검사까지 갖췄지만 결과 자체는 커밋하지 않는다. <code>.gitignore</code>가 <code>/results/*</code>를 제외하고, README가 가리키는 <code>results/CONCURRENCY-STUDY.md</code>도 트리에 없다. ingestion README는 BIRD Dev 11개 데이터베이스의 주석 세트를 싣는다고 적지만 그 경로인 <code>inputs/annotations/</code>도 이 커밋에 없다. 그래서 외부에서 eval을 돌리면 관리자가 쓴 주석 없이 BIRD 원래 주석으로 돌게 되고, 관리자의 실행과 같은 조건을 만들 수 없다.</p>
+  </div>
+  <p class="so">그래서: 도입 효과를 판단하려면 자기 데이터와 질문으로 eval을 직접 돌려야 한다. 비교 도구는 기본 설정에서 어느 한 arm에서 모델 출력이 없거나 알 수 없는 오류로 끝난 질문이 5%를 넘거나 결과가 빠진 질문이 있으면 headline 숫자를 내지 않으므로, rate limit 때문에 망가진 실행을 결과로 착각할 위험은 줄어 있다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>resources_servers/README.md:353: <span class="q">“at 13.3% execution accuracy. That number was fiction: 747 of 1126 HTTP calls were”</span></p>
+    <p>ontology_sql_eval/ingestion/README.md:58: <span class="q">“The set this repo ships for BIRD covers all 11 Dev databases, so the two commands”</span></p>
+    <p>eval README: <span class="q">“headline number when more than 5% of questions got no model output, or while”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="mechanism" data-label="고정 리비전">
+  <h2>eval이 설치하는 Auto Ontology는 main보다 18커밋 이전 판이다</h2>
+  <p class="lead">eval의 <code>pyproject.toml</code>은 Auto Ontology를 커밋 dd78d06(2026-11-01)에 고정한다. 그 뒤 main에 들어온 18개 커밋 가운데 넷이 답 경로를 건드리고, 그중 아래 두 건이 결과를 크게 바꿀 수 있다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>수정</th><th>dd78d06 (eval이 설치)</th><th>c447003 (main)</th></tr></thead>
+    <tbody>
+      <tr><td>겹침 0인 semantic FK 삭제 (fb496d4, 11-03)</td><td>없다. 추론한 FK가 모두 남는다</td><td>있다</td></tr>
+      <tr><td>SQL 도구 설명에서 "drain reasoning" 문장 제거 (68c8558, 11-03 merge)</td><td>문장이 남아 있다</td><td>지웠다</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes"><li>나머지 둘은 Claude 모델에 system 메시지를 먼저 보내는 수정(#399)과 SQL 프롬프트에서 시각을 뺀 수정(#400)이다. 둘 다 프롬프트의 모양을 바꾼다.</li></ul>
+  <div class="explanation">
+    <p>관리자는 커밋 68c8558에서, 이 문장이 도구 설명으로 모델에게 전달되어 Opus 5.5가 SQL 생성 호출을 모두 거부했다고 적었다. 같은 프롬프트로 Bedrock과 Azure에서 수정 전에는 3번 중 0번, 수정 후에는 3번 모두 SQL이 돌아왔다고 한다. eval README는 관리자가 <code>sk-</code> 키로 두 arm 모두 Opus 5.5를 쓴다고 설명하고, dd78d06도 <code>sk-</code> 키의 기본 모델을 Opus 5.5로 둔다. 두 사실을 합치면, 고정된 판을 문서대로 Opus 5.5로 돌릴 때 실험군의 SQL 생성이 실패할 가능성이 크다. 관리자의 측정은 프롬프트 하나에 세 번씩이고, 이 조합을 실제로 실행해 보지는 않았다.</p>
+  </div>
+  <p class="so">그래서: eval을 돌리기 전에 <code>pyproject.toml</code>의 고정 커밋을 68c8558 이후로 올리거나, Opus 5.5가 아닌 모델로 두 arm을 맞춰야 한다.</p>
+  <details class="orig"><summary>원문</summary>
+    <p>eval pyproject.toml:16: <span class="q">“"auto-ontology-server @ git+https://github.com/NVIDIA/auto-ontology.git@dd78d0689ef9a8e062af90a294fa903cb6643015",”</span></p>
+    <p>dd78d06의 text_to_sql/models.py:215: <span class="q">“comes first to drain reasoning before it writes the clean output fields.”</span></p>
+    <p>커밋 68c8558 메시지: <span class="q">“On one SQL-generation prompt through safe_invoke_with_structured_output, Opus 5.5 returned SQL 0 of 3 times on Bedrock and on Azure before, and 3 of 3 on both after; Opus 4.8 is unaffected.”</span></p>
+  </details>
+  </section>
+
+  <section class="slide" data-role="critique" data-label="한계">
+  <h2>동작은 코드에서 읽었고 정확도는 아무도 공개하지 않았다</h2>
+  <p class="lead">설명의 대부분은 고정한 커밋의 코드를 읽은 결과다. 실행으로 확인한 것은 WWI 두 파일의 비교 하나다.</p>
+  <ul class="points">
+    <li><b>실행하지 않은 동작</b>compile 결과, 프롬프트의 실제 모양, 6장의 예측은 코드에서 읽은 것이다. 운영에 넣기 전에 자기 데이터로 compile을 한 번 돌리고 semantic FK 목록과 답의 SQL을 직접 봐야 한다.</li>
+    <li><b>프롬프트 문구로 읽은 무게</b>4장의 무게는 프롬프트가 정의를 소개하는 말에서 읽었다. 모델이 그 말을 얼마나 따르는지는 잰 자료가 없으므로, 자기 질문 몇 개로 답의 SQL이 semantic FK 경로를 따르는지 확인하는 편이 안전하다.</li>
+    <li><b>판이 바뀌면 달라지는 판단</b>README와 코드의 차이는 r1 커밋 기준이다. 다른 판을 쓴다면 5장 표의 기본값과 7장의 부재 검색을 그 판에서 다시 돌려 본다.</li>
+    <li><b>읽지 않은 frontend</b>frontend가 인증 상태로 무언가를 막는지는 확인하지 않았다. 다만 Chat의 질문은 backend의 같은 graph를 부르므로 답 경로는 같다.</li>
+    <li><b>eval 결과를 재현할 수 없음</b>결과 파일과 BIRD 주석 세트가 커밋되지 않아 관리자의 실행과 같은 조건을 만들 수 없다.</li>
+  </ul>
+  </section>
+
+  <section class="slide" data-role="setup" data-label="읽은 범위">
+  <h2>compile과 text-to-SQL 경로를 읽고 UI와 예측 경로는 열지 않았다</h2>
+  <p class="lead">세 판 모두 shallow clone이라 커밋 이력은 GitHub API로 받은 커밋 두 건과 비교 목록만 썼다.</p>
+  <div class="board dense" data-cols="읽음|열지 않음" aria-label="읽은 경로와 열지 않은 경로, 열지 않아서 얕아진 장">
+    <div class="card" data-col="읽음"><b>auto-ontology c447003</b><p>README, AGENTS.md, <code>semantic/</code>의 compile 경로, <code>retrieval/text_to_sql</code>의 graph와 생성, 검증, 수리 노드, 인증 관련 <code>dal</code>과 <code>server</code></p></div>
+    <div class="card" data-col="읽음"><b>auto-ontology-eval ec41b2c</b><p>README, 두 arm의 server, <code>compare.py</code>, ingestion README, WWI 데이터</p></div>
+    <div class="card" data-col="읽음"><b>auto-ontology dd78d06</b><p>models.py와 model_config.py, semantic_fk.py만 열었다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>frontend, helm, connectors</b><p class="ev">7장의 인증 판단이 backend 기준이다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>retrieval/kumo, retrieval/interactive</b><p class="ev">예측 질문과 BIRD-Interact 경로는 다루지 않았다</p></div>
+    <div class="card t-quiet" data-col="열지 않음"><b>eval의 BIRD-Interact, extra prompt 스크립트</b><p class="ev">8장은 기본 두 arm만 설명한다</p></div>
+  </div>
+  </section>
+
+  <section class="slide" data-role="sources" data-label="출처">
+  <h2>출처</h2>
+  <ul class="sources">
+    <li><a href="https://github.com/NVIDIA/auto-ontology/tree/c447003f72a822301e927196a4ecb5b597c308d5">r1 · NVIDIA/auto-ontology</a> <span class="t">NVIDIA Auto-Ontology 팀, 커밋 c447003 (2026-11-06, v1.2.0 직후)</span></li>
+    <li><a href="https://github.com/NVIDIA/auto-ontology-eval/tree/ec41b2c5b795637759297b90c1d19b42693200f9">r2 · NVIDIA/auto-ontology-eval</a> <span class="t">같은 팀, 커밋 ec41b2c (2026-11-04)</span></li>
+    <li><a href="https://github.com/NVIDIA/auto-ontology/tree/dd78d0689ef9a8e062af90a294fa903cb6643015">r3 · NVIDIA/auto-ontology, eval이 고정한 판</a> <span class="t">커밋 dd78d06 (2026-11-01)</span></li>
+    <li><a href="https://developer.nvidia.com/topic/ai/agent-knowledge-foundation/">w1 · NVIDIA Agent Knowledge Foundation</a> <span class="t">NVIDIA 개발자 사이트, 2026-11-07에 받은 사본</span></li>
+    <li><a href="https://github.com/NVIDIA/auto-ontology/commit/68c85581de3fd4ecb290e0ae4667692763ba1f02">w2 · 커밋 68c8558 메시지</a> <span class="t">SQL 도구 설명이 모델의 추론을 요구하지 않게 고친 커밋</span></li>
+    <li><a href="https://github.com/NVIDIA/auto-ontology/commit/fb496d406acfd34db0af3c5d188080097779021f">w3 · 커밋 fb496d4 메시지</a> <span class="t">겹치지 않는 semantic FK를 지우는 커밋 (PR #401)</span></li>
+    <li><a href="https://github.com/NVIDIA/auto-ontology/compare/dd78d0689ef9a8e062af90a294fa903cb6643015...c447003f72a822301e927196a4ecb5b597c308d5">w4 · dd78d06과 c447003의 비교</a> <span class="t">GitHub compare, 18개 커밋</span></li>
+  </ul>
+  </section>
+
+
+</main>
+<script>
+/* board 셸 스크립트
+   board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
+   plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
+   좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   목차  : 장에서 만든 rail(≥1400px)과 sheet(그보다 좁을 때 위 막대의 목차 단추), 위 막대의 지금 장·이전/다음·읽은 만큼
+   스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
+   render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
+(function () {
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var list = function (s) { return (s || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean); };
+  var narrow = function () { return window.matchMedia('(max-width: 760px)').matches; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var warnings = [];
+  window.__layout = { warnings: warnings, done: false };
+  var warn = function (where, msg) { var w = where + ': ' + msg; if (warnings.indexOf(w) < 0) warnings.push(w); };
+  var titleOf = function (el) { return ((el.querySelector(':scope > b') || el).textContent || '').replace(/\s+/g, ' ').trim(); };
+  // 그림의 값: [약|~] [+|-] [$] 숫자(쉼표 가능) [k|M|B] [단위]. 단위 목록은 check-doc.mjs 의 plot-data 와 같다
+  var NUM = /^([+-]?)\$?(\d+(?:\.\d+)?)([kMB]?)(%p|%|pt|ms|s|초|분|시간|일|건|개|번|회|명|배|x|×|원|달러)?$/;
+  var num = function (t) {
+    var m = NUM.exec(String(t).replace(/약|~|,|\s/g, ''));
+    if (!m) return NaN;
+    return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]) * ({ k: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1);
+  };
+
+  /* ── 장 번호, 목차 링크, 위 막대 ── */
+  var secs = $$('section.slide');
+  secs.forEach(function (s, k) {
+    if (!s.id) s.id = 'p' + (k + 1);
+    if (s.getAttribute('data-role') === 'cover') return;
+    var c = document.createElement('p'); c.className = 'chno'; c.setAttribute('aria-hidden', 'true');
+    c.textContent = String(k + 1).padStart(2, '0') + ' · ' + (s.getAttribute('data-label') || '');
+    s.insertBefore(c, s.firstChild);
+  });
+  $$('a[href^="#p"]').forEach(function (a) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) { a.removeAttribute('href'); a.classList.add('inert'); return; }
+    // 표지 흐름 판의 상자는 장 번호 칩을 셸이 링크에서 만든다. 장을 합치거나 옮겨도 칩이 낡지 않는다
+    if (a.classList.contains('card') && a.closest('section[data-role="cover"]')) {
+      var c = document.createElement('span'); c.className = 'chip'; c.textContent = (secs.indexOf(t) + 1) + '장';
+      a.insertBefore(c, a.firstChild);
+    }
+  });
+  var nav = buildNav();
+
+  /* ── 목차: rail 과 sheet 는 같은 목록이다. 장 번호, data-label, h2 를 장에서 읽는다 ──
+     무리: 표지 흐름 판의 상자가 가리키는 장은 흐름(채운 점), 표지 목록(.toc)의 장은 그 줄의 span.g 가 무리 이름이고
+     빈 span.g 는 앞 줄의 무리를 잇는다. 지금 장은 읽는 선(위 막대 아래 30%)을 지난 마지막 장이다.
+     장으로 옮겨 가는 길은 모두 #pN 링크라 주소와 뒤로 가기가 브라우저의 것 그대로다 */
+  function buildNav() {
+    var bar = document.querySelector('.topbar');
+    if (!bar || !secs.length) return null;
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var clean = function (t) { return (t || '').replace(/\s+/g, ' ').trim(); };
+    var info = secs.map(function (s, k) {
+      var h = s.querySelector('h1,h2');
+      return { s: s, h: h, n: String(k + 1).padStart(2, '0'), label: clean(s.getAttribute('data-label')) || clean(h && h.textContent) || ('장 ' + (k + 1)), claim: clean(h && h.textContent), flow: false, group: '' };
+    });
+    var byId = function (href) { var t = document.getElementById((href || '').slice(1)); return t ? secs.indexOf(t) : -1; };
+    var cover = secs[0].getAttribute('data-role') === 'cover' ? secs[0] : null;
+    if (cover) {
+      $$('.board a[href^="#p"]', cover).forEach(function (a) { var i = byId(a.getAttribute('href')); if (i > 0) info[i].flow = true; });
+      var last = '';
+      $$('.toc li', cover).forEach(function (li) {
+        var a = li.querySelector('a[href^="#p"]'), g = li.querySelector('.g'), i = a ? byId(a.getAttribute('href')) : -1;
+        if (g && clean(g.textContent)) last = clean(g.textContent);
+        if (i > 0 && !info[i].flow) info[i].group = last;
+      });
+    }
+    var hasFlow = info.some(function (x) { return x.flow; }), hasRest = info.some(function (x, k) { return k > 0 && !x.flow; });
+    function list(withKey) {
+      var ol = el('ol', 'toc-list'), fill = el('i', 'toc-fill'), items = [], sub = null, cur = null;
+      fill.setAttribute('aria-hidden', 'true'); ol.appendChild(fill);
+      info.forEach(function (x, k) {
+        var li = el('li', 'ti' + (x.flow || k === 0 ? ' is-flow' : '')), a = el('a');
+        a.href = '#' + x.s.id; if (x.claim && x.claim !== x.label) a.title = x.claim;
+        a.appendChild(el('span', 'ti-n', x.n));
+        var t = el('span', 'ti-t'); t.appendChild(el('span', 'ti-l', x.label));
+        if (x.claim && x.claim !== x.label) t.appendChild(el('span', 'ti-h', x.claim));
+        a.appendChild(t); li.appendChild(a); items.push(li);
+        if (x.group && !x.flow) {
+          if (cur !== x.group) { var g = el('li', 'tg'); g.appendChild(el('span', 'tg-h', x.group)); sub = el('ol'); g.appendChild(sub); ol.appendChild(g); cur = x.group; }
+          sub.appendChild(li);
+        } else { cur = null; ol.appendChild(li); }
+      });
+      var box = document.createDocumentFragment();
+      var head = el('div', 'toc-head'); head.appendChild(el('span', 'toc-title', '목차')); head.appendChild(el('span', 'toc-count', secs.length + '장'));
+      if (withKey) box.appendChild(head);
+      box.appendChild(ol);
+      if (hasFlow && hasRest) { var key = el('p', 'toc-key'); key.setAttribute('aria-hidden', 'true'); key.appendChild(el('span', 'k-flow', '표지 흐름의 장')); key.appendChild(el('span', '', '더 보는 장')); box.appendChild(key); }
+      return { box: box, ol: ol, fill: fill, items: items };
+    }
+
+    // 넓은 화면의 rail
+    var railNav = el('nav', 'rail'); railNav.setAttribute('aria-label', '목차');
+    var R = list(true); railNav.appendChild(R.box);
+    bar.parentNode.insertBefore(railNav, bar.nextSibling);
+
+    // 좁은 화면의 sheet. 모달 dialog 라 초점이 안에 갇히고 Esc 가 닫는다
+    var dlg = el('dialog', 'toc-sheet'); dlg.id = 'toc-sheet'; dlg.setAttribute('aria-label', '목차');
+    var inner = el('div', 'sheet-in'), sh = el('div', 'sheet-head'), x = el('button', 'tb-btn sheet-x', '닫기');
+    x.type = 'button';
+    sh.appendChild(el('span', 'toc-title', '목차')); sh.appendChild(el('span', 'toc-count', secs.length + '장')); sh.appendChild(x);
+    var body = el('div', 'sheet-body'), sheetNav = el('nav'); sheetNav.setAttribute('aria-label', '목차');
+    var S = list(false); sheetNav.appendChild(S.box); body.appendChild(sheetNav);
+    inner.appendChild(sh); inner.appendChild(body); dlg.appendChild(inner); document.body.appendChild(dlg);
+
+    // 위 막대: 지도 · 목차 단추 · 지금 장 · 이전/다음 · 읽은 만큼의 선
+    var now = bar.querySelector('.now') || bar.appendChild(el('span', 'now'));
+    now.textContent = '';
+    var nowN = now.appendChild(el('span', 'now-n')), nowL = now.appendChild(el('span', 'now-l')), nowH = now.appendChild(el('span', 'now-h'));
+    var btn = el('button', 'tb-btn tb-toc', '목차'); btn.type = 'button';
+    btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-controls', 'toc-sheet'); btn.setAttribute('aria-expanded', 'false');
+    bar.insertBefore(btn, now);
+    var steps = el('span', 'tb-steps'), prev = el('a', 'tb-btn tb-step'), next = el('a', 'tb-btn tb-step');
+    prev.rel = 'prev'; next.rel = 'next'; steps.appendChild(prev); steps.appendChild(next); bar.appendChild(steps);
+    var prog = el('i', 'tb-progress'); prog.setAttribute('aria-hidden', 'true'); bar.appendChild(prog);
+
+    var wide = window.matchMedia('(min-width: 1400px)');
+    var cur = -1, pin = -1;
+    var setStep = function (a, k, word) {
+      if (k < 0 || k >= info.length) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.setAttribute('aria-label', word + ' 장 없음'); a.removeAttribute('title'); return; }
+      a.href = '#' + info[k].s.id; a.removeAttribute('aria-disabled');
+      var t = word + ' 장: ' + info[k].n + ' · ' + info[k].label; a.setAttribute('aria-label', t); a.title = t;
+    };
+    var fillTo = function (L) {
+      var li = L.items[cur]; if (!li || !li.offsetParent) return;
+      var a = li.firstChild, top = parseFloat(getComputedStyle(a, '::before').top) || 12;
+      L.fill.style.height = Math.max(0, a.getBoundingClientRect().top - L.ol.getBoundingClientRect().top + top + 4 - 16) + 'px';
+    };
+    var keepVisible = function () {
+      var li = R.items[cur]; if (!li || !wide.matches) return;
+      var r = li.getBoundingClientRect(), box = railNav.getBoundingClientRect();
+      if (r.top < box.top + 48) railNav.scrollTop += r.top - box.top - 48;
+      else if (r.bottom > box.bottom - 48) railNav.scrollTop += r.bottom - box.bottom + 48;
+    };
+    function setCurrent(k) {
+      if (k === cur) return;
+      cur = k;
+      [R, S].forEach(function (L) {
+        L.items.forEach(function (li, i) {
+          var a = li.firstChild;
+          if (i === k) { li.setAttribute('data-cur', ''); a.setAttribute('aria-current', 'location'); } else { li.removeAttribute('data-cur'); a.removeAttribute('aria-current'); }
+          li.classList.toggle('is-past', i < k);
+        });
+        fillTo(L);
+      });
+      var x2 = info[k];
+      nowN.textContent = x2.n; nowL.textContent = x2.label; nowH.textContent = x2.claim !== x2.label ? x2.claim : '';
+      setStep(prev, k - 1, '이전'); setStep(next, k + 1, '다음');
+      keepVisible();
+    }
+    var topOf = function () { return bar.getBoundingClientRect().bottom; };
+    function pick() {
+      var de = document.documentElement, vh = window.innerHeight;
+      var p = de.scrollHeight - vh > 0 ? Math.min(1, Math.max(0, window.scrollY / (de.scrollHeight - vh))) : 1;
+      prog.style.transform = 'scaleX(' + p + ')';
+      if (pin >= 0) {
+        var r = secs[pin].getBoundingClientRect();
+        if (r.top < vh && r.bottom > topOf() + 8) { setCurrent(pin); return; }
+        pin = -1;
+      }
+      // 읽는 선은 위 막대 아래 30% 다. 마지막 장이 그 선까지 올라오지 못하는 문서는 끝에 가까울수록 선을 내려,
+      // 맨 끝에서 마지막 장이 되고 그 앞의 짧은 장들도 차례로 지금 장이 된다
+      var r = Math.max(0, de.scrollHeight - vh - window.scrollY), base = topOf() + Math.min(vh * 0.3, 260);
+      var line = Math.max(base, secs[secs.length - 1].getBoundingClientRect().top - 2 * r + 1), k = 0;
+      for (var i = 0; i < secs.length; i++) { if (secs[i].getBoundingClientRect().top <= line) k = i; else break; }
+      setCurrent(k);
+    }
+    var raf = 0;
+    var schedule = function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; pick(); }); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', function () { cur = -1; schedule(); if (wide.matches && dlg.open) dlg.close(); });
+    // 손으로 굴리면 링크로 고른 장의 고정을 푼다
+    var touched = false, unpin = function () { pin = -1; touched = true; };
+    window.addEventListener('wheel', unpin, { passive: true });
+    window.addEventListener('touchstart', unpin, { passive: true });
+    window.addEventListener('keydown', function (e) { if (/^(Arrow(Up|Down)|Page(Up|Down)|Home|End| )$/.test(e.key) && !dlg.open) unpin(); });
+    var fromHash = function () { touched = true; var i = byId(location.hash); if (i >= 0) { pin = i; setCurrent(i); } schedule(); };
+    window.addEventListener('hashchange', fromHash);
+
+    // sheet 열고 닫기. 닫으면 초점은 단추로 돌아온다(장을 고른 경우에는 그 장의 제목으로 간다)
+    var open = function () {
+      if (dlg.open) return;
+      dlg.showModal(); btn.setAttribute('aria-expanded', 'true');
+      cur = -1; pick();
+      var li = S.items[cur];
+      if (li) { li.firstChild.focus(); var r = li.getBoundingClientRect(), b = body.getBoundingClientRect(); body.scrollTop += r.top - b.top - b.height / 3; }
+    };
+    btn.addEventListener('click', open);
+    x.addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('close', function () { btn.setAttribute('aria-expanded', 'false'); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    S.ol.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return;
+      e.preventDefault();
+      var i = byId(a.getAttribute('href'));
+      dlg.close();
+      if (i < 0) return;
+      if (location.hash === a.getAttribute('href')) { pin = i; secs[i].scrollIntoView({ block: 'start' }); setCurrent(i); }
+      else location.hash = a.getAttribute('href');
+      if (info[i].h) { info[i].h.setAttribute('tabindex', '-1'); info[i].h.focus({ preventScroll: true }); }
+    });
+
+    var start = byId(location.hash);
+    if (start >= 0) setCurrent(start); else pick();
+    return {
+      // 판과 그림이 다 그려진 뒤: 주소의 장으로 다시 맞추고(그 사이 위 장들의 높이가 바뀐다) 채움 선을 다시 잰다
+      settle: function () {
+        var how = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+        if (start >= 0 && !touched && how !== 'reload' && how !== 'back_forward') { secs[start].scrollIntoView({ block: 'start', behavior: 'instant' }); pin = start; }
+        cur = -1; pick();
+      }
+    };
+  }
+
+  /* ── board: 칸 배치 ── */
+  function idx(spec, names) {
+    var one = function (v) { var n = names.indexOf(v); if (n >= 0) return n; var k = parseInt(v, 10); return isNaN(k) || String(k) !== v ? -1 : k - 1; };
+    if (!spec) return [0, 0];
+    if (spec === 'all') return [0, names.length - 1];
+    var ab = spec.split('..'), i = one(ab[0].trim()), j = ab[1] ? one(ab[1].trim()) : i;
+    if (i >= names.length || j >= names.length || j < i) return [-1, -1];
+    return [i, j];
+  }
+  function buildBoard(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    var cols = list(board.dataset.cols), lanes = list(board.dataset.lanes);
+    var ncol = Math.max(cols.length, 1), nl = Math.max(lanes.length, 1);
+    var colNames = cols.length ? cols : ['1'], laneNames = lanes.length ? lanes : ['1'];
+    // 칸과 줄의 이름은 화면에 보인다. 숫자만 쓴 이름(1|2|3)은 이름 없는 칸·줄이라 보이지 않는다.
+    var named = function (ns) { return ns.length > 0 && !ns.every(function (c) { return /^\d+$/.test(c); }); };
+    var laneLabels = named(lanes);
+    var axis = named(cols);
+    // 좁은 화면의 읽는 순서: 이름 있는 줄이 있으면 줄마다, 없으면 칸마다. data-read 가 정하면 그것을 따른다
+    var byCols = board.dataset.read ? board.dataset.read === 'cols' : !laneLabels;
+    var widths = (board.dataset.widths || '').split(/\s+/).filter(Boolean);
+    var cards = $$(':scope > .card', board);
+    cards.filter(function (c) { return c.classList.contains('react'); }).forEach(function (r) {
+      var t = document.getElementById(r.dataset.on);
+      if (!t || t.parentElement !== board) { warn(name, 'reaction points at missing card "' + r.dataset.on + '"'); return; }
+      if (!r.dataset.col) r.dataset.col = t.dataset.col || '1';
+      if (!r.dataset.lane) r.dataset.lane = t.dataset.lane || '1';
+    });
+    var occ = {}, laneRows = []; for (var q = 0; q < nl; q++) laneRows.push(1);
+    var pl = cards.map(function (c) {
+      var cc = idx(c.dataset.col, colNames), ll = idx(c.dataset.lane, laneNames);
+      if (cc[0] < 0 || ll[0] < 0) { warn(name, 'unknown lane/col on "' + titleOf(c).slice(0, 24) + '"'); cc = [0, 0]; ll = [0, 0]; }
+      return { c: c, c0: cc[0], c1: cc[1], l0: ll[0], l1: ll[1], s: 0 };
+    });
+    pl.forEach(function (p) {
+      if (p.l0 !== p.l1) return;
+      var s = 0;
+      for (;; s++) { var free = true; for (var k = p.c0; k <= p.c1; k++) if (occ[p.l0 + ':' + k + ':' + s]) free = false; if (free) break; }
+      for (var k2 = p.c0; k2 <= p.c1; k2++) occ[p.l0 + ':' + k2 + ':' + s] = 1;
+      p.s = s; laneRows[p.l0] = Math.max(laneRows[p.l0], s + 1);
+    });
+    var head = axis ? 1 : 0, lc = laneLabels ? 1 : 0, start = [], r = 1 + head;
+    for (var i = 0; i < nl; i++) { start[i] = r; r += laneRows[i]; }
+    board.style.gridTemplateColumns = (laneLabels ? 'minmax(72px, 104px) ' : '') +
+      colNames.map(function (_, i2) { return 'minmax(0, ' + (widths[i2] || 1) + 'fr)'; }).join(' ');
+    pl.forEach(function (p) {
+      p.c.style.gridColumn = (p.c0 + 1 + lc) + ' / ' + (p.c1 + 2 + lc);
+      p.c.style.gridRow = p.l0 === p.l1 ? String(start[p.l0] + p.s) : start[p.l0] + ' / ' + (start[p.l1] + laneRows[p.l1]);
+      p.order = byCols ? p.c0 * 1000 + p.l0 * 100 + p.s : p.l0 * 1000 + p.s * 100 + p.c0;
+    });
+    pl.forEach(function (p) {
+      if (p.c.classList.contains('react')) { var tp = pl.filter(function (x) { return x.c.id === p.c.dataset.on; })[0]; if (tp) p.order = tp.order + 0.5; }
+      p.c.style.order = String(Math.round(p.order * 2));
+      if (axis && cols.length) {
+        var chip = document.createElement('span'); chip.className = 'chip colchip'; chip.setAttribute('aria-hidden', 'true');
+        chip.textContent = p.c0 === p.c1 ? cols[p.c0] : (p.c0 === 0 && p.c1 === ncol - 1) ? '모든 칸' : cols[p.c0] + '–' + cols[p.c1];
+        p.c.insertBefore(chip, p.c.firstChild);
+      }
+    });
+    var add = function (cls, col, row, text, order) {
+      var d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true');
+      if (text != null) d.textContent = text; d.style.gridColumn = col; d.style.gridRow = row;
+      if (order != null) d.style.order = String(order);
+      board.insertBefore(d, board.firstChild); return d;
+    };
+    if (axis) cols.forEach(function (t, i3) { add('axis-h', String(i3 + 1 + lc), '1', t); });
+    if (axis && board.dataset.axisArrow) {
+      add('axis-arrow', (1 + lc) + ' / ' + (ncol + 1 + lc), '1');
+      add('axis-cap', laneLabels ? '1' : String(ncol + lc), laneLabels ? '1' : '2', board.dataset.axisArrow);
+    }
+    lanes.forEach(function (t, i4) {
+      if (laneLabels) {
+        var l = add('lane-label', '1', start[i4] + ' / ' + (start[i4] + laneRows[i4]), t, byCols ? -1 : i4 * 2000 - 1);
+        l.removeAttribute('aria-hidden');
+        if (i4 > 0) add('lane-rule', '1 / -1', String(start[i4]));
+      }
+    });
+    var order = pl.slice().sort(function (a, b) { return a.order - b.order; }).map(function (p) { return p.c; });
+    board._edges = [];
+    $$(':scope > .edge', board).forEach(function (e) {
+      var s = document.getElementById(e.dataset.from), t = document.getElementById(e.dataset.to);
+      if (!s || !t || s.parentElement !== board || t.parentElement !== board) { warn(name, 'edge ' + e.dataset.from + '→' + e.dataset.to + ' has no card'); return; }
+      board._edges.push(e);
+      var label = e.textContent.trim(), back = order.indexOf(t) < order.indexOf(s);
+      if (label || back) { var d = document.createElement('p'); d.className = 'to'; d.textContent = (back ? '↺ ' : '→ ') + (label ? label + ': ' : '') + titleOf(t); s.appendChild(d); }
+    });
+  }
+
+  /* ── board: 화살표. 상자의 실제 위치에서 계산한다 ── */
+  function wire(board, bi) {
+    var old = board.querySelector(':scope > svg.wires'); if (old) old.remove();
+    board.style.paddingBottom = '';
+    var reacts = $$(':scope > .card.react[data-on]', board);
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    if (board.scrollWidth > board.clientWidth + 2) warn(name, 'board is wider than the page');
+    if (narrow() || (!(board._edges || []).length && !reacts.length)) return;
+    var B = board.getBoundingClientRect();
+    var rect = function (el) { var q = el.getBoundingClientRect(); return { l: q.left - B.left, t: q.top - B.top, r: q.right - B.left, b: q.bottom - B.top, el: el }; };
+    var cards = $$(':scope > .card', board).map(rect);
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'wires');
+    svg.setAttribute('width', B.width); svg.setAttribute('height', B.height + 60); svg.setAttribute('role', 'img');
+    var said = [], needBottom = 0, segs = [], labels = [];
+    var cx = function (q) { return (q.l + q.r) / 2; }, cy = function (q) { return (q.t + q.b) / 2; };
+    board._edges.forEach(function (e) {
+      var S = document.getElementById(e.dataset.from), T = document.getElementById(e.dataset.to);
+      var s = rect(S), t = rect(T), pts, lo, hi;
+      if (t.l >= s.r - 2) {
+        lo = Math.max(s.t, t.t); hi = Math.min(s.b, t.b);
+        if (hi - lo >= 24) { var sm = (s.b - s.t) < (t.b - t.t) ? s : t; var y = Math.min(Math.max(cy(sm), lo + 12), hi - 12); pts = [[s.r, y], [t.l, y]]; }
+        else { var mx = (s.r + t.l) / 2; pts = [[s.r, cy(s)], [mx, cy(s)], [mx, cy(t)], [t.l, cy(t)]]; }
+      } else if (t.r <= s.l + 2) {
+        var yb = Math.max(s.b, t.b) + 26; needBottom = Math.max(needBottom, yb + 26);
+        pts = [[cx(s), s.b], [cx(s), yb], [cx(t), yb], [cx(t), t.b]];
+      } else if (t.t >= s.b - 2) {
+        lo = Math.max(s.l, t.l); hi = Math.min(s.r, t.r);
+        if (hi - lo >= 24) pts = [[(lo + hi) / 2, s.b], [(lo + hi) / 2, t.t]];
+        else { var my = (s.b + t.t) / 2; pts = [[cx(s), s.b], [cx(s), my], [cx(t), my], [cx(t), t.t]]; }
+      } else {
+        var x = (Math.max(s.l, t.l) + Math.min(s.r, t.r)) / 2; pts = [[x, s.t], [x, t.b]];
+      }
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M' + pts.map(function (q) { return q.join(' '); }).join(' L')); svg.appendChild(p);
+      var a = pts[pts.length - 2], b = pts[pts.length - 1], dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+      var h = document.createElementNS(NS, 'path'); h.setAttribute('class', 'head');
+      h.setAttribute('d', dx ? 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] - 4.5) + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] + 4.5) + ' Z'
+                             : 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 4.5) + ' ' + (b[1] - 8 * dy) + ' L' + (b[0] + 4.5) + ' ' + (b[1] - 8 * dy) + ' Z');
+      svg.appendChild(h);
+      for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], s: S, t: T });
+      var label = e.textContent.trim();
+      said.push(titleOf(S) + ' → ' + titleOf(T) + (label ? ' (' + label + ')' : ''));
+      if (label) {
+        var best = 0, bl = -1;
+        for (var k = 0; k < pts.length - 1; k++) { var L = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); if (L > bl) { bl = L; best = k; } }
+        var p0 = pts[best], p1 = pts[best + 1], mxl = (p0[0] + p1[0]) / 2, myl = (p0[1] + p1[1]) / 2;
+        e.style.left = '0px'; e.style.top = '0px';
+        var w = e.offsetWidth, hh = e.offsetHeight;
+        e.style.left = (p0[1] === p1[1] ? mxl - w / 2 : mxl + 6) + 'px'; e.style.top = (myl - hh / 2) + 'px';
+        labels.push(e);
+      }
+    });
+    reacts.forEach(function (r) {
+      var T = document.getElementById(r.dataset.on); if (!T) return;
+      var a = rect(r), t = rect(T), x = Math.max(a.l, t.l) + 18;
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'tether');
+      p.setAttribute('d', a.t >= t.b ? 'M' + x + ' ' + t.b + ' L' + x + ' ' + a.t : 'M' + a.l + ' ' + cy(a) + ' L' + t.r + ' ' + cy(t));
+      svg.appendChild(p);
+      said.push(titleOf(T) + ' 에 붙은 외부 반응');
+    });
+    svg.setAttribute('aria-label', '연결: ' + said.join('; '));
+    board.insertBefore(svg, board.firstChild);
+    if (needBottom > B.height) board.style.paddingBottom = (24 + needBottom - B.height) + 'px';
+    var hit = function (sg, c) { var l = Math.min(sg.a[0], sg.b[0]), r2 = Math.max(sg.a[0], sg.b[0]), t2 = Math.min(sg.a[1], sg.b[1]), b2 = Math.max(sg.a[1], sg.b[1]); return r2 > c.l + 3 && l < c.r - 3 && b2 > c.t + 3 && t2 < c.b - 3; };
+    segs.forEach(function (sg) { cards.forEach(function (c) { if (c.el !== sg.s && c.el !== sg.t && hit(sg, c)) warn(name, 'wire ' + sg.s.id + '→' + sg.t.id + ' crosses "' + titleOf(c.el).slice(0, 20) + '"'); }); });
+    var lr = labels.map(rect);
+    lr.forEach(function (L, i) {
+      cards.forEach(function (c) { if (L.r > c.l && L.l < c.r && L.b > c.t && L.t < c.b) warn(name, 'label "' + L.el.textContent.trim() + '" overlaps a card'); });
+      for (var j = i + 1; j < lr.length; j++) { var M = lr[j]; if (L.r > M.l && L.l < M.r && L.b > M.t && L.t < M.b) warn(name, 'two labels overlap'); }
+    });
+  }
+  function overflowCheck(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    $$(':scope > .card', board).forEach(function (c) { if (c.scrollWidth > c.clientWidth + 2) warn(name, 'text spills out of "' + titleOf(c).slice(0, 20) + '"'); });
+  }
+
+  /* ── plot ── */
+  function buildPlot(fig, fi) {
+    var table = fig.querySelector('table.plot-data'); if (!table) return;
+    var lg = document.createElement('div'); lg.className = 'plot-legend';
+    var cv = document.createElement('div'); cv.className = 'plot-canvas';
+    var mk = document.createElement('ol'); mk.className = 'plot-marks';
+    table.parentNode.insertBefore(lg, table); table.parentNode.insertBefore(cv, table); table.parentNode.insertBefore(mk, table);
+    var det = document.createElement('details'); det.className = 'vals'; det.innerHTML = '<summary>값 표 보기</summary>';
+    table.parentNode.insertBefore(det, table); det.appendChild(table);
+    fig._t = table; fig._cv = cv; fig._lg = lg; fig._mk = mk; fig._name = 'plot ' + (fi + 1) + ' "' + ((fig.querySelector('.fig-title') || {}).textContent || '').trim().slice(0, 24) + '"';
+  }
+  function colorFor(emph, s) { var i = emph.indexOf(s); return i === 0 ? 'var(--s1)' : i === 1 ? 'var(--s2)' : 'var(--dim)'; }
+  function drawBars(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg;
+    var ci = +table.dataset.cat || 0, ys = (table.dataset.y || '').split(/\s+/).filter(Boolean).map(Number);
+    var heads = Array.prototype.slice.call(table.tHead.rows[0].cells).map(function (c) { return c.textContent.trim(); });
+    var colors = ys.length === 1 ? ['var(--s1)'] : ys.map(function (_, i) { return i === ys.length - 1 ? 'var(--s1)' : i === ys.length - 2 ? 'var(--dim)' : 'var(--s2)'; });
+    lg.innerHTML = ys.length > 1 ? ys.map(function (y, i) { return '<span><i style="background:' + colors[i] + '"></i>' + heads[y] + '</span>'; }).join('') : '';
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var emph = list(table.dataset.emph);
+    var bad = rows.filter(function (tr) { return ys.some(function (y) { return !isFinite(num(tr.cells[y].textContent)); }); });
+    if (bad.length) warn(fig._name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (tr) { return bad.indexOf(tr) < 0; });
+    var max = +table.dataset.max || Math.max.apply(null, rows.map(function (tr) { return Math.max.apply(null, ys.map(function (y) { return num(tr.cells[y].textContent); })); }));
+    var html = '<div class="bars">';
+    rows.forEach(function (tr) {
+      var em = emph.indexOf(tr.cells[ci].textContent.trim()) >= 0;
+      html += '<div class="bar-row' + (em ? ' is-em' : '') + '"><span class="bar-name">' + tr.cells[ci].innerHTML + '</span><span class="bar-set">';
+      ys.forEach(function (y, i) {
+        var v = num(tr.cells[y].textContent);
+        // 값 열이 하나일 때 강조한 행만 색을 쓰고 나머지는 회색이다. 지는 행도 지우지 않는다
+        var col = ys.length === 1 && emph.length && !em ? 'var(--dim)' : colors[i];
+        html += '<span class="bar-line"><span class="bar-track"><span class="bar-fill" style="width:' + Math.max(0, Math.min(100, v / max * 100)) + '%;background:' + col + '"></span></span><span class="bar-val">' + tr.cells[y].textContent.trim() + '</span></span>';
+      });
+      html += '</span></div>';
+    });
+    cv.innerHTML = html + '</div>';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + rows.map(function (tr) { return tr.cells[ci].textContent.trim() + ': ' + ys.map(function (y) { return heads[y] + ' ' + tr.cells[y].textContent.trim(); }).join(', '); }).join('. '));
+  }
+  function drawLine(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg, mkl = fig._mk, name = fig._name;
+    var si = +table.dataset.series, xi = +table.dataset.x, yi = +table.dataset.y, xlog = table.hasAttribute('data-xlog');
+    var emph = list(table.dataset.emph);
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows).map(function (tr) {
+      return { tr: tr, s: tr.cells[si].textContent.trim(), x: num(tr.cells[xi].textContent), y: num(tr.cells[yi].textContent), label: tr.dataset.label, id: tr.id };
+    });
+    var bad = rows.filter(function (r) { return !isFinite(r.x) || !isFinite(r.y); });
+    if (bad.length) warn(name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (r) { return isFinite(r.x) && isFinite(r.y) && (!xlog || r.x > 0); });
+    if (rows.length < 2) { cv.innerHTML = ''; lg.innerHTML = ''; mkl.innerHTML = ''; warn(name, 'fewer than two rows to draw'); return; }
+    var series = rows.map(function (r) { return r.s; }).filter(function (s, i, a) { return a.indexOf(s) === i; });
+    var others = series.filter(function (s) { return emph.indexOf(s) < 0; });
+    lg.innerHTML = emph.map(function (s) { return '<span><i style="background:' + colorFor(emph, s) + '"></i>' + s + '</span>'; }).join('') +
+      (others.length ? '<span><i style="background:var(--dim)"></i>' + others.join(', ') + '</span>' : '');
+    var W = Math.max(cv.clientWidth, 260), small = W < 520, H = small ? 340 : 360;
+    var m = { l: 40, r: 12, t: 14, b: 30 };
+    var f = xlog ? Math.log10 : function (v) { return v; };
+    var xv = rows.map(function (r) { return r.x; }), yv = rows.map(function (r) { return r.y; });
+    var x0 = f(Math.min.apply(null, xv) / (xlog ? 1.15 : 1)), x1 = f(Math.max.apply(null, xv) * (xlog ? 1.12 : 1));
+    if (!xlog) { var pad = (x1 - x0) * 0.06 || 1; x0 -= pad; x1 += pad; }
+    var step = +table.dataset.ystep || 10;
+    var y0 = table.dataset.ymin != null ? +table.dataset.ymin : Math.floor((Math.min.apply(null, yv) - step / 5) / step) * step;
+    var y1 = table.dataset.ymax != null ? +table.dataset.ymax : Math.ceil((Math.max.apply(null, yv) + step / 5) / step) * step;
+    var X = function (v) { return m.l + (f(v) - x0) / (x1 - x0) * (W - m.l - m.r); };
+    var Y = function (v) { return m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b); };
+    var yUnit = /%/.test(rows[0] ? rows[0].tr.cells[yi].textContent : '') ? '%' : '';
+    cv.innerHTML = ''; mkl.innerHTML = '';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    cv.appendChild(svg);
+    var el = function (tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    var placed = [];
+    for (var v = y0; v <= y1 + 1e-9; v += step) {
+      el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) });
+      var tk = el('text', { class: 'tick', x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end' }, v + yUnit);
+      var bb = tk.getBBox(); placed.push({ x: bb.x, y: bb.y, width: bb.width + 4, height: bb.height });
+    }
+    var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
+    if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
+    cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
+    var segs = [], pts = [];
+    var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
+    drawOrder.forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; });
+      el('polyline', { class: 'ln', stroke: colorFor(emph, s), points: rs.map(function (r) { return X(r.x) + ',' + Y(r.y); }).join(' ') });
+      rs.forEach(function (r, i) { pts.push([X(r.x), Y(r.y)]); if (i) segs.push([[X(rs[i - 1].x), Y(rs[i - 1].y)], [X(r.x), Y(r.y)]]); });
+      rs.forEach(function (r) { el('circle', { class: 'dot', cx: X(r.x), cy: Y(r.y), r: emph.indexOf(s) >= 0 ? 5 : 4, fill: colorFor(emph, s) }); });
+    });
+    var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
+    var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
+    var score = function (b, withMarks) {
+      var n = 0;
+      if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
+      placed.forEach(function (q) { if (b.x < q.x + q.width && b.x + b.width > q.x && b.y < q.y + q.height && b.y + b.height > q.y) n += 3; });
+      pts.forEach(function (p) { if (p[0] > b.x - 5 && p[0] < b.x + b.width + 5 && p[1] > b.y - 5 && p[1] < b.y + b.height + 5) n += 2; });
+      if (!withMarks) segs.forEach(function (sg) { for (var k = 0; k <= 10; k++) { var sx = sg[0][0] + (sg[1][0] - sg[0][0]) * k / 10, sy = sg[0][1] + (sg[1][1] - sg[0][1]) * k / 10; if (sx > b.x && sx < b.x + b.width && sy > b.y && sy < b.y + b.height) { n += 1; break; } } });
+      return n;
+    };
+    var fit = function (t, x, y, offs, loose) {
+      var best = null;
+      for (var i = 0; i < offs.length; i++) {
+        var o = offs[i]; t.setAttribute('x', x + o[0]); t.setAttribute('y', y + o[1]); t.setAttribute('text-anchor', o[2]);
+        var b = t.getBBox(), box = { x: b.x - 2, y: b.y - 1, width: b.width + 4, height: b.height + 2 }, sc = score(box, loose);
+        if (!best || sc < best.sc) best = { sc: sc, o: o, box: box };
+        if (sc === 0) break;
+      }
+      t.setAttribute('x', x + best.o[0]); t.setAttribute('y', y + best.o[1]); t.setAttribute('text-anchor', best.o[2]);
+      return best;
+    };
+    var OFF = [[9, 4, 'start'], [0, -11, 'middle'], [-9, 4, 'end'], [0, 19, 'middle'], [7, -9, 'start'], [-7, -9, 'end'], [7, 17, 'start'], [-7, 17, 'end'],
+      [14, -14, 'start'], [-14, -14, 'end'], [14, 24, 'start'], [-14, 24, 'end'], [0, -22, 'middle'], [0, 30, 'middle']];
+    var MK = [[6, -6, 'start'], [-6, -6, 'end'], [6, 14, 'start'], [-6, 14, 'end'], [9, 4, 'start'], [-9, 4, 'end'], [0, -10, 'middle'], [0, 18, 'middle']];
+    var marks = 0;
+    // 글을 둘 자리가 없으면 점 옆에 번호만 두고 글은 그림 아래 목록으로 보낸다. 선택 글은 범례가 대신한다.
+    var place = function (x, y, text, cls, fill, offs, optional) {
+      var t = el('text', { class: cls, fill: fill || '' }, text), best = fit(t, x, y, offs, false);
+      if (best.sc === 0) { placed.push(best.box); return; }
+      t.remove(); if (optional) return;
+      var n = String(++marks), k = el('text', { class: 'mk' }, n), bm = fit(k, x, y, MK, true);
+      placed.push(bm.box);
+      if (bm.sc >= 3) warn(name, 'marker for "' + text + '" overlaps');
+      var li = document.createElement('li'); li.innerHTML = '<b>' + n + '</b> '; li.appendChild(document.createTextNode(text)); mkl.appendChild(li);
+    };
+    rows.filter(function (r) { return r.label; }).forEach(function (r) { place(X(r.x), Y(r.y), r.label, emph.indexOf(r.s) === 0 ? 'lbl strong' : 'lbl', '', OFF, false); });
+    if (ra && rb && table.dataset.refLabel) place((X(ra.x) + X(rb.x)) / 2, (Y(ra.y) + Y(rb.y)) / 2, table.dataset.refLabel, 'lbl', 'var(--muted)', [[0, 16, 'middle'], [0, -8, 'middle'], [0, 30, 'middle']], true);
+    series.filter(function (s) { return !rows.some(function (r) { return r.s === s && r.label; }); }).forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; }), r = rs[rs.length - 1]; place(X(r.x), Y(r.y), s, 'lbl', 'var(--muted)', OFF, true);
+    });
+    svg.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + series.map(function (s) {
+      return s + ': ' + rows.filter(function (r) { return r.s === s; }).map(function (r) { return r.tr.cells[xi].textContent.trim() + ', ' + r.tr.cells[yi].textContent.trim(); }).join('; ');
+    }).join('. '));
+  }
+  function drawPlot(fig) {
+    if (!fig._t) return;
+    if (fig._t.dataset.kind === 'bars') drawBars(fig); else drawLine(fig);
+  }
+
+  /* ── ladder: 막대 길이는 상자에 적힌 숫자에서 잰다. 같은 수를 두 번 쓰지 않는다 ── */
+  $$('.ladder[data-meter]').forEach(function (lad) {
+    var bigs = $$(':scope > .card .big', lad), vals = bigs.map(function (b) { return Math.abs(num(b.textContent.replace(/[+p]/g, ''))); });
+    var mx = Math.max.apply(null, vals);
+    bigs.forEach(function (b, i) { var m = document.createElement('span'); m.className = 'meter'; m.setAttribute('aria-hidden', 'true'); m.innerHTML = '<i style="width:' + (mx ? vals[i] / mx * 100 : 0) + '%"></i>'; b.parentNode.insertBefore(m, b.nextSibling); });
+  });
+
+  // 표지 목록은 두 칸에 위에서 아래로 채운다
+  $$('.toc ul').forEach(function (u) { u.style.gridTemplateRows = 'repeat(' + Math.ceil(u.children.length / 2) + ', auto)'; });
+  var boards = $$('.board'); boards.forEach(buildBoard);
+  var buildWarn = warnings.slice();
+  var plots = $$('figure.plot'); plots.forEach(buildPlot);
+  var layout = function () {
+    warnings.length = 0; buildWarn.forEach(function (w) { warnings.push(w); });
+    plots.forEach(drawPlot); boards.forEach(wire); boards.forEach(overflowCheck);
+  };
+  var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
+  layout();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); if (nav) nav.settle(); window.__layout.done = true; });
+})();
+</script>
+</body>
+</html>
