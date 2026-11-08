@@ -16,7 +16,7 @@ git -C <checkout> ls-tree -r -l <commit> -- <paths> | awk '{s+=$4} END {print s}
 
 When loading it would leave no room to write, hand the path to a helper agent. Ask it for
 extraction, not conclusions: each hop described, with a verbatim quote and a `file:line`
-locator, in `notes/mechanism.md` (about 4K). A helper that reports "the README contradicts the
+locator, in `notes/mechanism.md`. A helper that reports "the README contradicts the
 code" hands you a finding you did not verify. Reopen a quote at its locator before it goes
 into `evidence.jsonl`.
 

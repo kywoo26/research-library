@@ -12,9 +12,7 @@ value that appears only in a chart goes into `notes/figures.md`.
 
 When the request asks how a subject was received, or the subject is contested, collect
 reactions where practitioners actually discuss it: issue trackers, forums, reviews, posts by
-people who used it. A Hacker News thread can be read through the Algolia API
-(`https://hn.algolia.com/api/v1/items/<id>`), which returns each comment's text, author and
-time. Pin every reaction you use as its own `web` source with a fixed copy. A post you could
+people who used it. Pin every reaction you use as its own `web` source with a fixed copy. A post you could
 not fetch yourself does not go in; someone else's summary of it is hearsay.
 
 A reaction is a statement, not a fact. Say who said what and when, check it against the source,

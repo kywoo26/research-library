@@ -47,7 +47,7 @@ says `진행 가능`. Changing course costs a paragraph now and a rewrite later.
 ## 2. The first screen
 
 The first screen decides whether the document gets read. Under the title:
-- **`p.answer`**, at most 280 characters without spaces: what the subject is, then the message.
+- **`p.answer`**, one short paragraph: what the subject is, then the message.
   Say whose judgment it is. A recommendation from the source carries its author (`저자는 …를 권한다`).
 - **`p.src`**: who produced the source (the organization and team, or the author and role), what
   kind of material it is, and the pinned version.
@@ -93,7 +93,7 @@ allowed and often the most useful thing in the document. Say where it starts
 ## 5. Producing the file
 
 `new-doc.mjs` stamps the shell; write chapters into its `<main>` and leave its CSS and script
-alone. Retrieval times, hashes, rendering checks and file counts stay out of the document; they go
+alone. Retrieval times, hashes and rendering checks stay out of the document; they go
 in `sources.jsonl`, `run.json` and the PR body. The sources chapter lists the sources and says
 briefly what was read and what was left unopened.
 

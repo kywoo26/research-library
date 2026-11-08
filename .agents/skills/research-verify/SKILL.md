@@ -11,7 +11,7 @@ description: Adversarially reviews a finished research document draft. Two lense
 
 # Adversarial review of a research document
 
-The report is Korean; read `../research-doc/references/prose-ko.md` before writing it.
+Fixes are written in Korean; read `../research-doc/references/prose-ko.md` before making them.
 
 ## Three rules
 
@@ -35,8 +35,8 @@ matters, and every fix risks a new error.
 ## 1. The target
 
 Open the draft `research/<slug>/index.html`, `.research/<slug>/run.json` (`request` and `asks`)
-and `.research/<slug>/sources.jsonl`. A document from before 2026-11-08 has `purpose` in
-`meta.json` instead of `asks`. If `sources.jsonl` is missing, the numbers cannot be checked:
+and `.research/<slug>/sources.jsonl`. An older document has no `asks`; its `run.json` may hold
+a `question` instead. If `sources.jsonl` is missing, the numbers cannot be checked:
 run the reader lens and the structural checks, reconstruct from `meta.json` `source.url` if it has
 one, and say at the top of the report what was skipped.
 
@@ -46,7 +46,7 @@ Once the draft passes `check-doc.mjs` and `check-prose.mjs`, renders, and you ha
 through, launch `lens-numbers` (B) and `lens-reader` (A) as new agents, together, each with the
 values its reference file asks for. `lens-reader` gets the run record and the render directory.
 Leave the document and its ledgers as they are until both reports are back; extract claims in the
-meantime. Launching them is the step; asking permission is not.
+meantime.
 
 ## 3. Extract claims from the shipped sentences
 
@@ -74,24 +74,11 @@ Skip background, definitions and navigation. A span already in `evidence.jsonl` 
 
 Run `check-claims.mjs` (with `--repo <owner/name>=<path>` for a repository) and `check-doc.mjs`.
 
-## 5. Report
+## 5. Merge the findings
 
-Merge the lens reports and the script output into one Korean report:
-
-```
-## 고쳐야 하는 것
-- [렌즈B] 장 3: 표 4 의 격차는 좁아지는데 문서는 넓어진다고 썼다. 해석까지 얹혀 있어 문단을 다시 써야 한다.
-- [렌즈A] 요청 a3(사용자 평가)을 다루는 장이 없다.
-
-## 판단이 필요한 것
-- [렌즈A] 장 5 와 장 6 이 같은 한계를 되풀이한다.
-
-## 검증하지 못한 것
-- 행동 주장 5건: 코드만 읽었고 실행하지 않았다.
-```
-
-The last section is never empty. A report that lists only findings reads as "everything else
-checked out".
+Merge the lens reports and the script output into one list, the fixes first. What nobody could
+check goes into `run.json` `unverified`, which is never empty: a record that lists only findings
+reads as "everything else checked out".
 
 ## 6. Fix, then reread what changed
 

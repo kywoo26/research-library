@@ -7,8 +7,7 @@ and let the order go. Derivations the reader will not reuse go in the fold.
 
 Read every number from the tables, not from the text or a summary: papers restate their
 numbers loosely in prose, and the table is what got reviewed. Take table values from the
-LaTeX source (`../../research-source/SKILL.md` §6), and cite `arxiv_id` with `version`,
-because a revision changes numbers.
+LaTeX source (`../../research-source/SKILL.md` §6).
 
 ## Ablations
 
@@ -25,8 +24,6 @@ these, so look for them:
 - unreported cost;
 - a benchmark the authors built;
 - whether anyone outside the group has reproduced the result.
-
-When a study reports a contrary result, find it and weigh it on its evidence and conditions.
 
 ## Series
 

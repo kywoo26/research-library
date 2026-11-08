@@ -114,17 +114,9 @@ Keep the checkout outside your working directory, so a harness cannot load its s
 Get the full text: `arxiv.org/html/<id>`, then `ar5iv.labs.arxiv.org/html/<id>`, then the PDF.
 Take any number you will publish from the LaTeX source (`arxiv.org/e-print/<id>`), because
 conversion drops cells and merges columns. Read the related-work section knowing it has the
-strongest incentive to be unfair, and check who cites the paper. When a blog or a community post
-disagrees with the paper, weigh both on their evidence, conditions and reproduction, and keep an
+strongest incentive to be unfair, and check who cites the paper. When a study, a blog or a
+community post disagrees with the paper, weigh both on their evidence, conditions and reproduction, and keep an
 unresolved disagreement visible.
-
-**Take the figures while the corpus is open.** Write `notes/figures.md`, one line per figure:
-- the source's identifier;
-- what it shows;
-- where to retrieve it;
-- for a chart, the data points read from its `aria-label`, `alt` or SVG text.
-
-A maintainer's own diagram shows what they think the system is.
 
 ## 7. Write the evidence down while the source is open
 
@@ -138,9 +130,13 @@ sentence turns reading into collecting quotes.
  "why":"the registry maps this harness to the anthropic instrumentor"}
 ```
 
-A quote is a sentence or a table row of at most 400 characters. `why` is one line on what the span
+A quote is a sentence or a table row. `why` is one line on what the span
 is for. Extract spans yourself. A helper hands back what it concluded, and the conclusion was the
 part you were supposed to reach from the words.
+
+Take the figures of every source the same way, into `notes/figures.md`, one line per figure: its
+identifier, what it shows, where to retrieve it, and for a chart the data points read from its
+`aria-label`, `alt` or SVG text. A maintainer's own diagram shows what they think the system is.
 
 ## 8. Work out what the asks need
 
@@ -162,14 +158,13 @@ asked.
 
 ## 9. Coverage
 
-Before writing, list what the corpus contains and what you opened:
+Before writing, list what the corpus contains and what you opened, for the sources chapter:
 
 ```bash
 git -C <checkout> ls-tree -r --name-only <commit> | awk -F/ '{print $1"/"$2}' | sort | uniq -c | sort -rn
 ```
 
-The sources chapter states the commit, how much you read, and which directories you left unopened
-with what that costs the document. Reading 12 of 65 files and writing an accurate document beats
+Reading 12 of 65 files and writing an accurate document beats
 reading 200 and writing a vague one.
 
 ## Hand off

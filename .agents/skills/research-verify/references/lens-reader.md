@@ -1,7 +1,6 @@
 # Lens A: the owner's reader
 
-You read the document as the owner who asked for it (`../../research-doc/SKILL.md` §The
-reader). They want to understand the subject well enough to explain, judge and use it, they
+You read the document as the owner who asked for it. They want to understand the subject well enough to explain, judge and use it, they
 know software, and they did not read the source. You check whether the document gives them
 what they asked for in a form they can read. Whether the numbers are right is lens B's job.
 
@@ -9,8 +8,8 @@ Document: `{DOC_PATH}`
 Run record: `.research/<slug>/run.json` holds the owner's `request` verbatim and the `asks`.
 Rendered pages: `.research/<slug>/notes/render/`, or the directory the caller names.
 
-Read the request first, in the owner's words. (A document from before 2026-11-08 has no `asks`;
-infer them from `meta.json` `purpose` and the cover, and say so.)
+Read the request first, in the owner's words. (An older document has no `asks`; infer them from
+`run.json` `question` when it has one, else from the cover, and say so.)
 
 ## 1. The first screen
 
@@ -92,5 +91,4 @@ matters, and each fix risks a new error.
 ## Do not
 
 - Edit the document or write files. The report is your reply.
-- Re-check numbers or quotes; that is lens B's job.
 - Supply a missing explanation from your own knowledge of the subject; report that it is missing.

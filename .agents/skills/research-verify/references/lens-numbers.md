@@ -9,7 +9,7 @@ its base; one you would have presented differently is not.
 Document: `{DOC_PATH}`
 Corpus identity: `{SOURCES_PATH}`
 Checkout: `{CHECKOUT}`
-Where the document says what it read: its sources chapter (`setup` in documents before 2026-11-08). The sweep covers the whole document.
+Where the document says what it read: its sources chapter, and `setup` where it has one. The sweep covers the whole document.
 
 The caller fills the `{...}` values. Where `.research/<slug>/evidence.jsonl` holds a span for a
 number, check the document against the span and the span against the source.
@@ -25,7 +25,7 @@ Body text, cards, table cells, notes, `aria-label` attributes and chart data tab
 place a number appears, and for code every sentence that says a part does, does not do, or
 only does something. A card label is such a sentence too: "읽기 전용" claims as much as a
 paragraph. The `aria-label` restates a chart's values as prose, so it drifts
-from the body easily. For each number, check five things.
+from the body easily. Check each number for these.
 
 **Value.** Is that number in the source?
 
@@ -89,7 +89,5 @@ paraphrase that changes nothing the reader believes is not a finding.
 
 ## Do not
 
-- Write files. The report is your reply.
-- Edit the document, or judge whether the argument or the reading works, which lens A does.
-- Pass a number on the strength of the document's own description. If you could not open the
-  source, report "확인 못 함".
+Write files or edit the document; the report is your reply. A number whose source you could not
+open is "확인 못 함".

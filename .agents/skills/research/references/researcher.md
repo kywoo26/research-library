@@ -21,6 +21,5 @@ When the last round is done, write `commitSubject` and `commitBody` into `run.js
 Commits section of `AGENTS.md`) and run `node scripts/ship.mjs research/<slug>`. It runs the
 gates and opens the pull request. Do not run git or gh yourself. If it refuses, fix what it names and run it again.
 
-End with one short report, written about 80% of the way to ASD-STE100: short sentences, one
-statement each, the actor named in each (you, a lens, the script, the owner), and what the owner
+End with one short report: short sentences, one statement each, the actor named in each (you, a lens, the script, the owner), and what the owner
 must do written as an instruction. Put the pull request first, then 한 일, 정한 것, 하실 일.

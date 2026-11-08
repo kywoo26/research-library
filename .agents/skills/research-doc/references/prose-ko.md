@@ -61,10 +61,6 @@ leaves them parsing.
 the reader: an actor in the active voice tells the reader who is responsible. A term that drifts
 in meaning becomes two concepts.
 
-**A caveat repeated wherever a claim recurs buries the claim it protects.** Keep the condition
-that changes the claim beside it, and say what a gap means for the reader's use rather than
-ending on the absence.
-
 **A number carries its base, and a claim carries its condition.** 62.6 alone is unreadable
 and 62.6 (baseline 56.3) can be judged; "문서 2개 이상이 필요한 질문에서" is part of the
 claim, and without it the claim is false. This survives every rewrite.
