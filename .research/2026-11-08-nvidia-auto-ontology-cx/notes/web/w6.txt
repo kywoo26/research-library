@@ -1,0 +1,1759 @@
+Nvidia – open-source auto-ontology | Hacker News
+Hacker News
+new
+|
+past
+|
+comments
+|
+ask
+|
+show
+|
+jobs
+|
+submit
+login
+Nvidia – open-source auto-ontology
+(
+github.com/nvidia
+)
+290 points
+by
+campervans
+5 days ago
+|
+hide
+|
+past
+|
+favorite
+|
+139 comments
+help
+gavinray
+4 days ago
+|
+next
+[–]
+I want to attempt an explanation as it seems a lot of folks here didn't grok the very terribly written README
+"Auto Ontology" is sort of a poor name.
+Here's the problem:
+Your company has data scattered across multiple types of databases. People who make decisions want to ask questions about that data.
+The old way is they would go to a Data Analyst, and say, "Get me a report on so and so", and it was the Analyst's job to iron out the right series of queries and one-off scripts to generate the needed info.
+With a system like this, the idea is that all your database models have been introspected and stored in a central metadata catalogue.
+When a question is asked like "What were the top selling items in the month of May?", the metadata catalogue tells you "Products are stored in FOO_DB" and "Product_Sales are stored in BAR DB" and so you go and fetch the right data from the right place and do whatever in-memory calculations you need to do.
+What the system provides is the implementation code for:
+- Introspecting each of your DB's
+- Aggregating model + metadata information in a central, virtual DB (VDB)
+- Generating dialect-specific SQL from natural language queries and routing them to the right DB for the underlying table
+- Combining results in-memory when a natural language query requires multiple datasources
+- Handling proper permissions, etc
+A GOOD system for doing this also integrates with your external API sources (OpenAPI, GraphQL, gRPC, whatever) and also documentation sources (
+cough
+, I work on this,
+cough
+).
+reply
+ewild
+4 days ago
+|
+parent
+|
+next
+[–]
+what happens when your column names dont accurately represent what data is being stored (i know i wish it did but it doesnt at my place right now) and its all esoteric knowledge held by our data scientists? my worry is now the guys above will think its answering their question without knowing that its either A. wrong or B. data they may not be able to use for legal reasons on the project they are trying to make.
+reply
+adolph
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+This is the key issue. I call it a semantic gap.
+Example is a transaction application with a backing database: The users conduct information interactions with the application. The application stores relatively sparse data into the transactional database. The database has just enough metadata to route data from transactions but doesn't have the full meaning.
+Example database column "updated_date" with type timestamp: Without looking at the data, how do you know if this column is populated when the application first stores data in a row? How do you know the timezone of the timestamp as a user would see it?
+Real world example: Patient height in app and api is SI and both note the units. Patient height in the data warehouse is US Customary with no unit notation. The app and api make elaborate conversions for the underlying transaction database's US customary storage.
+I think the promise of an LLM ontology is to read application code to understand the context for any particular database column. The linked software is not that.
+reply
+shostack
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+I deal with this in a marketing analytics org.
+Something like autoontology would help with human enforced governance for "blessed" data sets. You still need the operational rigor and data maturity to build said data sets and drive the transformation to adopt them.
+This is effectively a tooling and labeling layer. But it will not magically solve the messy people issues that have always been at the root of this.
+reply
+gavinray
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+In the product I work on, there's a Metadata layer that maps user-supplied definitions, notes and commentary onto the raw table descriptions
+These are optional but it allows manual override when schema design is poor
+reply
+zerop
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Discovering ontology in complex real world large systems (involving multiple microservices) is quite hard. Best way IMO is to learn the database schema details, cross table joins etc from source code itself as it also has business context. This has worked for me quite well. But there are many other challenges like KPIs have fixed queries, cross product queries, pulling large data and getting right architecture for joining in-memory.
+reply
+throwaway5752
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+"seems a lot of folks here didn't grok the very terribly written README"
+I tried to make it through the README and it was just unmotivated slop. Perhaps it reads better to agents. It is like the Van Halen rider story - if the authors didn't care to write a good README, what are the odds that they paid attention to the rest of the large codebase?
+reply
+Twirrim
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I ended up throwing the README at an LLM and it gave me a much simpler and clearer explanation.  Copying the bits of an explanation that helped me:
+> The problem it’s trying to solve is that generating valid SQL doesn’t necessarily produce the right answer.  An AI might find a column called revenue, but still choose the wrong dataset or misunderstand whether that figure includes things like refunds.  Auto Ontology adds information about what the data means to help it make those decisions.
+and then the one paragraph summary at the end:
+> My reading: it’s a database chat application built around a reusable catalogue of business meaning.  The question worth testing is whether that catalogue makes answers measurably more correct—and how much human work it takes to get the definitions right.
+reply
+throwaway5752
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I could have done what you did to parse and summarize the readme myself, but the point is that I don't need to spend my valuable time on a project that the author's done care enough about to give a proper readme. And semantic web/graph indexers and queriers are not new, even if there are new tools at our disposal for classifying and querying ontological structures.
+If they can't do that, it's a signal they didn't care enough about the details to rely on this project, and there is more cool software than ever I can spend my finite time on.
+That may not be particular fair, and it may be a great project, but the bar is just much higher now.
+reply
+Twirrim
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Sorry, yeah, I completely failed to say in my message what I was originally aiming to say.  Lost sight of the message part way through writing, after I got pinged at work for something.
+The fact that I had to throw an LLM at it to cut down the slop and turn it into something more succinct and comprehensible is nuts.  For myself, I'd be embarrassed if I released something with that kind of README on it.
+reply
+gavinray
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+I had to go digging into the source to realize what it was, e.g.
+https://github.com/NVIDIA/auto-ontology/blob/main/auto_ontol...
+reply
+grey-area
+4 days ago
+|
+prev
+|
+next
+[–]
+Fixing unreliable agents by adding more unreliable agents. It's a shame we can't do something about the tendency of LLMs to give more weight to their weights than to the data they're analysing.
+I guess it all comes back to the fact that they don't have a clear division between data they have learned about the world, instructions and data under analysis.
+You can ask them only to consider the 5 facts in front of them, but they won't do that, and cannot do that.
+reply
+IanCal
+4 days ago
+|
+parent
+|
+next
+[–]
+> Fixing unreliable agents by adding more unreliable agents.
+Depending on how you combine imperfect systems, you can lower or increase error rates.
+> data they have learned about the world, instructions and data under analysis.
+I don't think there really is a clear distinction between these things though.
+And I don't mean this in a gotcha way - these things apply to people too. Not that that means they're like people, but we have successfully built enormous systems out of fallible people, and other imperfect things.
+The goal is rarely "eliminate all errors" but "have a thing that's useful, given a possibility of things going wrong".
+reply
+zbentley
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> I don't think there really is a clear distinction between these things though.
+Computer systems, though,
+can
+have that distinction. If you read data supplied by the user, and then process it via behavior in code, and process
+that
+result against administratively-set data in the database, the separation between user-supplied data, administratively-configured data, and instructions (code) is extremely clear. Even if you are doing something that could be nondeterministic, e.g. incorporating randomness or doing sentiment analysis or whatnot.
+I don't think the oft-repeated "AI is fallible just like humans are" applies here. Computer systems are an area where that separation can be achieved. We know this because we've achieved it a lot. LLMs, powerful as they are, are a massive step back in that regard. Their benefits might outweigh that compromise, but it is, as they say, "worth naming" anyway.
+reply
+IanCal
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> Computer systems, though, can have that distinction. If you read data supplied by the user, and then process it via behavior in code, and process that result against administratively-set data in the database, the separation between user-supplied data, administratively-configured data, and instructions (code) is extremely clear
+No it is not.
+They are three places you can put things, amongst an infinite other number of places you can, but they are not some inherent core distinctions.
+Is a javascript file code or data? If I read it to measure file size and don't execute it, is it ever code?  If I read in a file and do different things in the code based on it, and never alter that file, how is that any different from having if (x) baked into the code? Why is it
+user supplied data
+if we read in a file and do things based on the contents yet
+code
+when I read in js and execute stuff in a VM?
+They are just different places with different access controls that alter the outcome. There's no magical distinction between code, data and admin data or anything else other than really who gets to change what. And then there's obviously not just three named buckets of "stuff", it's as many as you want.
+> I don't think the oft-repeated "AI is fallible just like humans are" applies here.
+You're missing the point here, the point is
+we have built big things with fallible components
+. Therefore the idea that a component is fallible does not
+just from that fact
+mean we can't do useful things with it. And it's a very relevant point if we're looking at "where can we use this in place of humans" - if we had a human there before we were not starting from a perfectly reliable point.
+reply
+grey-area
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Depending on how you combine imperfect systems, you can lower or increase error rates.
+Well, in principle yes one system can compensate for another, in practice, errors tend to compound and combine in interesting ways, not go away, particularly in systems like this which are unpredictable and generate slightly different responses each time without human intervention. They are not reliable in the way we're used to considering and don't work well without supervision from careful humans at present.
+I don't think there really is a clear distinction between these things though.
+Yes your second point is an interesting one - the divisions between these things are arbitrarily imposed on the world, but we do have these distinctions for a reason, even if they are not completely objective.
+I do think this is a significant problem specific to LLMs though (that I at least see when using them) - we don't have a way to constrain them in what knowledge they consider. This can be a bonus (they are good at connecting faraway bits of maths in interesting ways), but it can be a significant problem when asking for a summary of a data - confabulations and data from outside the context easily leak into the output of the LLM. That is undesirable behaviour and we have no reliable way to constrain it.
+I'm not sure that this particular effort is going to help because it doesn't change or constrain the behaviour of the actual machines and the behaviour is the problem, not the data they are fed.
+reply
+IanCal
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> Well, in principle yes one system can compensate for another, in practice, errors tend to compound and combine in interesting ways, not go away, particularly in systems like this which are unpredictable and generate slightly different responses each time without human intervention.
+Ah but the point here IIUC is moving from "let an LLM figure out the right way of querying the data and what you mean with your terms from a wide span of different documents and sources, which it has to perform multiple searches on" to "let an LLM figure out the right way of querying your data
+with a coherent and machine readable ontology
+".
+While the conversion from "load of data" to "defined structure" is error prone, you now have the second step operating on the
+same
+converted thing, and you have ways of fixing that over time (the corrections).
+By splitting the task into two distinct phases, you can both interpret and fix the middle step, and remove a large class of mistakes and/or differences caused by different interpretations of the same documents.
+There are really two answers to it IMO that this boils down to:
+1. This process may be less error prone for that first step than the LLM you're using. That could reduce errors.
+2. This process means the first step is run
+once
+rather than
+every time
+which means you cut out one area where there can be differences each time.
+> Yes your second point is an interesting one - the divisions between these things are arbitrarily imposed on the world, but we do have these distinctions for a reason, even if they are not completely objective.
+You're right, I think there are useful groupings, but I think any effort to fully isolate them is doomed to fail because they inherently blend. Your instructions contain things that can only be understood in context of world knowledge and the data. The data only makes sense with certain bits of world knowledge.
+We also know that these things happen with humans (again just to pre-empt how others may read this and not saying you are accusing me of this, I'm not gotcha-ing here) and so we often have to be careful about how we ask questions, how different cultural backgrounds impact understanding and so forth. We have to take care about how we structure things.
+> I'm not sure that this particular effort is going to help because it doesn't change or constrain the behaviour of the actual machines and the behaviour is the problem, not the data they are fed.
+I think this effort does address that. A really key thing is that this is about turning human readable questions into SQL that then only query the actual data and you see the result of that query - it allows you to constrain things more (at both points).
+reply
+Roark66
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Yes, also I hate the direction "frontier" is taking now. Opus 5.5 may be better in agentic coding and reverse engineering, but it has regressed greatly in instruction following.
+You can give it instructions and 5k tokens later it will do exact opposite you told it to.
+reply
+latentsea
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+> You can ask them only to consider the 5 facts in front of them, but they won't do that, and cannot do that.
+Has training them to do it been tried and proven to fail?
+reply
+grey-area
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I don't know enough about it, would welcome a more informed opinion on that, as a user it's the biggest issue with using them long-term IMO. Perhaps it is fixable somehow, and perhaps 'cannot do that' is a bit strong, what I meant was the current iteration of LLMs cannot do that.
+reply
+latentsea
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> what I meant was the current iteration of LLMs cannot do that
+I saw this same mentality from a lot of people every year for the last 4 years. All the limitations they clung to keep falling. We're not limited to LLMs either, and LLMs themselves aren't as limited as people have been imagining.
+I think 2027 is the last year where "but AI can't do X!" is a viable mentality. Like, yes, as a casual user there are limitations that affect us in day to day use and the surface level concerns are what impact people most today. But at some point there must be a threshold at which even the casual users start to get a little curious what's likely to be possible in the limit.
+reply
+grey-area
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+ok, I'm just describing problems I haven't seen LLMs improving on for the last 4 years. These are important problems, and I'm not convinced a machine-generated ontology is the start of the answer to them.
+Happy to admit relative ignorance of the internals and hear a more informed opinion, but it is not convincing to hear that they'll inevitably solve all the problems and we'll live in the best of all possible worlds next year, without hearing a proposal as to how they'd do that.
+These machines are trained to be convincing and addictive, very similar to our social media platforms now, that leads to a lot of over-optimism about what they might be able to do one day, with the next frontier model.
+reply
+podgorniy
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Reliable TCP was built on top of unreliable IP. Our body chemistry is another example of unreliable non-deterministic processes creating more deterministic outcomes. Yes, yes, it's all different. The common idea is the same: we can get reliable results out of unreliable systems.
+reply
+another-dave
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+> Fixing unreliable agents by adding more unreliable agents.
+I think the 'reliability add' is from how it's presented back to the user. If you can trust the agent to at least say what tool it called, then you can mark a chart as being the canonical output of "get_projected_profit" tool vs "get_realised_profit" tool and everyone knows it hasn't come down to the current dice roll of randomness what the agent itself did this time.
+reply
+solarkraft
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Since agents are more often right than they are wrong, combining them can increase reliability.
+reply
+filoeleven
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+They are attempting to fix an inherent problem with the technology via epicycles.
+reply
+smithclay
+4 days ago
+|
+prev
+|
+next
+[–]
+Surprised that
+https://github.com/ucbepic/DataAgentBench
+hasn't been mentioned on this: benchmarking data agents that need to query from multiple sources is a focus of some research at UC Berkeley -- leaderboard is worth a look to see how the various closed and open-source implementations build ontologies ... would like to see how Nvidia's approach stacks up.
+reply
+gavinray
+4 days ago
+|
+parent
+|
+next
+[–]
+Funnily enough, I commented earlier in the thread, but this benchmark is a collaboration between $DAYJOB and the university =)
+reply
+mirekrusin
+4 days ago
+|
+prev
+|
+next
+[–]
+I still prefer my own, simple and more functional CAVE lang [0]
+[0]
+https://mirekrusin.com/cave
+reply
+timini
+4 days ago
+|
+parent
+|
+next
+[–]
+why would i use this over some rdf / owl / sparql thing?
+i want to use these semantic / KG tech but i find them so confusing!
+reply
+giltron
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+This seem similar to what using semantic tech (and quad stores) can be used accomplish (Subject, Predicate, Object, Graph).
+But you are putting broad but is more opinionated design structure around it. I will have a look thanks.
+reply
+mirekrusin
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+because it doesn't suck :)
+it's local first, agent-friendly tooling; you have single cli to access it (mcp is there as well if that's your thing)
+everything is persisted in simple local text files that you can actually read (or sqlite database if you don't care / have more data)
+ie there is no integration, k8s-style nonsense etc, you can just use it on project or on your system user level and know exactly what's there, you have control over it, you can delete it, move it, extract parts you find useful and move on etc
+because it has first class support for uncertainty
+evidence is first class concern
+supports evolution of belief (statements can be revised, retracted etc. without destroying history)
+knowledge is executable (rules, actions, automations – all operate on the same claim model)
+it works well for knowledge that keeps changing (including support for querying knowledge as of some past time)
+it's great for llm sessions, ie. simple things like comment on a claim being part of a claim itself, which means it appears when working with knowledge, which allows to support weird/human/natural-language aspects that are not directly part of the model
+...
+rdf/owl/sparql is great for large, public, structured datasets (ie. medical, scientific or some regulatory, standardized ontologies)
+cave is great for evolving knowledge, ie. in most cases i use it by just dropping it in and forgetting about it – i don't care how/what llm will model, i just care it'll solve some problems faster when aiding itself with it as a tool; if i want some structured dataset out of it i may occasionally ask it to model it around homogeneous schema i can extract, but in most cases i really don't care
+reply
+smartmic
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Is this similar to Datalog where you have facts and rules?
+reply
+mirekrusin
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Yes, and few other useful concepts beyond just Datalog.
+reply
+HexDecOctBin
+4 days ago
+|
+prev
+|
+next
+[–]
+I have a question for people with knowledge of both LLMs and GOFAI: Why can’t we use LLMs to write as many symbolic rules as needed to fit the data while keeping the ruleset reviewable and maintainable?
+reply
+sudo-giusppe
+4 days ago
+|
+parent
+|
+next
+[–]
+The amount of finite rules necessary (that the LLM will write) to handle the noise and complexity of real data generates such a dense graph that it breaks the premise of a human-maintainable and auditable system.
+reply
+yowayb
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+sorry this may be way off, but feels analogous to me.
+reminds me of
+http://www.thai-language.com/
+(it's safe).  it was around long before Google Translate got good enough.  i don't know the authors/maintainers, but afaik, everything is entered manually.  this is the "analytical" approach to language.  most translations before Google Translate went full ML used an analytical approach.
+anyway, long story short, turns out "analyzing" a language to "understand" it GREATLY underperforms probabilistic/statistical methods like ML.
+also reminds me of trying to label parts of speech in Vietnamese.  there's a school of thought that finds it useful...then there's another school of thought that plainly points out words that can be verbs, nouns, adjectives all in different contexts.
+reply
+itishappy
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+We can and do! Here's one you can help maintain and review!
+https://www.wikidata.org/wiki/Wikidata:Main_Page
+reply
+andriy_koval
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+are you saying wikidata now is full of LLM generated content?..
+reply
+itishappy
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Probably, but that's not what I meant.
+I intended to share Wikidata as an example of an ontology that can be reviewed and maintained, rather than an example of an LLM maintained ontology.
+I did not do a good job of communicating this, so appreciate the clarification!
+reply
+hmokiguess
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Define reviewable and maintainable
+reply
+fnordpiglet
+4 days ago
+|
+prev
+|
+next
+[–]
+I’m struggling to see why this is better than OWL/RDF and SparQL. Given the breadth and depth of semantic web knowledge in the corpus they do an amazing job discovering well established ontologies and building new ones on presented data and querying it with sparql. In fact better than almost anything I’ve seen. What an irony that the semantic web after all these years is likely to find a real use - it’s original one in fact.
+reply
+andriy_koval
+4 days ago
+|
+parent
+|
+next
+[–]
+Few thoughts:
+- you need some engine to support your owl/rdf/sparql, and all available are lower quality/perf/features than pg
+- its easier for LLMs to talk standard SQL compared so some version of sparql
+reply
+fnordpiglet
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+There are plenty of graph databases, and RDF is expressed in triple stores. OWL is just for validation.
+I’ve used AWS Neptune as a pretty reasonable managed sparql query engine but for most my needs actually just local jsonld mastered in git is plenty for almost APO knowledge graphs I have.
+I’ve found LLMs are exceptionally proficient at authoring sparql, and quite clever. This isn’t surprising given there’s plenty of sparql in the corpus, and it’s semantics aren’t HUGELY different than SQL. Likewise they do fine writing datalog etc.
+reply
+andriy_koval
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> I’ve used AWS Neptune as a pretty reasonable managed sparql query engi
+it is obviously not OSS like postgres.
+reply
+adsharma
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Maturity of the storage and query engines:
+SQL > Cypher > SPARQL
+You can do RDF/SHACL/OWL with LPG/Cypher based databases.
+Ontolite (sqlite) and ontobug (ladybug) are examples.
+reply
+bendriv
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+I am new to this field and our org struggle with authoring and documenting existing implicitly given ontologies. It is like working with archeology, and proposed automated solutions like nvidia’s seem alluring in that regard. What would be your suggestion for a way to extract the ontology/RDF/OWL/graph from existing underdocumented fields?
+reply
+fnordpiglet
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I found LLMs are pretty good at extracting ontologies through a) researching ontologies that exist for adjacent fields, there are a lot published after decades of work, b) doing multi pass ontological classifications using existing ontologies as baselines and refining, c) given ontologies attempting to represent knowledge in them and querying them along various paths with agents tasked with building recipes and techniques and evaluating them across synthetic benchmarks developed along side.
+There’s also a lot of books on how to develop ontologies as well as online resources. They are all in the corpus and tasking a frontier pro level model with building a process and mental model document with references inline for grounding works really well as well for priming.
+reply
+theptip
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Aren’t these data formats and query engines? You still need something to extract and maintain the ontology no?
+reply
+fnordpiglet
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Yes, but my question wasn’t the utility of automated ontology building but the fact this seems to use pretty naive ontological and semantic graph tooling, making it less practically useful than if it used the industry standards of 30 years.
+reply
+einpoklum
+4 days ago
+|
+prev
+|
+next
+[–]
+Open Source?
+How about we start by open-sourcing the NVIDIA user-space libraries: libcuda, libcudart, libOpenCL, libnvtx, as well as nvidia-smi and the CUDA and OpenCL profilers.
+reply
+igleria
+4 days ago
+|
+prev
+|
+next
+[–]
+Was interested... but then realized it needs an NVIDIA api key?
+reply
+matthieu_bl
+4 days ago
+|
+parent
+|
+next
+[–]
+Shameless plug: we built our own open source equivalent of auto-ontology a few months ago, that doesn't require any API key but your LLM one (or none if you use your coding agent subscription)
+https://github.com/GetCassis/ontology-skills
+reply
+igleria
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+will check it out! also thanks to the others for the clarifications.
+reply
+IanCal
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+I've not tried running it but while it defaults to NVIDIA hosted endpoints but the readme suggests you can host those yourself if you want.
+reply
+p_l
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+You can self-host the LLMs involved, API key is only if you're using nvidia-hosted
+reply
+bbor
+4 days ago
+|
+prev
+|
+next
+[–]
+The readme seems to be written for enterprise project managers. Does anyone know what philosophy or academic ontology work this ties to, if any? I’m having trouble understanding the specifics, I’ll be honest…
+reply
+antonvs
+4 days ago
+|
+parent
+|
+next
+[–]
+This isn't really anything to do with ontology in the philosophical or academic sense, outside of computer science.
+In software, an ontology is just a machine-readable definition of the entities in a system - their names, properties, relationships etc. This tool analyzes a system and produces such a definition for agents to use.
+reply
+shostack
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+I happen to program management at scale and this is indeed very relevant to my interests.
+Imagine if you will, 10 groups inside a broader org. Each of those groups have teams that work on different stuff, but at the org level and cross team level managers and leadership still need to make sense of it all and if you ever want to connect the dots across work you need a common language.
+Now multiply that problem across a large enterprise if you want a company brain or any of the context to be trustworthy for usage at scale or for high accuracy and trust work.
+This is a a tooling solution for the schema and government layer that enables that so you can have an empowered human say "what team X calls Foo, and what team Y call Bar should map to our approved definition for Baz and here is how we validate their data against that shared classification."
+reply
+babayaga93
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+they refer to Ontology as on Business Language for an enterprise.
+reply
+podocarp
+4 days ago
+|
+prev
+|
+next
+[–]
+I don't understand this ontology thing. What's the difference between this and a memory system plus skills to collect your enterprise's APIs and CLIs etc?
+reply
+ForgotMyUUID
+4 days ago
+|
+parent
+|
+next
+[–]
+Ontology is a so-called white-box approach for AI: all dependencies are clearly stated and formalised. If something does not work as you wish, unlike LLMs, in ontology world you can clearly diagnose where the system fails. I understood the NVIDIA's idea this way: we take unreliable LLM and make a "reliable" ontology using it. 
+If you look back into history, Prolog , was exactly a sort of "memory system" or, better put, a human-friendly database. Ontology is a further development of this concept.
+reply
+gb2d_hn
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+What can an agent infer from this system that it can't infer from the codebase?
+reply
+matthieu_bl
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+1. What is not in the codebase. Obvious of course, but building an ontology and maintaining it over time forces a company to document what was only living in the head of some experts and never written down. In the case of analytics use cases, think of all the quirks a data analyst might have in mind when querying the data. Very basic e.g. "exclude test accounts whenever you count customers". Every analyst on the team does it without thinking, it's rarely written anywhere, and an agent that doesn't know will happily count them.
+2. Related to 1., your codebase or source material may hold different interpretations of the same definition (what "revenue" means can differ between Sales and Finance). The ontology forces you to choose one, or to state when to use each. Without that, the LLM may pick one a bit randomly.
+3. It's a governance tool for humans. It gives the company a human-readable, "deterministic" source of truth to agree on what means what, then version it and evolve it.
+reply
+IanCal
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+One issue in a business is what does all the data actually mean? What are the various definitions and how do they relate to each other. What's a customer? Should that include people that have bought things, or anyone who is potentially buying? Do different systems use the same definitions, what are the columns, etc.
+An ontology in this kind of context means a more precise machine readable spec of this and how it all relates to each other. You can totally build one by hand. The idea here is I think that it tries to figure it out itself and can take corrections over time, so you can ask natural language questions and get more reliable results rather than hoping an llm works out what "customers this month" means the same way each time over a wide span of data rather than having a much clearer API to work against.
+reply
+gb2d_hn
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+This is what the Matt Pocock /grill-with-docs solves. It helps to build a ubiquitous language that helps with domain modelling. This along with the codebase seems to help agents a lot. I'm not clear on how the Nvidia tool here improves on this, or how it is more reliable?
+reply
+theptip
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+This is more about streamlining the Date Engineer / Data Scientist role. Business Intelligence, in other words.
+Before: domain expert wants to ask a question about the data, but which of these hundred tables actually has the right “revenue per User” column? Ask a DE to help slice the data and bless the queries.
+After: ask your agent. The agent looks at the ontology and can usually find the best blessed data. To enable this you need to write down all the tribal knowledge that lived in the DE/DS head; agents can take the first pass at proposing and updating metadata.
+Under the covers the DE and DS roles switch to reviewing the underlying ontology, instead of working directly with business stakeholders on one-off queries.
+reply
+ewild
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+well im just not gonna write down the tribal knowledge lmao
+reply
+whatshisface
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+A memory system is managed by the RL trained behavior, these systems use specific prompts and ordinary software to hardcode a policy. The RL version is usually more efficient, but it can't be improved or made more repeatable.
+reply
+monkeydust
+4 days ago
+|
+prev
+|
+next
+[–]
+We spend a small fortune trying to get ontology right as it's so critical to real world success of enterprise AI. Curious if this could actually help us.
+reply
+babayaga93
+4 days ago
+|
+prev
+|
+next
+[–]
+This looks super promising, NVIDIA is going all in with Agents for enterprise, this was the last piece of the puzzle to let enterprises the confidence to use agentic AI, love it.
+reply
+ex1fm3ta
+4 days ago
+|
+prev
+|
+next
+[–]
+Nice is this Jensen Huang response's to Alex Karp recent statement on AI companies  stealing people data with a subvention (token price) ? Because building ontologies is Palantir's core  business.
+reply
+barrrrald
+4 days ago
+|
+prev
+|
+next
+[–]
+I've spent a career working with data and ontologies and I couldn't understand this readme, and the diagram only makes it more confusing.
+reply
+dstu
+4 days ago
+|
+prev
+|
+next
+[–]
+This may well be very useful, but Claude has ruined me and I have a visceral reaction to ‘gates’ in the opening sentence and couldn’t get any further. If a tool is worth building and sharing, surely it’s also worth writing a brief summary of what it’s supposed to achieve in your own words?
+reply
+ahartmetz
+4 days ago
+|
+parent
+|
+next
+[–]
+The sentence is near incomprehensible without knowledge of the Claudish robolect. (Here I made up a word. Hopefully its comprehensibility isn't gated too much on language nerdery.)
+reply
+frxx
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I will add Claudish robolect into my language immediately, thank you.
+reply
+BobbyTables2
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Hear ye, who speaks of the Pompatus of Claude…
+reply
+lenerdenator
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Claudish is a perfectly cromulent word.
+Seriously though, it'd be nice if we started using a more shared and less vendor-specific jargon to refer to what these latest features are. We're getting into JVM vs. .NET Execution Engine distinctions and they just muddy the water on what goes on in the market.
+reply
+adastra22
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Clodish.
+reply
+Tade0
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+It's particularly load-bearing to a non-native English speaker such as me.
+It looks a lot like English, but it doesn't have the same rhythm human English has. It's as if a human tried and failed to be concise.
+reply
+BobbyTables2
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+As a native English speaker, I get the same feeling whenever I read press releases and other announcements from executives.
+reply
+idiotsecant
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+It's vague puffery that implies depth without nessesarily achieving it. It's a very effective bullshitting technique with most people, which is why we collectively were so impressed with it we sculpted a robot that does it.
+reply
+beastman82
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Dailect
+reply
+stronglikedan
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Dalekect
+reply
+ahartmetz
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+LLect or 'lect
+reply
+torben-friis
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+"reliability gates agentic analytics" is quite a garden path sentence, at least to the eyes of a non-native speaker.
+reply
+svnt
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+The more common english term is “held back” instead of gated.
+And nvidia probably doesn’t want to say “probabilistic responses including hallucinations preclude reliable ai analytics”
+As it is the sentence communicates very little. Things are unreliable for a lot of different reasons. Hardware? Software? Users? Intentional and required use of RNGs? Claude presumes the reader has all the same weights activated.
+reply
+FrustratedMonky
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I've used the word "Gate" in this context.
+People are really seeing 'AI' in everything now. You can't tell.
+Humans are now hallucinating what is, or is not, AI.
+reply
+zdragnar
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Using gate as a verb is extremely rare in American English, though perhaps more common in British English. I would hazard a guess that very few people who aren't exposed to Claude on a regular basis would think that was anything other than gibberish.
+reply
+adastra22
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Using gate as a verb is perfectly fine and I see it all the time where I grew up in America. The problem with the sentence is deeper than word choice. It is like politician language in that it technically says what Claude is attempting to say without ever nailing down the precise context, so that it can be interpreted a million different ways and all would be correct, if you read it right. Which means it says nothing.
+I am convinced this is a result of RLVR and synthetic data. LLMs optimize not for human readers, but for passing the LLM evaluators in their training runs, and end up developing sophistry.
+reply
+FrustratedMonky
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+LOL
+People are "gatekeeping" how we use the word "gate".
+reply
+wongarsu
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+So you're claiming a Claude-shaped readability gate? /s
+reply
+salamandars
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+The line follows: "...a revenue metric answered faster is worth nothing if the number is wrong.". 
+Are you seriously suggesting a human wrote this?
+reply
+IanCal
+2 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Seems like an extremely simple sentence to me, and is an example explaining what previous commenters seem to have had trouble understanding.
+reply
+FrustratedMonky
+3 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Its tricky with corporate speak.  This was released by a big corp.  Marketing slop existed before AI.  I can't tell.   But maybe that is the point,  humans have written some convoluted sentences so can't just assume by how it sounds.
+reply
+literalAardvark
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+I've been screening some twitch streamers and noticed with some alarm that an unexpected number of seemingly healthy American streamers can't read, or very barely can.
+The game I was using for this uses a standard memo pads mechanic to fill in the story and many were barely stumbling through it in their own native language.
+So it's my impression that this is not entirely Claude's fault.
+Conservatively, I'll blame it on "dyslexia".
+reply
+mycall
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+As a native speaker, I read this as "This controls enabling or disabling of all analytic features used by AI model loops"
+Now there are times when I let the model keep its own docs in its own language, for its own future reference; but, it is not intended for human distribution due to its odd selection of words and phrases (aka slop).
+reply
+wccrawford
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I think it's slightly different:  Without reliability, agentic analytics is useless.
+Or:  Agentic analytics is gated on sufficient reliabilty.
+Or reallllly short and hard to understand:  Reliability gates agentic analytics.
+reply
+Roark66
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+I read this whole readme and I have no freaking clue what this does beyond "searchable knowledgebase". How about providing some use cases?
+reply
+c-fe
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+i had exactly the same issue. That first sentence triggered the bad experience i had with claude opus 5.0 interactions and i just closed the page immediately.. All of the PRs that I have seen with "gates"... it really impacts me
+reply
+mihaelm
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Opus 5.0 lingo left a lasting psychological damage on developers' psyches. And some good memes related to it.
+reply
+aniviacat
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+And yet it still contains what looks like human error, e.g. the "Software Components" table mixed up the columns for the database.
+reply
+antonvs
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+That's much more like an agent error than a human error.
+It's quite common for LLMs to mix up values between columns in a table. It's often referred to as a structural hallucination, since it can happen with all kinds of relationships that form structures, not just columns in a table.
+reply
+grey-area
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Hmm, seems their ontology didn't fix this assuming they use it themselves.
+reply
+eluru
+3 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+with this i agree whole heartedly, i can tolerate clanker code in exchange of the amount of value it can generate after heavy polishing, but good writing is something AI is leagues behind, so far back that is even making human writing worse by imitation.
+Use it for grammar, use it for punctuation, never let the clankers write by themselves and call it a day
+reply
+ks2048
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Is that first diagram also pure slop? I would have to understand more of what they're doing to confidently say it is, but it seems odd.
+All the four nodes on the right side have either only incoming or only outgoing arrows.
+reply
+FrustratedMonky
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Typical marketing blocks in a power point.  Not everything is AI slop, anymore than marketing has been 'slop'.
+What? now I can't draw boxes and arrows without it being slop?
+reply
+ks2048
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+"Ingestion Service" has 3 arrows out and nothing coming in. What is it ingesting? Are DB nodes supposed to show the DB technology they are using or what they store/do? - one node is "PostreSQL" and another node is "Source databases".
+Maybe typical marketing power points are worthless. But I called it slop because it didn't help me at all understanding what they are doing.
+reply
+brap
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Thank you! After reading the very first line I just had to check the HN comments:
+> Agents can retrieve documents and query databases, but reliability gates agentic analytics: a revenue metric answered faster is worth nothing if the number is wrong.
+Absolutely no human would ever write this kind of slop. I have no idea what this even means. Is this really the first thing you want users to read?
+I wish people would take a fucking minute to at least figure out what their main selling point is and just write it, you know, like we used to.
+reply
+SubiculumCode
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Agents can retrieve documents and query databases, but retrieval reliability limits the utility of agentic analytic abilities: a revenue metric answered faster is worth nothing if the number is wrong.
+Just adding a few words takes it so far...
+reply
+solarkraft
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+> Agents can retrieve documents and query databases, but reliability gates agentic analytics
+this reads like an attempt at poetry
+reply
+scirob
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+yes pls linguists track these word overuses and help us get rid.  Everytime someone says Gate IRL  i lose my train of thaught
+reply
+stronglikedan
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Especially with the resources of Nvidia FFS
+reply
+bsenftner
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[–]
+Seriously? This is a professional assessment?
+> If a tool is worth building and sharing, surely it’s also worth writing a brief summary of what it’s supposed to achieve in your own words?
+Next the complaint will be any such description looks like AI slop.
+reply
+antonvs
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Yes, it's a professional assessment. This page is 100% unedited slop, and it's unprofessional to publish something like this under the pretense that it's fit for human consumption.
+reply
+thunky
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[13 more]
+[flagged]
+sampullman
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+There's a difference between using Claude and sharing its unfiltered output.
+reply
+arthur-st
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+What they're saying is that if something is not worth the time needed to write it, it's not worth the time needed to read it either.
+reply
+dstu
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+I’ve never shared Claude text output with another human without explicitly flagging it as such. I believe my ability to communicate effectively in my own words is a large part of the value I offer and Claude’s writing (at least in relation to code) is so convoluted and malformed that I wouldn’t dream of attempting to pass it off as my own.
+It has a utility in the same way that raw ingredients have a utility in a kitchen. The chef doesn’t just drop a messy pile of uncooked meat and vegetables onto your plate and tell you to figure it out. That’s exactly what people are doing when they vomit out a bunch of impenetrable slop and expect the reader to do the hard work of comprehending it on their behalf.
+You can’t expect others to care about what you’re saying if you’ve not spent a moment considering how best to say it. The reader’s time is no less valuable than your own. If you think composing a readme for your project is worth zero minutes of your time, that’s the appropriate amount of time for readers to allocate to it.
+For whatever it’s worth, I also cancelled my Claude subscription recently and shifted back to OpenAI solely because I find its outputs far more readable. I’ll even accept a slight hit on model performance as a trade-off. If I’m unwilling to read Claude-speak when I’m being paid an hourly rate, you can be sure I’m not reading it for free.
+reply
+thunky
+4 days ago
+|
+root
+|
+parent
+|
+next
+[10 more]
+[flagged]
+WhrRTheBaboons
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+code is used to 'speak' to computers. prose is meant for human communication.
+if your readme is meant to only ever be read by 'agents' then fine. if you want actual humans to read it, write in a human language, not LLM-speak.
+it literally could not be more simple.
+reply
+thunky
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> write in a human language
+It's written in english. And probably written better than the average human would do.
+If you don't like it, explain why. Otherwise you all just sound like divas.
+reply
+jurgenburgen
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+I have yet to see a well written readme from LLMs. Usually they are filled with weird minutiae of implementation details, elaborate explanations for simple things the reader would be expected to know, strange condensed text that a reader has no clue how to parse and context dumps explaining something the “author” asked the LLM but which is completely irrelevant to the reader.
+LLM docs suck and I’d rather have no docs if a human is too lazy to write them well, at least I can tell my LLM to look at the code.
+reply
+thunky
+3 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> I’d rather have no docs if a human is too lazy to write them well, at least I can tell my LLM to look at the code
+Sure, but you're not going to waste your time (and money) having an LLM look through random piles of source code. That's kindof the point of these generated READMEs that you hate so much: to give you an idea of if you want to investigate it more deeply.
+If it bothers you so much, just ignore the README. But this "how dare they present this garbage to me!" is an entitled and hypocritical rant that's being repeated over and over and it needs to stop.
+reply
+AlexeyBelov
+3 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+> explain why
+It's explained all over this thread, but you've ignored this for some reason.
+reply
+dstu
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Code and prose are different things, but that aside, no, I don’t expect anyone I work with to be subject to my mindless one-shotted PRs – which is as close a comparison I can think of on the development side. I also wouldn’t consider a readme to be a pure technical doc. It’s very likely to be the first, and possibly last, impression someone forms of your project. It matters.
+I’m not fighting any particular fight, I’m just saying that the lack of care stands out to me, and evidently to others, and that anyone releasing a new project might want to consider whether they want it to be perceived in that way.
+reply
+thunky
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+> I’m just saying that the lack of care stands out to me
+You don't know how much they cared. You also don't know if they reviewed the README before publishing, or if was a mindless one-shotted PR that nobody looked at. The word "gate" isn't a smoking gun here, other than to prove that
+the reader
+uses AI a ton and is ironically now triggered by it.  If your criticism was more substantial: targeting the content rather than the use of a trigger word, then I might agree.  But you haven't done anything but project your own bias.
+reply
+dstu
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+“Gate” was just the trigger to quickly scan the rest of the copy, at which point AI’s fingerprints are so obvious that it’s impossible to believe a human wrote it. I haven’t bothered to check, but I’m sure any of the AI detector sites would light up like a Christmas tree on this.
+reply
+Twirrim
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+it's full of AI Slop fingerprints.  Clearly hasn't been read or edited by a human before being published, or they're already deep in the brain rot that they can't see just how bad it is.
+reply
+singpolyma3
+4 days ago
+|
+parent
+|
+prev
+|
+next
+[4 more]
+[flagged]
+antonvs
+4 days ago
+|
+root
+|
+parent
+|
+next
+[–]
+Read the rest of the page. This is 100% unedited slop.
+reply
+chrsw
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+More like, sometimes when you publish slop it gets called out as slop.
+reply
+moffkalast
+4 days ago
+|
+root
+|
+parent
+|
+prev
+|
+next
+[–]
+Thanks Claude. /s
+reply
+OhMeadhbh
+4 days ago
+|
+prev
+|
+next
+[–]
+I always giggle when software engineers use the term "ontology."
+reply
+Catloafdev
+4 days ago
+|
+prev
+|
+next
+[–]
+I tapped out at the AI-isms in the readme.
+Nvidia, I get you're all-in on AI, but please at least find a human to write some copy. It's both overly verbose and entirely lacking of important info at the same time.
+reply
+babayaga93
+4 days ago
+|
+prev
+|
+next
+[–]
+why everyone here is crying about a readme file? isn't this repo for agents??
+reply
+destepanov1
+4 days ago
+|
+prev
+|
+next
+[–]
+Didn't expect Standard ML O_o
+reply
+skinfaxi
+4 days ago
+|
+prev
+|
+next
+[–]
+Vibe-coded palantir?
+reply
+Hashtag-Ai
+4 days ago
+|
+prev
+|
+next
+[–]
+how to use it
+reply
+babayaga93
+4 days ago
+|
+parent
+|
+next
+[–]
+just ask your agent to install it, i think you will need an NVIDIA key, but i think you can bring your own model too.
+reply
+campervans
+5 days ago
+|
+prev
+[–]
+Game changer for entreprise (technical) debt
+reply
+HasanGilani
+4 days ago
+|
+parent
+[–]
+Enterprise like technical debt
+reply
+Guidelines
+|
+FAQ
+|
+Lists
+|
+API
+|
+Security
+|
+Legal
+|
+Apply to YC
+|
+Contact
+Search:

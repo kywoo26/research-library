@@ -1,0 +1,13 @@
+{
+  "title": "NVIDIA Auto Ontology가 만드는 기업 데이터의 의미와 검증의 경계",
+  "date": "2026-11-08",
+  "seq": 46,
+  "summary": "온톨로지 개념과 NVIDIA의 구축·SQL 경로를 코드로 풀고, 기업 성과 주장과 커뮤니티 재현 보고를 대조한다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "report",
+  "source": {
+    "url": "https://github.com/NVIDIA/auto-ontology",
+    "commit": "c447003f72a822301e927196a4ecb5b597c308d5"
+  }
+}

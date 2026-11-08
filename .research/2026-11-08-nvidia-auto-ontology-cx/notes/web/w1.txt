@@ -1,0 +1,79 @@
+NVIDIA Agent Knowledge Foundation | NVIDIA Developer
+Topics
+AI
+Building an Agent Knowledge Foundation
+Building an Agent Knowledge Foundation
+The NVIDIA Agent Knowledge Foundation provides NVIDIA open models and accelerated NVIDIA CUDA-X™ libraries that help agents retrieve relevant context, generate grounded answers, analyze and predict outcomes, and optimize actions.
+Find tutorials, samples, videos, and more
+Explore Resources
+Key Topics:
+Artificial Intelligence
+Data Indexing / Ingestion
+Querying Pipeline
+Large Language Models
+Generative AI
+Open Models and Libraries
+Choose the components required for your workflow. Each works with existing data platforms, ontologies, vector databases, and agent frameworks; they do not require adopting a new end-to-end platform.
+Reliable Agents: More Accurate, Grounded Answers
+NVIDIA Nemotron Retriever
+Open, leaderboard-winning models that improve agent context and lower agentic retrieval by 40%. Nemotron Parse processes multimodal documents up to 3.5x faster; Nemotron Embed produces 24% fewer incorrect answers; Nemotron Rerank improves retrieval accuracy by approximately 5%.
+Access Nemotron Models
+NVIDIA Kumo
+Open, pretrained foundation models for making predictions with leading accuracy directly from relational, tabular, and time-series data. Kumo gives agents predictive context from structured data, enabling them to forecast outcomes, rank opportunities, recommend actions, and assess risk.
+Access Kumo Models
+NVIDIA Auto Ontology
+Generates a starting ontology from enterprise data and documentation that business experts can test, refine, and certify. It complements existing ontology platforms and reduced ontology creation time by 90% in NVIDIA testing.
+Get Started With Auto Ontology
+More Performant Agents: Faster Access to Knowledge and Insights
+NVIDIA cuDF
+Accelerates the loading, joining, filtering, and transformation of structured data used by agents through familiar tools such as pandas, Polars, Spark, and DuckDB—by up to 5x on supported workloads.
+Get Started With cuDF
+NVIDIA cuML
+Accelerates familiar classification, regression, clustering, and anomaly-detection algorithms for custom machine-learning pipelines—by up to 50x on supported workloads.
+Get Started With cuML
+NVIDIA cuOpt
+Turns predictions, objectives and business constraints into optimized routes, schedules, and resource allocations—up to 10× faster on supported optimization workloads.
+Get Started With cuOpt
+NVIDIA cuVS
+Accelerates the vector indexing and similarity search used to retrieve context for agents, with integrations for FAISS, Milvus, and OpenSearch—by up to 18x on supported workloads.
+Get Started With cuVS
+NVIDIA cuGraph
+Accelerates analysis of relationships across customers, products, transactions, and other connected enterprise data, giving agents additional context for analysis and reasoning.
+Get Started With cuGraph
+Click to Enlarge
+From Company Data to Company Intelligence:
+Prepare
+: Use Nemotron Parse to preserve document content and structure, and cuDF to prepare structured data.
+Retrievel
+: Use Nemotron Embed and cuVS to find relevant information, then Nemotron Rerank to prioritize the best evidence..
+Understanding
+: Use Auto-Ontology to generate a starting ontology that business experts can test, refine, and certify.
+Predict
+: Use cuGraph to analyze connected data, cuML for custom machine-learning pipelines, and Kumo for pretrained prediction over structured data.
+Optimize
+: Use cuOpt to turn predictions, objectives, and constraints into optimized routes, schedules, and allocations.
+NVIDIA Agent Knowledge Foundation Use Case Examples
+These technologies provide individual value and can be adopted independently or used together for higher-performing enterprise agents with reliable answers, predictions, and optimized decisions at scale.
+Supply Chain
+Tools: cuOpt, cuVS, Nemotron
+Blog:
+Building an Analysis AI Agent for Industrial Alarm Management with NVIDIA Nemotron
+Blog:
+Multi-Agent Warehouse AI Command Layer Enables Operational Excellence and Supply Chain Intelligence
+Developer Example:
+Algorithmic Trading
+Tools: cuOpt, cuML, Nemotron
+Blog:
+Accelerating Real-Time Financial Decisions with Quantitative Portfolio Optimization
+Developer Example:
+Portfolio Optimization
+Developer Example:
+AI Model Distillation for Financial Data
+Machine Learning Pipelines
+Tools: cuML, Nemotron
+Blog:
+Building an Interactive AI Agent for Lightning-Fast Machine Learning Tasks
+Notebook:
+Data Science ML Agent
+Building an Agent Knowledge Foundation Learning Resources
+Download the raw results data (JSON)

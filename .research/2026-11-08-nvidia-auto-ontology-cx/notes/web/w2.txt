@@ -1,0 +1,775 @@
+Data Processing | NVIDIA
+NVIDIA Home
+NVIDIA Home
+Menu
+Menu icon
+Menu
+Menu icon
+Close
+Close icon
+Close
+Close icon
+Close
+Close icon
+Caret down icon
+Accordion is closed, click to open.
+Caret down icon
+Accordion is closed, click to open.
+Caret up icon
+Accordion is open, click to close.
+Caret right icon
+Click to expand
+Caret right icon
+Click to expand
+Caret right icon
+Click to expand menu.
+Caret left icon
+Click to collapse menu.
+Caret left icon
+Click to collapse menu.
+Caret left icon
+Click to collapse menu.
+Shopping Cart
+Click to see cart items
+Search icon
+Click to search
+Visit your regional NVIDIA website for local content, pricing, and where to buy partners specific to your country.
+Argentina
+Australia
+België (Belgium)
+Belgique (Belgium)
+Brasil (Brazil)
+Canada
+Česká Republika (Czech Republic)
+Chile
+Colombia
+Danmark (Denmark)
+Deutschland (Germany)
+España (Spain)
+France
+India
+Italia (Italy)
+México (Mexico)
+Middle East
+Nederland (Netherlands)
+Norge (Norway)
+Österreich (Austria)
+Peru
+Polska (Poland)
+Rest of Europe
+România (Romania)
+Singapore
+Suomi (Finland)
+Sverige (Sweden)
+Türkiye (Turkey)
+United Kingdom
+United States
+대한민국 (South Korea)
+中国大陆 (Mainland China)
+台灣 (Taiwan)
+日本 (Japan)
+Continue
+Skip to main content
+Artificial Intelligence Computing Leadership from NVIDIA
+Artificial Intelligence
+Solutions
+Solutions
+Overview
+Accelerated infrastructure, enterprise AI software, and advanced NVIDIA AI models
+Agentic AI
+Building blocks of AI agents designed to reason, plan, and act
+AI Inference
+Optimized inference platform for fast AI model deployment
+Conversational AI
+Build advanced conversational AI
+Cybersecurity
+AI-powered cybersecurity solutions to detect and prevent threats
+Data Science
+Accelerate data science workflows with NVIDIA AI platforms
+Software
+Software
+Agentic AI Models - Nemotron
+Open AI models for reasoning, coding, vision, and scalable enterprise use
+AI Agents - NeMo
+Software suite to build, monitor, and optimize AI agents across their lifecycle
+AI Blueprints
+Reference workflows and code samples for AI applications
+AI Inference - Dynamo
+Distributed inference for multi-node data center scale
+AI Inference - NIM
+NVIDIA NIM microservices for streamlined AI model deployment
+AI Microservices - CUDA-X
+CUDA-X libraries accelerate AI, HPC, and graphics workloads
+Decision Optimization - cuOpt
+NVIDIA cuOpt solves complex routing and logistics problems
+Physical AI - Cosmos
+NVIDIA Cosmos enables scalable, cloud-native AI workflows
+See All Software
+Platforms
+Platforms
+Overview
+NVIDIA AI platform powering advanced AI applications
+AI Foundry
+NVIDIA Foundry accelerates custom AI model development
+AI Factory
+Full-stack infrastructure for scalable AI workloads
+AI Data Platform
+Scalable AI data platform for enterprise and research needs
+NVIDIA AI Enterprise
+Enterprise AI software suite for data center deployments
+Use Cases
+Use Cases
+SDG for Agentic AI
+Generate large, realistic datasets for agentic AI model training and simulation
+Video Analytics AI Agents
+AI-powered video analytics for smarter insights and actions
+Content Generation
+Create content faster with NVIDIA generative AI tools
+Biomolecular Generation
+Accelerate life sciences R&D with foundation models for fast discovery
+Network Operations
+Autonomous AI agents optimize telecom network performance in real time
+See All Use Cases
+Resources
+Resources
+AI Resource Hub
+Explore AI training, learning resources, programs, and more
+Community
+Connect, collaborate, and innovate with NVIDIA developers
+Enterprise Support
+Enterprise-grade AI support, upgrades, and expert guidance
+US
+Sign In
+NVIDIA Account
+NVIDIA Store Account
+Logout
+Log In
+LogOut
+Skip to main content
+Artificial Intelligence Computing Leadership from NVIDIA
+0
+US
+Sign In
+NVIDIA Account
+NVIDIA Store Account
+Logout
+Login
+LogOut
+NVIDIA
+NVIDIA logo
+Artificial Intelligence
+Solutions
+Overview
+Accelerated infrastructure, enterprise AI software, and advanced NVIDIA AI models
+Agentic AI
+Building blocks of AI agents designed to reason, plan, and act
+AI Inference
+Optimized inference platform for fast AI model deployment
+Conversational AI
+Build advanced conversational AI
+Cybersecurity
+AI-powered cybersecurity solutions to detect and prevent threats
+Data Science
+Accelerate data science workflows with NVIDIA AI platforms
+Software
+Agentic AI Models - Nemotron
+Open AI models for reasoning, coding, vision, and scalable enterprise use
+AI Agents - NeMo
+Software suite to build, monitor, and optimize AI agents across their lifecycle
+AI Blueprints
+Reference workflows and code samples for AI applications
+AI Inference - Dynamo
+Distributed inference for multi-node data center scale
+AI Inference - NIM
+NVIDIA NIM microservices for streamlined AI model deployment
+AI Microservices - CUDA-X
+CUDA-X libraries accelerate AI, HPC, and graphics workloads
+Decision Optimization - cuOpt
+NVIDIA cuOpt solves complex routing and logistics problems
+Physical AI - Cosmos
+NVIDIA Cosmos enables scalable, cloud-native AI workflows
+See All Software
+Platforms
+Overview
+NVIDIA AI platform powering advanced AI applications
+AI Foundry
+NVIDIA Foundry accelerates custom AI model development
+AI Factory
+Full-stack infrastructure for scalable AI workloads
+AI Data Platform
+Scalable AI data platform for enterprise and research needs
+NVIDIA AI Enterprise
+Enterprise AI software suite for data center deployments
+Use Cases
+SDG for Agentic AI
+Generate large, realistic datasets for agentic AI model training and simulation
+Video Analytics AI Agents
+AI-powered video analytics for smarter insights and actions
+Content Generation
+Create content faster with NVIDIA generative AI tools
+Biomolecular Generation
+Accelerate life sciences R&D with foundation models for fast discovery
+Network Operations
+Autonomous AI agents optimize telecom network performance in real time
+See All Use Cases
+Resources
+AI Resource Hub
+Explore AI training, learning resources, programs, and more
+Community
+Connect, collaborate, and innovate with NVIDIA developers
+Enterprise Support
+Enterprise-grade AI support, upgrades, and expert guidance
+This site requires Javascript in order to view all its content. Please enable Javascript in order to access all the functionality of this web site. Here are the
+instructions how to enable JavaScript in your web browser.
+Data Processing Solutions
+Data Processing
+Data engines ready for AI.
+Overview
+Benefits
+Products
+Adopters
+Resources
+Next Steps
+Overview
+Benefits
+Products
+Adopters
+Resources
+Next Steps
+Overview
+Benefits
+Products
+Adopters
+Resources
+Next Steps
+Overview
+The Data Foundation for Agentic AI
+To transform your enterprise, AI agents need continuous access to your data, putting strain on data infrastructure not designed for agentic reasoning loops.
+With NVIDIA infrastructure, enterprises can meet the new volume and velocity of data demands from AI while leveraging their existing data stack. For CPU-based data processing, including analytics, real-time streaming, batch, and online transaction processing (OLTP), NVIDIA Vera delivers the per-core performance and high-bandwidth memory that agentic workloads need. For the fastest speed at scale, NVIDIA CUDA-X™ libraries accelerate the most popular data engines on GPUs, providing agents with on-demand access to structured data in tables and unstructured data living as PDFs, emails, images, and videos across the enterprise.
+Accelerating Data Processing for AI Agents
+Watch the GTC Berlin keynote to explore how NVIDIA’s latest advances in accelerated computing, data processing, and retrieval help enterprises put their data to work for AI agents.
+Watch Keynote
+Power Data Processing and Retrieval With NVIDIA Vera CPU
+Explore how European cloud providers and system builders are adopting the NVIDIA Vera CPU to support data processing, retrieval, and AI agent workloads.
+Learn More
+Benefits
+Transform Your Data for AI
+Massive Performance Gains
+The accelerated computing platform delivers up to a 20x GPU speedup for data processing, while NVIDIA Vera brings a high-performance CPU platform, enabling enterprises to take action faster with new use cases.
+Significant Cost Savings
+By running on the NVIDIA optimized stack, organizations have saved 80% in costs or more, helping your data infrastructure do more with less.
+Easy to Adopt
+The world’s most popular analytics and vector data engines have drop-in accelerators to make adoption straightforward, including Apache Spark, OpenSearch, and more.
+AI-Ready Data
+With context from 90% of enterprise data stored in PDFs, messages, and emails with NVIDIA cuVS, and ground truth from terabytes of structured data processed in minutes with NVIDIA cuDF, your data is ready for agentic AI.
+Products
+NVIDIA Accelerates Data Processing
+NVIDIA libraries, tools, and models power the data processing ecosystem with GPU acceleration, delivering faster data workloads and pipelines at enterprise scale.
+cuDF for Structured Data
+Accelerates analytics engines on NVIDIA GPUs
+Includes drop-in accelerators for Apache Spark, Presto, Polars, and DuckDB
+Executes analytical queries in minutes from hours
+Learn More About cuDF
+cuVS for Unstructured Data
+GPU-accelerated vector search and index building for RAG and AI pipelines
+Integrates with OpenSearch, Elastic, Milvus, and more
+Reduces vector index build times from hours to minutes
+Learn More About cuVS
+NVIDIA Kumo Structured
+Leaderboard-winning structured data models for tabular, relational, and time series data
+Forecasts outcomes, scores risk, detects anomalies, and generates recommendations with a single foundation model
+Cuts time to prediction from months to seconds, without feature engineering or task-specific machine learning pipelines
+Try the Models
+NVIDIA Nemotron Retriever
+Open, leaderboard-winning models that set a new accuracy-efficiency frontier, giving agents the right context with fewer tokens
+Parses, embeds, and reranks text, images, and complex documents, including PDFs, tables, and charts
+Lowers agentic cost by 40 percent, reduces incorrect answers by 24 percent, and increases throughput by 2.4x
+Try the Models
+NVIDIA Auto Ontology
+Open-source library that generates a starter enterprise ontology from databases, documentation, metadata, and query history
+Enables business stewards to test, refine, and certify business meaning, giving agents governed context and provenance
+Delivers up to 90 percent faster ontology creation, 80 percent less time connecting data, and 10x more accurate AI queries
+Try the Library
+Adopters
+Data Processing Ecosystem
+From analytical SQL queries to vector search, organizations are adopting
+NVIDIA's accelerated computing platform
+into their existing data platforms to accelerate AI-ready pipelines.
+Resources
+The Latest in Data Processing
+Blogs
+Sessions
+Videos
+Hardware Datasheets
+Power Data Processing and Retrieval With NVIDIA Vera CPU
+Explore how European cloud providers and system builders are adopting NVIDIA Vera CPU to support data processing, retrieval, and AI agent workloads.
+Learn More
+NVIDIA cuDF and cuVS Adopted by World's Leading Data Platforms
+NVIDIA's accelerated computing platform is fueling modern enterprise data processing. Integrated with the world's most widely used open source data engines—downloaded over 200 million times monthly by developers—these libraries are harnessed across enterprise data platforms, databases, and data lakes.
+Learn More
+How Snap Scaled A/B Testing With NVIDIA cuDF
+Snap processes 10+ petabytes daily for A/B testing across 940M+ users. Accelerating Apache Spark with NVIDIA cuDF on Google Cloud delivered 4x faster runtimes and 76% cost savings.
+Learn More
+Accelerating Large-Scale Analytics With Velox and NVIDIA cuDF
+IBM and NVIDIA integrate cuDF with the Velox execution engine, enabling GPU-native query execution for Presto and Apache Spark—delivering up to 12x faster analytics than CPU-only systems.
+Learn More
+Accelerating Data Processing for AI Agents
+Watch Jensen Huang describe how the NVIDIA Vera CPU delivers higher performance and efficiency to run 3x faster SQL analytics with Starburst and increase the reliability of real-time data streaming with Redpanda by up to 6x.
+Watch Keynote
+IBM Reinvents Data Processing
+IBM watsonx.data SQL analytics engine Presto is accelerated by cuDF for 5x speedup and 83% cost savings.
+Watch Demo
+Processing 100 Million Rows of Data in Under 2 Seconds With Polars
+Polars GPU Engine executes polars code on GPUs for massive speedups.
+Watch Demo
+Data Processing on NVIDIA Vera
+With NVIDIA-designed Olympus cores, 1.2 TB/s of memory bandwidth, and a high-speed on-chip fabric, NVIDIA Vera gives agentic AI the per-core performance, data throughput, and predictable performance under load required for data processing workloads, with up to 3x faster SQL analytics and 6x lower p99 latency in real-time data streaming workloads.
+Coming soon.
+Learn More
+Data Processing on NVIDIA RTX PRO 6000 Blackwell Server Edition
+NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs are engineered for intensive data processing and AI workloads, delivering up to 42X speed ups and eliminating pipeline bottlenecks for data at terabyte scale.
+Learn More
+Petabyte-Scale Data Processing on NVIDIA RTX PRO 4500 Blackwell Server Edition
+NVIDIA RTX PRO™ 4500 Blackwell Server Edition accelerates enterprise-scale data processing with NVIDIA cuDF, delivering up to 8x faster Apache Spark queries than CPU-only systems for AI and agentic applications.
+This enables universal acceleration from the data center to the edge.
+Learn More
+Next Steps
+Ready to Learn More?
+Get the latest on data processing news, content, and events.
+Stay Informed
+cuDF
+Open source toolkit for structured data using GPU parallelism and memory bandwidth to accelerate data processing and analytics workflows.
+Get Started With cuDF
+cuVS
+Open source library for unstructured vector search and data clustering that enables faster vector searches and index builds.
+Get Started With cuVS
+Sign up to receive data science news
+Welcome back.
+			Not you?
+Log Out
+Welcome
+			back. Not you?
+Clear form
+Section
+Section
+enterpriseOptIns hidden field
+Sign up for latest enterprise news, announcements, and more from NVIDIA.
+First Name
+Last Name
+Business Email Address
+Organization / University Name
+Industry
+Industry
+Aerospace
+Agriculture
+Architecture / Engineering / Construction
+Automotive / Transportation
+Cloud Services
+Consumer Internet
+Energy
+Financial Services
+Game Development
+Hardware / Semiconductor
+Healthcare & Life Sciences
+Higher Education / Academia
+HPC / Supercomputing
+Manufacturing
+Media & Entertainment
+Public Sector
+Retail
+Telecommunications
+Other
+Job Title
+Job Title
+Location
+Location
+Afghanistan
+Aland Islands
+Albania
+Algeria
+American Samoa
+Andorra
+Angola
+Anguilla
+Antarctica
+Antigua and Barbuda
+Argentina
+Armenia
+Aruba
+Australia
+Austria
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bermuda
+Bhutan
+Bolivia
+Bonaire, Sint Eustatius and Saba
+Bosnia and Herzegovina
+Botswana
+Bouvet Island
+Brazil
+British Indian Ocean Territory
+British Virgin Islands
+Brunei Darussalam
+Bulgaria
+Burkina Faso
+Burundi
+Cambodia
+Cameroon
+Canada
+Cape Verde
+Cayman Islands
+Central African Republic
+Chad
+Chile
+China
+Christmas Island
+Cocos (Keeling) Islands
+Colombia
+Comoros
+Congo
+Congo, Democratic Republic of the
+Cook Islands
+Costa Rica
+Cote D'Ivoire
+Croatia
+Cuba
+Curaçao
+Cyprus
+Czech Republic
+Denmark
+Djibouti
+Dominica
+Dominican Republic
+Ecuador
+Egypt
+El Salvador
+Equatorial Guinea
+Eritrea
+Estonia
+Eswatini
+Ethiopia
+Falkland Islands (Malvinas)
+Faroe Islands
+Fiji
+Finland
+France
+French Guiana
+French Polynesia
+French Southern Territories
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Gibraltar
+Greece
+Greenland
+Grenada
+Guadeloupe
+Guam
+Guatemala
+Guernsey
+Guinea
+Guinea-Bissau
+Guyana
+Haiti
+Heard Island and Mcdonald Islands
+Honduras
+Hong Kong
+Hungary
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Ireland
+Isle of Man
+Israel
+Italy
+Jamaica
+Japan
+Jersey
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Korea Democratic People's Republic of
+Korea Republic of
+Kuwait
+Kyrgyzstan
+Lao People's Democratic Republic
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libya
+Liechtenstein
+Lithuania
+Luxembourg
+Macao
+Madagascar
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Marshall Islands
+Martinique
+Mauritania
+Mauritius
+Mayotte
+Mexico
+Micronesia, Federated States of
+Moldova, Republic of
+Monaco
+Mongolia
+Montenegro
+Montserrat
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+New Caledonia
+New Zealand
+Nicaragua
+Niger
+Nigeria
+Niue
+Norfolk Island
+North Macedonia
+Northern Mariana Islands
+Norway
+Oman
+Pakistan
+Palau
+Palestine, State of
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines
+Pitcairn
+Poland
+Portugal
+Puerto Rico
+Qatar
+Réunion
+Romania
+Russian Federation
+Rwanda
+Saint Helena
+Saint Kitts and Nevis
+Saint Lucia
+Saint Pierre and Miquelon
+Saint Vincent and the Grenadines
+Saint-Barthélemy
+Saint-Martin (French part)
+Samoa
+San Marino
+Sao Tome and Principe
+Saudi Arabia
+Senegal
+Serbia
+Seychelles
+Sierra Leone
+Singapore
+Sint Maarten
+Slovakia
+Slovenia
+Solomon Islands
+Somalia
+South Africa
+South Georgia and the South Sandwich Islands
+South Sudan
+Spain
+Sri Lanka
+Sudan
+Suriname
+Svalbard and Jan Mayen
+Sweden
+Switzerland
+Syria
+Taiwan
+Tajikistan
+Tanzania
+Thailand
+The Netherlands
+Timor-Leste
+Togo
+Tokelau
+Tonga
+Trinidad and Tobago
+Tunisia
+Turkey
+Turkmenistan
+Turks and Caicos Islands
+Tuvalu
+Uganda
+Ukraine
+United Arab Emirates
+United Kingdom
+United States
+United States Minor Outlying Islands
+Uruguay
+Uzbekistan
+Vanuatu
+Vatican City State
+Venezuela
+Viet Nam
+Virgin Islands U.S.
+Wallis and Futuna
+Western Sahara
+Yemen
+Zambia
+Zimbabwe
+Preferred Language
+Preferred Language
+Chinese (Simplified)
+Chinese (Traditional)
+Czech
+Danish
+Dutch
+English (Australia)
+English (GB)
+English (India)
+English (Malaysia)
+English (Philippines)
+English (Singapore)
+English (US)
+Finnish
+French
+French (Belgium)
+German
+German (Austria)
+Indonesian
+Italian
+Japanese
+Korean
+Netherlands (Belgium)
+Norwegian
+Polish
+Portuguese (Brazil)
+Spanish (Latin America)
+Spanish (Spain)
+Swedish
+Thai
+Turkish
+Vietnamese
+State/Province
+State/Province
+安徽
+北京
+重庆
+福建
+广东
+甘肃
+广西
+贵州
+海南
+湖北
+河北
+河南
+黑龙江
+湖南
+吉林
+江苏
+江西
+辽宁
+内蒙古
+宁夏
+青海
+四川
+山东
+上海
+陕西
+山西
+天津
+新疆
+西藏
+云南
+浙江
+nvid hidden field
+NVIDIA Privacy Policy
+I agree to the collection and processing of the above information by NVIDIA <span class="corporation-txt hidden">Corporation </span>for the purposes of research and event organization, and I have read and agree to <a href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/?deeplink=visiting-our-website"; target="_blank">NVIDIA Privacy Policy</a>.
+I agree that the above information will be transferred to NVIDIA Corporation in the United States and stored in a manner consistent with <a href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/?deeplink=visiting-our-website" target="_blank">NVIDIA Privacy Policy</a> due to necessities for research, event organization and corresponding NVIDIA internal management and system operation need. You may contact us by sending an email to <a href="mailto:privacy@nvidia.com">privacy@nvidia.com</a> to resolve related problems.
+Submit
+AWS
+With NVIDIA cuDF, AWS delivers 3x faster Apache Spark performance on Amazon EMR using Amazon EC2 G7e instances on NVIDIA RTX PRO™ 4500 BSE GPUs, and AWS OpenSearch can now build billion-scale vector databases in under an hour with cuVS acceleration.
+Read the Blog
+Dell AI Data Platform
+Dell AI Data Platform with NVIDIA unifies Dell high-performance storage and computing infrastructure with NVIDIA accelerated computing, software, and libraries to power data processing for enterprise-scale agentic AI workflows with up to 12x speedup for vector indexing and 3X for data processing with cuDF and cuVS.
+Read the Blog
+Google Cloud
+Google Cloud and NVIDIA deliver GPU-accelerated analytics on G4 VMs, with Snap achieving 76% daily cost savings using Apache Spark accelerated by cuDF on GKE.
+Read the Blog
+HPE
+With NVIDIA Vera in HPE ProLiant Compute DL394 Gen12, HPE servers can run data processing workloads with the performance and consistency required for agentic AI workloads.
+Read the Press Release
+IBM watsonx.data
+IBM watsonx.data accelerated Presto with NVIDIA cuDF on A100s to execute Nestle’s queries on terabytes of global operations data 5x faster with 83% cost savings.
+Read the Press Release
+Oracle
+Oracle AI Database integrates NVIDIA cuVS and NVIDIA GPUs to accelerate vector index generation by up to 10x, helping enterprises build and refresh indexes faster for semantic search, RAG, and agentic AI applications grounded in governed enterprise data.
+Read the Blog
+Redpanda
+Redpanda’s real-time data streaming engine alternative to Apache Kafka delivers 6x lower p99 latencies on NVIDIA Vera, delivering the consistent performance enterprises need for their agentic AI workloads.
+Read the Blog
+Starburst
+On NVIDIA infrastructure, Starburst’s Trino-powered platform runs up to 3x faster on NVIDIA Vera compared to x86 on 1 terabyte of data and up to 7x faster on NVIDIA RTX PRO 6000, supporting agentic analytics for gathering the ground truth of the enterprise.
+Read the Press Release
+Redpanda
+On NVIDIA Vera, Starburst’s Trino-powered platform runs up to 3x faster compared to x86 on 1 terabyte of data, supporting AI agents gathering the ground truth of the enterprise.
+Read the Blog
+ClickHouse
+Running ClickHouse on NVIDIA Vera: Is your favorite database up to the challenge?
+Read the Blog
+Cloudera
+Powered by NVIDIA cuDF, Cloudera Data Engineering on Cloudera Anywhere Cloud offers GPU acceleration for Apache Spark without code rewrites. This enables data teams to lower cloud costs and prepare AI-ready data up to 4x faster than traditional CPU infrastructure.
+Read the Blog
+Company Information
+About Us
+Investors
+Venture Capital (NVentures)
+NVIDIA Foundation
+Research
+Corporate Sustainability
+Technologies
+Careers
+News and Events
+Newsroom
+Company Blog
+Technical Blog
+Webinars
+Stay Informed
+Events Calendar
+GTC AI Conference
+NVIDIA On-Demand
+Popular Links
+Developers
+Partners
+Executive Insights
+Startups and VCs
+Documentation
+Technical Training
+Professional Services for Data Science
+Follow NVIDIA
+NVIDIA
+United States
+Privacy Policy
+Your Privacy Choices
+Terms of Service
+Accessibility
+Corporate Policies
+Product Security
+Contact
+Copyright © 2026 NVIDIA Corporation

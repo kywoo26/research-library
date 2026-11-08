@@ -1,0 +1,254 @@
+dbt Semantic Layer | dbt Developer Hub
+Skip to main content
+Relive the best of dbt Summit! Get access to the keynotes and breakout sessions from dbt Summit 2026. See the latest product innovations from dbt, and hear how data teams are leveling up for the agentic era.
+dbt version
+▾
+v2
+v1
+1.13
+(
+beta
+)
+1.12
+1.11
+On dbt platform?
+v2 =
+dbt v2 release tracks
+v1 =
+dbt v1 release tracks
+Docs
+Product docs
+References
+Best practices
+Developer blog
+Guides
+APIs
+Help
+Release notes
+FAQs
+Support and billing
+Licensing
+Courses
+Community
+Join the dbt Community
+Become a contributor
+Community forum
+Webinars
+Events
+Account
+Log in to dbt
+Create a free account
+Get started with dbt
+Search
+About
+About dbt
+Get started
+Feature availability
+Supported features
+dbt releases
+About the dbt platform
+Supported data platforms
+Get started
+dbt Quickstarts
+Get started with dbt
+AI and dbt
+About AI and dbt
+dbt Wizard
+Skills from packages
+dbt Copilot
+dbt MCP server
+dbt AI FAQs
+Build and develop
+Develop with dbt
+Build dbt projects
+Build dbt Mesh
+Deploy and explore
+Deploy dbt
+Optimize builds with dbt State
+Explore your data
+Use the dbt Semantic Layer
+About the dbt Semantic Layer
+Quickstart with the dbt Semantic Layer
+Configure
+Deploy metrics
+Consume
+Semantic Layer FAQs
+Compute
+About Lake Compute
+Onboarding to Lake Compute
+Lake Compute FAQs
+Business intelligence
+dbt Charts
+Additional tools
+dbt integrations
+Release information
+Available dbt versions
+dbt release notes
+Use the dbt Semantic Layer
+Copy page
+Copy page
+Copy page as Markdown for LLMs
+View as Markdown
+View this page as plain Markdown
+Open in
+ChatGPT
+Ask questions about this page
+Open in
+Claude
+Ask questions about this page
+Open in
+Perplexity
+Ask questions about this page
+On this page
+dbt Semantic Layer
+dbt platform
+|
+Starter, Enterprise, Enterprise+
+ⓘ
+The dbt Semantic Layer eliminates duplicate coding by allowing data teams to define metrics on top of existing models and automatically handling data joins.
+Connect your AI to your metrics
+AI tools like Claude and ChatGPT can connect to the
+Semantic Layer
+through the
+dbt MCP server
+, so their answers use your governed metrics instead of guessing at raw tables.
+The dbt Semantic Layer, powered by
+MetricFlow
+, simplifies the process of defining and using critical business metrics, like
+revenue
+in the modeling layer (your dbt project). By centralizing metric definitions, data teams can ensure consistent self-service access to these metrics in downstream data tools and applications.
+Moving metric definitions out of the BI layer and into the modeling layer allows data teams to feel confident that different business units are working from the same metric definitions, regardless of their tool of choice. If a metric definition changes in dbt, it’s refreshed everywhere it’s invoked and creates consistency across all applications. To ensure secure access control, the
+Semantic Layer
+implements robust
+access permissions
+mechanisms.
+Refer to the
+Semantic Layer
+FAQs
+or
+Why we need a universal semantic layer
+blog post to learn more.
+Get started with the dbt Semantic Layer
+​
+To define and query metrics with the
+dbt Semantic Layer
+, you must be on a
+dbt Starter or Enterprise-tier
+account.
+Suitable for both Multi-tenant and Single-tenant accounts. Note: Single-tenant accounts should contact their account representative for necessary setup and enablement.
+This page points to various resources available to help you understand, configure, deploy, and integrate the
+Semantic Layer
+. The following sections contain links to specific pages that explain each aspect in detail. Use these links to navigate directly to the information you need, whether you're setting up the
+Semantic Layer
+for the first time, deploying metrics, or integrating with downstream tools.
+Refer to the following resources to get started with the
+Semantic Layer
+:
+Quickstart with the
+Semantic Layer
+: Build and define metrics, set up the
+Semantic Layer
+, and query them in Google Sheets and other tools.
+Build your metrics
+— Use MetricFlow in
+dbt
+to centrally define your metrics.
+Semantic Layer
+FAQs
+— Discover answers to frequently asked questions about the
+Semantic Layer
+, such as availability, integrations, and more.
+Configure the dbt Semantic Layer
+​
+The following resources provide information on how to configure the
+Semantic Layer
+:
+Administer the
+Semantic Layer
+— Seamlessly set up the credentials and tokens to start querying the
+Semantic Layer
+.
+Architecture
+— Explore the powerful components that make up the
+Semantic Layer
+.
+Deploy metrics
+​
+This section provides information on how to deploy the
+Semantic Layer
+and materialize your metrics:
+Deploy your
+Semantic Layer
+— Run a
+dbt
+job to deploy the
+Semantic Layer
+and materialize your metrics.
+Write queries with exports
+— Use exports to write commonly used queries directly within your data platform, on a schedule.
+Cache common queries
+— Leverage result caching and declarative caching for common queries to speed up performance and reduce query computation.
+Consume metrics and integrate
+​
+Consume metrics and integrate the
+Semantic Layer
+with downstream tools and applications:
+Consume metrics
+— Query and consume metrics in downstream tools and applications using the
+Semantic Layer
+.
+Available integrations
+— Review a wide range of partners you can integrate and query with the
+Semantic Layer
+.
+Semantic Layer
+APIs
+— Use the
+Semantic Layer
+APIs to query metrics in downstream tools for consistent, reliable data metrics.
+Was this page helpful?
+Yes
+No
+Privacy policy
+Create a GitHub issue
+This site is protected by reCAPTCHA and the Google
+Privacy Policy
+and
+Terms of Service
+apply.
+0
+Tags:
+Semantic Layer
+Edit this page
+Last updated
+on
+Sep 29, 2026
+Next
+Quickstart with the dbt Semantic Layer
+Get started
+Start building with dbt.
+The free dbt VS Code extension is the best way to develop locally with dbt.
+Install free extension
+Request your demo
+Resources
+VS Code Extension
+Resource Hub
+dbt Learn
+Certification
+Developer Blog
+Community
+Join the Community
+Become a Contributor
+Open Source dbt Packages
+Community Forum
+Support
+Contact Support
+Professional Services
+Find a Partner
+System Status
+Connect with Us
+© 2026 dbt Labs, LLC. All Rights Reserved.
+Terms of Service
+Privacy Policy
+Security
+Cookie Settings
