@@ -1,0 +1,363 @@
+Skip to content
+
+Marginalia
+旁注旁观Writing
+Topics
+About
+GitHub
+
+中文
+
+Menu
+
+Marginalia
+
+Writing
+Topics
+About
+GitHub
+Search all writing
+中文
+
+Automatic Ontology Engineering: Reading NVIDIA's Auto-Ontology at the Source
+
+Auto-Ontology compiles an ontology out of metadata and query history in four passes, then hands agents nine read-only MCP tools. After reading 1.1.0 end to end, I think it automates the first month — and that certification is a badge, not a gate.
+
+AI
+Nov 4, 2026
+12 min
+LB
+中文
+
+Contents
+
+1. The problem, as a scene
+
+2. Where it sits
+
+3. The design
+
+4. The implementation
+
+4.1 Deployment shape
+
+4.2 The four compilation passes
+
+4.3 How a question becomes SQL
+
+4.4 Answerability: a deterministic 0–1 score
+
+4.5 The tool surface: nine of eighty-seven
+
+5. Trade-offs, with their costs
+
+6. Where it stands: two gaps in the source
+
+7. Numbers, with sources
+
+8. What this buys you
+
+9. Roadmap and open questions
+
+References
+
+Contents
+
+1. The problem, as a scene
+
+2. Where it sits
+
+3. The design
+
+4. The implementation
+
+4.1 Deployment shape
+
+4.2 The four compilation passes
+
+4.3 How a question becomes SQL
+
+4.4 Answerability: a deterministic 0–1 score
+
+4.5 The tool surface: nine of eighty-seven
+
+5. Trade-offs, with their costs
+
+6. Where it stands: two gaps in the source
+
+7. Numbers, with sources
+
+8. What this buys you
+
+9. Roadmap and open questions
+
+References
+
+中文版是这篇文章的默认版本。
+阅读中文版 →
+This English page stays available at this URL; the Chinese version is the one we maintain first.
+
+In one line: Auto-Ontology automates the most expensive month of ontology engineering — it reads your metadata and query history, compiles a business ontology, and hands it to agents through nine read-only tools. What it hands over is a draft: in this codebase, certification is a badge rendered for display, not a gate on the query path.
+
+English voiceover, 2 min 19 s. A Chinese cut covers the same ground.
+
+NVIDIA announced it at GTC Berlin on 21 October 2026 as part of the Agent Knowledge Foundation, and open-sourced it under Apache-2.0 on 1 November. I read the whole backend at commit caced11 (cloned 4 November). Everything below traces back to that code.
+
+1. The problem, as a scene#
+
+An agent with database access can write SQL that runs. That is the easy part and the dangerous part, because a query that runs and returns a plausible wrong number produces no error.
+
+This is the scene.
+
+tap to enlarge
+
+Finance has three columns that could be called revenue. Sales means bookings. A join to a one-to-many table doubles a total without complaint. Text-to-SQL research usually treats the hard part as generating valid SQL and scales the model. Auto-Ontology starts from the opposite premise: syntactically correct is not semantically correct, and what is missing is a context layer that says where the data lives, what it means, whether to use it, how to use it, where it came from, and what is similar.
+
+That layer used to live in people’s heads. Its cost is concentrated in the first delivery — reading source tables, defining object relationships, reviewing metric definitions — which is why most semantic-layer projects die in week one: the platform is installed, and nobody can say which of six revenue definitions is the real one.
+
+2. Where it sits#
+
+“Put an ontology over the data, rewrite queries into it” is not new. What changed, twice, is who writes the ontology.
+
+tap to enlarge
+
+RouteWho writes the ontologyConsequence
+
+OBDAA knowledge engineer models and maps it by handExpressive and provable; the cost kept it in proofs of concept
+
+Semantic layer (dbt / Cube / LookML)An analytics engineer writes YAML, a person reviewsTrustworthy definitions; weeks to months from blank page to v1
+
+LLM drafts, a person signsThe model drafts, a human certifiesSomething reviewable on day one; the draft/authority line is yours to draw
+
+Both lineages have thirty years behind them. OBDA’s three levels — sources, mappings, ontology — are structurally the same as Auto-Ontology’s catalog, semantic foreign keys and terms. The only difference is that nobody builds the ontology by hand any more. The last three years rewrote this line with LLMs: Towards Agentic Schema Refinement (arXiv 2412.07786), Knowledge Base Construction for Knowledge-Augmented Text-to-SQL (ACL 2025 Findings), A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs (arXiv 2511.06455) all push the same way — give the model the right context instead of a better SQL generator.
+
+Mining query history is the industry converging on the same idea. Snowflake’s engineering blog describes building semantic models from query history; open-source projects cluster historic SQL into dbt YAML. The argument is solid: query history is the only behavioural evidence of how a company actually measures itself, and it beats documentation. Auto-Ontology’s fourth pass mines query history.
+
+3. The design#
+
+It is not another text-to-SQL engine. Four requirements have to hold at once.
+
+The ontology must be a retrievable graph, not a schema pasted into the prompt — otherwise tokens grow with every table and relationships cannot be expressed at all.
+
+Terms must land on columns and SQL expressions. “Revenue is a business concept” is useless; which columns, computed how.
+
+Relationships must be stronger than column names. customer_id appearing in two tables is not evidence that they join.
+
+“Cannot answer” must be a reachable state. It is the only mechanism that stops a confident wrong answer.
+
+Two engineering principles decide the shape:
+
+The tool surface is designed, not generated. Every extra tool raises the chance the agent picks the wrong one.
+
+A person signs certifications, and something checks that they did. It implements half of this. Section 6.
+
+4. The implementation#
+
+4.1 Deployment shape#
+
+It is not a library. It is a stack beside your database, and the README’s component table explains its boundary faster than the code does.
+
+tap to enlarge
+
+Models default to NVIDIA NIM (nvidia/nemotron-3-nano-30b-a3b for reasoning, plus Nemotron embedding and rerank), and every model role can point at any OpenAI-compatible endpoint. The documented sources are Databricks, Postgres, Snowflake and DuckDB; the source also ships ClickHouse, MySQL, SQLite, Trino, Kyuubi and HeavyDB connectors.
+
+One security fact belongs before any deployment: the Next.js gateway resolves the user and forwards an x-auto-ontology-user-id header to FastAPI, which does not verify it independently, and the ingestion service’s ingest / delete / reset / compile endpoints have no authentication of their own. The README says plainly that 3001 and 3002 must not be exposed. In Kubernetes that is a NetworkPolicy, not a reminder.
+
+4.2 The four compilation passes#
+
+This is the core. The entry point is auto_ontology/semantic/compile.py, four strictly sequential stages:
+
+# auto_ontology/semantic/compile.py
+count = compile_semantic_layer(...) # 1. table-by-table taxonomy
+fk_count = resolve_semantic_fks(...) # 2. semantic FKs / junctions
+attr_count = suggest_sql_attributes(...) # 3. metrics mined from history
+bridge = build_bridge_tables_sql_attributes(...) # 4. bridge tables
+
+tap to enlarge
+
+Pass 1, ingest (catalog/extract.py) pulls six kinds of entity: tables, columns, views, primary keys, foreign keys, queries. One detail worth copying: _validate_relation_column_coverage is fail-closed. If a relation appears in get_tables() with no rows in get_columns(), the whole extraction fails. The alternative is the hardest failure to diagnose: the catalog lands, retrieval offers the table, and every generated query against it fails.
+
+Pass 2, name terms (semantic/term_extractor.py, driven by pipeline.py). One business name per table, every column assigned under a term with a human-readable display label. The prompt is restrained — “strongly prefer ONE Term per table” — and only a true junction table may split.
+
+The engineering around the prompt matters more. pipeline.py runs three workers over tables, and each table fans out again into concurrent LLM calls; compile.py therefore caps the whole run with SEMANTIC_LLM_MAX_INFLIGHT=6, because the request rate is a product of table-level and within-table concurrency and the source comment records it once drove the endpoint into HTTP 503. Term commits go through an _OrderedCommitQueue that admits them in canonical table order, so when two tables contend for the same unqualified name the winner is deterministic. Expensive LLM work stays parallel; the write becomes sequential.
+
+Pass 3, resolve relations (semantic/fk_suggester.py). Undeclared foreign keys are inferred from suffix (_id), type, description and sampled uniqueness (is_unique), along with a junction-table verdict and a UUID heuristic.
+
+Pass 4, mine metrics (semantic/sql_attribute_suggester.py) is the clever one:
+
+For each term, fetch the historic SQL recorded against its tables.
+
+Parse with sqlglot and extract expressions — WHERE and JOIN ON predicates, aggregates, CASE, UNION branches — explicitly excluding bare column references and pure foreign-key equalities.
+
+Score by usage, take the top 10, and ask a model which deserve to become named SqlAttribute nodes.
+
+Rebuild each survivor into a valid SELECT, persist it, embed it.
+
+The intent is clear: let the agent reuse a definition somebody already computed — active customer, gross margin — instead of inventing arithmetic per question. The scoring in step 3 currently does nothing. Section 6.
+
+4.3 How a question becomes SQL#
+
+The query path is a LangGraph state machine in retrieval/text_to_sql/text_to_sql_graph.py: twenty-odd nodes and an explicit edge table.
+
+tap to enlarge
+
+Three decisions are worth copying into any system you build:
+
+SQL is built from retrieved definitions, not from raw columns. agents/sql_from_semantic.py injects primary_attribute, attribute_join_paths, reviewed sql_attributes, term synonyms and value anchors into the prompt.
+
+Joins are checked against known relationships before execution. db_probe/join_path_check.py is its own node, because two columns sharing a name is not evidence that the tables join.
+
+There is a terminal state for “this cannot be answered from what I know” that ends in an explanation rather than a guess. Reconstruction has a hard cap, MAX_RECONSTRUCTION_ATTEMPTS = 7, after which the run enters unconstructable.
+
+One honesty note: the “does the SQL fit the question” check is a model reading the SQL it just wrote (agents/sql_parse_validation.py). It catches self-comparisons and wrong filters. It cannot know that your finance team excludes sales to subsidiaries. That is a model judging SQL, not a semantic guarantee.
+
+4.4 Answerability: a deterministic 0–1 score#
+
+retrieval/entity_coverage/agents/coverage.py contains no model judgement, only arithmetic:
+
+# auto_ontology/retrieval/entity_coverage/agents/coverage.py
+def _compute_coverage(entities, col_attr_hits) -> float:
+if not entities:
+return 0.0
+return len(_covered_entities(entities, col_attr_hits)) / len(entities)
+
+Extract entities, retrieve candidates, filter by distance, divide. That lets an agent run a cheap pre-flight before paying for ask_question. The README’s ad-spend example is exactly this: coverage 0.5; no term covers "ad spend", followed by a clarifying question instead of an invented number.
+
+4.5 The tool surface: nine of eighty-seven#
+
+tap to enlarge
+
+mcp/auto_ontology_mcp/tools.py is where the philosophy is concentrated: 87 operations in the public spec, 9 tools published, everything else swallowed by a catch-all EXCLUDE. Three choices matter more than the tools:
+
+No tool browses schemas or raw columns, deliberately. The comment’s words: a tool that lists schemas or columns “invites an agent to bypass it and reason about raw tables instead”.
+
+Tool descriptions are rewritten as prompts. Generated operation ids read get_api_terms_term_id_, which tells a model nothing; each description now says when to reach for the tool, in the caller’s vocabulary.
+
+No service-account token. Every call runs as the person who signed in, so a viewer gets a viewer’s answers.
+
+5. Trade-offs, with their costs#
+
+DecisionAlternativeWhyCost
+
+Four services plus PostgresOne process plus SQLiteCompilation, answering and the gateway have different load and permission boundariesFive things to run and secure, not one
+
+Persist semantics at compile timeInfer from schema per questionRelationships and metrics are computed once; answering gets cheapThe ontology drifts from the source; you need a recompilation policy
+
+Mine metrics from query historyTrust only hand-written dbt modelsBehavioural evidence beats documentationA dashboard refreshed hourly on a wrong definition becomes the most “used” expression
+
+Allow-list tool surfaceGenerate from the whole specMore tools means more wrong tool choicesA new endpoint is invisible until someone registers it
+
+Certification as data, not a runtime gateRefuse to answer from uncertified definitionsGets the draft working, defers governanceSee section 6 — this is the part you build
+
+6. Where it stands: two gaps in the source#
+
+tap to enlarge
+
+Gap one: certification is a badge, not a gate. Terms, column attributes and SQL attributes each carry certified flags; at query time they roll up to certified / partial / pending for display. I could find no reference to those flags anywhere in the text-to-SQL path, and NVIDIA’s own management skill concedes the current fields “are not an atomic review/promotion system”. The consequence is direct: an agent can answer a finance question with a definition nobody reviewed. If your rule is that only reviewed definitions may answer finance questions, you write that check.
+
+Gap two: the usage ranking does nothing. The scorer in semantic/sql_attribute_suggester.py always returns 0.0, and the docstring says so out loud — “Known bug, preserved on purpose. Do not ‘fix’ this in passing.” The regex expects count_monthly_YYYY_MM while the writer emits count_8_2026, so no name it accepts has ever been written; every expression ties at zero and the sort falls back to dict insertion order. The fix (score by total_counter) is written in the same comment and deliberately not applied, because applying it would change which SqlAttribute nodes the product suggests.
+
+That detail is a sample of this project’s engineering attitude: it would rather leave an inert function in place and explain why than ship a scorer that looks like it works. It also means “rank by usage”, which sounds like the headline feature, is not in effect.
+
+Three more things to know before deploying: credentials are stored unencrypted on a Postgres row unless HashiCorp Vault is configured (a partial configuration falls back to plaintext with a warning); the project currently does not accept external contributions and the MCP package is not on PyPI, so install from the repo or the NGC container; and no accuracy number has been published.
+
+7. Numbers, with sources#
+
+MetricValueSource
+
+LicenceApache-2.0repo LICENSE
+
+Releaseopen-sourced 2026-11-01; announced 2026-10-21 at GTC Berlin with Agent Knowledge Foundationpress consistent across outlets
+
+Default reasoning modelnvidia/nemotron-3-nano-30b-a3brepo .env.example and coverage
+
+Compilation concurrencySEMANTIC_LLM_MAX_INFLIGHT=6, 3 table workerssource constants
+
+SQL reconstruction cap7 attemptstext_to_sql_graph.py
+
+MCP tools / backend operations9 / 87mcp/.../tools.py comment and allow-list
+
+Official benchmarksBIRD, BEAVER, FDABench-Lite, Wide World Importers, BIRD-Interactauto-ontology-eval README
+
+Published accuracynone — the eval repo ships the harness and the control/treatment design, not resultsofficial repo; the “90% faster ontology building” figure circulating in coverage appears in neither repository
+
+Terms from one compilation (WWI sample)31README
+
+8. What this buys you#
+
+You can verify this article’s central claim without standing up the stack. Two greps:
+
+git clone --depth 1 https://github.com/NVIDIA/auto-ontology && cd auto-ontology
+
+# Gap one: nothing on the question path reads the certification flags
+grep -rn "certified" auto_ontology/retrieval/ | grep -v test # expect: no output
+
+# Gap two: the scorer is hard-wired to zero
+sed -n '/def _usage_score/,/^ return/p' auto_ontology/semantic/sql_attribute_suggester.py
+
+An empty result from the first command is the entire evidence for “a badge, not a gate”. For the end-to-end case, Docker Compose plus an NVIDIA API key, then ask the README’s Wide World Importers question — revenue for the sushi-roll flash drive in Pennsylvania in June 2015 — and it should return $588.80 with the SQL and the steps that produced it.
+
+9. Roadmap and open questions#
+
+It compresses “blank page to reviewable draft” from a month into days, and that part is real value. The rest it leaves to whoever deploys it, which is also what makes the two remaining questions live.
+
+How does the ontology converge with a drifting source? Compilation is a single pass; semantic_compilation_history records only a start, a finish and a coarse status. When upstream adds a column or changes an enum, who triggers recompilation, and how do you avoid overwriting a definition a person certified? There is an open issue (#268, structured certification and atomic promotion) arguing about it, with no answer yet.
+
+Query history is both evidence and contamination. A dashboard query running on a wrong definition for a year will be the most “used” expression in the warehouse. The moment the usage ranking actually works, that problem surfaces — which may be one reason it is being left inert on purpose.
+
+References#
+
+NVIDIA/auto-ontology
+— the source this article reads, commit caced11
+
+auto-ontology-eval
+— the control/treatment design and benchmark list
+
+Xiao, Calvanese et al. Ontology-Based Data Access: A Survey, IJCAI 2018
+
+Towards Agentic Schema Refinement, arXiv 2412.07786
+
+Knowledge Base Construction for Knowledge-Augmented Text-to-SQL, ACL 2025 Findings
+
+A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs, arXiv 2511.06455
+
+Snowflake Engineering: Mining Query History to Build Better Semantic Models
+
+Apache Ossie
+— the interchange format Auto-Ontology imports and exports
+
+Auto-OntologyNVIDIASemantic LayerMCPText-to-SQLOntology Engineering
+Previous
+One person as a creative team: what transfers from Dan Koe's letter
+Next
+A chat box is not an agent OS: five places a 30-person company breaks it
+
+Marginalia
+Back to top ↑
+
+About
+
+A record of systems, people and days.
+
+Read
+All writing
+By topic
+RSS
+
+Elsewhere
+GitHub
+X / Twitter
+CV
+Email
+
+© 2026 LB · Marginalia
+
+Search writing
+
+Esc
+
+Search 34 essays
+
+Browse all writing →
+
+↑ ↓ select · Enter open · Esc close
