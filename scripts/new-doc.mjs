@@ -42,7 +42,10 @@ const ROOT = findRoot(dirname(fileURLToPath(import.meta.url)));
 // 옛 셸의 tl-dr 장은 없다. 표지의 흐름 판이 그 자리를 맡는다.
 
 const CORPORA = ['paper', 'oss', 'web'];
-const PURPOSES = ['comparison', 'explainer', 'walkthrough'];
+// 2026-11-08 부터 새 문서는 종류가 없다. 소유자 요청에서 나온 항목(run.json 의 asks)이 장을 정한다.
+// 옛 종류 셋은 그 전 문서를 고칠 때만 쓴다(check-doc 이 날짜로 가른다).
+const PURPOSES = ['report'];
+const LEGACY_PURPOSES = ['comparison', 'explainer', 'walkthrough'];
 
 // corpus 별 힌트. web 은 안내서·소개 글·블로그처럼 커밋도 arXiv 판도 없는 페이지다.
 const H = {
@@ -88,6 +91,14 @@ const MIDDLE = {
 
 function chaptersFor(corpus, purpose) {
   const h = H[corpus];
+  if (purpose === 'report') {
+    return [
+      ['cover', '표지', null],
+      ['body', 'TODO 장 이름', '요청 항목 하나를 덮는 장. notes/plan.md 의 장 구성대로 늘리고 이름을 바꾼다'],
+      ['critique', '한계', h.critique],
+      ['sources', '출처', null],
+    ];
+  }
   return [
     ['cover', '표지', null],
     ['problem', '문제 정의', h.problem],
@@ -112,6 +123,15 @@ const card = (id, col, tone = '') =>
 
 function bodyFor(role, n) {
   const c = `c${n}`;
+  if (role === 'body') {
+    return [
+      '  <div class="explanation"><p>TODO 이 장이 설명하는 것. 이유와 연결은 문장으로 쓴다</p></div>',
+      '  <figure class="diagram">',
+      '    <svg viewBox="0 0 720 260" role="img" aria-label="TODO 이 그림이 보여 주는 구조를 한 문장으로"></svg>',
+      '    <figcaption>TODO 무엇을 그렸고 어디서 왔는가. 원문 그림이면 그대로 싣고(.plate) 출처를 적는다</figcaption>',
+      '  </figure>',
+    ];
+  }
   if (role === 'result') {
     return [
       '  <figure class="plot">',
@@ -142,9 +162,31 @@ function bodyFor(role, n) {
   ];
 }
 
-function buildSlides(chapters, { title }) {
+function buildReportCover(chapters, { title }) {
+  return [
+    '  <!-- 01 · cover. 메시지와 전체 그림 하나. 그림은 주제의 구조를 보여 준다(장 목차를 상자로 옮기지 않는다) -->',
+    '  <section class="slide" data-role="cover" data-label="표지">',
+    `  <h1>${esc(title)}</h1>`,
+    '  <p class="answer">TODO 무엇인지 한 문장, 이 리서치가 찾은 것과 소유자에게 갖는 의미 (공백 뺀 280자 이하)</p>',
+    '  <p class="src">TODO 누가 낸 어떤 자료인가 (조직과 팀, 또는 저자와 역할)와 고정한 판</p>',
+    '  <figure class="diagram">',
+    '    <svg viewBox="0 0 720 300" role="img" aria-label="TODO 메시지를 실어 나르는 그림을 한 문장으로. 그릴 구조가 없으면 figure 를 지운다"></svg>',
+    '    <figcaption>TODO 그림이 보여 주는 것과 출처</figcaption>',
+    '  </figure>',
+    '  <div class="toc">',
+    '    <p class="toc-h">장</p>',
+    '    <ul>',
+    ...chapters.slice(1).map(([, label], k) =>
+      `      <li><span class="g"></span><a href="#p${k + 2}">${k + 2} · ${esc(label)}</a><span class="f">TODO 이 장에서 얻는 것 한 줄</span></li>`),
+    '    </ul>',
+    '  </div>',
+    '  </section>',
+  ].join('\n');
+}
+
+function buildSlides(chapters, { title, purpose }) {
   const flow = chapters.map((ch, i) => [ch, i + 1]).filter(([[role]]) => !['cover', 'critique', 'setup', 'sources'].includes(role)).slice(0, 3);
-  const cover = [
+  const cover = purpose === 'report' ? buildReportCover(chapters, { title }) : [
     '  <!-- 01 · cover. 흐름 판의 칸은 논증의 단계다. 이름과 수는 논증이 정하고, 장 번호 칩은 셸이 href 에서 만든다 -->',
     '  <section class="slide" data-role="cover" data-label="표지">',
     `  <h1>${esc(title)}</h1>`,
@@ -179,9 +221,9 @@ function buildSlides(chapters, { title }) {
       `  <!-- ${pad2(n)} · ${role}${hint ? `: ${hint}` : ''} -->`,
       `  <section class="slide" data-role="${role}" data-label="${esc(label)}">`,
       '  <h2>TODO 주장을 한 문장으로</h2>',
-      '  <p class="lead">TODO 두 문장 이하</p>',
+      ...(role === 'body' ? [] : ['  <p class="lead">TODO 두 문장 이하</p>']),
       ...bodyFor(role, n),
-      ...(role === 'result' ? [] : ['  <ul class="notes"><li>TODO 판의 출처. 원문에 없는 그림이면 그 사실</li></ul>']),
+      ...(role === 'result' || role === 'body' ? [] : ['  <ul class="notes"><li>TODO 판의 출처. 원문에 없는 그림이면 그 사실</li></ul>']),
       '  <details class="orig"><summary>원문</summary><p>TODO 원문 인용(<span class="q">“…”</span>)과 위치</p></details>',
       '  </section>',
     ].join('\n');
@@ -220,8 +262,13 @@ async function create(slug, corpus, purpose, opts) {
     console.error(`corpus 는 ${CORPORA.join(' / ')} 중 하나다: ${corpus}`);
     process.exit(2);
   }
+  purpose = purpose || 'report';
+  if (LEGACY_PURPOSES.includes(purpose)) {
+    console.error(`새 문서는 종류를 고르지 않는다(${purpose}). 소유자 요청의 항목이 장을 정한다. 셋째 인자를 빼고 다시 부른다`);
+    process.exit(2);
+  }
   if (!PURPOSES.includes(purpose)) {
-    console.error(`종류는 ${PURPOSES.join(' / ')} 중 하나다: ${purpose}. 조사를 시킨 말에서 고른다. 기본값은 없다`);
+    console.error(`셋째 인자는 없거나 report 다: ${purpose}`);
     process.exit(2);
   }
   const m = /^(\d{4}-\d{2}-\d{2})-([a-z0-9-]+)$/.exec(slug);
@@ -247,7 +294,7 @@ async function create(slug, corpus, purpose, opts) {
     .replace(/\{\{TITLE\}\}/g, esc(title))
     .replace(/\{\{SUMMARY\}\}/g, esc(summary))
     .replace(/\{\{SLUG\}\}/g, slug)
-    .replace('{{SLIDES}}', buildSlides(chapters, { title }));
+    .replace('{{SLIDES}}', buildSlides(chapters, { title, purpose }));
 
   await mkdir(docDir, { recursive: true });
   await writeFile(join(docDir, 'index.html'), html);
@@ -289,7 +336,8 @@ async function create(slug, corpus, purpose, opts) {
   console.log(`.research/${slug}/         sources.jsonl, evidence.jsonl, claims.jsonl, notes/`);
   console.log(`\n출발용 ${chapters.length}장 (${corpus}, ${purpose}), board 셸. 장마다 data-role 이 있고 TODO 판은 장의 주장에 맞는 모양으로 바꾼다.`);
   console.log('견본: .agents/skills/research-doc/references/specimens/. 장은 합치거나 빼서 20개 안쪽으로 두고, 표지의 흐름 판과 목록을 장에 맞춘다.');
-  console.log(`읽은 범위는 조사를 마친 뒤 ${chapters.findIndex((c) => c[0] === 'setup') + 1}장에 직접 적는다.`);
+  if (chapters.some((c) => c[0] === 'setup')) console.log(`읽은 범위는 조사를 마친 뒤 ${chapters.findIndex((c) => c[0] === 'setup') + 1}장에 직접 적는다.`);
+  else console.log('읽은 범위와 열지 않은 것은 출처 장에 짧게 적는다.');
 }
 
 // ---- rename ----
@@ -352,21 +400,21 @@ const argv = process.argv.slice(2);
 
 if (!argv.length || argv.includes('--help') || argv.includes('-h')) {
   console.log('사용법:');
-  console.log('  node scripts/new-doc.mjs <YYYY-MM-DD-slug> <paper|oss|web> <comparison|explainer|walkthrough> [옵션]');
+  console.log('  node scripts/new-doc.mjs <YYYY-MM-DD-slug> <paper|oss|web> [옵션]');
   console.log('  node scripts/new-doc.mjs rename <old-slug> <new-slug>\n');
   console.log('옵션:');
   console.log('  --title <제목>       meta.json 과 표지에 들어간다');
   console.log('  --summary <설명>     목록과 og:description 에 들어간다\n');
-  console.log('종류는 조사를 시킨 말에서 고른다. 쓸지 정하는 조사는 comparison, 원리를 설명하는 조사는 explainer,');
-  console.log('고치거나 옮기는 조사는 walkthrough. 도입 판단 장은 comparison 에만 들어간다.\n');
+  console.log('문서 종류는 고르지 않는다. 소유자 요청에서 나온 항목(run.json 의 asks)과 notes/plan.md 의 장 구성이 장을 정한다.');
+  console.log('meta.json 의 purpose 는 report 다. 옛 종류(comparison|explainer|walkthrough)는 2026-11-08 전 문서에만 남는다.\n');
   console.log('만드는 것:');
   console.log('  research/<slug>/     index.html (board 셸의 출발용 골격), meta.json');
   console.log('  .research/<slug>/    sources.jsonl, evidence.jsonl, claims.jsonl, notes/\n');
   console.log('골격은 board 셸이다(<html data-format="board">, assets/deck-shell.html).');
-  console.log('  표지        h1, p.answer, p.src, 논증 흐름 판(.board.flow), 흐름 밖 장의 목록(.toc)');
-  console.log('  장          h2(주장 한 문장), p.lead, 판(.board) 이나 그림(figure.plot), ul.notes, details.orig');
-  console.log('  data-role   cover, critique, sources 는 check-doc 이 요구한다. 나머지는 장의 종류 이름이다');
-  console.log('  판과 그림은 작성자가 줄과 칸만 쓰고 셸이 그린다. 모양은 specimens/ 의 견본을 따른다\n');
+  console.log('  표지        h1, p.answer(메시지), p.src(누구의 자료인가), figure.diagram(주제의 전체 그림), 장 목록(.toc)');
+  console.log('  장          h2(이 장이 설명하는 것), 본문(.explanation 문단, figure.diagram 의 SVG, 표, 원문 그림 .plate, 필요할 때 .board)');
+  console.log('  data-role   cover, sources 는 check-doc 이 요구한다. 한계(critique)는 있으면 한 곳에 둔다');
+  console.log('  도식의 모양은 .agents/skills/research-doc/references/visual.md 와 specimens/ 를 따른다\n');
   console.log('두 트리는 항상 같은 이름을 쓴다. 이름을 바꿀 때는 rename 을 쓸 것.');
   console.log('직접 옮기면 두 트리가 어긋나 문서와 근거를 이어붙일 수 없다.');
   process.exit(0);
@@ -386,8 +434,8 @@ if (argv[0] === 'rename') {
     else if (argv[i] === '--summary' && argv[i + 1]) opts.summary = argv[++i];
     else if (!argv[i].startsWith('-')) positional.push(argv[i]);
   }
-  if (positional.length < 3) {
-    console.error('사용법: node scripts/new-doc.mjs <YYYY-MM-DD-slug> <paper|oss|web> <comparison|explainer|walkthrough>');
+  if (positional.length < 2) {
+    console.error('사용법: node scripts/new-doc.mjs <YYYY-MM-DD-slug> <paper|oss|web>');
     process.exit(2);
   }
   await create(positional[0], positional[1], positional[2], opts);

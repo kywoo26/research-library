@@ -9,18 +9,20 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { createHash } from 'node:crypto';
-import { verdict, publicationBlockers } from './lib/ship-verdict.mjs';
+import { verdict, publicationBlockers, requestCoverage } from './lib/ship-verdict.mjs';
 import { classifyDocPrs, isDocBranch } from './lib/ship-prs.mjs';
 
 const HELP = `사용법: node scripts/ship.mjs research/<slug>
 
 .research/<slug>/run.json 에서 읽는 것:
   commitSubject, commitBody   필수. AGENTS.md 의 Commits 규칙대로
-  decided                     researcher 가 소유자 대신 정한 것 (kind, 질문 등)
+  decided                     researcher 가 소유자 대신 정한 것 (질문, 장 구성, 범위 등)
   needs_owner                 소유자가 정할 것. 하나라도 있으면 draft
   unverified, unfixed         검증하지 못한 것, 확인했지만 고치지 못한 것. unfixed 는 {item, meaning, impact}.
                               meaning 이 false 여도 impact=understanding 이면 draft. wording 만 비차단
   rendered                    렌더링한 화면을 봤는지 한 줄
+  request, asks               2026-11-08 이후 문서(purpose report): 소유자 요청 원문과 항목. 항목마다 chapters(장의
+                              data-label)가 문서에 있어야 한다. 없으면 draft. 처음 내보내는 새 문서는 plan-review 기록도 요구한다
 
 .research/<slug>/notes/hooks.json (hook 이 쓴다, git 이 무시한다):
   reviews, modelSwitches      이번 run 에서 lens 마다 시작과 완료가 짝지어지지 않았거나, 두 lens 가 함께 돌지 않았거나,
@@ -102,7 +104,12 @@ const unfixedRaw = Array.isArray(run.unfixed) ? run.unfixed : run.unfixed ? [run
 const blocking = publicationBlockers(unfixedRaw);
 const needs = asList(run.needs_owner);
 const unfixed = unfixedRaw.map((x) => (x?.impact === 'understanding' ? '(독자 이해) ' : x?.meaning === false ? '(표현) ' : '') + asList([x])[0]);
-const v = verdict({ reviews, modelSwitches, docSha: sha, harness, runId: active?.runId || null, modelLog: hooks.modelLog || {}, needs, blocking });
+const meta = (() => { try { return JSON.parse(readFileSync(join('research', slug, 'meta.json'), 'utf8')); } catch { return {}; } })();
+const v2 = meta.purpose === 'report';
+const coverage = v2 ? requestCoverage(run, readFileSync(docPath, 'utf8')) : [];
+// 처음 내보내는 새 문서만 계획 검토를 요구한다(run.ship 이 없고 main 에도 없다).
+const needPlan = v2 && !existing && !run.ship;
+const v = verdict({ reviews, modelSwitches, docSha: sha, harness, runId: active?.runId || null, modelLog: hooks.modelLog || {}, needs, blocking, needPlan, coverage });
 if (v.refuse) die(v.refuse);
 const isDraft = v.reasons.length > 0;
 const unreviewed = v.reasons.some((r) => r.includes('바뀌었다'));

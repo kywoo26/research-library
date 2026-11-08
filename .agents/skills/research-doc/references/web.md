@@ -1,44 +1,28 @@
-# Documenting a web source
+# Reading a web source for the document
 
-How the chapters get filled when the corpus is a page with no commit and no arXiv version:
-a vendor guide, an announcement, a blog post. Read `prose-ko.md` and `visual.md` alongside
-this; the reader and the three kinds are defined in `../SKILL.md`. A guide is written in
-the vendor's order; pick the chapters by the kind and let that order go.
+A vendor guide, an announcement or a blog post has no commit and no arXiv version, and it is
+written in the vendor's order. Take from it what the asks need and let that order go. The
+sources chapter names the pages read and, in a line, the linked sub-pages left unopened.
 
-## Chapter contents
-
-| Chapter | What goes here | Kinds |
-|---|---|---|
-| `problem` | The question the page answers, and what a developer hits without the answer | all |
-| map | The layers that change (request, response, conversation history, account), and what each change does | walkthrough, explainer |
-| trace | One path through the page: each hop with a verbatim quote and its `§Heading` | walkthrough |
-| comparison | The alternative the page itself sets against its subject | comparison |
-| `setup` | The pages and sections read, and in one line the linked sub-pages left unopened with the chapter they would deepen. `retrieved_at` and archive links stay in `sources.jsonl` | all |
-| `result` | The page's own charts and tables, redrawn (`visual.md` §The source's own figures) | all |
-| `critique` | What the page does not say, separated from what you inferred; a vendor's numbers marked as the vendor's | all |
-
-## Locators and the fixed copy
-
-A locator is the page's own heading, written `§Behavior differences`. The text you read is
-saved as `notes/web/<id>.txt`, hashed into `sources.jsonl` as `text_sha256`, and committed;
-`check-claims.mjs` matches every quote and every number against it. A quote that is only
-in a chart goes into `notes/figures.md` with the chart's other points, and the gate looks
-there too.
+A locator is the page's own heading, written `§Behavior differences`. Quotes and numbers are
+matched against the fixed copy `notes/web/<id>.txt` (`../../research-source/SKILL.md` §2), and a
+value that appears only in a chart goes into `notes/figures.md`.
 
 ## Reception
 
-An announcement is read against its reception. Take the launch thread on Hacker News
-through the Algolia API (`https://hn.algolia.com/api/v1/items/<id>`), which returns the
-comment's text, author and time, and pin each comment used as its own `web` source with a
-`notes/web/<id>.txt` copy. A post you cannot fetch yourself does not go in; a subagent's
-summary of one is hearsay. A reaction is a statement, not a fact: write who said what and
-when, check it against the page and its linked documents, and attach what you found as the
-condition. Keep only reactions that change how a claim of the page reads, and put each next to
-the claim it changes as a `.card.react` (`visual.md`); reactions get no chapter of their own.
+When the request asks how a subject was received, or the subject is contested, collect
+reactions where practitioners actually discuss it: issue trackers, forums, reviews, posts by
+people who used it. Pin every reaction you use as its own `web` source with a fixed copy. A post you could
+not fetch yourself does not go in; someone else's summary of it is hearsay.
 
-## Limits specific to a live page
+A reaction is a statement, not a fact. Say who said what and when, check it against the source,
+and say whether it holds, contradicts or stays open. Place it where it serves the reader: beside
+the claim it changes, or, when the owner asked about reception, in a chapter of its own that
+explains the pattern across reactions.
 
-A page changes without a version, so a claim carries the retrieval date, and a claim about
-what the page does not say is an absence claim: record the search over the fixed copy that
-came back empty. A guide describes what the vendor intends; whether the API does it is a
-runtime claim, and the document says which of the two it has.
+## A live page
+
+A page changes without a version, so a claim carries the retrieval date. A claim about what
+the page does not say is an absence claim: record the search over the fixed copy that came back
+empty. A guide says what the vendor intends. Whether the product does it is a claim about runtime
+behaviour, so say which of the two the document has.

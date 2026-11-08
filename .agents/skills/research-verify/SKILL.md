@@ -1,187 +1,111 @@
 ---
 name: research-verify
 description: Adversarially reviews a finished research document draft. Two lenses read it
-  in separate contexts and in parallel (the number and quote checker, and a reader who
-  tests whether the document answers its question), claims are extracted from the
-  sentences that shipped, check-claims.mjs verifies them against the pinned corpus, and
-  check-doc.mjs carries the structural checks. Invoked by the researcher agent after
-  research-doc, or on a fix to an existing document. In any other session, hand the job to
-  the research skill.
+  in separate contexts and in parallel (the number and quote checker, and the owner's reader
+  who checks the request, the message, the prose and the diagrams), claims are extracted from the
+  sentences that shipped, check-claims.mjs verifies them against the pinned corpus, and the
+  author fixes and has the changed sentences reread until nothing blocking remains. Invoked by
+  the researcher agent after research-doc, or on a fix to an existing document. In any other
+  session, hand the job to the research skill.
 ---
 
 # Adversarial review of a research document
 
-The report is Korean. Read
-`../research-doc/references/prose-ko.md` before writing it.
+Fixes are written in Korean; read `../research-doc/references/prose-ko.md` before making them.
 
-## Three rules that shape everything below
+## Three rules
 
-**Review the draft, not the working notes.** A reversed direction, a misread unit and a
-dead anchor exist only once sentences do, so `claims.jsonl` is extracted from the draft
-and the verifier reads the text the reader will.
+**Review the draft, not the working notes.** A reversed direction or a dead anchor exists only
+once sentences do, so claims are extracted from the draft the reader will read.
 
-**Run the lenses as separate subagents that start with none of the author's conversation.** A context
-that wrote a sentence re-reads it by the same route and reaches the same conclusion. B and
-A run in parallel, blind to each other and to the author.
+**Reviewers start with none of the author's conversation.** A context that wrote a sentence
+rereads it by the same route and reaches the same conclusion.
 
-**A finding makes a claim in the document wrong, stops the reader from doing what its
-`purpose` promises, or, for the reader lens, costs the reader the point: a title, `h2` or `.lead`
-that misleads a scanning reader, or material the reader could skip.** Things that would be nice to add, sources that could also be read,
-and wording you would have chosen differently are not findings: one line each under 메모,
-or leave them out.
+**A finding is something that would change the document the owner gets.** That means one of:
+- a claim a reader would come away believing that the source does not support;
+- an ask the document does not answer;
+- a first screen or a chapter that loses the point;
+- prose the owner would read as machine-written or have to read twice;
+- a picture that does not show its structure, or a structure left undrawn.
 
-## Where this runs
+A dropped qualifier is a finding only when it changes what the reader believes. Nice-to-haves and
+wording preferences are not findings. A long list of small true objections buries the one that
+matters, and every fix risks a new error.
 
-A document edited by hand or reviewed after the fact goes through the same steps; one never
-verified looks exactly like one that passed.
+## 1. The target
 
-## Procedure
+Open the draft `research/<slug>/index.html`, `.research/<slug>/run.json` (`request` and `asks`)
+and `.research/<slug>/sources.jsonl`. An older document has no `asks`; its `run.json` may hold
+a `question` instead. If `sources.jsonl` is missing, the numbers cannot be checked:
+run the reader lens and the structural checks, reconstruct from `meta.json` `source.url` if it has
+one, and say at the top of the report what was skipped.
 
-### 1. Establish the target
+## 2. Launch the lenses
 
-Open the draft `research/<slug>/index.html`, its `meta.json`, whose `purpose` says what the
-document was meant to do, and `.research/<slug>/sources.jsonl`, which may be absent.
+Once the draft passes `check-doc.mjs` and `check-prose.mjs`, renders, and you have read it
+through, launch `lens-numbers` (B) and `lens-reader` (A) as new agents, together, each with the
+values its reference file asks for. `lens-reader` gets the run record and the render directory.
+Leave the document and its ledgers as they are until both reports are back; extract claims in the
+meantime.
 
-`sources.jsonl` fixes what the numbers are checked against: `repo` + `commit` for code,
-`arxiv_id` + `version` for papers, and no local paths. `../research-source/SKILL.md` owns
-that rule, and here a path that leaked in is a finding.
+## 3. Extract claims from the shipped sentences
 
-**If `sources.jsonl` is missing, run a reduced review instead of stopping.**
-
-- `check-doc.mjs` runs unchanged, since it needs only the document.
-- Lens A (reader) runs. That the sources exist only inside the document is itself worth
-  reporting.
-- Lens B (numbers) cannot run, because there is nothing to check against. If `meta.json` has
-  `source.url`, reconstruct from it and say so; otherwise state plainly that numbers were not
-  verified.
-- `check-claims.mjs` cannot run either, so state that too.
-
-Say what was skipped at the top of the report, before the findings.
-
-### 2. Launch the lenses
-
-Once the draft passes `check-doc.mjs` and `check-prose.mjs` and you have read it through,
-launch `lens-numbers` (B) and `lens-reader` (A) by name, both at once, each with the values
-its reference file asks for; give `lens-reader` the question and the angle the request named,
-when it named them. Until both reports are back, leave the document and its ledgers as they
-are; extracting claims (§3) is the work for that time.
-Spawning them is the step; asking permission for it is not. If they cannot be spawned, run
-what you can and declare the gap at the top of the report, as a missing `sources.jsonl` is
-declared.
-
-Structure (headings, the chapter grammar, references, the title copies) is `check-doc.mjs`'s job.
-
-### 3. Extract claims from the shipped sentences
-
-Walk the visible text of `research/<slug>/index.html`, skipping CSS and JS, and write
-`.research/<slug>/claims.jsonl`. Include cards and their `.ev` lines, notes, figcaptions and table cells, where qualifiers like
-"the paper does not make this comparison" live. One claim per line:
+Walk the visible text, cards, notes, captions and table cells of the draft, and write
+`.research/<slug>/claims.jsonl`, one claim per line:
 
 ```json
 {"id":"c1","kind":"numeric","text":"Ours 전체 AC 62.6 으로 baseline 56.3 을 앞선다",
- "verdict":"confirmed","scope":"arXiv:2601.00000v1 표 1 기준",
- "evidence":[{"source":"p1","locator":"Table 1",
-              "quote":"Ours 69.1 54.8 47.5 62.6 / Baseline 66.0 51.2 44.8 56.3"}]}
+ "verdict":"confirmed","scope":"arXiv:2601.00000v1 표 1 기준","evidence":["e3"]}
 ```
 
-A span already in `evidence.jsonl` goes in by its `id`, as in `"evidence":["e3","e7"]`; write the
-object out only for a span the ledger lacks.
+Extract the following, one sentence per claim:
+- numbers and comparisons;
+- quotes;
+- directions and causes;
+- the claims the message rests on;
+- calculations the source did not make;
+- absence claims;
+- behaviour the reader would act on.
 
-`check-claims.mjs --help` gives the forms of `locator`, `quote`, `verdict` and `kind`.
-`locator` follows the source's own notation, in Latin as printed (`Table 1`, not `표 1`;
-`path:line` in a repository); `scope` beside it is prose and stays Korean. `quote` is the
-sentence or table row that carries the claim; a paragraph pins nothing.
+Skip background, definitions and navigation. A span already in `evidence.jsonl` goes in by its
+`id`. `check-claims.mjs --help` gives the field forms.
 
-**Extract numbers, comparisons, causal claims, anything the reader's task rests on,
-calculations the source did not make, absence claims and conditional behavior claims.** Skip
-background, term definitions, navigation text and common knowledge. Drop a sentence too
-ambiguous to pin down, and leave each one whole; one sentence per claim is where a
-verifier's confidence peaks.
+## 4. Machine checks
 
-### 4. Machine checks
+Run `check-claims.mjs` (with `--repo <owner/name>=<path>` for a repository) and `check-doc.mjs`.
 
-Run `check-claims.mjs` (with `--repo <owner/name>=<path>` for a repository) and
-`check-doc.mjs`. `check-claims.mjs` confirms each quote appears at its locator in the pinned commit, which is
-stricter than confirming the file exists and the line is in range. Both scripts are pass or
-fail, and `--help` lists their rules.
+## 5. Merge the findings
 
-### 5. Report
+Merge the lens reports and the script output into one list, the fixes first. What nobody could
+check goes into `run.json` `unverified`, which is never empty: a record that lists only findings
+reads as "everything else checked out".
 
-Merge the lens reports and the script output into one Korean report:
+## 6. Fix, then reread what changed
 
-```
-## 고쳐야 하는 것
-- [렌즈B] 장 11: 표 4 격차가 6.2/5.1/3.4 로 좁아지는데 문서는 넓어진다고 썼다.
-  해석까지 얹혀 있어 문단 전체를 다시 써야 한다.
-- [check-claims] c14: quote 가 validators.py 안에 있으나 200행 ±15 밖이다.
+Findings are the author's to resolve without asking, including retitling, merging, cutting or
+adding a chapter and reopening the corpus. Record each call in `run.json` under `decided` with the
+reason. Only two things go under `needs_owner`: a request that reads two ways with different
+answers, and something only the owner can supply.
 
-## 판단이 필요한 것
-- [렌즈A] 도입 판단 장에 라이선스가 없다. 실물은 AGPLv3 인데 문서가 언급하지 않는다.
+**Fix by cutting or narrowing first.** A wrong or overstated sentence is fixed by removing what the
+source does not support, not by stacking qualifiers on it. Add text when an ask is unanswered, and
+then give it the weight the owner gave it: rework the chapter or add one, rather than tucking it
+into a note or the fold.
 
-## 검증하지 못한 것
-- 부재 주장 3건 중 재실행 검색 명령이 있는 것 1건.
-- 행동 주장 5건: 코드만 읽었고 실행하지 않았다.
-- callee 를 열지 않은 채 쓴 주장 2건.
-- references/ 12개 파일 미확인 (setup 장).
-```
+After fixing, rerun the machine checks, and have a new `recheck` read what the edits touched. Repeat
+until a recheck finds nothing blocking (`meaning: true` or `impact: "understanding"`). Each later
+pass touches only the sentences the recheck names, and its recheck reads only those and their
+neighbours. Wording items go under `unfixed` without another pass. A run allows five rechecks; what
+the fifth still finds goes under `unfixed`, so no change ships that only the author has read.
 
-The last section is never empty. It always carries the first three counts (or 해당 없음),
-because a report listing only findings reads as "everything else
-checked out". Leave out what passed and give a count if the scale matters.
+Record each unfixed item as `{"item", "meaning", "impact"}`:
+- `meaning: true` when a reader would come away believing what the source does not support;
+- `impact: "understanding"` when the owner cannot follow the explanation or an ask goes unanswered;
+- `impact: "wording"` for a phrasing preference.
 
-One finding, three ways:
+Record `rendered` (whether you looked at the rendered pages after the fixes) and `unverified` too.
+Keep the lens reports in the notes, and give recheck the reader findings for the changed chapters.
 
-> ✗ 이제 수치 검증 결과를 살펴보겠습니다. 흥미롭게도, 여러 수치들 중에서 일부에 대한
-> 확인이 이루어진 결과, 표 4 와 관련된 부분에 있어서 문제가 발견되어졌다고 말할 수
-> 있을 것 같습니다.
->
-> ✗ 표 4 틀림.
->
-> ✓ 수치 42개를 원문과 대조해 1건이 어긋난다. 장 11 에서 표 4 의 격차가 6.2/5.1/3.4 로
-> 좁아지는데 문서는 넓어진다고 썼다. 거기에 "작은 모델이 구조에서 더 이득을 본다"는
-> 해석까지 얹혀 있어서 방향을 고치면 그 문단 전체를 다시 써야 한다.
+## Hand off
 
-### 6. Fix, then re-verify what changed
-
-Findings go back to the author, who fixes them, and the changed chapters, not the document,
-go through the lenses again.
-
-**Must-fix items are the author's to resolve without asking.** A wrong number, a flipped
-direction, a truncated quote and a dead cross-reference each have one correct answer.
-
-**Needs-judgment items are the author's too.** The owner handed over the whole job, so
-retitling, cutting, merging or adding a chapter and reopening the corpus are yours to decide:
-make the call, and record it in `run.json` under `decided` with the reason, where the owner
-reviews it in the pull request. A fix that needs a chapter that is not there gets the chapter,
-because a line with no chapter behind it is what the next round finds. Only two things go under
-`needs_owner`: a request that reads two ways with different answers, and something only the
-owner can supply.
-
-Re-run the machine checks after fixing, and have a new `recheck`, not an earlier one
-continued, read what the edits touched. Repeat until a recheck finds nothing that blocks the
-pull request (`meaning: true` or `impact: "understanding"`). Each later pass fixes only the
-sentences the recheck names, adding the missing part of the source with its locator in
-`evidence.jsonl` when cutting or narrowing is not enough, and its recheck reads only those
-sentences and the ones around them. Carry the source's own condition and scope into the
-sentence: a paraphrase that drops one is what the next pass finds. Wording items go under
-`unfixed` without another pass. A run allows five rechecks; what the fifth still finds goes
-under `unfixed`, so no change ships that only the author has read.
-Record each as `{"item", "meaning", "impact"}`: `meaning: true` when the sentence says what the
-source does not; `impact: "understanding"` when the reader cannot follow the explanation or do
-the task; `impact: "wording"` for a phrasing preference. A blocking item left in `unfixed`
-keeps the pull request a draft. Record in `run.json` `rendered` (whether you looked
-at the rendered page after the fixes), `unverified` and `unfixed`.
-
-Keep the reports, including the reader's task demonstration, in the existing notes. Give
-recheck the prior demonstration and reader findings for the changed chapters.
-
-**A fact lens A reports missing goes into the chapter whose claim it supports**, as a
-card, a note or in the fold; that is support, not a second claim. When no chapter's claim
-covers it, it needs a chapter, and that is a needs-judgment item rather than a line squeezed
-into the nearest one. What lens A reports the reader could skip is the author's to cut or fold
-when it is a paragraph, a caveat or process talk, unless a claim in `claims.jsonl` rests on
-it; cutting a whole chapter is a needs-judgment item.
-
-**A caveat moved out of the body keeps its claim honest.** When a fix moves a condition to the
-limits chapter, the claim's `scope` in `claims.jsonl` still carries it, and the sentence
-left in the body is one the source supports without it.
+When the last recheck is done, go back to `../research/references/researcher.md` to ship.

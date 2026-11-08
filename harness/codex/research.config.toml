@@ -1,6 +1,8 @@
 # scripts/codex-research.mjs copies this file to ${CODEX_HOME}/research.config.toml and starts codex --profile research.
 # Do not symlink it: Codex writes hook trust ([hooks.state]) into the profile file.
 # The root model is the owner's session model; effort is pinned for every role (scripts/lib/roles.mjs EFFORT).
+# 2026-11-08: researcher 를 sol 로 고정한다. 세션 모델을 물려받으면 소유자 세션에 따라 등급이 바뀐다.
+model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 developer_instructions = "This session is the researcher (harness=codex); agents it starts are not. Read .agents/skills/research/references/researcher.md and follow it."
 default_permissions = "research"
@@ -52,13 +54,13 @@ type = "command"
 command = "node scripts/hooks/window.mjs --harness=codex --role=researcher"
 
 [[hooks.SubagentStart]]
-matcher = "^(lens-numbers|lens-reader|recheck)$"
+matcher = "^(lens-numbers|lens-reader|recheck|plan-review)$"
 [[hooks.SubagentStart.hooks]]
 type = "command"
 command = "node scripts/hooks/review.mjs --harness=codex --role=researcher"
 
 [[hooks.SubagentStop]]
-matcher = "^(lens-numbers|lens-reader|recheck)$"
+matcher = "^(lens-numbers|lens-reader|recheck|plan-review)$"
 [[hooks.SubagentStop.hooks]]
 type = "command"
 command = "node scripts/hooks/review.mjs --harness=codex --role=researcher"

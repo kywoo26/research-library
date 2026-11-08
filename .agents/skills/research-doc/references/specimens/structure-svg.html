@@ -1,0 +1,40 @@
+<!-- 구조도 견본(가상의 작업 큐, 형식만 참고). 무엇이 무엇을 담고, 무엇이 무엇을 참조하는지를 보여 준다.
+     화살표는 데이터가 실제로 지나가는 길 하나에만 쓰고, 나머지 관계는 묶음(포함)과 점선(참조)으로 그린다.
+     aria-label 을 먼저 쓰고, 그 문장이 그림에 다 있는지 보고 그린다.
+     셸의 클래스: .d-box(상자, t-key 같은 톤을 더할 수 있다), .d-group(포함하는 묶음), .d-label/.d-sub(글),
+     .d-line(선, .d-dash 는 점선), 화살촉은 marker 와 .d-fill-wire. 색은 셸 변수라 밝고 어두운 테마를 따른다. -->
+<section class="slide" data-role="body" data-label="구조">
+<h2>Qux 는 큐와 worker 풀 사이에 용어 사전을 두고, worker 는 사전을 거쳐 작업을 해석한다</h2>
+<div class="explanation">
+  <p>Qux 의 세 부분은 서로 다른 일을 한다. 큐는 작업을 쌓고, 사전은 작업의 이름을 실제 처리 규칙으로 바꾸고, worker 는 그 규칙대로 처리한다. 사전이 가운데 있어서 worker 를 바꾸지 않고도 작업의 뜻을 고칠 수 있다.</p>
+</div>
+<figure class="diagram">
+  <svg viewBox="0 0 720 320" role="img" aria-label="Qux 의 구조. 왼쪽 큐가 작업을 쌓고, 가운데 용어 사전 묶음 안에 용어와 처리 규칙이 들어 있으며, 오른쪽 worker 풀의 worker 는 점선으로 사전을 참조해 규칙을 받는다. 실선 화살표는 작업이 큐에서 worker 로 가는 길이다.">
+    <defs><marker id="ar-s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-fill-wire"/></marker></defs>
+    <rect class="d-box" x="20" y="110" width="150" height="70" rx="8"/>
+    <text class="d-label" x="95" y="142" text-anchor="middle">큐</text>
+    <text class="d-sub" x="95" y="162" text-anchor="middle">작업을 쌓는다</text>
+
+    <rect class="d-group" x="215" y="40" width="270" height="220" rx="10"/>
+    <text class="d-sub" x="230" y="62">용어 사전</text>
+    <rect class="d-box t-key" x="240" y="80" width="220" height="64" rx="8"/>
+    <text class="d-label" x="350" y="108" text-anchor="middle">용어</text>
+    <text class="d-sub" x="350" y="128" text-anchor="middle">작업 이름 → 뜻</text>
+    <rect class="d-box" x="240" y="170" width="220" height="64" rx="8"/>
+    <text class="d-label" x="350" y="198" text-anchor="middle">처리 규칙</text>
+    <text class="d-sub" x="350" y="218" text-anchor="middle">뜻 → 실제 처리</text>
+    <line class="d-line" x1="350" y1="144" x2="350" y2="170"/>
+
+    <rect class="d-group" x="530" y="70" width="170" height="160" rx="10"/>
+    <text class="d-sub" x="545" y="92">worker 풀</text>
+    <rect class="d-box" x="550" y="110" width="130" height="44" rx="8"/><text class="d-label" x="615" y="137" text-anchor="middle">worker</text>
+    <rect class="d-box" x="550" y="166" width="130" height="44" rx="8"/><text class="d-label" x="615" y="193" text-anchor="middle">worker</text>
+
+    <path class="d-line" d="M95,180 C95,300 600,305 612,212" marker-end="url(#ar-s1)"/>
+    <text class="d-sub" x="360" y="312" text-anchor="middle">작업이 가는 길</text>
+    <line class="d-line d-dash" x1="550" y1="132" x2="460" y2="112"/>
+    <line class="d-line d-dash" x1="550" y1="188" x2="460" y2="202"/>
+  </svg>
+  <figcaption>가상의 예다. 묶음은 포함, 점선은 참조, 실선 화살표는 작업이 지나가는 길이다.</figcaption>
+</figure>
+</section>

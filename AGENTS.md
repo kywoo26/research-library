@@ -46,9 +46,9 @@ The researcher follows three skills, which hold the research method and the writ
 
 | Skill | When | Context |
 |---|---|---|
-| `research-source` | Starting research. Choosing the document kind, pinning the corpus to a portable identity | author's |
-| `research-doc` | Writing the document | the same author context |
-| `research-verify` | After the draft is finished | two lenses in separate contexts, run in parallel: numbers and quotes, and a reader |
+| `research-source` | Starting research. Recording the request and its asks, pinning the corpus, analyzing the subject | author's |
+| `research-doc` | Planning against the asks, then writing the document | the same author context; the plan reviewed in a separate one |
+| `research-verify` | After the draft is finished | two lenses in separate contexts, run in parallel: numbers and quotes, and the owner's reader |
 
 Editing a skill is a different job from using one. `.agents/skills/AUTHORING.md` holds the
 rules for that, and revisions go through `skill-creator`. Why a rule exists lives in
@@ -58,8 +58,7 @@ rules for that, and revisions go through `skill-creator`. Why a rule exists live
 ## Commands
 
 ```bash
-node scripts/new-doc.mjs <slug> <paper|oss|web> <comparison|explainer|walkthrough>
-                                                 # scaffold both trees; the kind picks the chapters
+node scripts/new-doc.mjs <slug> <paper|oss|web>   # scaffold both trees; the owner's asks pick the chapters
 node scripts/new-doc.mjs rename <old> <new>      # move both trees together
 node scripts/check-doc.mjs research/<slug>       # gate on the publication
 node scripts/check-prose.mjs research/<slug>     # gate on the Korean prose

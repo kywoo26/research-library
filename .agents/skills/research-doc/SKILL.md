@@ -1,178 +1,115 @@
 ---
 name: research-doc
 description: Writes a single-file HTML research document in Korean from a corpus pinned by
-  research-source. Defines the reader and the three document kinds (comparison, explainer,
-  walkthrough), the first screen, the chapter grammar, figures and charts, quoting, and
-  Korean prose that reads like a person explaining. Invoked by the researcher agent after
-  research-source, in the same context. In any other session, hand the job to the research
-  skill.
+  research-source. Plans the document against the owner's request and has the plan reviewed
+  before writing, then writes the first screen, the chapters, the diagrams and the source's
+  own figures, the quoting, and Korean prose that reads like a person explaining. Invoked by
+  the researcher agent after research-source, in the same context. In any other session, hand
+  the job to the research skill.
 ---
 
 # Writing a research document
 
 Read before writing:
+- `references/prose-ko.md`;
+- `references/visual.md`;
+- the reading guide for your corpus (`references/paper.md`, `oss.md` or `web.md`);
+- the specimens your chapters will look like;
+- your own `notes/analysis.md` and `notes/figures.md`.
 
-- `references/prose-ko.md`, always.
-- `references/visual.md`, always: choose a form that explains the relationship.
-- `references/specimens/`, the cover and the chapters whose shapes yours take. They show the
-  grammar filled in; their length is an example, and your content sets yours.
-- `references/paper.md`, `references/oss.md` or `references/web.md`, by what the corpus is.
-- `.research/<slug>/notes/figures.md`, what the source drew or tabulated. Redraw what the
-  reader needs.
+## The reader
 
-## The reader, and the three kinds
+The reader is the owner who asked for the document. They want to understand the subject well
+enough to explain it, judge it and use it. They read Korean and know software, but they did not
+read the source, and they will not read anything because a rule demanded it. So the document
+answers the request in `run.json` (`request` and `asks`), in the order and at the depth the owner
+asked for. Plain is the goal, and a qualifier a claim needs survives the plainness.
 
-The reader is a developer, not a general audience and not the audience the source was
-written for. They open a document to get the point quickly and to understand the mechanism
-well enough to explain it. What the document has to do for them depends on its kind, which
-`research-source` chose and `new-doc.mjs` recorded as `purpose` in `meta.json`:
+## 1. Plan, and have the plan reviewed
 
-| Kind | The reader leaves able to | Chapters that carry it |
-|---|---|---|
-| `comparison` | decide adopt, trial, assess or hold, and defend the call | the alternative, what it costs to keep running, the adoption call with its grounds |
-| `explainer` | predict the behavior on a case the source never shows | the mechanism at full depth, one case traced through it, where the principle stops holding |
-| `walkthrough` | find the code, or the request field, and follow the path to change it | the map of what talks to what, one path traced hop by hop, where a change would land |
+Before the first chapter, write `.research/<slug>/notes/plan.md`:
+- **Message**: one sentence the owner could repeat. It says what the subject is for and what the
+  research found.
+- **Chapters**, in reading order. For each: its name, what it explains in one sentence, which
+  asks it answers, and its main form.
+- **Pictures**: for each, one line on what it shows and its form (`visual.md`).
+- **Where the document goes past the source**, as the asks need it: what you ran, compared or
+  found in the reception, and which interpretations are yours.
+- **What cannot be answered**, and where the document says so.
 
-The adoption call belongs to the comparison. Include outside comparisons when the request
-needs them, beside the claim they clarify.
+Record each ask's chapters in `run.json` as `asks[].chapters`, using the chapters' `data-label`.
+Several asks can share a chapter; a chapter per ask fragments the document.
 
-Plain is the goal, and a qualifier the claim needs survives the plainness. Describe how
-something was done at the depth the source gives; a step the source leaves out stays out, and
-the document says it is unpublished and what that means for the reader.
+Then launch `plan-review` as a new agent with the plan and the run record, and wait for its
+report. Fix what it reports, or rework the plan when it says `다시 짜야 함`, and write once it
+says `진행 가능`. Changing course costs a paragraph now and a rewrite later.
 
-## The first screen and the length
+## 2. The first screen
 
-The first screen decides whether the document gets read. A reader leaves it knowing what the
-subject is, what this research tells them, and whose material it rests on. Under the title,
-one short paragraph, `p.answer`, at most 280 characters without spaces (`cover-length`):
+The first screen decides whether the document gets read. Under the title:
+- **`p.answer`**, one short paragraph: what the subject is, then the message.
+  Say whose judgment it is. A recommendation from the source carries its author (`저자는 …를 권한다`).
+- **`p.src`**: who produced the source (the organization and team, or the author and role), what
+  kind of material it is, and the pinned version.
+- **The one picture that carries the message**, when the subject has one: a structure map, a
+  table, or the source's own figure.
+- **The chapter list**, one line per chapter on what the reader gets there.
 
-- what the subject is, in a sentence of its own, so a reader who has never heard of it can
-  follow the next one;
-- the message: what the research means for the reader's work. Say whose judgment it is. A
-  recommendation from the source carries its author ("저자는 …를 권한다"); a reading this
-  document drew from the source says so in a few words. A practice the author describes does
-  not become advice from the document;
-- the one mechanism sentence the message needs, and the one condition that most limits it.
+`prose-ko.md` shows a first screen. How the document was made has no place on it.
 
-Numbers go on the flow cards unless one number is the message, and side facts such as
-popularity or dates stay off the cover.
+## 3. Chapters
 
-```
-✗ Qux 는 큐 깊이에 따라 worker 를 늘린다. 그래서 짧은 부하에는 늦게 반응하고 긴 부하에는 과하게 늘어난다.
-  (description only; the reader never learns what to take from it)
-✗ 배포 직후에는 Qux 의 autoscale 을 꺼 두는 편이 낫다.
-  (the reader does not know what Qux is yet, and the authors' practice now speaks as the document)
-✓ Qux 는 큐 깊이를 보고 worker 수를 정하는 scheduler 다. 저자들은 배포 직후 몇 분은 autoscale 을
-  꺼 두라고 권한다. 새 worker 가 캐시를 채우는 동안 큐가 실제보다 길어 보이기 때문이다.
-```
+A chapter explains one part of the answer, and the next builds on it. Merge chapters a reader
+would read as one; six solid chapters beat eighteen fragments that repeat each other. A chapter is
+`<section class="slide" data-role="…" data-label="…">` with an `h2`, then the explanation and the
+picture that carries its structure, then, optionally, `details.orig` with the source's own words and
+locators. The fold takes no claim the visible part has not made. The `h2` says what the chapter
+shows, as a sentence or a phrase a reader would recognize.
 
-Under the paragraph, `p.src` says in a sentence or two who produced the source (the organization
-and team, or the author and their role) and what kind of material it is, with the version
-pinned. A repository slug alone does not tell the reader who is behind it. How much was read
-goes to the `setup` chapter.
+A condition that changes what a claim means stays beside the claim. Limits of the research as a
+whole go in one place, stated once and tied to what the reader can do. A worked case is welcome
+when it makes the mechanism concrete; mark an invented one as an illustration. A failure case
+belongs where it changes what the owner would do.
 
-Under `p.src`, the cover draws the document's argument as one flow board (`specimens/cover-flow.html`):
-as many stages as the argument has, typically from the cause to what the reader decides, each
-card linked to the chapter that shows it. Chapters off that path go in the `.toc` list under it,
-one line each with the fact the reader would go there for. How the document was made has no place on the first screen: no source-to-chapter
-mapping table, no reading method.
+The title names the subject and what it is or does, in a phrase a reader would search for.
 
-Merge chapters a reader would read as one. The order
-follows the source or the research where that order carries meaning.
+## 4. Quoting the source and code locators
 
-## The spine
-
-`new-doc.mjs` lays out a starting set of middle chapters for the
-kind; rename them after their content (`data-label="곡선"`), merge or drop them. `data-role`
-names what a chapter does; `cover`, `critique` and `sources` are required.
-
-| Chapter (`data-role`) | Holds |
-|---|---|
-| `cover` | The title, the answer, the source line, the argument flow and the list of other chapters |
-| the kind's middle | `references/paper.md`, `references/oss.md` and `references/web.md` say how each fills |
-| `result` | Results, redrawn from the source's own charts and tables (`visual.md` §The source's own figures) |
-| `critique` | Limits, with attribution, stated once: what is self-reported, unconfirmed or unread, and what that means for the reader |
-| `setup` | Near the end and short: what was read, what was run, what was left unopened |
-| `sources` | Sources |
-
-Production records stay out of the document: retrieval times, archive attempts, hashes,
-rendering checks and file-count arithmetic go to `sources.jsonl`, `run.json` and the PR body.
-
-Keep one main claim per chapter, with its reason and worked case. Split independent claims;
-supporting facts need no chapter of their own. Develop prose and visuals together as the
-explanation needs. Mark invented cases as illustrations whose outcomes follow the evidence.
-
-## The title
-
-Name the subject and what it is or does, in a phrase a reader would search for, and use the
-same string in `meta.json` `title`, `<title>`, `og:title` and the cover `h1`.
-
-- ✓ Bar 의 그래프 경로 검색 / ✓ Sonnet 5.5 로 옮길 때 400 을 받는 요청
-- ✗ Bar: 그래프 갈래를 하나 더 두는 컨텍스트 인프라 (a label and a colon)
-- ✗ 그래프는 RAG 위에 얹히고, 벤치마크는 저장소에 없다 (a finding; it goes to `summary`)
-
-## The chapter grammar
-
-The shell (`<html data-format="board">`) numbers the chapters and builds the contents. A
-chapter is `<section class="slide" data-role="…" data-label="…">`, and inside it, in order:
-
-```
-h2            the claim, one sentence (Opus 5.5 의 통과율은 low 에서 medium 으로 갈 때 가장 크게 오른다)
-p.lead        at most two sentences: the condition the claim needs, and how to read the body
-body          explanatory paragraphs, a visual, or both; the evidence and reasoning live here
-ul.notes      optional. One line each: provenance, a value read off coordinates, what is missing
-p.so          optional. 그래서: what follows for the reader
-details.orig  optional. The source's own words behind the claims, folded
-```
-
-The visible part carries the claim and what the reader needs to act on it. **The fold takes no
-claim the visible part has not already made.** What each kind keeps visible:
-
-| Kind | Visible |
-|---|---|
-| walkthrough | the diff or the path, the result codes, what to check with it |
-| explainer | the mechanism, one worked case, where it stops holding; use numbers when they explain the case |
-| comparison | the call with its condition, the reader's situations on a ruler or in a table, the numbers that move the call, how to back out |
-
-For a narrow correction to a document from before the board shell, keep its `.eyebrow`,
-`.key` and `details.more` grammar. For a document-wide refresh, use the current board shell
-and chapter grammar while preserving the existing slug and URL. Choose the body that shows
-each chapter's claim; an old shell is not a reason to keep a text-only explanation.
-
-## Quoting the source
-
-Introduce source-dependent claims with clear attribution, following `prose-ko.md`; keep that
-attribution clear across the passage. Put verbatim source text in the fold, inside `.q`, `.wl`
-or `<cite>`. A quoted line that is itself a trace hop stays visible in `<pre>` with its locator.
+Attribute source-dependent claims clearly (`prose-ko.md`). Verbatim source text goes in the fold
+with its locator, inside `.q`, `.wl` or `<cite>`. The body names things in Korean. A code locator
+or identifier appears in the body only when the reader needs it to find or change something.
 
 ```html
-✓ <p>migration guide 는 between_tools 가 low, medium, high 에서만 받아들여지고 xhigh 나
-  max 에서는 400 을 낸다고 설명한다. 그래서 effort 를 high 이하로 둔다.</p>
-  <details class="orig"><summary>원문</summary><p>guide 「Turn off up-front
-  thinking」: <span class="q">“It's accepted at low, medium, and high effort. At xhigh or
-  max, it returns a 400 error.”</span></p></details>
-✗ <p>between_tools 는 low, medium, high 에서 받고 xhigh 나 max 에서는 400 을 낸다.</p>
+✓ <p>migration guide 는 between_tools 가 low, medium, high 에서만 받아들여지고 xhigh 나 max 에서는
+  400 을 낸다고 설명한다. 그래서 effort 를 high 이하로 둔다.</p>
+  <details class="orig"><summary>원문</summary><p>guide 「Turn off up-front thinking」:
+  <span class="q">“It's accepted at low, medium, and high effort. At xhigh or max, it returns a 400 error.”</span></p></details>
 ```
 
-## Calculations the source did not make
+A comparison the source never made, by overlaying tables or setting it against other writing, is
+allowed and often the most useful thing in the document. Say where it starts
+(`논문에는 이 비교가 없다`), so the reader does not take it for the source's position.
 
-Overlaying two tables, or setting the source against other writing, to build a comparison
-the source never made is allowed and often the most useful thing in the document. Say so where
-the comparison starts (`논문에는 이 비교가 없다`, `이 글은 앞선 글을 언급하지 않는다`), so a
-reader does not take it for the source's own position.
+## 5. Producing the file
 
-## Producing the file
+`new-doc.mjs` stamps the shell; write chapters into its `<main>` and leave its CSS and script
+alone. Retrieval times, hashes and rendering checks stay out of the document; they go
+in `sources.jsonl`, `run.json` and the PR body. The sources chapter lists the sources and says
+briefly what was read and what was left unopened.
 
-`new-doc.mjs` stamps the shell from `assets/deck-shell.html`; write chapters into its `<main>`
-and leave the shell's CSS and script as they are. Ids are unique across the document. A
-document stamped before an older shell carries its own hand-written `.rail-item` list; there,
-add and renumber the items with the chapters, and do not delete them, or the rail goes empty.
+Write chapter by chapter from the plan. Render as you go (`node scripts/render.mjs research/<slug>`).
+The script fails on layout warnings. Then open the screenshots and read each picture against its
+aria-label and its line in the plan.
 
-## The read pass
+## 6. The read pass
 
-Once `check-doc.mjs`, `check-prose.mjs` and `render.mjs` pass, read the
-document once from the first screen down, as the reader would, against the passages in
-`prose-ko.md`.
+Once `check-doc.mjs` and `check-prose.mjs` pass and the pages render, read the whole document
+once from the first screen down, as the owner would, against the plan's message and the passages
+in `prose-ko.md`. Fix:
+- a sentence you had to read twice;
+- a paragraph that repeats an earlier one;
+- a list that should be sentences, or sentences that should be a list;
+- a picture that does not show what its line says.
 
 ## Hand off
 

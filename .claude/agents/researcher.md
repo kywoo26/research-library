@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Writes or fixes one research document end to end, from pinning the source to the pull request, in its own worktree, without asking anyone. Launched by the research skill.
-effort: medium
+effort: high
 isolation: worktree
 background: true
 ---

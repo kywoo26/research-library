@@ -26,7 +26,23 @@ export function publicationBlockers(items = []) {
     || (x.impact != null && x.impact !== 'wording'));
 }
 
-export function verdict({ reviews = [], modelSwitches = [], docSha, harness = null, runId = null, modelLog = {}, needs = [], blocking = [] }) {
+// 2026-11-08 부터의 문서(purpose report): 소유자 요청의 항목마다 그것을 덮는 장이 문서에 있어야 한다.
+// 요청 절반이 빠진 문서가 모든 검사를 통과했다(PR #52·#54·#55). 장은 data-label 로 가리킨다.
+export function requestCoverage(run = {}, html = '') {
+  const reasons = [];
+  if (!String(run.request || '').trim()) reasons.push('run.json 에 소유자 요청 원문(request)이 없다');
+  const asks = Array.isArray(run.asks) ? run.asks : [];
+  if (!asks.length) { reasons.push('run.json 에 요청 항목(asks)이 없다'); return reasons; }
+  const labels = new Set([...html.matchAll(/<section\b[^>]*class="slide\b[^"]*"[^>]*data-label="([^"]*)"/g)].map((m) => m[1].trim()));
+  for (const a of asks) {
+    const chs = (Array.isArray(a?.chapters) ? a.chapters : []).map((c) => String(c).trim()).filter(Boolean);
+    if (!chs.length) reasons.push(`요청 항목 ${a?.id || '?'} 을 덮는 장이 적혀 있지 않다`);
+    else if (!chs.some((c) => labels.has(c))) reasons.push(`요청 항목 ${a?.id || '?'} 을 덮는다고 적은 장(${chs.join(', ')})이 문서에 없다`);
+  }
+  return reasons;
+}
+
+export function verdict({ reviews = [], modelSwitches = [], docSha, harness = null, runId = null, modelLog = {}, needs = [], blocking = [], needPlan = false, coverage = [] }) {
   const reasons = [];
   const auto = modelSwitches.filter((m) => m.source === 'auto');
   const refuse = auto.length ? `모델이 저절로 바뀐 채 쓰였다(${auto.map((m) => `${m.from} → ${m.to}`).join(', ')}). 바뀐 모델이 쓴 문서는 내보내지 않는다` : null;
@@ -61,6 +77,9 @@ export function verdict({ reviews = [], modelSwitches = [], docSha, harness = nu
     if (!coveredLater) reasons.push(`${agent} 가 도는 동안 문서나 원장이 바뀌었다`);
   }
 
+  // 새 문서는 쓰기 전에 계획 검토를 거친다. 고치는 run 은 계획을 다시 짜지 않으므로 묻지 않는다.
+  if (needPlan && !of('plan-review').length) reasons.push('plan-review 의 시작과 완료가 짝지어진 기록이 없다');
+  reasons.push(...coverage);
   if (needs.length) reasons.push('사람이 정할 것이 남았다');
   if (blocking.length) reasons.push('사실이나 독자 이해를 막는 미해결 항목이 남았다');
 
