@@ -1,0 +1,208 @@
+{
+ "request": "https://github.com/NVIDIA/auto-ontology\n\n가 뭔지 파악하자. 당연한거지만 온톨로지의 개념과, 최신의 에이전트 생태계에서 nvidia가 규명하는 이 온톨로지 관점은 뭔지, 그리고 이 nvidia oss가 온톨로지 구축에있어 집중했던 부분, 그리고 `enterprise`관점에서 이게 어떤 의미를 가지고 어떤 실증을 가지는지에 대한 충분한 리서치가 필요.\n\n코드에 대한 깊은 이해도와, 다이어그램, 그래프 등으로 도식화하여 충분한 설명으로 풀어낼 수 있어야하며 이 oss에 대한 업계반응이나 개발 커뮤니티의 리뷰나 피드백 등을 같이 분석한 report로 작성되면 좋겠어.",
+ "asks": [
+  {
+   "id": "a1",
+   "text": "NVIDIA auto-ontology 가 무엇인가: 무엇을 만들고 누가 어디에 쓰는가",
+   "chapters": [
+    "무엇인가"
+   ]
+  },
+  {
+   "id": "a2",
+   "text": "온톨로지의 개념, 그리고 최신 에이전트 생태계에서 NVIDIA 가 규정하는 온톨로지 관점",
+   "chapters": [
+    "온톨로지란",
+    "NVIDIA 의 관점"
+   ]
+  },
+  {
+   "id": "a3",
+   "text": "이 OSS 가 온톨로지 구축에서 집중한 부분: 생성·인증·답변 경로를 코드 수준으로",
+   "chapters": [
+    "데이터 모델",
+    "컴파일",
+    "답변",
+    "README 와 코드"
+   ]
+  },
+  {
+   "id": "a4",
+   "text": "enterprise 관점에서의 의미와 실증: 무엇이 측정·입증됐고 무엇이 아직 아닌가",
+   "chapters": [
+    "README 와 코드",
+    "실증"
+   ]
+  },
+  {
+   "id": "a5",
+   "text": "업계 반응과 개발 커뮤니티의 리뷰·피드백",
+   "chapters": [
+    "반응"
+   ]
+  }
+ ],
+ "decided": [
+  {
+   "item": "slug",
+   "reason": "닫힌 PR 의 slug 네 개와 Codex 실행의 -cx 를 피해 2026-11-08-auto-ontology-enterprise-graph 로 정했다."
+  },
+  {
+   "item": "full history clone",
+   "reason": "출신(GSF 에서 Auto Ontology 로), Neo4j 이전, 릴리스 시점이 a1 과 a4 에 필요해 --history 로 받았다."
+  },
+  {
+   "item": "no run",
+   "reason": "스택을 띄우려면 NVIDIA API 키나 다른 모델 엔드포인트와 원천 DB 가 필요하다. 자격증명을 쓰지 않는다는 규칙에 따라 실행하지 않고 코드 읽기와 메인테이너가 공개한 측정만 썼다."
+  },
+  {
+   "item": "reception scope",
+   "reason": "직접 받을 수 있는 반응만 고정했다: HN 290점 스레드(Algolia API), 독립 리뷰 세 편, GitHub 이슈 50건, PR #346. X 게시물과 뉴스 요약 사이트는 받지 않았고 10장 첫머리에 그렇게 적었다."
+  },
+  {
+   "item": "images",
+   "reason": "메인테이너 그림 arch.png 와 ontology-graph.png 를 헤드리스 Chrome 캔버스로 JPEG 로 다시 인코딩해 1MB 안에 넣었다."
+  },
+  {
+   "item": "plan review",
+   "reason": "진행 가능 판정. 인증 표시가 API·MCP 로는 보인다는 점, KumoRFM 분기, 에이전트 표면, 3장 출처(dbt 문서 w12 추가), 운영 표, 반응의 업계·개발자 구분, 5장 예시 그림을 반영했다."
+  },
+  {
+   "item": "lens round 1",
+   "reason": "lens B 8건과 lens A 고칠 것 7건, 판단 6건을 모두 반영했다. notes/lenses-round1.txt 에 처리 내역이 있다."
+  },
+  {
+   "item": "recheck 1",
+   "reason": "understanding 4건(9장 해석 표시, 10장 판정 배지 범위, 7장 실행 전 검사의 시점, 390px 안내)을 고쳤다. 첫 커밋 README 는 git show f64d0ba6 으로 확인해 2장 문장을 그 내용으로 바꿨다."
+  },
+  {
+   "item": "recheck 2",
+   "reason": "다섯 항목을 모두 원문과 맞는다고 확인했고 새 understanding 결함은 없다고 보고했다. 보고서는 항목마다 'meaning: true' 라고 적었지만 본문은 '정확하다', '해소됐다'여서, 원문을 벗어난 믿음이 아니라 의미가 맞다는 뜻으로 읽었다."
+  },
+  {
+   "item": "phone-width fix (2026-11-09)",
+   "reason": "소유자가 PR #60 을 세 문서 가운데 가장 잘 읽힌다고 고르고 휴대폰 폭 문제만 고쳐 merge 하기로 했다. 표지와 5장 그림만 viewBox 440 폭으로 다시 그렸다. 표지는 원천 DB, 컴파일, 의미층, MCP 와 데이터 팀을 세로로 쌓고 답변 에이전트를 오른쪽 위에 두었다. 5장은 한 줄에 테이블 하나(Term, 속성, 원천 컬럼)로 돌려 외래 키 점선이 아래 줄로 내려가게 했다. 두 캡션의 '옆으로 밀어 볼 수 있다' 문장을 지웠다. 나머지 본문은 손대지 않았다."
+  },
+  {
+   "item": "shell diagram CSS",
+   "reason": "main 의 셸(PR #62)과 같게 figure.diagram svg 의 max-width 를 680px 로, .d-label/.d-sub 를 15/13px 로 맞췄다. 이 문서의 style 블록은 이제 main 의 assets/deck-shell.html 과 같다. 이 규칙을 쓰는 svg 는 다시 그린 두 그림뿐이다(다른 figure.diagram 은 이미지)."
+  },
+  {
+   "item": "render check",
+   "reason": "이 브랜치는 PR #62 이전 main 에서 갈라져 scripts/render.mjs 에 휴대폰 폭 검사가 없다. main(e4c1856)의 render.mjs 를 notes/main/ 에 꺼내 돌렸고 1280px 와 390px 에서 배치 문제 없이 통과했다."
+  },
+  {
+   "item": "lens round (fix)",
+   "reason": "두 lens 를 다시 그린 두 그림에 맞춰 함께 돌렸다. lens B 의 세 건(범례가 두 실선을 모두 HAS_ATTRIBUTE 로 읽히게 함, MCP 상자 '외부 에이전트에 읽기 전용'이 넓음, deliverycityid 끝 글이 aria-label 과 다름)과 lens A 의 판단 두 건을 반영했다. notes/lenses-fix-2026-11-09.txt."
+  },
+  {
+   "item": "recheck (fix) 1",
+   "reason": "범례를 둘로 나누자 5장 본문의 'Term 의 속성으로 등록되고, 이 관계를 HAS_ATTRIBUTE 엣지가 적는다'가 그림과 어긋났다(HAS_ATTRIBUTE 는 컬럼과 속성 사이, schema.py:547-574). 이 문장 하나를 '컬럼은 HAS_ATTRIBUTE 엣지로 속성에 이어지고, 그 속성이 Term 에 붙는다'로 좁혔다. 5장 aria-label 의 deliverycityid 끝도 그림과 같게 'City 의 속성으로, 그림에서는 생략'으로 맞췄다."
+  },
+  {
+   "item": "recheck (fix) 2",
+   "reason": "고친 5장 문장과 aria-label 이 소스(schema.py:524-551)와 맞고 새로 막을 항목이 없다고 보고했다. PROPERTY_OF 줄을 evidence.jsonl 에 더하라는 제안은 내용이 맞고 원장만의 빈칸이라 더하지 않았다."
+  }
+ ],
+ "needs_owner": [],
+ "unfixed": [
+  {
+   "item": "9장 호출 수 막대 그림의 캡션에는 '막대 이름은 본문의 해석을 따랐다'가 없다(첫 그림에만 있다)",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "7장 판에서 '일곱 번째도 실패하면' 선이 다시 짓기에서 나가는데, 코드는 검증 노드가 실패 누계를 보고 보낸다",
+   "meaning": false,
+   "impact": "wording"
+  },
+  {
+   "item": "표지 MCP 상자는 '의미층을 읽기 전용으로'만 적는다. MCP 의 ask_question 은 답변 에이전트를 돌려 SQL 을 실행하고, conversation_id 를 주면 대화 기록을 남기는데 그림에는 그 경로가 없다(수정 전 그림도 같았다)",
+   "meaning": false,
+   "impact": "wording"
+  }
+ ],
+ "unverified": [
+  "스택을 실행하지 않았다. 퀵스타트 답 $588.80, check_answerable 예시, 컴파일 결과는 README 와 메인테이너 그림에 적힌 것이다.",
+  "schema-only 대조군 대비 정확도 향상폭은 공개된 값이 없어 확인하지 못했다. NVIDIA 의 '90% 단축'도 측정 방법이 공개되지 않았다.",
+  "이슈 #261 의 61.21초 대 9.27초에서 어느 쪽이 전체 파이프라인인지는 같은 이슈의 목표 문장으로 해석한 것이다.",
+  "frontend, helm, 커넥터 대부분, KumoRFM 예측 분기 안쪽 코드는 읽지 않았다. 권한 집행과 예측 분기의 데이터 반출 범위는 확인하지 못했다.",
+  "저장소가 공개로 바뀐 날짜는 확인하지 못했다(Marginalia 는 11월 1일이라 적는다).",
+  "Illumex GSF 와의 계보는 같은 이름과 코드 주석에서 끌어낸 해석이다.",
+  "이슈 22건의 분류는 이 리서치가 제목과 본문을 읽고 나눈 것이다.",
+  "Databricks Genie Ontology 등 같은 시기 대안의 문서는 열지 않았다."
+ ],
+ "rendered": "수정 뒤 main 의 render.mjs 로 1280px 와 390px 를 찍었고 배치 경고는 0이다. 표지와 5장 화면을 두 폭에서 직접 열어 봤다. 두 그림은 390px 에서 옆으로 밀지 않고 한 폭에 들어온다.",
+ "verification": {
+  "rounds": 3,
+  "parallel_lenses": [
+   "lens-numbers",
+   "lens-reader"
+  ],
+  "rechecks": 4,
+  "claims": 75
+ },
+ "commitSubject": "NVIDIA Auto Ontology 의 의미층 컴파일 방식과 enterprise 실증을 정리",
+ "commitBody": "NVIDIA Auto Ontology 가 DB 의 스키마, 샘플 값, 쿼리 기록을 LLM 으로 읽어 테이블마다 사업 용어(Term), 조인 관계(semantic FK), 재사용 SQL 식을 Postgres 에 컴파일하고 읽기 전용 MCP 도구로 에이전트에게 건네는 방식을 코드로 따라간 한국어 보고서다. 온톨로지 개념을 고전 온톨로지, Palantir Ontology, dbt MetricFlow 와 견주고, NVIDIA 의 Agent Knowledge Foundation 관점, 데이터 모델, 컴파일 네 단계, LangGraph 답변 흐름을 도식으로 그렸다. README 의 '인증된 정의로 검증'이 답변 경로에 없다는 점, 공개된 실증의 범위(평가 설계, PR #346 의 BIRD 76.34%/76.69%, 이슈 #261 의 61.21초 대 9.27초), 운영 비용, HN 290점 스레드와 독립 리뷰 세 편, 공개 뒤 이슈 22건의 분류를 담았다.\n\n소유자가 휴대폰으로 읽어서, 표지와 5장 구조도를 390px 폭에서 옆으로 밀지 않고 읽히게 세로로 쌓아 다시 그렸다.\n\n출처: NVIDIA/auto-ontology c447003f72a822301e927196a4ecb5b597c308d5 (전체 기록), NVIDIA/auto-ontology-eval ec41b2c5b795637759297b90c1d19b42693200f9, NVIDIA Agent Knowledge Foundation 페이지, The New Stack 2026-10-21 인터뷰, Calcalist 2026-02-23 Illumex 인수 기사, Hacker News 50348962, Marginalia·DEV Community·BestHub 리뷰, GitHub 이슈와 PR #346, Noy·McGuinness Ontology Development 101, Palantir Foundry 문서, dbt MetricFlow 문서.\n\n스택은 실행하지 않았다(모델 키와 원천 DB 필요). 두 lens 를 병렬로 돌리고 recheck 두 번으로 고친 장을 다시 읽혔다. 주장 75개를 고정 원문과 대조했다.",
+ "shippedAt": "2026-11-09T03:45:54.122Z",
+ "usage": {
+  "tokens": 7575167,
+  "usd": 3.98,
+  "roles": {
+   "researcher": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 118,
+    "cache_write": 144372,
+    "cache_read": 4715745,
+    "output": 53340,
+    "usd": 2.73
+   },
+   "lens-numbers": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 74,
+    "cache_write": 82511,
+    "cache_read": 1714382,
+    "output": 16506,
+    "usd": 0.54
+   },
+   "recheck": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 56,
+    "cache_write": 77016,
+    "cache_read": 650954,
+    "output": 19805,
+    "usd": 0.46
+   },
+   "lens-reader": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 12,
+    "cache_write": 25296,
+    "cache_read": 69489,
+    "output": 5491,
+    "usd": 0.25
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-08-auto-ontology-enterprise-graph",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "609888feb7c92647c39af9224fa816ff0f3842c9e5aeafbe545083d4a8e60eaf",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "관찰된 전환 없음, 행위자 5개 모두 확인(agent 기록에 남은 응답 모델)"
+ }
+}

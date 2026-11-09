@@ -1,0 +1,174 @@
+Skip to content
+
+Powered by Algolia
+
+Log in
+
+Create account
+
+DEV Community
+
+Add reaction
+
+Like
+
+Unicorn
+
+Exploding Head
+
+Raised Hands
+
+Fire
+
+Jump to Comments
+
+Save
+
+Boost
+
+Pick as gem
+
+Copy link
+
+Copied to Clipboard
+
+Share to X
+
+Share to LinkedIn
+
+Share to Facebook
+
+Share to Mastodon
+
+Report Abuse
+
+frank chu
+
+Posted on Nov 3
+
+0 contributions: NVIDIA's 2,036-star ontology audit
+
+#ai
+#agents
+#mcp
+#discuss
+
+NVIDIA's Auto Ontology has 2,036 stars and 148 forks, and its README says it is currently not accepting external contributions. I cloned it anyway: 1,075 files, 129,285 lines of Python, and a stack that only works if you bring your own NVIDIA API key and a Postgres database.
+
+The repo resurfaced on Hacker News on the morning of November 3, 2026, pitched as an open-source semantic layer that stops agents from inventing your revenue metric. The pitch is good — NVIDIA's own framing is that "reliability gates agentic analytics: a revenue metric answered faster is worth nothing if the number is wrong." The question I always ask of a pitch like that is not whether the idea is good. It is what "open" actually buys you when you clone the repo today.
+
+First, the timeline. This is not a November launch. The GitHub API says the repository was created April 27, 2026, and its most recent push was November 3, 2026. The Hacker News post is a resurfacing, not a release announcement, and the star count moved fast enough that secondary coverage quoting "about 1,100 stars" was already stale by the time I pulled the API number: 2,036 stars, 148 forks, Apache-2.0 license, as of my check on November 3.
+
+Here is what is actually in the clone:
+
+git clone --depth 1 https://github.com/NVIDIA/auto-ontology.git
+files (excluding .git): 1,075
+Python files: 473
+Python lines: 129,285
+Python + TypeScript: 172,828 lines
+test files: 168
+clone size: 27 MB (incl. 8 MB of vendored wheels)
+
+The layout is a real, full-stack system, not a demo wrapper. There is a FastAPI backend (ports 3001 for the API, 3002 for the ingestion worker), a Postgres + pgvector catalog that doubles as the vector store, a TypeScript frontend, Helm charts, a Dockerfile, and a skills/ directory with agent skills for setup, management, and querying. The connector list is genuinely broad: Postgres, DuckDB, Snowflake, Databricks, MySQL, SQLite, Trino, ClickHouse, HeavyDB, and Kyuubi, plus a registry to add more.
+
+So far, so open. Here is where the asterisks start stacking up.
+
+Asterisk 1: the models are NVIDIA-hosted, and you pay for the key. The defaults in .env.example are Nemotron 3 Nano 30B A3B for the LLM, Nemotron 3 Embed 1B for embeddings, and Llama Nemotron Rerank VL 1B v2 for reranking, all served through NVIDIA's API catalog at integrate.api.nvidia.com — or self-hosted NIMs, if you run that infrastructure yourself. Every model role is configured as a triplet of endpoint, API key, and model name, falling back to a shared default and then to the legacy NVIDIA_API_KEY. You can swap in another provider's endpoint in principle, but the happy path is an nvapi-... key from NVIDIA. "Open source" here means the orchestration code is open; the intelligence is a hosted API call.
+
+Asterisk 2: the MCP server is not the product. This is the part most readers will misunderstand, because "serves it to agents over MCP" sounds like you point your agent at it and go. The MCP server's own docstring says it plainly: it holds no database connections, no model configuration, and no credentials. It is an HTTP client of the public Auto Ontology API, and its docs use the placeholder URL https://auto_ontology.example.com. MCP without a running deployment — Postgres, ingestion worker, NIM key, source-database connections — gives your agent nothing to query. The MCP layer is the last mile, not the system.
+
+Asterisk 3: your database passwords may sit in plaintext. The README is admirably blunt about this one. Connections added through the UI have their credentials "stored in plaintext in Postgres unless Vault is configured" — the full connection object, including the password, JSON-serialized onto the catalog's database row. Vault support exists, but it is off by default and requires all four of VAULT_ADDR, VAULT_NAMESPACE, VAULT_ROLE_ID, and VAULT_SECRET_ID to be set. A semantic layer that exists to make agents trustworthy should probably not have "plaintext credentials unless you configure Vault" as its default posture, and to NVIDIA's credit, the README does not hide it. But it is the kind of default that matters more than the architecture diagram.
+
+Asterisk 4: "open" stops at the pull request. Both the README and CONTRIBUTING.md carry the same line: the project "is currently not accepting external contributions." Issues, the README says, are the channel. That is a legitimate choice for a corporate-owned project — NVIDIA is allowed to run its repo as a release valve rather than a commons — but it changes what the star count means. 2,036 stars on a repo you cannot contribute to is a distribution metric, not a community metric. Compare it honestly: you can read all 129,285 lines of Python, you can fork it, you can file issues, and you cannot get a fix merged through the normal open-source path.
+
+What I did not do matters too, and I will say it plainly: I did not deploy the full Docker stack or run a text-to-SQL benchmark, because that requires a NVIDIA API key and a source database I was not going to wire up for a morning audit. So this is a code and documentation audit, not an accuracy measurement. I am not claiming the ontology layer is good or bad at grounding queries — I am claiming that its openness has a specific, measurable shape: big codebase, real connectors, hosted models, a thin MCP client, plaintext-by-default credentials, and a closed contribution door.
+
+That shape is increasingly common, and it deserves a name sharper than "open source": source-available infrastructure with a hosted brain. If you evaluate Auto Ontology, evaluate it on those terms. Count what you would actually run (two FastAPI services, Postgres + pgvector, a Vault setup if you care about the credential default), price the NIM calls, and decide whether the semantic catalog is worth that stack — not whether 2,036 strangers starred a README.
+
+Sources: NVIDIA/auto-ontology on GitHub (created April 27, 2026; Apache-2.0; star/fork counts from the GitHub API, November 3, 2026) — https://github.com/NVIDIA/auto-ontology ; README sections quoted above (NIM defaults, deployment prerequisites, Connections Management plaintext-credential note, contributions notice); MCP server docstring in mcp/auto_ontology_mcp/__main__.py. All file and line counts are from my own shallow clone on November 3, 2026.
+
+Top comments (0)
+
+Subscribe
+
+Submit
+Preview
+Dismiss
+
+Code of Conduct
+•
+Report abuse
+
+frank chu
+
+Follow
+
+Work
+
+Meta
+
+Joined
+
+Jul 21, 2026
+
+More from frank chu
+
+Data centers lost 40 of 41 votes — America PAC won 3 of 44
+
+#ai
+#datacenter
+#infrastructure
+#discuss
+
+23-point split: 6 models tied at 74% fell apart on 17 lines
+
+#ai
+#machinelearning
+#benchmarks
+#discuss
+
+DEV Community — A space to discuss and keep up software development and manage your software career
+
+Home
+
+DEV Challenges
+
+DEV++
+
+Videos
+
+DEV Education Tracks
+
+DEV Help
+
+Advertise on DEV
+
+Organization Accounts
+
+DEV Showcase
+
+About
+
+Contact
+
+Free Postgres Database
+
+DEV Shop
+
+MLH
+
+Code of Conduct
+
+Privacy Policy
+
+Terms of Use
+
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+
+We're a place where coders share, stay up-to-date and grow their careers.
+
+Log in
+
+Create account

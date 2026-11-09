@@ -1,0 +1,9 @@
+{
+  "title": "NVIDIA Auto Ontology 가 에이전트용 의미층을 만드는 방식과 enterprise 실증",
+  "date": "2026-11-08",
+  "seq": 46,
+  "summary": "NVIDIA Auto Ontology 가 DB 를 읽어 사업 용어, 조인 관계, SQL 식을 컴파일하고 MCP 로 건네는 방식을 코드로 따라가고, 인증이 답변 경로에 없다는 점과 공개된 실증의 범위, HN과 독립 리뷰의 반응을 정리했다.",
+  "category": "oss",
+  "format": "article",
+  "purpose": "report"
+}

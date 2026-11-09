@@ -1,0 +1,1750 @@
+[issue #250 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:15Z] Reconcile authoritative replacement imports
+**Status:** Open — confirmed authoritative-import reconciliation gap.
+
+**Impact:** Authoritative re-import can retain obsolete links/descriptions and stale search evidence; affects model synchronization and governed publication.
+
+## Evidence
+
+`dal/model_interchange.py` inserts FK links while retained attributes can retain omitted links. An observed 8-edge replacement retained 9; summaries count payload entries. `_resolve_entities_batch()` resolves existing IDs and stamps `imported_id`; property creation and embedding preparation apply to new rows. Existing objects can retain earlier descriptions/metadata. These are separate mutation paths within the replacement contract.
+
+## Actions
+
+- Reconcile in-scope relationship deletion/repointing and existing-ID property updates atomically; preserve out-of-scope objects.
+- Apply an explicit certified-override conflict policy and refresh affected data/semantic embeddings.
+- Report attempted, created, updated, deleted, repointed, unchanged, skipped, protected, conflicted and persisted counts from actual outcomes.
+
+## Acceptance
+
+- Replace 9 edges with 8; verify exact persisted/exported edges, repointing and scope preservation.
+- Change existing Term/ColumnAttribute descriptions and catalog properties; import with replacement/embedding enabled. Verify exact values and refreshed embeddings.
+- Cover unchanged values, certification conflicts, invalid targets, transactional rollback, concurrency and accurate counts.
+
+#267 owns identity-conflict preflight; #259 owns rebuild durability; #269 owns direct structural editing, revision checks and audit.
+
+
+**Review (`b43169fb`):** Controlled native importer/isolated SQLite; PostgreSQL, vector and concurrency acceptance pending.
+
+
+[issue #251 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:16Z] Define governed result metadata contracts
+**Status:** Open — governed-result metadata/validation design proposal.
+
+**Impact:** Supports consistent interpretation of stored modeled results; ordinary ontology queries already use generic entities, SQL attributes and links.
+
+## Evidence
+
+`server/model_interchange/schemas.py` represents entities, SQL attributes and links. Result grain, metric grain, validity, evidence class and decision lineage require explicit contracts. Typed-key fixtures demonstrated reliable relationship queries.
+
+## Actions
+
+Define minimal source-owned membership, grain, unit, validity, scenario, commitment, evidence and lineage declarations/validation. Use existing ontology objects first; scope schema extensions through design review. Validate key types and FK paths. Preserve source-defined target windows and explicit quantity/rate conversions.
+
+## Acceptance
+
+Round-trip typed fixtures and query exact keyed results across producers, entities and unequal-duration windows. Verify lineage, horizon totals, interval conventions and unit conversions. Reject invalid, superseded, duplicate or contract-incompatible results.
+
+
+**Review (`b43169fb`):** Design/source review; generic typed-key fixtures work; explicit extension scope needs agreement.
+
+
+[issue #252 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:18Z] Post-execution business answer synthesis
+**Status:** Open — confirmed result-grounding code gap.
+
+**Impact:** Accurate executed rows can accompany stale or contradictory business prose; affects users relying on the narrative answer.
+
+## Evidence
+
+`ResponseAgent.execute()` formats generation-time prose and attaches executed rows afterward. Experimental row-mode queries validated keyed rows; business-comparison qualification remains pending.
+
+## Actions
+
+Synthesize answers from executed rows and reviewed semantic metadata. Use deterministic scalar formatting where practical. Lead comparisons with values, signed differences, units, evidence class and lineage. Preserve advisory/reviewer authority.
+
+## Acceptance
+
+Cover scalar, multi-row, empty and null results. Add a synthetic alternative-comparison prompt with independently checked measures. Verify projected/actual and committed/advisory status, full keyed row parity and reviewer requirements. Keep row mode supported.
+
+
+**Review (`b43169fb`):** Native formatter control retained prose total 99 beside supplied executed total 2; live generation unqualified.
+
+
+[issue #253 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:19Z] Hard essential-schema and authoritative-chain enforcement
+**Status:** Open — confirmed source/schema/graph enforcement gaps.
+
+**Impact:** Selected database, intended entity and execution connector can diverge; incomplete graph coverage changes prediction/query meaning.
+
+## Evidence
+
+At `b43169fb`, Kumo example retrieval/table enrichment loses database identity; frame loading accepts partial table sets, and entity selection uses the first connector even for another graph source. Offline controls reproduced these seams. Join-guard acceptance after two repairs, soft-check acceptance after more than five reconstructions, and acceptance of keyed events without the intended entity remain. A prepared matching-SDK graph produced keyed hosted rows.
+
+## Actions
+
+Carry selected database, qualified table/view identity, required columns/paths, keys, time and intended entity through coverage, retrieval, examples, graph loading and execution. Validate structural bindings before loading and data-dependent identities afterward. Enforce complete required coverage; resolve ambiguous/unknown/mixed bindings explicitly. Reusable templates must preserve approved physical bindings.
+
+## Acceptance
+
+Test same-named objects across databases/schemas with disjoint IDs, missing/capped tables and missing intended entities. Verify graph loading, entity SQL and time lookup use the selected connector; concrete examples retain source scope. Preserve every required column/hop within the four-hop cap across retries. Qualify actual scoped catalog/retrieval separately from prepared graphs.
+
+#333 owns DuckDB discovery; #257 owns business/population predicates; #334 owns origin; #361 owns SDK/service pairing.
+
+**Review (`b43169fb`):** Native scope/loading controls and real local SDK graph; actual persisted retrieval unqualified.
+
+
+[issue #254 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:21Z] Govern inferred relationships across domains and schemas
+**Status:** Open — inferred-edge evidence/authority enforcement gap.
+
+**Impact:** Trust in inferred joins depends on justified domain authority, types and cardinality; shared concepts and declared links remain supported.
+
+## Evidence
+
+`upsert_table_term()` isolates generated Terms by represented table. `_resolve_via_vdb()` scopes candidates by database and accepts an LLM selection before the value-probe fallback.
+
+## Actions
+
+Require domain/schema authority, compatible datatypes, justified uniqueness/cardinality, governed value evidence and provenance before inferred-edge promotion. Preserve authorized shared concepts, declared links and the cross-database guard.
+
+## Acceptance
+
+Compile same-named concepts across domains/schemas concurrently. Verify stable table-specific Terms. Test unauthorized cross-domain candidates, incompatible types, cardinality conflicts and missing evidence. Promote authorized edges with retrievable authority/evidence; retain declared links and cross-database rejection.
+
+
+**Review (`b43169fb`):** Source inspection; persisted unauthorized-edge failure and broader promotion coverage unqualified.
+
+
+[issue #255 closed by cafzal (COLLABORATOR) created 2026-09-13T22:52:23Z] Table-level ingestion allowlist
+**Status:** Completed — table allow/deny filtering shipped in #299.
+
+## Delivered
+
+Per-connection regexes apply across tables, columns and views. Deny takes precedence. Invalid patterns return validation errors. Connector registry forwarding and scope-edit re-ingestion are covered.
+
+Filtering occurs after driver introspection and before persistence. Configuration scope is UI-managed connections.
+
+## Verification
+
+PR #299 records live restriction from 22 tables to 1 and a Postgres-backed eviction test. The later focused review passed 143 tests with 1 skip.
+
+## Follow-up
+
+Track effective-scope provenance in #260. Evaluate environment-only filter configuration and regex execution bounds as separate enhancements. Reopen for a core filtering regression.
+
+Code review: `1ff49909`. Historical observations: `ae785d89`. Local tests are labeled above.
+
+
+[issue #256 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:24Z] Typed, redacted decision observability API
+**Status:** Open — durable redacted execution-receipt enhancement.
+
+**Impact:** Enables diagnosis, audit and honest stage attribution; a visible stream alone does not establish retained execution evidence.
+
+## Evidence
+
+Streaming provides nodes, thoughts, SQL and timing. Durable candidate decisions, retry ancestry and execution evidence remain qualification work. A bounded test run demonstrated the importance of verifying effective configuration and separating fallback labels from valid model outputs.
+
+## Actions
+
+Persist run/stage identities, candidate dispositions, constraint decisions, probes, retries, safe model/config identity, tokens, timing and result references. Persist completed probe receipts incrementally. Record prepared/replayed evidence and actual stage outcomes separately. Redact credentials, private endpoints and sampled values.
+
+## Acceptance
+
+Reconstruct repaired and unresolved runs through the API. Test configuration mismatch, invocation failure, fallback, executed population SQL with prepared prediction, and inference failure after successful validation. Verify stage attribution, retained failure evidence and structural redaction. Distinguish SDK invocation/discovery failure after successful readiness from an actual prediction POST and validated returned rows. Interrupt a multi-probe run and retrieve completed receipts plus explicit pending/failed outcomes.
+
+
+**Review (`b43169fb`):** Existing stream/retry state reviewed; durable API and live auth/redaction coverage pending.
+
+
+[issue #257 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:27Z] Enforce material query constraints before execution
+**Status:** Open — partially fixed; confirmed constraint/population gaps remain.
+
+**Impact:** Syntactically valid or returned fallback SQL can miss business requirements; prediction selection can widen or accept rows for an empty scope.
+
+## Evidence
+
+Latest `b43169fb` keeps intent validation active beyond five inner reconstructions. Offline controls still reproduce `valid_sql` on validator exceptions/empty output. Final full-pipeline exhaustion can return intent-rejected SQL in `sql_code`; that helper returns SQL without executing it. Native PQL repair widened a supplied active-only selection to all loaded graph IDs. Valid entity SQL using a `prediction`-named object was discarded. An empty explicit selection became SDK-default scope, accepting two spy rows while reporting zero entities. Earlier receipts returned four correct metric rows with null policy attributes from a legacy binding; an explicit case-table retry passed.
+
+## Actions
+
+Extract sourced formula, literal, temporal, projection, distinctness, ordering, measure/unit/source-role and population requirements once. Preserve them through SQL/PQL generation, entity selection, grouping and repairs. Enforce final queries and returned entity membership; retain explicit validation failure when evidence is unavailable or retries exhaust.
+
+## Acceptance
+
+Cover quantity/share, distinct artifact roles and same-named legacy/case attributes with disjoint IDs; check exact keys, columns, values and policy lineage. Retain the two intended current shortage-child interventions, cheaper base-child control and invalid/superseded versions from #266, enforcing parent/scenario, status, validity, supersession and commitment. Inject exceptions/empty output; exercise inner and full-pipeline exhaustion. Repair PQL while preserving required population, including identifiers containing `prediction`. Check final SQL disposition and returned keys against approved selection, including empty/out-of-graph populations through SDK dispatch.
+
+#253 owns required sources/schema/paths; #263 owns fanout; #334 owns explicit origin.
+
+**Review (`b43169fb`):** Controlled native agent/selection/model spies; no hosted calls; final population/result enforcement pending.
+
+
+[issue #258 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:28Z] Incremental ontology reconciliation for changed sources
+**Status:** Open — incremental semantic-reconciliation implementation gap.
+
+**Impact:** Existing source changes can leave generated meaning/search/export state stale; affects maintained catalogs and repeated source updates.
+
+## Evidence
+
+`semantic/pipeline.py` selects `fetch_all_tables_without_term()`. Catalog refresh handles structural changes; existing-Term eligibility uses this work list. Renames use drop/add semantics. An exploratory export contained older examples while executed rows matched the newer snapshot; refresh attribution remains unresolved.
+
+## Actions
+
+Use source fingerprints and catalog diffs to identify impacted tables. Reconcile generated entities, relationships, vectors and exports. Preserve unaffected IDs and reviewed overrides; report created, updated, retained, removed and unresolved objects.
+
+## Acceptance
+
+Add, drop, rename and retype columns; change descriptions and keys; refresh and compile. Verify scoped persisted/export readback against the selected snapshot. Update examples or mark their historical provenance. Preserve certified edits (#259) and source/run identity (#260).
+
+
+**Review (`b43169fb`):** Source inspection; changed-source mutation/readback pending; stale-export attribution unresolved.
+
+
+[issue #259 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:30Z] Preserve certified ontology edits across reset and rebuild
+**Status:** Open — reviewed-state durability gap for reset/rebuild.
+
+**Impact:** Reset/rebuild workflows can remove reviewed meaning and user-authored analyses; affects curation investment and stable semantics.
+
+## Evidence
+
+`dal/reset.py` removes semantic entities during reset, including certified metadata and user-authored analyses. `upsert_table_term()` updates descriptions without a certification predicate when its existing-owner branch is reached. Curation currently shares generated-state storage.
+
+## Actions
+
+Persist reviewed overrides and decisions separately, keyed by stable source identity. Preserve user-authored objects in routine regeneration; give explicit destructive purge a separate contract. Reapply eligible overrides during compilation and rebuild; present conflicts as reviewable proposals.
+
+## Acceptance
+
+Edit and certify a Term, ColumnAttribute, SQL Attribute and relationship; create a user analysis. Run routine compilation and full semantic reset/rebuild. Verify reviewed values, user objects and applicable identities survive. Source changes produce typed conflicts and consistent relational/vector/export readback.
+
+
+**Review (`b43169fb`):** Native upsert/SQL control; ordinary existing-Term eligibility may skip that call; persisted rebuild qualification pending.
+
+
+[issue #260 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:31Z] Ontology source manifest and element-level generation provenance
+**Status:** Open — source/element provenance and scoped-readiness enhancement.
+
+**Impact:** Supports knowing which source/snapshot/producer generated meaning; prevents relying on deployment-wide readiness as selected-source proof.
+
+## Evidence
+
+Compilation history stores timing and coarse outcome; semantic FK rows store endpoints. Current deployment-wide readiness checks any semantic Term; selected-source readiness is an additional requirement. Supplied/imported models and pipeline-generated elements require distinct evidence lineage.
+
+## Actions
+
+Link elements to source snapshot/revision, catalog paths, constraints, reviewed samples, generation method, model/config identity and compilation run. Expose per-object/per-run provenance. Produce source-bound inventory/export receipts with exact bindings and migration/catalog/vector readiness.
+
+## Acceptance
+
+Cover Terms, attributes, declared/inferred relationships and query/bridge-derived SQL attributes. Compare identical-looking supplied and pipeline-generated fixtures; verify distinct origins and actual stage status. Test source readiness with another source already compiled. Verify selected snapshot/export identity, excluded/stale/redacted evidence handling and independent shared-gateway authorization. #256 owns execution traces; #264 owns data-movement policy.
+
+
+**Review (`b43169fb`):** Source review; global readiness is deployment-wide; selected-source and element/run provenance need qualification.
+
+
+[issue #261 open by cafzal (COLLABORATOR) created 2026-09-13T22:52:33Z] Qualify Q&A latency, cost and quality
+**Status:** Open — latest-revision paired qualification and optimization evaluation pending; absorbs #262.
+
+**Impact:** Keep Q&A responsive and affordable without sacrificing answer quality or safe escalation.
+
+## Evidence
+
+An earlier 1,415-task paired BIRD benchmark measured mean generation times of 61.21s versus 9.27s and 5.56 versus 1.00 model calls. The normal graph performs sequential intent/extraction, preparation, generation and validation. #245/#316 and existing optimizations improve concurrency/responsiveness, retrieval/anchor work, empty-search and cross-request overhead. Historical means do not quantify the installed release; latest paired product qualification remains pending.
+
+## Actions
+
+- Run a frozen paired suite with matched model, provider, data, prompts, concurrency and scorer. Persist benchmark/config identity; capture stage latency, calls, provider tokens, retries, typed timeout outcomes and correctness.
+- Evaluate bounded low-call candidates using retrieval confidence, schema complexity, evidence, conversation dependence and validation results. One generation plus deterministic checks is a candidate, not required architecture. Escalate on uncertainty or failed checks; choose from paired quality/cost evidence.
+
+## Acceptance
+
+- Partition direct single-table, clear multi-table, ambiguous, follow-up and repair cases. Compare full-pipeline, candidate and LLM-only controls; report correctness, p50/p95 latency, calls, tokens and metric coverage by complexity slice.
+- Verify low-risk call counts and escalation decisions. Require matched-control quality and agreed workload-specific budgets. Proposed starting targets: p50 ≤2× and p95 ≤3× LLM-only, subject to scope/owner approval.
+
+**Review (`b43169fb`):** Historical product and new skill benchmarks, opt-in flags and prompt reduction are progress. Latest paired product/optimization qualification remains pending; #262 is consolidated, not fixed.
+
+
+[issue #262 closed by cafzal (COLLABORATOR) created 2026-09-13T22:52:35Z] Evaluate adaptive low-call Q&A execution
+**Consolidated into #261; evaluation work remains open there.**
+
+The canonical issue retains sequential-pipeline evidence, existing optimizations, risk/confidence-based candidate evaluation, deterministic checks, uncertainty/failure escalation, frozen complexity slices, low-risk call counts, matched full-pipeline/LLM-only controls, quality, p50/p95 latency and provider-token acceptance. Consolidation does not establish a fix or mandate a fast-path architecture.
+
+
+[issue #263 open by cafzal (COLLABORATOR) created 2026-09-14T00:30:33Z] Run-metric fanout across detail joins
+**Status:** Open — confirmed owner-grain aggregation risk.
+
+**Impact:** Detail joins can multiply an owner-level metric despite faithful SQL execution; affects totals and business comparisons.
+
+## Evidence
+
+Existing aggregation guards cover specific GROUP BY patterns. A retained run/detail fixture multiplied a run-level metric by 19 detail rows: 7,738.2 became 147,025.8. SQL execution faithfully evaluated the generated aggregation.
+
+## Actions
+
+Carry metric-owner grain and join cardinality into generation/validation. Detect owner-to-detail fanout before execution. Use direct owner-grain projection, unique-owner subqueries or detail pre-aggregation as appropriate.
+
+## Acceptance
+
+Test owner metrics joined to 1, 2 and 19 detail rows. Require invariant owner values across direct projection and valid pre-aggregation. Reject SUM-after-fanout variants. Cover grouped and ungrouped SQL, cardinality uncertainty and independent keyed-row oracles.
+
+
+**Review (`b43169fb`):** SQLite owner oracle 8.5 versus fanout 161.5; native narrow guard accepts this shape; full live validator unqualified.
+
+
+[issue #264 open by cafzal (COLLABORATOR) created 2026-09-14T00:30:35Z] Govern source reads, sampling, and prediction data movement
+**Status:** Open — PII tagging/timeouts delivered; policy enforcement pending.
+
+**Impact:** Source queries, samples, prompts and SDK uploads require authorized movement boundaries; exposure depends on configured policy and deployment.
+
+## Evidence
+
+Profiling samples `SELECT * ... LIMIT 1000` and stores/embeds values; disabling DISTINCT retains that row sample. Latest PII classification/tagging supplies evidence for policy enforcement. Native Kumo entity SQL is dispatched directly; offline extraction accepts multiple statements. DuckDB database read-only mode is one execution control.
+
+## Actions
+
+Apply source authorization, classification, masking/tokenization, row/column/call limits, retention and auditable purpose before storage, embeddings, prompts, SDK uploads and traces. Enforce approved single-statement read queries with parsed relation/function containment and an explicit external-access policy. Validate entity SQL against the approved source/graph before execution. Redact nested errors, credential-bearing URLs and private endpoints structurally.
+
+## Acceptance
+
+Use synthetic PII/credential canaries to test extra statements, unapproved objects and file/network access under the configured policy. Verify authorized reads, permitted movement, masking, row/column/call budgets, retention expiry, deletion and redacted traces. Qualify gateway denial/viewer permissions separately. #253 owns structural graph/source coverage; #257 owns required business population; #361 owns client pairing.
+
+**Review (`b43169fb`):** Source/extractor controls; policy/live gateway/SDK movement qualification pending; no security incident established.
+
+
+[issue #265 closed by cafzal (COLLABORATOR) created 2026-09-14T00:41:25Z] Replacement import silently preserves existing entity properties
+**Consolidated into #250.**
+
+Existing-ID property updates, certified-override conflicts, embedding refresh and persisted mutation counts are covered by the canonical issue's evidence, actions and acceptance checks. Track implementation and qualification there.
+
+
+[issue #266 closed by cafzal (COLLABORATOR) created 2026-09-14T00:42:12Z] Modeled-result lineage, scenario, status, and validity filters are not enforced
+**Consolidated into #257.**
+
+Modeled-result parent/scenario, status, validity, supersession and commitment predicates are covered by the canonical issue's evidence, actions and acceptance checks. Track implementation and qualification there.
+
+
+[issue #267 open by cafzal (COLLABORATOR) created 2026-09-14T04:15:04Z] Model import ID and natural-name conflicts return HTTP 500
+**Status:** Open — confirmed import identity/error-boundary gap.
+
+**Impact:** Legitimate same-path imports with different external IDs can fail opaquely; affects partner model synchronization and recovery.
+
+## Evidence
+
+`_resolve_entities_batch()` resolves imported/live IDs. Same-name catalog objects with different IDs can hit uniqueness constraints; the import route exposes database integrity failures as HTTP 500.
+
+## Actions
+
+Preflight identity and natural-name conflicts before mutation. Return a typed 409/422 report with existing/proposed IDs and supported resolution. Provide explicit export-and-bind or caller-supplied mapping; preserve transactional rollback. Translate integrity failures at the service boundary.
+
+## Acceptance
+
+Import matching physical paths with different IDs. Verify zero partial mutation and complete conflict reporting. Cover exact live IDs, imported IDs, genuinely new names, ambiguous matches and cross-database collisions.
+
+
+**Review (`b43169fb`):** Controlled SQLite identity conflict/rollback; actual ASGI route returned 500 for captured integrity error; PostgreSQL/gateway pending.
+
+
+[issue #268 open by cafzal (COLLABORATOR) created 2026-09-14T04:15:05Z] Structured ontology certification and atomic promotion
+**Status:** Open — staged certification/atomic-promotion enhancement.
+
+**Impact:** Failed/partial compilation needs an explicitly retained active version; affects governed publication and availability of consistent meaning.
+
+## Evidence
+
+#299 sequences and serializes reset/cancellation. `semantic_compilation_history` stores start, finish and coarse status. Compilation writes Terms before subsequent relationship/attribute stages.
+
+## Actions
+
+Compile into a staged version. Persist per-table attempted, processed, skipped, failed and residual outcomes, snapshot diffs and validation evidence. Promote fully reconciled versions atomically and retain the active certified snapshot through failed/aborted runs.
+
+## Acceptance
+
+Induce skipped/failed tables, unresolved FKs and an aborted run. Retrieve a complete typed report with residual reasons. Verify the previous certified snapshot remains queryable and successful promotion changes the active revision consistently across relational, vector and export surfaces.
+
+
+**Review (`b43169fb`):** Source/staging design review; fault-injected promotion and retained-active-snapshot qualification pending.
+
+
+[issue #269 open by cafzal (COLLABORATOR) created 2026-09-14T04:15:07Z] Operable ontology curation and audit
+**Status:** Open — revision-checked structural-curation enhancement.
+
+**Impact:** Enables reviewed semantic corrections and rollback without losing auditability or fighting concurrent edits.
+
+## Evidence
+
+Metadata/certification edits, SQL Attribute CRUD and tagging are available. #297 replays tagging rules during ingestion. Structural corrections use ID-centric model YAML.
+
+## Actions
+
+Add transactional Term split/merge, represented-table changes and FK quarantine/repoint/delete, with revision checks, reason, reviewer, provenance and immutable history. Support rollback and consistent embedding/export refresh. Use existing metadata edits for source-backed attribute review, including authoritative roles for same-named legacy/case attributes.
+
+## Acceptance
+
+Round-trip each structural operation and rollback. Verify relational/vector/export/audit consistency. Read back exact column bindings, units, grain and assumption/actual status after curation. Include legacy/case fixtures with disjoint IDs and verify reviewed source-role bindings. #250 owns FK replacement; #259 owns curated-value durability; #257 owns query-intent enforcement.
+
+
+**Review (`b43169fb`):** Existing CRUD/tagging reviewed; structural revision/audit/rollback acceptance pending.
+
+
+[issue #270 closed by cafzal (COLLABORATOR) created 2026-09-14T04:15:08Z] Entity-coverage readiness mismatch
+**Status:** Deferred — connector-free entity coverage.
+
+## Evidence
+
+`_build_coverage_payload()` requires a configured connector. Imported-model inspection is supported through catalog/semantic reads; the query workflow requires compiled semantics and a live source connection.
+
+## Action
+
+Use the supported inspection/readiness workflow. Revisit this issue when connector-free coverage becomes a product requirement.
+
+## Reopening criteria
+
+Qualify imported-only coverage against stored metadata and align readiness, import and endpoint contracts. Retain this issue as the receipt for the deferred workflow requirement.
+
+Code review: `1ff49909`. Historical observations: `ae785d89`. Local tests are labeled above.
+
+
+[issue #271 open by cafzal (COLLABORATOR) created 2026-09-14T04:15:10Z] Databricks optimized extraction loses nullability
+**Status:** Open — declared-nullability discovery/interchange gap.
+
+**Impact:** Loss of declared versus unknown nullability weakens metadata-based validation and faithful interchange.
+
+## Evidence
+
+The optimized `_COLUMN_FIELDS`/DESCRIBE extraction omits nullability. Model interchange defaults unknown nullability to a boolean, losing source certainty.
+
+## Actions
+
+Retrieve declared nullability from efficient metadata in optimized and fallback paths. Preserve unknown as a distinct state through catalog and interchange. Validate source metadata semantics explicitly.
+
+## Acceptance
+
+Use declared NOT NULL, nullable and unknown columns. Compare optimized/fallback extraction, persisted catalog and import/export before and after refresh. Require exact values and preserved unknown state.
+
+
+**Review (`b43169fb`):** Optimized fields/interchange source checked; live Databricks metadata readback pending.
+
+
+[issue #272 open by cafzal (COLLABORATOR) created 2026-09-14T04:15:11Z] Single-column primary keys are not reflected in column uniqueness
+**Status:** Open — declared-versus-sampled uniqueness fidelity gap.
+
+**Impact:** Identity/cardinality reasoning needs constraint certainty rather than sampled uniqueness alone.
+
+## Evidence
+
+`add_pks()` writes table-level key membership. Column `is_unique` is populated by sampled profiling; export defaults missing values to false. Replacement import treats existing properties as skipped (#250).
+
+## Actions
+
+Derive uniqueness for declared single-column PKs and single-column UNIQUE constraints. Preserve composite-key semantics and unknown state. Make declared constraints authoritative during profiling and define explicit import updates.
+
+## Acceptance
+
+Ingest SQLite, PostgreSQL and Databricks fixtures with single/composite PKs, independent UNIQUE constraints and nullable/unknown columns. Compare DDL, full-population counts, catalog and interchange before/after profiling and re-ingestion. Verify individual composite members retain their own uniqueness semantics.
+
+
+**Review (`b43169fb`):** DDL/profiling/interchange source checked; persisted multi-driver certainty qualification pending.
+
+
+[issue #333 open by cafzal (COLLABORATOR) created 2026-10-04T05:43:33Z] Preserve scoped DuckDB object and declared key metadata
+**Status:** Open — confirmed scoped DuckDB discovery/key gap; local patch unmerged.
+
+**Impact:** DuckDB object identity and declared keys are prerequisites for reliable automatic graph construction and catalog bindings.
+
+## Evidence
+
+At `b43169fb`, `get_pks/get_fks` remain empty stubs. Baseline discovery returned zero key records; the earlier local patch returned 5 ordered PK-column and 2 positional FK-column records. New read-only attached-source controls returned duplicate table/column/view names without catalog disambiguation. Prepared declared-key graphs produced keyed hosted predictions through a matching SDK.
+
+## Actions
+
+Scope table/column/view/constraint discovery to the configured source and preserve qualified object identity. Extract declared constraints with composite order, quoted identifiers and shaped empty metadata. Validate object/column bindings and resolve ambiguous names explicitly. Reviewed view identities remain semantic declarations governed through #253/#269.
+
+## Acceptance
+
+Exercise connector → extraction → persisted scoped catalog readback. Test same-named attached-database/schema objects, quoted names, composite PK/FKs and unconstrained views; preserve source hashes. Verify declared identity/edges separately from reviewed view-key validation. Existing patch unit controls passed; scoped persisted refresh/retrieval remains pending.
+
+#272 owns uniqueness certainty; #253 owns graph/entity coverage; #334 owns origin.
+
+**Review (`b43169fb`):** Read-only synthetic native getters tested; local patch unmerged; persisted scoped refresh/retrieval pending.
+
+
+[issue #334 open by cafzal (COLLABORATOR) created 2026-10-04T05:50:17Z] Honor explicit requested forecast origin on the native prediction path
+**Status:** Open — confirmed native requested-origin propagation gap.
+
+**Impact:** A dated forecast can execute at a default origin; affects explicit-date predictions and time-bounded explanations/backtests.
+
+## Evidence
+
+`PredictionContext`, `run_prediction`, `generate_pql` and `predict_all` use default origin selection. Structured request-origin propagation is the required change. Orchestration spies used execution-day defaults for a different date stated in the question, including an inactive-cap case. Typed-time controls preserved default-anchor behavior. A reviewed isolated matching-SDK bridge returned five keyed hosted rows at the explicit requested origin; four walk-forward calls preserved origins across 20 synthetic predictions.
+
+## Actions
+
+Carry a validated origin through request/context, generation, explanation, batching and retries to SDK `anchor_time`. Preserve explicit dates or reject unsupported requests before inference. Retain documented undated defaults. Track prediction and context anchors separately. Align source-owned event/availability mapping, eligible graph snapshot, MAX lookup and entity selection.
+
+## Acceptance
+
+Vary wall clock/data maximum; require requested/effective origin equality across all paths. Cover late-available context, boundary dates and irregular windows. After offline qualification, run one bounded authorized prediction with actual rows and safe lineage. Native-orchestration qualification remains pending; the isolated matching-SDK bridge is a separate hosted positive control.
+
+
+**Review (`b43169fb`):** Source interfaces unchanged; prior orchestration spies and isolated hosted anchors remain separate controls.
+
+
+[issue #335 open by cafzal (COLLABORATOR) created 2026-10-04T05:50:19Z] Qualify stored-forecast SQL routing across supported configurations
+**Status:** Open — model-conditioned routing regression qualification.
+
+**Impact:** Guards stored-result requests against definition/new-inference routes while preserving legitimate metadata questions.
+
+## Evidence
+
+A historical stored-row request selected the metadata route. Earlier caller-bound qualification (`1ff49909`) passed 6/6 valid unforced classifications with the caller-configured model: stored rows → calculation, definitions → information, new forecasts → prediction. Strict configuration checks qualified that run; earlier misconfigured attempts were excluded.
+
+## Actions
+
+Persist an unforced frozen regression pack and safe model/stage traces; qualify declared supported configurations without assuming a current universal routing failure. Preserve authoritative `calculation_only` controls and legitimate metadata behavior under `prediction=False`. Diagnose classifier changes from qualified outputs and separate invocation failures/fallback.
+
+## Acceptance
+
+Query stored predictions through SQL and verify exact producer/entity/window keys, columns and executed values. Qualify definition and new-inference routes across supported configurations. Classification coverage is one model/six cases; actual retrieval, SQL parity and broader regression coverage remain pending.
+
+
+**Review (`b43169fb`):** Earlier one-model 6/6 pack; latest offline label/override controls; current unforced failure not established.
+
+
+[issue #361 open by cafzal (COLLABORATOR) created 2026-10-08T20:58:22Z] Support capability-matched Kumo prediction clients
+**Status:** Open — capability-matched native client integration task.
+
+**Impact:** Enables automatic native inference when the intended service requires the relational pairing; ordinary SQL and supported legacy pairing are separate workflows.
+
+## Evidence
+
+At `b43169fb`, the native predictor constructs `SDFMClient.kumorfm(graph)`; the Kumo extra locks `nvidia-sdfm 0.2.1` and `kumorfm 2.29.0`. An isolated matching Relational SDK returned correctly keyed and explicitly anchored hosted predictions. Native relational-service execution remains pending qualification.
+
+## Actions
+
+Resolve the configured model/service capability and select a qualified SDK driver, dependency update or isolated worker adapter. Diagnose unsupported pairings before graph data movement. Preserve legacy KumoRFM behavior and isolate incompatible parser runtimes. Keep model selection, safe compatibility diagnostics and configuration explicit.
+
+## Acceptance
+
+Qualify supported legacy and relational pairings, missing/unsupported capabilities, discovery failures and bounded timeouts. Run authorized native context → PQL validation → prediction and verify actual returned keys, anchors and stage receipts. Check isolated parser/dependency compatibility and structural error redaction. #253 owns graph/source coverage; #257 owns required population; #334 owns requested-origin propagation; #256 owns traces; #264 owns data movement.
+
+**Review (`b43169fb`):** Fresh lock retains legacy SDK binding; matching isolated hosted bridge works; native pairing unqualified.
+
+
+[issue #403 open by hoogvliets (NONE) created 2026-11-03T20:29:21Z] docs/mcp.md still says the repo is NVIDIA-internal and needs GitHub credentials, but it is public
+## Summary
+
+`docs/mcp.md` lines 47–51 still describe the repository as private:
+
+> [!NOTE]
+> Auto Ontology is NVIDIA-internal today, so this install needs GitHub credentials with
+> access to the repository (`gh auth login`, or any cached git credential
+> helper). It shortens to a plain `uvx auto-ontology-mcp` once the package is published to
+> PyPI; until then `uvx auto-ontology-mcp` alone will not resolve.
+
+The repository is now public (`"visibility": "public"`), so the `uvx --from "git+https://github.com/NVIDIA/auto-ontology.git#subdirectory=mcp"` install no longer needs authenticated GitHub access. The second half of the note is still accurate: the package is not on PyPI, so plain `uvx auto-ontology-mcp` does not resolve.
+
+The first half now reads as a gate that isn't there. A reader with no `gh` auth configured may reasonably assume the MCP server is unreachable and stop, when the documented command works as-is.
+
+## Evidence
+
+`docs/mcp.md` as of `main` today:
+
+```
+$ gh api repos/NVIDIA/auto-ontology/contents/docs/mcp.md --jq '.content' | base64 -d | sed -n '47,51p'
+> [!NOTE]
+> Auto Ontology is NVIDIA-internal today, so this install needs GitHub credentials with
+> access to the repository (`gh auth login`, or any cached git credential
+> helper). It shortens to a plain `uvx auto-ontology-mcp` once the package is published to
+> PyPI; until then `uvx auto-ontology-mcp` alone will not resolve.
+```
+
+Repository visibility:
+
+```
+$ gh api repos/NVIDIA/auto-ontology --jq '{visibility, private}'
+{"visibility":"public","private":false}
+```
+
+The unauthenticated clone path resolves:
+
+```
+$ GIT_TERMINAL_PROMPT=0 git clone --depth 1 https://github.com/NVIDIA/auto-ontology.git /tmp/ao-check
+Cloning into '/tmp/ao-check'...
+remote: Enumerating objects: ...
+```
+
+## Suggested wording
+
+The note can be shortened to the part that is still true:
+
+> [!NOTE]
+> The MCP package is not published to PyPI yet, so install it from the repository:
+> `uvx --from "git+https://github.com/NVIDIA/auto-ontology.git#subdirectory=mcp" auto-ontology-mcp`.
+> It shortens to a plain `uvx auto-ontology-mcp` once the package is published.
+
+## Impact
+
+Docs only. No code, no behavior change. Affects anyone following the MCP setup instructions from outside NVIDIA — which, with the repository public, is now the default audience.
+
+Happy to leave this to the maintainers given `CONTRIBUTING.md` says external contributions are not being taken; filing it as a note rather than a patch for that reason.
+
+
+[issue #406 open by devinkuhn (NONE) created 2026-11-04T02:30:07Z] [Integration]: Microsoft Fabric (Warehouse / Lakehouse SQL endpoint) connector
+**Organization**
+Apple Federal Credit Union
+
+**Integration type**
+Data platform or storage provider
+
+**Use case**
+Our analytics data lives in **Microsoft Fabric**: Warehouses and Lakehouse SQL analytics endpoints, T-SQL over TDS. We want Auto-Ontology agents to build the semantic layer from those warehouses and answer analyst questions with read-only SQL against them, the same way they do today for Databricks, Snowflake or Postgres.
+
+Fabric is a common destination for organisations on the Microsoft stack. Its SQL endpoints are the main read path for Power BI-adjacent analytics teams.
+
+**Integration surface**
+A new **connector**: a `fabric://` source alongside the existing ones.
+
+We built one against `main` to prove it out, and are running it in a pilot against production Fabric warehouses:
+- read-only;
+- semantic compilation working end to end;
+- models served locally through an OpenAI-compatible gateway (Nemotron 3.5 Lightning and GLM).
+
+We're sharing it as reference for your team to adopt, rework or ignore as you see fit:
+
+- Connector: https://github.com/Apple-Federal-Credit-Union/auto-ontology/tree/fabric-connector ([diff against main](https://github.com/NVIDIA/auto-ontology/compare/main...Apple-Federal-Credit-Union:auto-ontology:fabric-connector))
+
+What it does:
+- `FabricDatabase(SQLDatabase)` over pyodbc and ODBC Driver 18. sqlglot `fabric` dialect, falling back to `tsql`.
+- **Auth:** Entra ID service principal, either via the driver's `ActiveDirectoryServicePrincipal` or a pre-fetched access token (`azure-identity` + `SQL_COPT_SS_ACCESS_TOKEN`, `auth=token`). In our environment the token path was the reliable one: the driver-managed path hung past its login timeout from one base image, while the token path connected in under a second with the same credentials.
+- **Metadata** from `INFORMATION_SCHEMA` / `sys.*`:
+  - tables, views, columns;
+  - PK/FK as Fabric's NOT ENFORCED constraints (empty on Lakehouse endpoints, where they're unsupported);
+  - query history from `queryinsights` when readable.
+- **Read-only by design:** a single `SELECT`/`WITH` statement only, rejected client-side otherwise. Every `LIMIT` in the tree is rewritten to `TOP`; native `TOP (?)` passes through untouched.
+- **Schema allowlist and table filters**, honoured like Databricks/Snowflake/Trino.
+- **Packaging:** optional `fabric` extra (pyodbc, azure-identity). The Microsoft ODBC driver goes in the backend image behind a build arg that defaults off. Documented in `docs/connections.md`.
+- **Tests:** unit tests with pyodbc mocked, plus a live integration test gated on an env var.
+
+**Two small, independent changes** came out of the same pilot. They're useful outside Fabric:
+
+1. **`EMBED_DIMENSIONS`:** https://github.com/Apple-Federal-Credit-Union/auto-ontology/tree/embed-dimensions ([diff](https://github.com/NVIDIA/auto-ontology/compare/main...Apple-Federal-Credit-Union:auto-ontology:embed-dimensions))
+   - The problem: the pgvector store is fixed at 2048 and `embed_texts` never sends `dimensions`, so any non-2048 embedding model breaks ingestion (1024/1536/3072/4096, or Matryoshka models such as Qwen3-Embedding).
+   - The change: an optional setting that sends `dimensions` and sizes the vector column. Unset behaviour is unchanged.
+2. **`LLM_PROMPT_CACHE_MARKERS`:** https://github.com/Apple-Federal-Credit-Union/auto-ontology/tree/prompt-cache-markers ([diff](https://github.com/NVIDIA/auto-ontology/compare/main...Apple-Federal-Credit-Union:auto-ontology:prompt-cache-markers))
+   - The change: an opt-in Anthropic `cache_control` marker on the system prompt, for OpenAI-compatible gateways that pass markers through but don't add them.
+   - Measured on one such gateway: 0 cached tokens without it, 14,023 of 14,036 cached with it.
+   - Off by default, since your inference-api gateway adds its own.
+
+Happy to answer questions or test a maintainer build against our warehouses.
+
+**Contact**
+This issue.
+
+
+[issue #407 open by dolphindbDev (NONE) created 2026-11-04T04:15:24Z] [Integration]: support DolphinDB as a source database
+### Organization
+
+DolphinDB
+
+### Integration type
+
+Data platform or storage provider
+
+### Use case
+
+DolphinDB is a leading distributed time-series and multi-model database with more than 200 customers in the financial sector (quant, banks, securities, etc.) and IoT sector (car manufacturing, power plants, grids, etc.). Typically, DolphinDB would help users to store huge amount of time-series financial data for quant factor mining, alpha model training, risk-control, etc. There are strong needs for users to build ontologies out of such data to support AI-powered FinTech and IoT businesses. Once integrated with auto ontology, agents would be able to do a lot of quant of FinTech businesses such as factor mining, backtesting, trading, option pricing, rick assesment, multi-asset management, etc.
+
+### Integration surface
+
+MCP, REST API and agent skills are fine.
+
+### Contact
+
+xuntao.cheng@dolphindb.com
+
+[issue #408 open by hyeonsang010716 (NONE) created 2026-11-04T06:02:36Z] Postgres, MySQL and SQLite connectors return wrong data when result columns share a name
+When a query returns two columns with the same name, the Postgres, MySQL and SQLite connectors return wrong data and no error. All three build each row as a dict keyed by column name, so one value overwrites the other before the DataFrame is created:
+
+- [`postgres.py#L25`](https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/postgres.py#L25-L30)
+- [`mysql.py#L134`](https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/mysql.py#L134-L144)
+- [`sqlite.py#L134`](https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/sqlite.py#L134-L136)
+
+## What happens
+
+With one customer and one order:
+
+```sql
+SELECT c.id, o.id, c.name, o.name
+FROM customers c JOIN orders o ON o.customer_id = c.id;
+```
+
+| Connector | Columns | Row |
+|---|---|---|
+| Expected | `id, id, name, name` | `1, 100, Ada, first order` |
+| Postgres 17.7 | `id, name` | `100, first order` |
+| MySQL 9.4 | `id, id, name, name` | `100, 100, first order, first order` |
+| SQLite | `id, id, name, name` | `1, 1, Ada, Ada` |
+| DuckDB (not affected) | `id, id_1, name, name_1` | `1, 100, Ada, first order` |
+
+`SELECT *` over the same join behaves the same way. Aliasing the columns avoids it.
+
+The problem reaches the text-to-SQL path. `_run_sql` on Postgres returns `[{"id":100,"name":"first order"}]` with `error=None`, so nothing triggers a retry and the customer's values are simply gone.
+
+`_deduplicate_result_columns`, added in #397, can't help here because it only sees the frame afterwards. On Postgres the duplicates have already collapsed. On MySQL and SQLite it renames the labels, but the values are already wrong: `{"id":1,"id__2":1,"name":"Ada","name__2":"Ada"}`. Its test passes because it builds the frame by hand with `dialect="postgres"`, a frame the Postgres connector can't produce.
+
+I reproduced this at the connector and `_run_sql` level against real Postgres, MySQL and SQLite databases. I didn't run it through the full chat flow with a model.
+
+## Reproduce
+
+SQLite, so no server is needed:
+
+```python
+import sqlite3
+import tempfile
+from pathlib import Path
+
+from auto_ontology.connectors.sqlite import SQLiteDatabase
+
+with tempfile.TemporaryDirectory() as tmp:
+    path = Path(tmp) / "shop.db"
+    conn = sqlite3.connect(path)
+    conn.executescript("""
+        CREATE TABLE customers (id INT, name TEXT);
+        CREATE TABLE orders (id INT, customer_id INT, name TEXT);
+        INSERT INTO customers VALUES (1, 'Ada');
+        INSERT INTO orders VALUES (100, 1, 'first order');
+    """)
+    conn.close()
+
+    df = SQLiteDatabase(f"sqlite:///{path}").execute(
+        "SELECT c.id, o.id, c.name, o.name "
+        "FROM customers c JOIN orders o ON o.customer_id = c.id"
+    )
+    print(df.values.tolist())  # expected [[1, 100, 'Ada', 'first order']]
+```
+
+On `caced11e` this prints `[[1, 1, 'Ada', 'Ada']]`.
+
+## Possible fix
+
+Use tuple rows and take the names from `cursor.description`, as the Trino and Snowflake connectors already do:
+
+```diff
+# postgres.py
+-    with conn.cursor(row_factory=dict_row) as cur:
++    with conn.cursor(row_factory=tuple_row) as cur:
+         ...
+         rows = cur.fetchall()
+-    return pd.DataFrame(rows)
++        columns = [column[0] for column in cur.description]
++    return pd.DataFrame(rows, columns=columns)
+
+# mysql.py
+-            cursor = connection.cursor(dictionary=True)
++            cursor = connection.cursor()
+
+# sqlite.py
+-            [dict(row) for row in rows], columns=[col[0] for col in cur.description]
++            [tuple(row) for row in rows], columns=[col[0] for col in cur.description]
+```
+
+I tried this against the same databases and all three connectors then return the expected row. `_run_sql` returns `{"id":1,"id__2":100,"name":"Ada","name__2":"first order"}`, which is what #397 was aiming for.
+
+Two side effects:
+
+- A zero-row Postgres result keeps its column names. Today `SELECT id, v FROM empty_t` returns a frame with no columns, while MySQL and SQLite keep them.
+- `test_execute_returns_dataframe_and_closes_connection` in `test_mysql.py` needs updating, because its fake cursor returns dict rows. It was the only new failure in `pytest auto_ontology dev_tools`, though the tests that need a fixture database were skipped.
+
+`get_tables`, `get_columns`, `get_views`, `get_pks` and `get_fks` returned the same results before and after on all three, apart from the empty Postgres frames now having columns.
+
+I know `CONTRIBUTING.md` says external PRs aren't accepted, so I'm filing this as a bug report. If a PR would help, I can send this change with tests. Otherwise, please feel free to use the diff above.
+
+
+[issue #410 open by omar-elmaria (NONE) created 2026-11-04T10:58:08Z] [Integration]: Add BigQuery Connector
+### Organization
+
+Inseeq
+
+### Integration type
+
+Data platform or storage provider
+
+### Use case
+
+We run a multi-tenant growth warehouse for our clients on Google Cloud. Ad, CRM, web analytics, search, and GEO data are ingested into Postgres. We replicate it into BigQuery, and dbt builds one isolated BigQuery dataset per client. Each dataset holds staging tables, history snapshots and, for some clients, a modeled layer of dimensions, facts and published tables, all with column descriptions. Operators and their agents answer cross-channel questions from these datasets, such as pipeline by channel, attribution, and company-level engagement.
+
+Auto-Ontology looks like a strong fit for the agent layer we want to build on top of this. Today we hand-write join logic, metric definitions and descriptions so that agents don't produce wrong answers. Auto-Ontology's business terms, reviewed SQL measures, and relationship graph would give agents a reviewed layer for that knowledge. We'd like an agent to be able to ask a question in plain language and get back the result, the SQL, and the steps, running against a client's BigQuery dataset.
+
+BigQuery isn't a supported engine right now, and a BigQuery connector would let us use Auto-Ontology on our actual production data without copying it elsewhere. Our only workaround today is exporting tables to DuckDB, which adds a copy and drifts from the live data.
+
+Ideally, the BigQuery connector would use a service account credential or Application Default Credentials and support dataset-scoped access, sampling, and profiling that respect BigQuery's partitioning and billing (for example, bounded or partition-limited scans).
+
+Thank you very much!
+
+### Integration surface
+
+MCP, Rest API, and Agents Skills
+
+### Contact
+
+omar.elmaria@inseeq.com
+
+[issue #416 closed by aypee19 (NONE) created 2026-11-04T22:15:49Z] Improve agents security
+Improve agents securtity
+
+[issue #427 open by arafatazam (NONE) created 2026-11-05T14:33:48Z] Integrate RLS and CLS
+Cube core already has row level and column level filtering based on RBAC. As access control and governance is very important for the organizations this feature is very important.
+
+[issue #428 open by codersgl (NONE) created 2026-11-05T14:51:54Z] Docs: `SQLDatabase` documents a `dialect` constructor argument that does not exist
+### Where
+
+`auto_ontology/connectors/base.py` — the `SQLDatabase` class docstring (~lines 100–113),
+and the abstract `__init__` declared just below it (~line 132).
+
+### What looks wrong
+
+The class docstring documents two constructor parameters:
+
+```
+Parameters
+----------
+connection_string:
+    A driver-specific connection string or database path.
+dialect:
+    SQL dialect used by this connector (e.g. ``"duckdb"``, ``"snowflake"``).
+    Used by the text-to-SQL agent to emit dialect-appropriate SQL.
+```
+
+But `dialect` is not a constructor parameter. It is an abstract property:
+
+```python
+@property
+@abstractmethod
+def dialect(self) -> str:
+    """Return the dialect of the database."""
+```
+
+and the abstract constructor takes only a connection string:
+
+```python
+@abstractmethod
+def __init__(self, connection_string: str) -> None: ...
+```
+
+Every implementation returns a hard-coded constant — `clickhouse.py` → `"clickhouse"`,
+`databricks.py` → `"databricks"`, `duckdb.py` → `"duckdb"`, `kyuubi.py` → `"spark"`,
+`heavydb.py` → `"postgres"` — and no connector accepts a `dialect` argument.
+
+### Secondary point
+
+The same abstract signature is narrower than reality: `SnowflakeDatabase`,
+`DatabricksDatabase`, `KyuubiDatabase` and `TrinoDatabase` all accept
+`schemas: list[str] | None` as a second constructor parameter.
+`registry.create_connector` absorbs that difference by dispatching on the class, so
+nothing breaks at runtime — but a reader of `base.py` cannot see that the capability
+exists.
+
+### Impact
+
+Documentation only. I could not find runtime behaviour that depends on either
+mismatch.
+
+It matters for two audiences:
+
+- anyone reading `base.py` to understand the connector contract (the docstring
+  suggests `dialect` is per-connection configuration, which is exactly what the
+  abstract property prevents);
+- anyone writing a connector outside this repo, who would implement `__init__` from
+  the documented signature and then be surprised by the `schemas` variants.
+
+For clarity, this is not the same `dialect` that `model_interchange` reads from a
+saved connection — that one is an engine label on the stored connection form.
+
+### Suggested fix
+
+- Drop `dialect` from the `Parameters` section and describe it as the abstract
+  property subclasses implement. `dialect`'s own property docstring already says
+  what it returns, so nothing needs to be added there.
+- Decide whether `schemas` belongs in the base `__init__` signature or should at
+  least be documented as a per-connector extension.
+
+No code change is required for correctness; both are documentation fixes.
+
+---
+Observed on `main`, no local modifications to `connectors/`.
+
+
+[issue #430 closed by wcook04 (NONE) created 2026-11-05T20:22:24Z] [Integration]: Query Python repositories through DuckDB and model import
+### Organization
+
+[code-ontology-bridge](https://github.com/wcook04/code-ontology-bridge), independent project.
+
+### Integration type
+
+Semantic model or catalog
+
+### Use case
+
+I built code-ontology-bridge to query Python repositories through Auto Ontology. It exports source relationships as a DuckDB database and describes the tables, columns, keys and joins in Auto Ontology's native model format. A code semantics layer adds six SQL views for direct calls, callback references, reachability, symbol and file profiles, dependencies and inheritance.
+
+The worked example uses Auto Ontology's own source. Its SQL agent returns the recorded call chains reaching `resolve_semantic_fks`, including the scheduler's reference through `asyncio.to_thread`. The [walkthrough](https://wcook04.github.io/code-ontology-bridge/) connects the Python source, extracted relationships, model definitions, generated SQL and returned rows.
+
+The repository also contains a [48-question study across Auto Ontology, click, httpx and rich](https://github.com/wcook04/code-ontology-bridge/blob/main/study/RESULTS.md), with every SQL query and response retained. An answer counts as correct only if its SQL returns the right rows on the real database and on eight altered copies of it. On the 12 Auto Ontology questions with DeepSeek v4.1 Flash, your agent with its own catalog answered 10.3 correctly on average, 10.7 with the semantics layer imported and 8.7 with the base model alone. Asked directly, without Auto Ontology, the same model went from 18.0 of 48 with the schema alone to 27.2 with the exported model. Extraction, export and local SQL queries require no model credentials.
+
+### Integration surface
+
+The exports use the existing DuckDB connector and `POST /api/model/import`. The recorded queries use `/api/chat/completions`.
+
+The database contains declared primary and foreign keys, and the model supplies keys and joins for the exported relations. It could serve as an additional fixture for [#333](https://github.com/NVIDIA/auto-ontology/issues/333). The derived views have keys and joins declared in the model as well.
+
+The recorded integration uses `cdaf61e` with a [documented compatibility patch](https://github.com/wcook04/code-ontology-bridge/tree/main/examples/auto-ontology/live/upstream-fix) for public model clients, SQL-route forwarding and response validation. Execution against the current revision remains untested.
+
+Are model-declared keys and joins on derived DuckDB views a supported integration contract for a standalone adapter like this?
+
+### Contact
+
+This issue, or GitHub @wcook04.
+
+
+[issue #431 open by wcook04 (NONE) created 2026-11-05T20:49:22Z] [Integration]: Query Python repositories through DuckDB and model import
+### Organization
+
+[code-ontology-bridge](https://github.com/wcook04/code-ontology-bridge), independent project by Will Cook.
+
+### Integration type
+
+Semantic model or catalog
+
+### Use case
+
+An agent should be able to answer questions about a Python codebase through Auto Ontology, such as "if this function changed, which other functions would be affected?", and return the SQL it ran with rows naming exact files and functions.
+
+code-ontology-bridge does this today with Auto Ontology's existing DuckDB connector and model import:
+
+`Python source → cob extractor → code database (DuckDB) + table descriptions (native model YAML) → Auto Ontology → SQL and rows`
+
+- **Code database:** files, functions and classes, every call between them, including functions handed to another call to be run later (for example `asyncio.to_thread(f)`), imports, base classes and docstrings, with declared primary and foreign keys.
+- **Table descriptions:** a semantic model in Auto Ontology's import format describing every table and column, its key and its joins.
+- **Ready-made queries (optional):** six SQL views, such as which functions can reach which and in how many steps, described in the same model.
+
+Results, from a [study of 48 questions about Auto Ontology, click, httpx and rich](https://github.com/wcook04/code-ontology-bridge/blob/main/study/RESULTS.md). An answer counts as correct only if its SQL returns the right rows on the real database and on eight altered copies of it. Means of three or five runs.
+
+- With only the code database connected and nothing imported, Auto Ontology's agent with DeepSeek v4.1 Flash answered 10.3 of the 12 Auto Ontology questions correctly, and 9 of them in every run. The same model asked those questions directly answered 3.2, and 6.4 with its best briefing.
+- Importing the table descriptions and ready-made queries gave 10.7 (runs of 10, 12 and 10, one run answering all 12); the descriptions alone gave 8.7.
+- Asked directly, outside Auto Ontology, the table descriptions raised DeepSeek from 18.0 to 27.2 of all 48 questions, and the descriptions and ready-made queries raised NVIDIA Nemotron 3.5 Lightning from 2.4 to 7.6 (6 questions better, none worse).
+- After the runs, auditors who saw no scores compared every answer key with its question, and 21 of the 48 gained a condition the question states; 5 questions now accept either of two readings. The corrections were committed before rescoring and moved results in both directions (Auto Ontology 7.3 to 10.3; direct with descriptions 34.0 to 27.2). Both score sets are published.
+
+Example from Auto Ontology's own source: asked which functions would be affected if `resolve_semantic_fks` changed (the request told it to include callbacks), the agent returned four, including `SemanticScheduler._run_once`, which reaches it only because it passes `run_semantic_compilation` to `asyncio.to_thread`. [Walkthrough with the saved request, SQL and rows](https://wcook04.github.io/code-ontology-bridge/).
+
+### Integration surface
+
+Question: are keys and joins declared in an imported model, on views derived inside a DuckDB source, a supported contract for an outside adapter like this one?
+
+At `cdaf61e` the DuckDB connector's `get_pks` and `get_fks` return empty tables even though the database declares its keys, so an imported model is the only way the catalog learns them. The database could serve as a test fixture for the DuckDB key work in #333.
+
+A DuckDB 1.5 copy of the code database (same tables, views and keys; the bridge writes DuckDB 2.0) went through the existing DuckDB connector, and the descriptions through `POST /api/model/import`, both unmodified. Importing onto an already ingested catalog required rewriting the model's catalog IDs to the server's IDs first; otherwise the import tries to create the database and its tables again and fails on unique catalog names. Recording the runs also needed a [patch](https://github.com/wcook04/code-ontology-bridge/tree/main/examples/auto-ontology/live/upstream-fix) (611 upstream tests in the query, chat and utility scopes pass) so each model role could use an OpenAI-compatible service, chat questions could select the existing SQL-only route, and an existing validator rejects placeholder answers; each change is described separately in its README. The current `main` is untested.
+
+### Contact
+
+This issue, or GitHub @wcook04.
+
+
+[issue #432 open by TomCruiseTorpedo (NONE) created 2026-11-05T21:02:00Z] Signed skill files no longer match skill.oms.sig after SPDX headers were added in #363
+### Summary
+
+At `main` (`c449567`), 6 of the 21 files listed in the three `skills/*/skill.oms.sig` bundles no longer match the digests signed for them. In each of `nvidia-ontology-management`, `nvidia-ontology-query` and `nvidia-ontology-setup`, the affected files are:
+
+- `BENCHMARK.md`
+- `skill-card.md`
+
+The bundles last changed in `27b099d` (2026-10-08). #363 added SPDX headers to these six files on 2026-10-12, and no signature commit followed. Removing the 144-byte header restores the signed digest for all six, and the other 15 files match as committed. So this looks like a missed re-sign, not a content change.
+
+### Reproduce
+
+Run from the repository root. This uses the standard library only.
+
+```python
+import base64
+import hashlib
+import json
+import pathlib
+import re
+
+SPDX_HEADER = re.compile(rb"\A<!--\s*SPDX.*?-->\s*\n*", re.S)
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+total = mismatched = restored = 0
+for sig_path in sorted(pathlib.Path("skills").glob("*/skill.oms.sig")):
+    envelope = json.loads(sig_path.read_text())["dsseEnvelope"]
+    statement = json.loads(base64.b64decode(envelope["payload"]))
+    for resource in statement["predicate"]["resources"]:
+        total += 1
+        data = (sig_path.parent / resource["name"]).read_bytes()
+        if sha256(data) == resource["digest"]:
+            continue
+        mismatched += 1
+        without_header = SPDX_HEADER.sub(b"", data)
+        matches = sha256(without_header) == resource["digest"]
+        restored += matches
+        print(f"{sig_path.parent.name}/{resource['name']}: mismatch; "
+              f"without the {len(data) - len(without_header)}-byte SPDX header: "
+              f"{'match' if matches else 'still mismatch'}")
+print(f"{total} signed files, {mismatched} mismatched, {restored} restored by removing the header")
+```
+
+Output at `c449567`:
+
+```
+nvidia-ontology-management/BENCHMARK.md: mismatch; without the 144-byte SPDX header: match
+nvidia-ontology-management/skill-card.md: mismatch; without the 144-byte SPDX header: match
+nvidia-ontology-query/BENCHMARK.md: mismatch; without the 144-byte SPDX header: match
+nvidia-ontology-query/skill-card.md: mismatch; without the 144-byte SPDX header: match
+nvidia-ontology-setup/BENCHMARK.md: mismatch; without the 144-byte SPDX header: match
+nvidia-ontology-setup/skill-card.md: mismatch; without the 144-byte SPDX header: match
+21 signed files, 6 mismatched, 6 restored by removing the header
+```
+
+This compares digests only. I did not verify the Sigstore certificate chain.
+
+### What the PR history shows
+
+- The description of #363 says: "This changes signed content, so `/nvskills-ci` must be re-run to re-sign."
+- `/nvskills-ci` was commented twice on 2026-10-12, at 16:31Z and 17:01Z. The `NVSkills CI` status on `173896d` reached success at 17:06Z.
+- The PR's commit list has no "Attach NVSkills validation signatures" commit, and its timeline has no force-push.
+- `19072ea`, a CODEOWNERS change, became the head at 17:12Z. It carries no `NVSkills CI` status, and `require-nvskills-ci` reported success on it. The PR merged at 17:36Z.
+
+`NVIDIA/nvskills-ci` isn't visible to me, so I don't know why no signature commit was pushed.
+
+### Impact
+
+- The published catalog looks unaffected. `NVIDIA/skills` last synced these skills at `dfdd080` (2026-10-08). Its copies have no SPDX headers and match 21 of 21.
+- Verifying a skill from this repository's `skills/` directory should fail on these six files. I did not run a verifier, so that is inferred from the digests.
+- I don't know what the next catalog sync will do with them.
+
+### Suggested fix
+
+Re-sign rather than remove the headers, since `test_every_source_file_has_an_spdx_header` requires them. That means running `/nvskills-ci` on a PR that changes `skills/` and keeping the bot's commit, as `AGENTS.md` describes. Recomputing these digests in CI would catch a repeat, because a green `require-nvskills-ci` did not catch this one.
+
+
+[issue #434 open by edianavianagomes177-ops (NONE) created 2026-11-05T21:51:57Z] [Integration]:
+### Organization
+
+Ww
+
+### Integration type
+
+Data platform or storage provider
+
+### Use case
+
+Akakwk
+
+### Integration surface
+
+_No response_
+
+### Contact
+
+_No response_
+
+[issue #435 open by C-Kapsalis (NONE) created 2026-11-06T08:35:31Z] [Integration]: Power BI semantic-model validation with swift-pbi and Apache Ossie
+### Organization
+
+C-Kapsalis / swift-pbi
+
+### Integration type
+
+Semantic model or catalog
+
+### Use case
+
+Enable agents using NVIDIA Auto Ontology to query Power BI semantic models with more reliable business context, after those models have passed pre-ingestion validation.
+
+The proposed workflow is:
+
+`Power BI PBIP/TMDL → swift-pbi validation → Apache Ossie conversion → NVIDIA Auto Ontology → agent queries`
+
+The components have distinct roles:
+
+- **Power BI PBIP/TMDL:** Supplies the semantic model metadata.
+- **swift-pbi:** Checks model structure, conventions, relationships and potential drift before conversion.
+- **Apache Ossie:** Provides the existing Power BI/TMDL conversion and semantic interchange capability.
+- **NVIDIA Auto Ontology:** Makes the resulting business context available to agents for grounded queries.
+
+The motivation is that successful conversion does not, by itself, establish semantic reliability. Unexpected schema changes, broken relationships or incomplete business definitions can affect the quality of downstream agent queries.
+
+A validation stage could identify these issues before ingestion and provide an inspectable report for review.
+
+The integration is a proposal, not an existing implementation. I’m sharing it as a community suggestion for the Auto Ontology team to consider. If the team sees value, it can decide whether to explore a proof of concept. I’m not offering to build or deliver the integration or enter into a commercial arrangement.
+
+### Integration surface
+
+**Model import/export**, with a pre-ingestion validation step.
+
+Apache Ossie already supports conversion of Power BI semantic models, including TMDL. The proposed workflow would run swift-pbi validation against PBIP/TMDL metadata before passing the model to Apache Ossie for conversion and subsequent ingestion into Auto Ontology.
+
+The expected flow is:
+
+`PBIP/TMDL → swift-pbi preflight validation → Apache Ossie conversion → Auto Ontology`
+
+The main question is which existing Auto Ontology import/export interface or extension point would best support this workflow, and whether validation results could be retained as an inspectable artifact alongside the imported model.
+
+### Contact
+
+ch.kapsalis@outlook.com
+
+[issue #440 open by sukhbsin (NONE) created 2026-11-06T18:13:07Z] Text-to-SQL pipeline broken against hosted NVIDIA API: endpoint rejects nvext.guided_json structured-output envelope (400), OpenAI response_format returns empty content
+## Summary
+
+Every `with_structured_output` call to `https://integrate.api.nvidia.com/v1` fails with the current `langchain-nvidia-ai-endpoints` (1.4.3) pinned in the backend image. The text-to-SQL pipeline still limps along for most steps because non-reasoning calls fall back to the reasoning model, but SQL generation returns `None` after retries and the graph enters the `unconstructable_sql_response` repair loop, so the README quickstart question never gets a complete answer.
+
+## Environment
+
+- Deployment: Docker Compose (auto-ontology latest `main`)
+- Endpoint: `https://integrate.api.nvidia.com/v1`
+- Models: `nvidia/nemotron-3.5-lightning-30b-a3b` (non-reasoning), `nvidia/nemotron-3.5-super-vl-120b-a12b` (reasoning)
+- `langchain-nvidia-ai-endpoints==1.4.3`
+
+## Symptoms
+
+Backend log, on every structured-output step (`QuestionIntentModel`, `QuestionExtractionModel`, `TableRelevanceModel`, `SQLGenerationModel`, …):
+
+```
+ERROR auto_ontology.utils.llm_invoke: Unexpected error on attempt 1/3 for SQLGenerationModel:
+Exception: [400] unknown field `guided_json`, expected one of `greed_sampling`, `use_raw_prompt`,
+`annotations`, `backend_instance_id`, `token_data`, `max_thinking_tokens`, `cache_salt`, `extra_fields`,
+`metadata_upload`, `prefill_worker_id`, `decode_worker_id`, `dp_rank`, `prefill_dp_rank`, `agent_hints`,
+`request_timestamp_ms`, `routing_constraints`, `router`
+```
+
+- Every non-reasoning structured call fails 3× fast, then falls back to the reasoning model → each pipeline step takes ~2 min instead of seconds.
+- `sql_from_semantic` exhausts its own 3-attempt loop ("LLM returned None after 3 attempts") → `unconstructable_sql_response` → a full repair re-run that fails the same way. The user sees a hedged, incomplete answer.
+
+## Root cause (measured directly against the live endpoint)
+
+`ChatNVIDIA.with_structured_output` (langchain-nvidia 1.4.3) builds a fallback chain: OpenAI `response_format` first (hosted endpoints), then guided chains sent as `nvext: {guided_json: ...}`. Testing both models with an identical trivial schema:
+
+| Request shape | Result |
+|---|---|
+| `response_format: {type: json_schema, ...}` | `200` but **empty content** — unusable, parser yields `None` |
+| `nvext: {guided_json: schema}` (what the library sends) | `400` — "unknown field `guided_json`" |
+| top-level `guided_json: schema` | `200` with correct JSON ✅ |
+
+The hosted endpoint unwraps `nvext` and no longer accepts `guided_json` as an extension key; the only working format is `guided_json` at the payload's top level. Note the `_FallbackRunnable` re-raises the **last** exception, so the surfaced error is the `nvext` 400 — the OpenAI path's silent empty-content failure is masked.
+
+## Reproduction
+
+```bash
+curl https://integrate.api.nvidia.com/v1/chat/completions \
+  -H "Authorization: Bearer $NVIDIA_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+       "messages": [{"role": "user", "content": "Return {\"name\": \"x\"}"}],
+       "nvext": {"guided_json": {"type": "object", "properties": {"name": {"type": "string"}}}}}'
+# -> 400 unknown field `guided_json`
+
+# same body with top-level "guided_json": {...} instead of "nvext": {...} -> 200
+```
+
+Also reproducible in-process: `safe_invoke_with_structured_output(get_llm_client(), [], SampleSchema)` inside the backend container fails with the 400 above.
+
+## Impact
+
+- All structured-output calls pay a 3× 400 round-trip before falling back → chat answers take ~10–15 min instead of ~1.
+- SQL generation cannot produce output at all → every aggregation question returns the "unconstructable" response.
+
+## Workaround applied (local patch)
+
+Added a NIM-specific path in `auto_ontology/utils/llm_invoke.py` (`_invoke_nim_structured`): for `ChatNVIDIA` models, bind `guided_json` at the payload top level (`llm.bind(guided_json=schema.model_json_schema())`), parse the JSON response, and validate into the Pydantic schema — reusing the existing retry/`ValidationError` machinery. Verified this sends `guided_json` top-level (confirmed via `_NVIDIABaseClient._post` capture) and restores the full pipeline end to end. Unit tests added for both the NIM path and the generic path (`auto_ontology/utils/tests/test_llm_invoke.py`).
+
+
+
+[issue #443 open by TrBn17 (NONE) created 2026-11-07T07:04:29Z] Model export returns foreign_keys, joins, and semantic_fks without ORDER BY
+### Summary
+
+`POST /api/model/export` orders catalog schemas/tables/columns, terms, represented tables, column attributes, SQL attributes, and custom analyses, but its three relationship queries in `auto_ontology/dal/model_interchange.py` run `SELECT DISTINCT` without an `ORDER BY` clause:
+
+- [`_export_foreign_keys` (`auto_ontology/dal/model_interchange.py#L194-L214`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/model_interchange.py#L194-L214)
+- [`_export_joins` (`auto_ontology/dal/model_interchange.py#L217-L252`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/model_interchange.py#L217-L252)
+- [`_export_semantic_fks` (`auto_ontology/dal/model_interchange.py#L339-L357`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/model_interchange.py#L339-L357)
+
+`assemble_export_document` ([`model_interchange.py#L485-L535`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/model_interchange.py#L485-L535)) preserves the row order returned by `store().query_read(...)`.
+
+In addition, `_export_terms` (`#L282`), `_export_sql_attributes` (`#L407`), and `_export_custom_analyses` (`#L426`) order by `.name` without `.id` as a tie-breaker (unlike `fetch_all_terms` in `dal/terms.py#L611`, which orders by `(func.lower(s.term.c.name), s.term.c.id)`).
+
+### Impact
+
+1. **Non-deterministic YAML exports & SHA-256 drift:** In PostgreSQL, `SELECT DISTINCT` without `ORDER BY` is executed via `HashAggregate` (or `Unique`), whose output order depends on physical heap scan order and hash bucket layout. Across `VACUUM` / `ANALYZE` runs or an export $\rightarrow$ import round trip on a multi-FK database, the emitted `foreign_keys`, `joins`, and `semantic_fks` lists change order even when the underlying catalog and semantic layer are unchanged.
+2. **Publication & readback verification:** [`skills/nvidia-ontology-management/references/publication.md`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/skills/nvidia-ontology-management/references/publication.md#L55-L65) instructs operators and agents to retain the exported YAML and its SHA-256 as the rollback artifact and compare re-exports after edits. Unordered relationship lists produce noisy diffs on unaffected edges.
+3. **Why existing tests did not catch it:** The `World` fixture in [`auto_ontology/dal/tests/test_model_interchange.py#L99-L136`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/tests/test_model_interchange.py#L99-L136) inserts only a single `column__foreign_key`, a single `table__join`, and a single `column__semantic_fk`.
+
+### Reproduce
+
+Without needing a live database, passing two relationships in reversed row order to `assemble_export_document` produces two different documents from identical sets of rows:
+
+```python
+from auto_ontology.dal.model_interchange import assemble_export_document
+
+base_catalog = [
+    {
+        "db_id": "db-1", "db_name": "shop",
+        "schema_id": "sch-1", "schema_name": "public",
+        "table_id": "tbl-1", "table_name": "orders",
+        "table_description": "", "pk": ["id"], "table_type": "base table",
+        "column_id": col_id, "column_name": f"c_{col_id}",
+        "column_description": "", "column_type": "integer",
+        "sample_values": "[]", "is_unique": True, "is_nullable": False,
+        "ordinal_position": idx,
+    }
+    for idx, col_id in enumerate(["col-1", "col-2", "col-3"], start=1)
+]
+
+fks = [
+    {"source_column_id": "col-2", "target_column_id": "col-1"},
+    {"source_column_id": "col-3", "target_column_id": "col-1"},
+]
+
+doc_a = assemble_export_document(
+    {"catalog": base_catalog, "foreign_keys": fks, "joins": [], "terms": [],
+     "semantic_fks": [], "sql_attributes": [], "custom_analyses": []},
+    dialect_by_db_name={"shop": "postgres"},
+    sql_column_resolver=lambda *_: [],
+)
+doc_b = assemble_export_document(
+    {"catalog": base_catalog, "foreign_keys": list(reversed(fks)), "joins": [], "terms": [],
+     "semantic_fks": [], "sql_attributes": [], "custom_analyses": []},
+    dialect_by_db_name={"shop": "postgres"},
+    sql_column_resolver=lambda *_: [],
+)
+
+assert doc_a.data_layer.foreign_keys != doc_b.data_layer.foreign_keys
+```
+
+### Suggested fix
+
+Add deterministic `.order_by(...)` clauses to the three relationship export queries (and `id` tie-breakers on the name-ordered queries) in `auto_ontology/dal/model_interchange.py`:
+
+```diff
+--- a/auto_ontology/dal/model_interchange.py
++++ b/auto_ontology/dal/model_interchange.py
+@@ -210,6 +210,10 @@ def _export_foreign_keys(database_ids: list[str]) -> list[dict[str, Any]]:
+             )
+             .where(_database_scope(database_ids))
+             .distinct()
++            .order_by(
++                s.catalog_column.c.id,
++                target.c.id,
++            )
+         )
+     ]
+ 
+@@ -249,6 +253,10 @@ def _export_joins(database_ids: list[str]) -> list[dict[str, Any]]:
+     )
+     if database_ids:
+         statement = statement.where(target_database.c.id.in_(list(database_ids)))
++    statement = statement.order_by(
++        s.table__join.c.source_table_id,
++        s.table__join.c.target_table_id,
++    )
+     return [dict(r) for r in store().query_read(statement)]
+ 
+ 
+@@ -279,7 +287,7 @@ def _export_terms(database_ids: list[str]) -> list[dict[str, Any]]:
+     terms = store().query_read(
+         select(s.term.c.id, s.term.c.name, s.term.c.description)
+         .where(s.term.c.id.in_(in_scope), s.term.c.source == SEMANTIC_SOURCE)
+-        .order_by(s.term.c.name)
++        .order_by(s.term.c.name, s.term.c.id)
+     )
+     term_ids = [row["id"] for row in terms]
+     if not term_ids:
+@@ -353,6 +361,10 @@ def _export_semantic_fks(database_ids: list[str]) -> list[dict[str, Any]]:
+             )
+             .where(_database_scope(database_ids))
+             .distinct()
++            .order_by(
++                s.column__semantic_fk.c.column_id,
++                s.column__semantic_fk.c.attribute_id,
++            )
+         )
+     ]
+ 
+@@ -404,7 +416,7 @@ def _export_sql_attributes(database_ids: list[str]) -> list[dict[str, Any]]:
+             s.sql_attribute__term.c.attribute_id == s.sql_attribute.c.id,
+         )
+         .join(s.term, s.term.c.id == s.sql_attribute__term.c.term_id)
+-        .order_by(s.sql_attribute.c.name)
++        .order_by(s.sql_attribute.c.name, s.sql_attribute.c.id)
+     )
+     return [
+         {
+@@ -423,7 +435,7 @@ def _export_custom_analyses(database_ids: list[str]) -> list[dict[str, Any]]:
+         s.custom_analysis__sql,
+         s.custom_analysis,
+         s.custom_analysis__sql.c.analysis_id,
+-    ).order_by(s.custom_analysis.c.name)
++    ).order_by(s.custom_analysis.c.name, s.custom_analysis.c.id)
+     return [
+         {**dict(row), "description": row["description"] or ""}
+         for row in store().query_read(statement)
+```
+
+
+[issue #444 open by TrBn17 (NONE) created 2026-11-07T07:04:31Z] POST /api/semantic-compilation/reset drops the database_name parameter and resets every database
+### Summary
+
+Every layer below the API server implements per-database semantic reset via an optional `database_name` parameter:
+
+1. **DAL (`auto_ontology/dal/reset.py#L66-L206`):** `delete_semantic_layer(database_name: str | None = None)` dispatches to `_delete_scoped_semantic(database_name)` and `semantic_vdb.delete_by_database(database_name)` so resetting one database does not wipe another database's `Term`, `ColumnAttribute`, `SqlAttribute`, or `CustomAnalysis` records.
+2. **Ingestion Service (`auto_ontology/ingestion_service/router.py#L91-L110`):** `POST /semantic/reset` accepts `database_name: str | None = None` and passes it to `trigger_reset_semantic(request.app.state.semantic_scheduler, database_name)`.
+3. **Backend Ingestion Proxy (`auto_ontology/server/ingestion/proxy.py#L85-L101`):** `trigger_semantic_reset(database_name: str | None = None)` accepts `database_name` and forwards `params={"database_name": database_name}` to `:3002/semantic/reset`.
+4. **Frontend Proxy (`frontend/auth/proxy-backend.ts#L48-L49`):** `proxyToBackend` forwards `${incoming.pathname}${incoming.search}` verbatim from `:3000` to `:3001`.
+
+However, the FastAPI route handler in [`auto_ontology/server/semantic_compilation/router.py#L45-L55`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/server/semantic_compilation/router.py#L45-L55) takes no parameters and calls `trigger_semantic_reset()` unconditionally:
+
+```python
+@router.post(
+    "/semantic-compilation/reset", status_code=202, response_model=StatusResponse
+)
+async def reset() -> dict[str, str]:
+    """Ask the ingestion service to rebuild every database's semantic layer.
+    ...
+    """
+    trigger_semantic_reset()
+    return {"status": "accepted"}
+```
+
+### Impact
+
+1. **Scoped semantic reset is unreachable in production deployments:** In Helm deployments (`DEPLOYMENT.md`), `:3002` is an internal `ClusterIP` service and only `:3000` is exposed. Because `server/semantic_compilation/router.py` is the only caller of `proxy.trigger_semantic_reset` in the repository and never passes `database_name`, the entire scoped reset path (`_delete_scoped_semantic` and `semantic_vdb.delete_by_database`) cannot be reached through the public API.
+2. **Silent whole-instance wipe when `database_name` is supplied:** If an API caller sends `POST /api/semantic-compilation/reset?database_name=mydb` (matching `:3002/semantic/reset?database_name=mydb`), FastAPI ignores the undeclared query parameter, returns `202 {"status": "accepted"}`, and invokes `trigger_semantic_reset(None)` — deleting the semantic layer and user-authored custom analyses of **every** database in the deployment.
+
+### Reproduce
+
+```python
+from unittest.mock import patch
+from fastapi.testclient import TestClient
+from auto_ontology.server.__main__ import create_app
+
+client = TestClient(create_app())
+with patch("auto_ontology.server.semantic_compilation.router.trigger_semantic_reset") as mock_reset:
+    resp = client.post("/api/semantic-compilation/reset?database_name=sales")
+    assert resp.status_code == 202
+    # Actual on main: called with () -> database_name defaults to None (wipes all databases)
+    print(mock_reset.call_args)
+```
+
+### Suggested fix
+
+Forward the optional `database_name` query parameter from `auto_ontology/server/semantic_compilation/router.py` to `trigger_semantic_reset(database_name)` (and regenerate the committed OpenAPI specs):
+
+```diff
+--- a/auto_ontology/server/semantic_compilation/router.py
++++ b/auto_ontology/server/semantic_compilation/router.py
+@@ -45,10 +45,12 @@ async def trigger() -> dict[str, str]:
+ @router.post(
+     "/semantic-compilation/reset", status_code=202, response_model=StatusResponse
+ )
+-async def reset() -> dict[str, str]:
+-    """Ask the ingestion service to rebuild every database's semantic layer.
++async def reset(database_name: str | None = None) -> dict[str, str]:
++    """Ask the ingestion service to rebuild a database's semantic layer.
+ 
+     The service deletes the semantic nodes and embeddings and compiles them
+-    again, so the layer is rebuilt without waiting for the next scheduled run.
++    again, so the layer is rebuilt without waiting for the next scheduled run.
++    Omitting ``database_name`` resets every database.
+     """
+-    trigger_semantic_reset()
++    trigger_semantic_reset(database_name)
+     return {"status": "accepted"}
+```
+
+
+[issue #445 open by TrBn17 (NONE) created 2026-11-07T07:04:33Z] Catalog table/column deletion leaves orphaned Term and ColumnAttribute rows that escape scoped reset
+### Summary
+
+When a previously compiled table or column is removed from the catalog during incremental re-ingestion (`update_diff_from_existing_schema` $\rightarrow$ `delete_table` / `delete_schema` / `delete_columns_batch` in [`auto_ontology/catalog/store/db.py#L113-L153`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/catalog/store/db.py#L113-L153)) — either because the object was dropped in the source database or excluded by a newly added `table_deny_regex` — the catalog rows cascade away, but the semantic rows (`term`, `column_attribute`) and their vectors in `vdb.semantic_layer` are left behind in an unreferenced state that even `delete_semantic_layer(database_name)` and `delete_all_data(database_name)` can no longer remove.
+
+Related to #258, but this specifically affects catalog deletion paths and breaks scoped reset/deletion invariants, `upsert_table_term` name allocation, and `fetch_attr_column_contexts` ownership resolution.
+
+### What happens
+
+#### 1. Dropped or newly denied tables leave `term` and `column_attribute` rows that escape `delete_semantic_layer(database_name)` and `delete_all_data(database_name)`
+
+1. Suppose table `shop.orders` (`id = 'tbl-1'`) in database `D` is ingested and compiled into a `Term` (`id = 'term-1'`, `name = 'Order'`) and `ColumnAttribute` rows (`table_id = 'tbl-1'`).
+2. `shop.orders` is dropped in `D` (or excluded via `table_deny_regex`) and `D` is re-ingested. `delete_table('tbl-1')` ([`catalog/store/db.py#L128-L137`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/catalog/store/db.py#L128-L137)) runs `DELETE FROM catalog_table WHERE id = 'tbl-1'`:
+   - `table__term` cascades (`schema.py#L479`), leaving `'term-1'` in `public.term` with **zero** rows in `table__term`.
+   - `column__has_attribute` cascades (`schema.py#L560`), leaving the `column_attribute` rows in `public.column_attribute` because `column_attribute.table_id` is an unconstrained `Text` column (`schema.py#L501`).
+   - Their embeddings in `vdb.semantic_layer` remain intact (re-ingest only rebuilds `vdb.data_objects_layer`).
+3. If the operator subsequently runs a scoped semantic reset (`delete_semantic_layer("D")`) or deletes the connection entirely (`delete_all_data("D")`), [`_delete_scoped_semantic("D")` (`auto_ontology/dal/reset.py#L66-L163`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/reset.py#L66-L163) resolves scope through `_table_ids("D")` (current rows in `catalog_table`):
+   - `'tbl-1'` is already gone from `catalog_table`, so `only_ours(s.table__term, ...)` does not match `'term-1'` (which has no `table__term` links at all), and `s.column_attribute.c.table_id.in_(tables)` does not match `'tbl-1'`.
+   - As a result, `'term-1'` and its `column_attribute` rows survive `delete_all_data("D")` permanently unless an unscoped whole-instance reset (`database_name=None`) is executed.
+
+#### 2. Recreating or un-denying the table forces a disambiguated fallback Term name
+
+In [`upsert_table_term` (`auto_ontology/dal/terms.py#L467-L492`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/terms.py#L467-L492):
+
+```python
+existing = store().query_read(
+    select(s.term.c.id, s.table__term.c.table_id)
+    .select_from(
+        s.term.outerjoin(
+            s.table__term, s.table__term.c.term_id == s.term.c.id
+        )
+    )
+    .where(
+        s.term.c.name == candidate_name,
+        s.term.c.source == SEMANTIC_SOURCE,
+    )
+)
+represented_tables = {
+    row["table_id"] for row in existing if row.get("table_id")
+}
+if existing and represented_tables == {table_id}:
+    ...
+if existing:
+    continue
+```
+
+Because the orphaned `'Order'` row in `s.term` has `existing = [{"id": term_id, "table_id": None}]` (`represented_tables == set()`), `if existing: continue` treats `'Order'` as owned by another table and forces the recreated `shop.orders` (which has a new `table_id`) onto `'Order (D.shop.orders)'` even though no live table represents `'Order'`.
+
+#### 3. `semantic_layer_calculated()` stays `True` when only orphaned Terms remain
+
+[`_semantic_terms` (`auto_ontology/dal/terms.py#L139`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/terms.py#L139) requires `[s.term.c.source == SEMANTIC_SOURCE, _represented()]`, whereas [`semantic_layer_calculated()` (`auto_ontology/dal/terms.py#L286-L292`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/terms.py#L286-L292) omits `_represented()`:
+
+```python
+def semantic_layer_calculated() -> bool:
+    """Has the semantic layer been built at all?"""
+    return bool(
+        store().query_read(
+            select(s.term.c.id).where(s.term.c.source == SEMANTIC_SOURCE).limit(1)
+        )
+    )
+```
+
+If all represented tables are dropped (or the database is deleted after a table drop), `GET /api/terms` returns `[]` (`total = 0`), but `semantic_layer_calculated()` still returns `True` (so `POST /api/chat/completions` does not return the expected `409` readiness error and `GET /api/semantic-compilation/status` reports `calculated: true`).
+
+#### 4. Dropping a column causes `fetch_attr_column_contexts` to promote a referencing `SEMANTIC_FK` column as the owning column
+
+[`fetch_attr_column_contexts` (`auto_ontology/dal/attributes.py#L296-L397`)](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/dal/attributes.py#L296-L397) unions `column__has_attribute` (`rank = 0`, owning column) with `column__semantic_fk` (`rank = 1`, referencing FK column) and picks the first row per `attr_id`. When `delete_columns_batch` deletes the owning column, `column__has_attribute` (`rank = 0`) cascades away while `column_attribute` and any incoming `column__semantic_fk` (`rank = 1`) survive — so `fetch_attr_column_contexts` returns the referencing FK column and its table as the attribute's owning column context.
+
+### Suggested fix
+
+1. In `delete_schema`, `delete_table`, and `delete_columns_batch` (`auto_ontology/catalog/store/db.py`), delete `column_attribute` rows whose owning columns (`column__has_attribute`) or `table_id` are being deleted, and delete `term` rows (`source = 'semantic'`) that lose their last `table__term` link (along with their `vdb.semantic_layer` embeddings).
+2. In `_delete_orphaned_statements` / `dal/reset.py`, also sweep any unrepresented `term` rows (`~_represented()`) and `column_attribute` rows whose `table_id` no longer exists in `catalog_table` (or has no `column__has_attribute` row).
+3. In `semantic_layer_calculated()` (`auto_ontology/dal/terms.py#L286-L292`), include `_represented()` so it agrees with `_semantic_terms`.
+
+
+[issue #446 open by TrBn17 (NONE) created 2026-11-07T07:04:34Z] INGEST_INTERVAL_HOURS documented in .env.example is never read by DataScheduler
+### Summary
+
+[`.env.example#L64-L66`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/.env.example#L64-L66) documents `INGEST_INTERVAL_HOURS` for configuring the recurring ingestion cadence:
+
+```dotenv
+# Ingestion sweep cadence in hours (default 24). The ingestion service runs
+# one ingest at startup, then every INGEST_INTERVAL_HOURS thereafter.
+# INGEST_INTERVAL_HOURS=24
+```
+
+However, `INGEST_INTERVAL_HOURS` is never read anywhere in the codebase. [`auto_ontology/ingestion_service/data_scheduler.py#L36-L45`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/ingestion_service/data_scheduler.py#L36-L45) hardcodes a 24-hour `timedelta`, and [`auto_ontology/ingestion_service/__main__.py#L63`](https://github.com/NVIDIA/auto-ontology/blob/c447003f72a822301e927196a4ecb5b597c308d5/auto_ontology/ingestion_service/__main__.py#L63) instantiates `DataScheduler()` with the default argument:
+
+```python
+INGEST_INTERVAL = timedelta(hours=24)
+
+
+class DataScheduler(IntervalScheduler):
+    """Drives data ingestion on startup, on a 24h timer, and on demand."""
+
+    name = "ingest"
+
+    def __init__(self, interval: timedelta = INGEST_INTERVAL) -> None:
+        super().__init__(interval)
+```
+
+### Evidence
+
+```bash
+$ git grep -n "INGEST_INTERVAL"
+.env.example:65:# one ingest at startup, then every INGEST_INTERVAL_HOURS thereafter.
+.env.example:66:# INGEST_INTERVAL_HOURS=24
+auto_ontology/ingestion_service/data_scheduler.py:36:INGEST_INTERVAL = timedelta(hours=24)
+auto_ontology/ingestion_service/data_scheduler.py:44:    def __init__(self, interval: timedelta = INGEST_INTERVAL) -> None:
+```
+
+### Suggested fix
+
+Either read `INGEST_INTERVAL_HOURS` from the environment in `auto_ontology/ingestion_service/data_scheduler.py` (falling back to `24` when unset or invalid), or remove the unused setting from `.env.example` if the 24h cadence is intentionally fixed:
+
+```diff
+--- a/auto_ontology/ingestion_service/data_scheduler.py
++++ b/auto_ontology/ingestion_service/data_scheduler.py
+@@ -17,6 +17,7 @@
+ 
+ import asyncio
+ import logging
++import os
+ import time
+ from datetime import timedelta
+ 
+@@ -33,7 +34,19 @@ logger = logging.getLogger(__name__)
+ 
+ # Cadence measured from the end of the previous run rather than a fixed
+ # wall-clock time.
+-INGEST_INTERVAL = timedelta(hours=24)
++def _resolve_ingest_interval() -> timedelta:
++    raw = os.environ.get("INGEST_INTERVAL_HOURS", "").strip()
++    if not raw:
++        return timedelta(hours=24)
++    try:
++        hours = float(raw)
++        if hours > 0:
++            return timedelta(hours=hours)
++    except ValueError:
++        pass
++    logger.warning("Invalid INGEST_INTERVAL_HOURS=%r; defaulting to 24h", raw)
++    return timedelta(hours=24)
++
++
++INGEST_INTERVAL = _resolve_ingest_interval()
+```
+
+
+[issue #453 open by CactusQuill (NONE) created 2026-11-07T09:03:32Z] SQLite connector drops foreign keys written without a column list or in a different case
+### Summary
+
+`SQLiteDatabase.get_fks()` passes `PRAGMA foreign_key_list` output straight through. That PRAGMA reports the constraint as it was written in the DDL, not as resolved by SQLite:
+
+1. **Implicit parent key.** `REFERENCES customer`, with no column list, is valid SQLite and means "customer's primary key". The PRAGMA reports the referenced column (`to`) as `NULL`, so `get_fks()` emits `referenced_column = None`.
+2. **Case.** SQLite identifiers are case-insensitive, so `FOREIGN KEY (CUSTOMER_ID) REFERENCES customer(ID)` against `CREATE TABLE Customer (Id ...)` is valid. The PRAGMA returns `CUSTOMER_ID` / `customer` / `ID` as typed, while the catalog stores the declared names `customer_id` / `Customer` / `Id`.
+
+`catalog/store/schemas.py:add_fks()` looks up both ends by exact `(schema, table, column)` and silently `continue`s if either is missing. Both kinds of key are therefore dropped from the catalog without a warning. No relationship gets stored, so join paths and the ontology lose that edge.
+
+### Reproduce
+
+```python
+import sqlite3, tempfile, os
+from auto_ontology.connectors.sqlite import SQLiteDatabase
+
+path = os.path.join(tempfile.mkdtemp(), "shop.sqlite")
+c = sqlite3.connect(path)
+c.executescript("""
+CREATE TABLE customer (customer_key INTEGER PRIMARY KEY);
+CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER REFERENCES customer);
+""")
+c.close()
+print(SQLiteDatabase(f"sqlite:///{path}").get_fks()[["column_name", "referenced_table", "referenced_column"]])
+#   column_name referenced_table referenced_column
+# 0 customer_id         customer              None     <- add_fks skips this row
+```
+
+Composite keys (`FOREIGN KEY (a, b) REFERENCES parent`) are affected the same way: every row gets `None`.
+
+### Expected
+
+`get_fks()` returns the parent's primary-key column(s), paired with the child columns in key order using the PRAGMA's `seq`, and uses the declared case for every table and column name. Explicit, correctly cased references are unchanged.
+
+
+[issue #459 open by negativeskew (NONE) created 2026-11-07T17:55:39Z] Semantic-key overlap check stops when the column types are different, and a key with no shared values stays
+## Summary
+
+The function `prune_disjoint_semantic_fks` in `auto_ontology/semantic/semantic_fk.py` finds
+semantic keys with no shared values. It uses this condition: `{sc} IN (SELECT {tc} FROM {target})`.
+
+If the source column and the target column have different types, DuckDB does not do the
+comparison. It raises a `BinderException`. The `except` branch writes
+`semantic FK overlap check skipped` to the log at INFO level, and the key stays.
+
+After that, `select_semantic_fk_join_defaults` enables one key in each group of source table and
+target attribute. Thus a key that cannot join can become a join path again on each scheduled pass.
+
+## Environment
+
+- auto-ontology `2a24f5d`, Docker Compose, DuckDB connector.
+- `duckdb` 1.5.5 in the backend image.
+
+## Steps to reproduce
+
+```python
+import duckdb
+c = duckdb.connect()
+c.sql("CREATE TABLE repositories(wave_count INTEGER); INSERT INTO repositories VALUES (201), (44)")
+c.sql("CREATE TABLE waves(wave_id VARCHAR); INSERT INTO waves VALUES ('astrolabe/agent_work/waves/W083-x')")
+c.sql("SELECT COUNT(*) FROM (SELECT wave_count FROM repositories "
+      "WHERE wave_count IN (SELECT wave_id FROM waves) LIMIT 1)")
+```
+
+Result:
+
+```
+BinderException: Binder Error: Cannot compare values of type INTEGER and VARCHAR in IN/ANY/ALL
+clause - an explicit cast is required
+```
+
+## What we saw in our deployment
+
+The compile made three keys from `INTEGER` columns to a `VARCHAR` column:
+
+- `repositories.wave_count -> waves.wave_id`
+- `repositories.protocol_era_from_wave -> waves.wave_id`
+- `repositories.legacy_before_wave -> waves.wave_id`
+
+These columns share no values. We disabled the three keys. Then the ingestion service restarted,
+and the scheduled pass enabled `repositories.protocol_era_from_wave -> waves.wave_id` again.
+
+## Expected result
+
+The pass removes a key with no shared values, for all column types. If the check cannot run, the
+log shows a WARNING, and the pass does not enable the key again.
+
+## Possible fix
+
+Use the native comparison first. If it fails, compare the values as text. Do not always cast to
+text, because then values such as `1` and `1.0` do not compare as equal.
+
+```python
+text_sql = (
+    f"SELECT COUNT(*) AS n FROM (SELECT {sc} FROM {source} "
+    f"WHERE {sc} IS NOT NULL LIMIT 1) AS present "
+    f"UNION ALL SELECT COUNT(*) FROM (SELECT {sc} FROM {source} "
+    f"WHERE CAST({sc} AS VARCHAR) IN (SELECT CAST({tc} AS VARCHAR) FROM {target}) "
+    f"LIMIT 1) AS shared"
+)
+try:
+    try:
+        result = connector.execute(sql)
+    except Exception:
+        result = connector.execute(text_sql)
+    present, shared = (int(v) for v in result.iloc[:, 0])
+except Exception:
+    ...  # existing skip and log
+```
+
+We use this change as a local patch. On the next scheduled pass, the service wrote
+`semantic FK removed, no shared values` to the log for the three keys.
+
+`CAST(... AS VARCHAR)` is correct for DuckDB and PostgreSQL. Other connectors can need a different
+text type.
+
+
+[issue #460 open by subhrabeh (NONE) created 2026-11-07T20:13:00Z] [Integration]: AWS Redshift
+### Organization
+
+Country Road Group
+
+### Integration type
+
+Data platform or storage provider
+
+### Use case
+
+We have our organisational data platform on AWS Redshift and trying to see our options to build the organisational ontology on top of it.
+Please le me know if this is something that already is possible , if not is there a plan to do it.
+
+### Integration surface
+
+_No response_
+
+### Contact
+
+_No response_
+
+[issue #461 open by negativeskew (NONE) created 2026-11-08T01:19:04Z] `check_answerable` declines answerable questions that name a value
+### Summary
+
+`check_answerable` gives a low coverage grade to a question that names a value in the data, for example a repository name. The grade does not compare the named value with the rows. Thus the check can decline a question that the data can answer.
+
+### Version
+
+- auto-ontology at `2a24f5d`.
+- DuckDB connector, one database.
+- Chat models: `nvidia/nemotron-3.5-lightning-30b-a3b` and `nvidia/nemotron-3-ultra-550b-a55b`, with thinking off.
+- Coverage bar: 0.6.
+
+### What we see
+
+Our catalog has a `repo_name` column. The column holds the names of 25 repositories. Each of these questions names one repository, and the data can answer each question:
+
+| Question | Coverage | Result |
+| --- | --- | --- |
+| Which harness version does chorecraft run? | 0.5 | Declined |
+| How many commits does infoFlows have? | 0.5 | Declined |
+| How many tasks does the plan of astrolabe wave W118 list? | 0.5 | Declined |
+| How many waves does gemini_extender have? | 1.0 | Passed |
+| What was the final review verdict of merlin_alchemized wave W060? | 1.0 | Passed |
+
+The full chat pipeline gives the correct answer to all five questions.
+
+For "Which harness version does astrolabe run?", the extraction step gives two phrases: `astrolabe` and `harness version`. The grade is 1 of 2. When we change the question to "the astrolabe repository", the extraction step gives `astrolabe repository`, and the grade is 1.0.
+
+We ran each question set three times on three configurations. The result is not stable. Sometimes the model does not extract the name, and then the question passes.
+
+### Cause
+
+1. The extraction prompt tells the model to keep "named constants" as phrases (`auto_ontology/retrieval/entity_coverage/prompts.py:122-123`). A repository name is a named constant, so the model keeps it as a phrase.
+2. Each phrase is compared with the column-attribute embeddings. A phrase is covered when its distance is 0.75 or less (`DEFAULT_MAX_DISTANCE` in `state.py:17`).
+3. The embedding text of an attribute contains its name, its term, its description and some sample values (`auto_ontology/semantic/embed.py:238-250`). A bare value is not near this full text. In our runs, no repository name came within 0.75.
+4. The grade does not look up a named value in the rows.
+
+### What we tried
+
+We added a glossary entry for each repository, for example "the astrolabe repository (repo_name = 'astrolabe')". The extraction prompt uses the glossary. This did not correct the grades on either model. We did not try other glossary texts.
+
+### Possible fix
+
+We did not test these changes:
+
+- Do not grade phrases that are values. Grade only the phrases that name a concept.
+- Before a value phrase counts as not covered, look up the value in the columns of the candidate attributes.
+
+[issue #462 open by negativeskew (NONE) created 2026-11-08T06:27:01Z] The SQL validator cannot report that the data does not hold the answer
+### Summary
+
+Some questions ask for data that the database does not hold. The SQL validator can find this. But the validator has no result for "the data does not hold the answer". It can only report an issue, and an issue starts a new SQL attempt. The pipeline repeats until it reaches the attempt limit. Then the answer is a fixed text, and the validator's reason is not in the answer.
+
+### Version
+
+- auto-ontology at `2a24f5d`.
+- DuckDB connector, one database.
+- Chat model: `nvidia/nemotron-3-ultra-550b-a55b`, with thinking off.
+
+### What we see
+
+The question is "How many GitHub stars does astrolabe have?". The database has no column for stars.
+
+1. The SQL step writes a query.
+2. `validate_sql_query` rejects the query, because it does not return a star count.
+3. The SQL step rewrites the query 7 times. The validator rejects each query.
+4. The full pipeline starts again from the intent step, and steps 1 to 3 occur again.
+5. The answer is "SQL can't be constructed from the data." The answer also includes the last rejected query: `SELECT repo_name FROM fleet.main.repositories WHERE repo_name = 'astrolabe';`
+
+The validator gives 16 rejections. 13 of the rejections include reasoning text. The question takes 192.4 seconds.
+
+At the end of the first attempt, the validator gives the correct reason. This is the reason:
+
+> the required data (GitHub stars) doesn't appear to exist in the available schema based on the provided column metadata
+
+The answer does not include this reason.
+
+Two of the 16 rejections include this text:
+
+> The repositories table likely has a stars column based on the context of GitHub repositories
+
+The table has no such column.
+
+This also occurs with other questions. In a second run, the same question got a correct answer. But a different question ("What line coverage percentage does the astrolabe test suite reach?") reached the limit after 14 rewrites. The answer was the same fixed text.
+
+In the same run, two other questions ask for data that the database does not hold. For these questions, the validator accepted a similar query, and the answer told the user which data was missing.
+
+### Cause
+
+1. `IntentValidationModel` (`auto_ontology/retrieval/text_to_sql/agents/sql_parse_validation.py:91-139`) has `is_valid` and four lists of issues. It has no field for "the data does not hold the answer".
+2. The validator accepts the query when `is_valid` is true and the evidence and projection lists are empty (`sql_parse_validation.py:1090-1099`). If not, and a list of issues is not empty, the decision is `invalid_sql` (`sql_parse_validation.py:1101-1128`). This decision sends the question back to the SQL step.
+3. After 7 rewrites (`MAX_RECONSTRUCTION_ATTEMPTS`, `text_to_sql_graph.py:82`), the decision is `unconstructable`. The pipeline then starts again one time (`_MAX_FULL_PIPELINE_ATTEMPTS = 2`, `main.py:72`).
+4. The SQL construction steps can set `unconstructable_explanation`. But this path does not put the validator's reasoning in `unconstructable_explanation`. Thus `sql_unconstructable.py:62-67` gives the fixed text. After the second attempt, `main.py:304-339` adds the last rejected SQL to the answer.
+
+### Possible fix
+
+We did not test these changes:
+
+- Add a result to `IntentValidationModel` for "the data does not hold the answer". Send this result to `unconstructable_sql_response`, and put the validator's reasoning in `unconstructable_explanation`.
+- When the attempt limit stops the pipeline, put the last validator reasoning in `unconstructable_explanation`.
+- Do not return the last rejected SQL when the validator rejected it because the data does not hold the answer.
+

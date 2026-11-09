@@ -1,0 +1,33 @@
+[pull #346 by polazilber (COLLABORATOR) created 2026-10-07T10:40:38Z merged 2026-10-08T08:32:32Z] Tell text-to-SQL how to filter aggregates and divide them
+BIRD questions whose gold filters on an aggregate are answered at 41% (33/80 pooled over four runs) against a 76.7% baseline, and the prompt said nothing about them: HAVING appeared twice, both times as an alias scoping rule, and the Aggregation section only covered FILTER and CASE WHEN. The retrieved exemplars decide whether HAVING appears at all -- all 14 questions given a HAVING exemplar emitted one, all 6 without emitted none -- but they carry no accuracy (5/14 vs 2/6), because they transfer query shape and not the threshold, the grouping or the cast.
+
+Add two rules the exemplars cannot convey:
+
+- route a condition on an aggregated value to HAVING rather than WHERE, since a WHERE predicate tests single rows before grouping
+- cast to REAL before dividing, including inside HAVING and before scaling a ratio by 100
+
+Both follow BIRD's own conventions: gold casts to REAL in 57 of its 68 divisions, and the dataset paper's canonical Numeric Computation example is CAST(SUM(...) AS REAL) * 100 / COUNT(...).
+
+Measured with two 1534-question runs per arm, since one run cannot resolve a change this size:
+
+  baseline  1165, 1177   mean 1171.0  76.34%
+  with rules 1181, 1172  mean 1176.5  76.69%
+
+The arm difference is +5.5 questions against within-arm spreads of 12 and 9, so there is no headline improvement to claim -- two runs of the same configuration differ by more than the two arms do.
+
+The rules separate on their own populations. The HAVING rule's 20 questions go 8 and 7 in baseline versus 9 and 9 with the rule, the only result here that repeated, and q1475 is wrong in both baseline runs and right in both rule runs with the HAVING added by the intended mechanism. The REAL-cast rule is a confirmed zero: its 68-question division population scores 45/68 in all four runs while adoption plainly rose (REAL casts 149/152 -> 163/160), so the cast was never the binding constraint there. It is kept because it is correct SQL that costs nothing, not because it earns anything. Of the flips that held across both repeats -- 8 won, 4 lost -- only q1475 involves either construct; no consistent loss added a HAVING or a REAL cast. Over-application stays mild: HAVING where gold has none 5 -> 6.
+
+A third rule spelling out thresholds ("more than N" is > N, "at least N" is >= N) was tried and removed: >= usage over the 11 at-least questions did not move (6 -> 6) and the question it was written for still failed.
+
+Also omitted a tie-handling rule. Gold uses the tie-safe HAVING <agg> = (SELECT MAX ...) in 2 questions and ORDER BY <agg> DESC LIMIT 1 in 66, of which 45 currently pass, so a global rule would risk 45 to win 2 -- and it would contradict the LIMIT inference rule already in this prompt. And omitted a GROUP BY granularity rule: grouping by the key instead of the display column scores higher, not lower (67.6% vs 61.1% pooled), so there is no convention to encode.
+
+The change lands in create_sql_user_prompt, which both generation paths use -- sql_from_semantic (construct_sql_from_candidates) and sql_from_tables.
+
+<!-- This is an auto-generated comment: release notes by coderabbit.ai -->
+
+## Summary by CodeRabbit
+
+* **Improvements**
+  * SQL-generated reports now handle specified categories, filters on aggregated results, and fractional calculations more consistently.
+
+<!-- end of auto-generated comment: release notes by coderabbit.ai -->
