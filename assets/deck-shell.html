@@ -199,15 +199,15 @@ ol.plot-marks b { font-family:var(--mono); }
 .bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
 .bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
 figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
-/* figure.diagram: 직접 그린 구조도(SVG). 색은 판과 같은 변수를 쓰므로 밝고 어두운 테마를 따라간다.
+/* figure.diagram: 직접 그린 구조도(SVG). 휴대폰 폭에서 밀지 않고 읽히게 viewBox 폭을 440 안팎으로 그리고, 큰 화면에서는 680px 까지만 키운다. 색은 판과 같은 변수를 쓰므로 밝고 어두운 테마를 따라간다.
    상자 .d-box(+ t-key 등 톤), 묶음 .d-group, 글 .d-label/.d-sub, 선 .d-line(.d-dash), 화살촉은 marker 로 */
 figure.diagram { margin:18px 0; }
-figure.diagram svg { display:block; width:100%; height:auto; max-width:960px; font-family:var(--sans); }
+figure.diagram svg { display:block; width:100%; height:auto; max-width:680px; font-family:var(--sans); }
 figure.diagram figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
 .d-box { fill:var(--n-bg); stroke:var(--n-bd); stroke-width:1.2; }
 .d-group { fill:var(--q-bg); stroke:var(--q-bd); stroke-width:1; stroke-dasharray:4 3; }
-.d-label { fill:var(--n-ink, var(--ink)); font-size:14px; font-weight:600; }
-.d-sub { fill:var(--muted); font-size:12px; }
+.d-label { fill:var(--n-ink, var(--ink)); font-size:15px; font-weight:600; }
+.d-sub { fill:var(--muted); font-size:13px; }
 .d-line { stroke:var(--wire); stroke-width:1.4; fill:none; }
 .d-dash { stroke-dasharray:5 4; }
 .d-fill-wire { fill:var(--wire); }

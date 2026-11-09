@@ -122,6 +122,21 @@ if (/<html\b[^>]*\sdata-format=["']board["']/i.test(readFileSync(file, 'utf8')))
     })`);
     const overflowX = await evalJSON(`return document.documentElement.scrollWidth > document.documentElement.clientWidth`);
     if (overflowX) warnings.push('페이지가 가로로 넘친다');
+    // 그림은 휴대폰에서 밀지 않고 읽혀야 한다(2026-11-09, 소유자는 휴대폰으로 읽는다). 표는 옆으로 밀어도 되지만 그림은 안 된다.
+    if (w <= 600) {
+      const figs = await evalJSON(`return [...document.querySelectorAll('section.slide')].flatMap((sec, i) => [...sec.querySelectorAll('svg[role="img"]')].map((svg) => {
+        let scroll = false;
+        for (let e = svg.parentElement; e && e !== sec; e = e.parentElement) if (e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflowX !== 'visible') scroll = true;
+        const vb = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width, rw = svg.getBoundingClientRect().width;
+        const sizes = [...svg.querySelectorAll('text')].map((t) => parseFloat(getComputedStyle(t).fontSize)).filter((x) => x > 0);
+        const px = vb && rw && sizes.length ? Math.min(...sizes) * rw / vb : null;
+        return { n: i + 1, scroll, px };
+      }))`);
+      for (const f of figs) {
+        if (f.scroll) warnings.push(`${f.n}장 그림을 옆으로 밀어야 보인다. 좁은 폭에서도 한 화면에 들어오게 다시 그린다(칸을 줄이거나 세로로 쌓는다)`);
+        else if (f.px !== null && f.px < 10) warnings.push(`${f.n}장 그림의 글씨가 ${w}px 폭에서 ${f.px.toFixed(1)}px 로 작다. 칸을 줄이거나 세로로 쌓아 viewBox 폭을 줄인다`);
+      }
+    }
     const prefix = `w${w}${theme === 'dark' ? '-dark' : ''}`;
     const run = { width: w, theme, warnings, overflowX, chapters: [] };
     for (const c of chapters) {
