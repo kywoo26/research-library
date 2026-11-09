@@ -35,9 +35,10 @@ it is drawn, check that everything the sentence says is in the picture.
 ## SVG and boards
 
 Draw a structure map as inline SVG inside `figure.diagram`. Use the shell's classes so it
-follows light and dark themes; the `structure-svg` specimen shows them. Keep text at 12px or
-more, put long explanations in the caption, and check the 390px render, where a wide picture
-shrinks. A board (`.board`) lays out cards in named cells and the shell draws the arrows. Use
+follows light and dark themes; the `structure-svg` specimen shows them. The owner often reads
+on a phone, so a picture has to read at 390px without sideways scrolling: keep it to two or
+three columns, or stack the parts vertically, and keep labels short with the explanation in
+the caption. `render.mjs` fails a picture that scrolls or whose text shrinks below 10px. A board (`.board`) lays out cards in named cells and the shell draws the arrows. Use
 it for steps, rulers and layers; the specimens show the cells and tones.
 
 ## The source's own figures
