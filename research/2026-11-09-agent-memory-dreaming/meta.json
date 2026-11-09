@@ -1,0 +1,9 @@
+{
+  "title": "dreaming 으로 기억을 고치는 Claude 의 agent memory 설계",
+  "date": "2026-11-09",
+  "seq": 47,
+  "summary": "Anthropic 「The components of agent memory」를 읽고, agent memory 의 네 층과 dreaming 이 기억을 고치고 엮는 방식, 그리고 실험 결과가 기대는 조건을 분석한다",
+  "category": "note",
+  "format": "article",
+  "purpose": "report"
+}
