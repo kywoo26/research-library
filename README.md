@@ -12,6 +12,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-11-08 | [NVIDIA Auto Ontology 가 에이전트용 의미층을 만드는 방식과 enterprise 실증](https://kywoo26.github.io/research-library/research/2026-11-08-auto-ontology-enterprise-graph/) | 오픈소스 분석 |
 | 2026-11-04 | [Anthropic Claude Code 팀의 코드 리뷰 역할과 책임](https://kywoo26.github.io/research-library/research/2026-11-04-anthropic-code-review-roles/) | 메모 |
 | 2026-11-04 | [Context as Infrastructure가 검색 뒤의 읽기 비용을 줄이는 방법](https://kywoo26.github.io/research-library/research/2026-11-04-context-as-infrastructure/) | 논문 분석 |
 | 2026-11-04 | [OpenCodeReview의 파일 선택과 리뷰 후보 처리](https://kywoo26.github.io/research-library/research/2026-11-04-opencodereview/) | 오픈소스 분석 |
