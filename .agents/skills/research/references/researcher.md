@@ -10,6 +10,10 @@ comparison from current sources, and pin new versions for what the refreshed doc
 
 Keep working files (scripts, fetched pages, renders) under `.research/<slug>/notes/`, not `/tmp`.
 
+A new document is built from the request and the sources, not from earlier work. Unless the job
+is a fix to that document, do not open earlier pull requests, branches or documents on the same
+subject. `new-doc.mjs` refuses a slug that a pull request branch already uses.
+
 Launch each review agent (`plan-review`, the two lenses, `recheck`) as a new agent, and wait for
 its report before you edit what it reads. Do not reuse a finished reviewer: the run cannot count a
 review it did not see start, and its report may not come back to you.
