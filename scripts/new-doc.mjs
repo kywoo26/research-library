@@ -16,6 +16,7 @@
 // 모으면 복붙 과정에서 생기는 사고가 없어진다. LLM-Wiki 문서에 덱 스크립트가
 // 두 번 들어간 채 커밋 5개를 지나온 적이 있다.
 
+import { spawnSync } from 'node:child_process';
 import { readFile, writeFile, mkdir, rename as fsRename, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -282,6 +283,13 @@ async function create(slug, corpus, purpose, opts) {
   const workDir = join(ROOT, '.research', slug);
   if (existsSync(docDir)) {
     console.error(`이미 있다: research/${slug}`);
+    process.exit(2);
+  }
+  // 닫히거나 열린 PR 의 브랜치가 이 slug 를 이미 썼으면 막는다. 다시 돌리는 리서치에 "이 slug 는 쓰였다"고 알려 주면
+  // 연구자가 그 PR 을 찾아 읽었다(2026-11-09, 재실행이 닫힌 PR #53 의 본문을 읽었다). 겹침은 여기서 스크립트가 잡는다.
+  const taken = spawnSync('git', ['ls-remote', '--heads', 'origin', `doc/${slug}`, `doc/${slug}-fix-*`], { cwd: ROOT, encoding: 'utf8' });
+  if (taken.status === 0 && taken.stdout.trim()) {
+    console.error(`slug ${slug} 는 이미 PR 브랜치가 쓰고 있다. 다른 slug 를 고른다(그 PR 은 열지 않는다)`);
     process.exit(2);
   }
 

@@ -12,7 +12,8 @@ Do not ask the owner anything first, and add no ask of your own for more than it
 When the job reruns or fixes an existing document, give the researcher the slug, the original
 request (from that document's `run.json` or the conversation where the owner made it), and what
 the owner has changed since. Do not paraphrase the subject from a pull request summary: it carries
-the last author's narrowing.
+the last author's narrowing. A new document on a subject researched before is a fresh run: do
+not mention the earlier pull requests or their slugs. `new-doc.mjs` refuses a taken slug by itself.
 
 When a `researcher` agent type is available, launch that type in its own worktree without
 an instance name, and do not wait for it.
