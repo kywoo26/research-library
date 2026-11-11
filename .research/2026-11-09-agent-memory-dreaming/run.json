@@ -1,0 +1,186 @@
+{
+ "harness": "claude",
+ "request": "https://www.threads.com/share/BAS9KvS359\n\n여기 스레드 연속된 내용을 따라 작성된 글이 흥미로운데 원천은 클로드 블로그 글이야.\n\n따로 스레드를 ref로 달거나 그 흐름으로 작성할 필요는 없지만 그 관점을 참고하며 원글을 충분히 읽고 분석해서 리서치 리포트로 만들어줘.\n\n마찬가지로 이해하기쉽고 흥미로우며 매끄러운 흐름을 구성해줘.\n참고된 그림과 필요하다면 도식화, 다이어르램 등을 같이 첨부하는것 잊지말고.",
+ "asks": [
+  {
+   "id": "a1",
+   "text": "원글(Anthropic 「The components of agent memory」)이 agent memory 를 어떤 층으로 나누고, 각 층에 무엇을 누가 언제 쓰는지 — 스레드가 짚은 '사람이 자는 동안 기억을 정리하는' 관점과 이어서",
+   "chapters": [
+    "두 번의 기록",
+    "네 층",
+    "예측으로서의 기억",
+    "무엇을 적나",
+    "위로 올리기"
+   ]
+  },
+  {
+   "id": "a2",
+   "text": "dreaming 이 무엇이며 기억을 어떻게 고치고, 새로 만들고, 위로 올리고, 목표에 맞추고, 빈틈을 메우는지 — 원글의 실험(CL-Bench, Pokémon, Stainless 문서, Harvey LAB)이 각각 무엇을 보여 주는지",
+   "chapters": [
+    "예측으로서의 기억",
+    "틀린 노트 고치기",
+    "wiki 만들기",
+    "위로 올리기",
+    "목표와 빈틈",
+    "dreaming 을 쓰려면"
+   ]
+  },
+  {
+   "id": "a3",
+   "text": "원글을 충분히 읽은 분석: 수치가 어떤 조건에서 나온 것인지, 언제 기억과 wiki 가 도움이 되고 언제 안 되는지, 남는 열린 질문과 실무에서 무엇을 적고 버리고 다시 확인할지",
+   "chapters": [
+    "지시의 수준",
+    "wiki 만들기",
+    "wiki 가 통하는 질문",
+    "dreaming 을 쓰려면",
+    "적고 버리고 다시 확인하기",
+    "한계"
+   ]
+  }
+ ],
+ "decided": [
+  {
+   "what": "대상",
+   "choice": "Anthropic 「The components of agent memory」(2026-11-06, Lance Martin)",
+   "reason": "소유자가 준 Threads 링크(@choi.openai 게시물)의 마지막 글이 이 글을 블로그로 링크한다. 소유자가 '클로드 블로그 글'이라 부른 원천이다"
+  },
+  {
+   "what": "스레드의 쓰임",
+   "choice": "출처로 달지 않고 관점만 빌렸다. 사람의 수면 비유로 시작하고, '무엇을 버리고 언제 다시 확인하느냐'로 끝을 맺으며, 표지 요지의 마지막 문장에도 이 관점을 해석으로 표시해 넣었다",
+   "reason": "소유자가 스레드를 ref 로 달거나 그 흐름을 따를 필요는 없지만 관점은 참고하라고 했다. 독자 lens 가 첫 화면에 관점이 없다고 지적했다. 스레드가 덧붙인 OpenAI, Cognition 의 같은 이름 기능 이야기는 확인하지 않았고 쓰지 않았다"
+  },
+  {
+   "what": "slug",
+   "choice": "2026-11-09-agent-memory-dreaming",
+   "reason": "닫힌 PR #53 이 쓴 2026-11-07-components-of-agent-memory 와 다른 이름을 쓰라는 조건"
+  },
+  {
+   "what": "보조 출처",
+   "choice": "Managed Agents Dreams 문서, Claude Code memory 문서, Karpathy LLM Wiki gist, CL-Bench 1.0 발표(Wayback 사본), sleep-time compute 논문 v1(초록, 서론, §5.3)",
+   "reason": "원글이 직접 링크한 것 중 분석에 필요한 것만 열었다. dreaming 을 실제로 쓸 수 있는 곳, Claude Code 에서 같은 층이 어떻게 생겼는지, wiki 발상의 출처, 벤치마크의 성격, dreaming 의 뿌리를 확인하려고"
+  },
+  {
+   "what": "그림",
+   "choice": "원글 그림 11개(Figure 1, 3, 4, 5, 7, 8, 10, 11, 12, 14, 15)를 webp 로 내장하고, Figure 2, 6, 9, 13 은 Figure 1 의 강조 변형이라 싣지 않았다",
+   "reason": "소유자가 참고된 그림을 함께 실으라고 했다. 파일은 684KB 로 1MB 한도 안이다"
+  },
+  {
+   "what": "도식",
+   "choice": "사람과 agent 의 두 번의 기록 판, learning loop 판, Mt Moon 두 갈래 판, MEMORY.md 색인 구조도, 층 비교 표, dreaming 두 종류 비교 표, 할 일 표",
+   "reason": "소유자가 필요하면 도식과 다이어그램을 넣으라고 했다"
+  },
+  {
+   "what": "plan-review 반영",
+   "choice": "메시지가 두 종류의 dreaming(자기 기록 되짚기, 문서 엮기)을 모두 품게 고치고 그 구분을 8장 첫머리로 옮겼다. '여러 문서를 엮는 질문에서만' 의 '만' 을 뺐다. Claude Code 에 dreaming 단계가 없고 transcript 를 지운다는 사실을 12장과 13장에 넣었다. Figure 3 과 Figure 5 를 겹친 '남은 이득' 계산을 뺐다",
+   "reason": "plan-review 가 메시지가 원글보다 넓게 말하고 소유자에게 직접 쓸모 있는 사실이 빠졌다고 지적했다"
+  },
+  {
+   "what": "수치 lens 반영",
+   "choice": "4장 실행 횟수 문장을 고치고(Figure 5 는 Opus 5 16회, Opus 4.7 3회를 적는다), '3번 이상 연달아', '약 23분의 1(나눈 값)', sleep-time compute 의 '맥락당 질문 10개일 때 최대 2.5배', 16문항이 Figure 11 에서 센 수라는 것, cookbook 이름을 고정 사본에 맞췄다",
+   "reason": "lens-numbers 가 틀림 1건과 단서가 빠진 곳 4건을 냈다"
+  },
+  {
+   "what": "독자 lens 반영",
+   "choice": "표지 요지에 관점 문장을 넣고, 11장 제목을 두 가지 변경을 모두 말하게 고치고, 13장 계약 행의 원인을 덮어쓰기로 맞추고, 3장 표의 셋째 열을 '약한 곳' 으로 다시 쓰고, 13장 표에 Anthropic 권고와 제안을 칸 안에 표시하고, 2장 판의 짝을 맞추고, 10장 구조도의 겹침을 없앴다",
+   "reason": "lens-reader 의 '고쳐야' 4건과 '판단' 5건"
+  },
+  {
+   "what": "독자 lens 거절",
+   "choice": "10장 구조도가 dreaming 대신 Claude Code 의 구조를 그린 것은 그대로 두었다",
+   "reason": "본문이 Claude Code 에서는 세션 안의 Claude 가 이 층을 관리한다고 바로 밝히고, 캡션도 원글에 없는 구조도라고 적는다. recheck 가 타당하다고 확인했다"
+  },
+  {
+   "what": "recheck 반영",
+   "choice": "표지의 '없었다' 를 '뚜렷한 이득이 없었다' 로, 13장의 세 질문 묶음을 해석으로 표시, 13장 마지막 행을 '고르는 것을 고려한다' 로, 첫 행의 '뿐' 을 자기 경험 되짚기로 한정했다",
+   "reason": "첫 recheck 가 원문보다 단정한 곳 넷을 냈다. 두 번째 recheck 가 막는 것이 없다고 확인했다"
+  }
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "Dreams API 는 research preview 라 호출하지 않았다. dream 의 입력 한도, 실행 시간, 비용 비례, instructions 의 효과는 Claude Platform 문서의 서술이다",
+  "Claude Code 의 transcript 삭제와 MEMORY.md 한도 알림은 Claude Code 문서의 서술이고, 실제로 돌려 관찰하지 않았다",
+  "Mt Moon 에서 dreaming 이 transcript 의 어느 기록을 근거로 삼았는지, Figure 8 의 몇 번째 행동 시점에 돌렸는지는 원글에 없다",
+  "Opus 5.5, Sonnet 5.5, Sonnet 5 의 CL-Bench 실행 횟수는 원글에 없다",
+  "Stainless wiki 의 실제 dreaming 토큰 사용량은 원글에 없다. 약 6,400개 질문이라는 손익 가늠은 예산(세션당 1M) 기준 상한이다",
+  "Figure 11 의 16문항은 그림의 분류 표기를 센 값이고, 그 분류는 원글이 밝히듯 모델이 붙였다",
+  "합병 과제의 wiki 조건에 search 도 있었는지는 원글에 없다",
+  "원글이 링크한 신경과학 논문, Google SLEEP 글, Managed Agents memory 문서, Harvey LAB 저장소, dreaming 과 knowledge wiki cookbook 은 열지 않았다",
+  "CL-Bench 1.0 발표는 원 주소가 404 라 Wayback 2026-10-06 사본으로 읽었다",
+  "스레드가 말한 OpenAI ChatGPT, Cognition Devin 의 같은 이름 기능은 확인하지 않았고 문서에 쓰지 않았다"
+ ],
+ "unfixed": [],
+ "rendered": "수정 뒤 headless Chrome 으로 1280px 과 390px 에서 15장을 모두 찍었고 layout warning 과 가로 넘침은 0건이다. 저자가 표지(1280, 390), 2, 3, 4, 7, 10, 12, 13, 14장 화면을 직접 열어 보았다. 390px 에서 3장 표가 넘치던 것을 열 셋으로 줄여 고쳤고, 10장 구조도의 글이 잘리고 선과 겹치던 것을 고친 뒤 다시 찍었다",
+ "commitSubject": "Anthropic 의 agent memory 네 층과 dreaming 이 기억을 고치는 방식을 분석한다",
+ "commitBody": "Anthropic Engineering 의 Lance Martin 이 쓴 「The components of agent memory」(2026-11-06)를 읽고, agent memory 의 네 층(transcript, 노트, wiki 같은 표현, 매 세션 맥락)과 세션 사이에 기억을 고치고 엮는 dreaming 을 설명한다. CL-Bench, Pokémon Red, Stainless 문서 wiki, Harvey LAB 실험이 각각 무엇을 보여 주고 어떤 조건에 기대는지 정리하고, dreaming 을 자기 기록 되짚기와 문서 엮기로 나눠 읽었다.\n\n출처: 원글 본문과 그림 15개(2026-11-09 사본), Claude Platform 의 Dreams 문서, Claude Code memory 문서, Andrej Karpathy 의 LLM Wiki gist, CL-Bench 1.0 발표(Wayback 사본), Letta 와 UC Berkeley 의 sleep-time compute 논문(arXiv 2504.13171v1).",
+ "shippedAt": "2026-11-09T04:09:32.565Z",
+ "usage": {
+  "tokens": 25795195,
+  "usd": 11.44,
+  "roles": {
+   "researcher": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 282,
+    "cache_write": 347282,
+    "cache_read": 23864513,
+    "output": 162672,
+    "usd": 9.76
+   },
+   "lens-reader": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 12,
+    "cache_write": 53464,
+    "cache_read": 154353,
+    "output": 6808,
+    "usd": 0.43
+   },
+   "recheck": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 38,
+    "cache_write": 85801,
+    "cache_read": 563439,
+    "output": 16043,
+    "usd": 0.43
+   },
+   "lens-numbers": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 16,
+    "cache_write": 99335,
+    "cache_read": 281072,
+    "output": 15270,
+    "usd": 0.43
+   },
+   "plan-review": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 12,
+    "cache_write": 43403,
+    "cache_read": 94200,
+    "output": 7180,
+    "usd": 0.38
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-09-agent-memory-dreaming",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "6e39bdecf83555832b983070678c5ee632d50ee9160a26e4a69aeea4ee26a5d7",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "관찰된 전환 없음, 행위자 6개 모두 확인(agent 기록에 남은 응답 모델)"
+ }
+}

@@ -1,0 +1,114 @@
+Today we released Continual Learning Bench 1.0!
+
+Benchmarks today make a core assumption: models are stateless. Once they complete a task, they move on to the next as if the first never happened. Once they're trained, they don't learn.
+
+In practice, we hope that deployed systems interact with users, encounter new information, and operate in sequential, stateful environments that should lead to meaningful improvement. As AI systems become more capable, we need benchmarks that reflect this reality.
+
+**Continual Learning Bench evaluates whether systems can improve as a result of prior experience.**
+
+## What is Continual Learning Bench?
+
+In contrast to prior language modeling benchmarks, Continual Learning Bench expects (and requires!) the system to change during the course of the benchmark.
+
+Continual Learning Bench 1.0 is a benchmark of expert-validated task sequences across multiple real-world domains, where:
+
+- Tasks are **not independent**
+- Systems are allowed (and expected) to **change during evaluation**
+- Performance depends on **how the system uses what it has seen before** 
+
+We release Continual Learning Bench 1.0 with a set of difficult task sequences from various domains, such as software engineering, data science, strategic modeling, etc. Our tasks leave significant headroom in the design space for sophisticated continual learning methods to improve in the real continual learning settings we design. In fact, vanilla in-context learning systems are among the best we've looked at! 
+
+A full tech report with detailed analysis will be released in the coming weeks.
+
+<figure class="post-figure">
+<img src="/news/content/images/bsm_stateful_vs_stateless.png" alt="Blind Spectrum Monitoring comparison between stateful and stateless systems" />
+<figcaption>Blind Spectrum Monitoring illustrates the gap between stateful systems that adapt from prior instances and stateless baselines, as we see in the reward curves for GPT-5.4 simply based on continuously appended context.</figcaption>
+</figure>
+
+<figure class="post-figure">
+<img src="/news/content/images/leaderboard.png" alt="Continual Learning Bench leaderboard snapshot" />
+<figcaption>The leaderboard aggregates performance across tasks to compare systems on continual learning behavior.</figcaption>
+</figure>
+
+## Task Example: Codebase Adaptation
+
+A system operates within a shared codebase and is tasked with resolving a sequence of issues. Issues may touch related parts of the code, and as a result, a continually learning system builds an understanding of the codebase and can reuse knowledge to become more efficient at solving issues over time.
+
+Efficiency is measured by the number of bash interactions with the environment, with a maximum penalty applied for incorrect solutions. To view all our tasks in more detail, visit our [tasks page](/tasks/).
+
+<figure class="post-figure">
+<img src="/news/content/images/codebase_curves.png" alt="Codebase Adaptation learning curves across systems" />
+<figcaption>Codebase Adaptation tracks whether systems become more efficient as they solve related issues in the same repository. In contrast to the Blind Spectrum Monitoring task above, here the system does not meaningfully improve over its stateless baseline.</figcaption>
+</figure>
+
+## Designing Tasks
+
+To design effective tasks for a continual learning benchmark, we need to keep a few key heuristics in mind:
+
+1. For any system, **initial performance should leave headroom, both now and in the future.** To do this, we have to design tasks that test capabilities that are not the mean capability models optimize for, but that require adaptation online (e.g., to take the codebase adaptation example, coding in a specific repo rather than general software engineering).
+2. There should be a **mechanism that allows for learning** (e.g. experience of doing prior work or new observations / feedback).
+3. Tasks should have an **underlying latent structure** we want the model to learn (e.g. shared, learnable logic).
+4. Intuitively, something a human might also get better at over time.
+
+Importantly, this means we can’t just daisy-chain tasks in existing benchmarks — existing benchmarks are designed such that tasks are independent and offline training is possible, thus for almost any existing benchmark there exists data one could train on offline to improve on the tasks without requiring any online learning.
+
+For more details on task design, see our [contributing tasks docs](/docs/contributing-tasks/).
+
+## Analysis & Evaluation
+
+Each task defines a reward metric, and we evaluate systems over sequences of tasks, averaging over multiple rollouts to reduce noise.
+
+We track metrics such as cumulative reward, cost, and introduce a **gain** metric that leverages stateless versions of systems to answer the question of “how much did the system actually benefit/learn from prior tasks” vs. “how much was raw capability”? 
+
+As an example, a system that’s generically good at a task might look good on the cumulative reward metric; however, if it doesn’t have any learning mechanism, it would show no gain on our gain metric as its performance is the same as if it were stateless. In contrast, a weaker system may start with lower reward though experience an increase in reward over time as a result of conditioning on prior tasks, which would be reflected in the gain metric.
+
+To see more details on our metrics and aggregation methodology across tasks, visit our [metrics docs](/docs/metrics/). To view all results in more detail, visit our [leaderboard here](../../leaderboard.html).
+
+We’ll be releasing a more detailed technical report on our observations in the coming weeks!
+
+## Domain Experts
+
+To ground our notion of task learnability, we engage with various domain experts to both confirm the realism and learnability of tasks.
+
+We are additionally in the process of working with [Snorkel AI](https://snorkel.ai/) to study baseline human performance on some of our tasks where performance could be representative. While we can foresee truly continually learning systems surpassing human performance, we hypothesize that it can serve as a helpful calibration tool.
+
+## Contributing
+
+We’re actively expanding the benchmark and invite contributions from the community. View our [setup](/docs/installation/) and [quickstart](/docs/quickstart/) guides to get started. Join the discussion on [Discord](https://discord.gg/7bxjNdfbfH)!
+
+### Systems
+
+We are looking for the community to contribute more systems they’d like to see evaluated on this benchmark beyond the initial set of evals and trajectories we provide at release. To view information on adding new systems, see our [contributing systems docs](/docs/contributing-systems/). We are especially interested in adding parametric learning systems.
+
+### Tasks
+
+Propose new task domains and sequences of tasks! To view information on adding new tasks, see our [contributing tasks docs](/docs/contributing-tasks/). Task contributors above a certain threshold will be authors on future papers of the benchmark we plan to submit to a top-ML venue.
+
+## Future Roadmap
+
+Continual Learning Bench 1.0 is a starting point for a continually improving benchmark.
+
+The tasks we have aren't a comprehensive set of all continual learning tasks and will be added to over time.
+
+- Extend task sequences to longer horizons  
+- Add results from parametric continual learning methods to the benchmark  
+- Expand continual learning task coverage to more specific domains and verticals; share ideas in our [Discord](https://discord.gg/7bxjNdfbfH)  
+- Improve simulation for realistic task environments outside of easily verifiable domains
+- Release a lightweight version of the benchmark to simplify development (note: current tasks are intentionally not very short-horizon)  
+- Integrate terminal-based tasks into frameworks like [Harbor](https://www.harborframework.com/)
+- Adding cloud-solution support for docker containers for systems like Claude Code and Codex
+
+We'll be updating our live roadmap [here](/docs/roadmap).
+
+---
+
+Continual Learning Bench is a step toward evaluating systems that improve after deployment, not just before.
+We’re excited to see what the community builds.
+
+**Interested in partnering or supporting Continual Learning Bench?** Running frontier systems and developing tasks is resource-intensive—we welcome organizational collaborations and support! Please contact Parth Asawa at [pgasawa@berkeley.edu](mailto:pgasawa@berkeley.edu) to discuss how you can get involved.
+
+---
+
+*The Continual Learning Bench Team*
+
+UC Berkeley, UW-Madison, Snorkel AI
