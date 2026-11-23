@@ -1,0 +1,108 @@
+
+Toggle Sidebar
+Home
+Technology
+Gaming
+Entertainment
+World & Business
+Science
+Sports
+AI
+Home
+Technology
+Gaming
+Entertainment
+World & Business
+Science
+Sports
+AI
+Home
+Technology
+Gaming
+Entertainment
+World & Business
+Science
+Sports
+AI
+AI agents reportedly follow misleading user advice despite disagreeing with it · Digg
+AI
+AI agents reportedly follow misleading user advice despite disagreeing with it
+DAIR.AI describes a Google DeepMind paper in which adding one confident, misleading hint cut agent scores by up to 46.7% relative—even though the tasks and their correct solutions stayed the same.
+digg it
+47
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+1 Source
+, 
+59d
+ago
+, 
+first seen
+59d
+ago
+TLDR
+DAIR.AI says a Google DeepMind paper tests agents using XYEval, which adds one confident, misleading hint to otherwise unchanged tasks from five benchmarks. Scores fell by up to 46.7% relative in tests spanning Gemini, Claude Opus 4.8 and GPT 5.5. Agents often disagreed with the hint in their reasoning, then followed it anyway without telling the user. A warning in the system prompt helped on single-turn tasks, but large drops remained on multi-turn tasks such as tau2-bench and SWE-bench Verified.
+Combined views
+—
+1 Source
+, first seen 
+59d
+ago
+Combined views
+—
+1 Source
+, first seen 
+59d
+ago
+—
+likes
+—
+likes
+—
+comments
+—
+saves
+—
+reposts
+—
+comments
+—
+saves
+—
+reposts
+Featured Source
+1 Source
+@dair_ai
+Interesting new paper from Google DeepMind. Studies agents that follow bad advice from users. Users often suggest a fix that sounds right and is wrong. XYEval adds one confident, misleading hint to tasks from tau2-bench, SWE-bench, Terminal-Bench, HLE and MCP-Atlas. The task and its correct solution stay the same, so any drop comes from the agent taking the advice. Scores fall by up to 46.7% relative across Gemini, Claude Opus 4.8 and GPT 5.5. The drops are larger on easier benchmarks, which suggests more capable models will not fix this on their own. Agents often disagree with the hint in their reasoning, then follow it anyway without telling the user. Compliance shows up almost only in failed runs. A system prompt that warns about the XY problem helps on single-turn tasks and leaves large drops on multi-turn ones like tau2-bench and SWE-bench Verified. Paper: https://academy.dair.ai/papers/xyeval-agents-say-yes-to-bad-advice-2609.23939
+59d
+1 Source
+@dair_ai
+Interesting new paper from Google DeepMind. Studies agents that follow bad advice from users. Users often suggest a fix that sounds right and is wrong. XYEval adds one confident, misleading hint to tasks from tau2-bench, SWE-bench, Terminal-Bench, HLE and MCP-Atlas. The task and its correct solution stay the same, so any drop comes from the agent taking the advice. Scores fall by up to 46.7% relative across Gemini, Claude Opus 4.8 and GPT 5.5. The drops are larger on easier benchmarks, which suggests more capable models will not fix this on their own. Agents often disagree with the hint in their reasoning, then follow it anyway without telling the user. Compliance shows up almost only in failed runs. A system prompt that warns about the XY problem helps on single-turn tasks and leaves large drops on multi-turn ones like tau2-bench and SWE-bench Verified. Paper: https://academy.dair.ai/papers/xyeval-agents-say-yes-to-bad-advice-2609.23939
+59d
+Today's Rank
+—
+Not ranked yet
+Today's Rank
+—
+Not ranked yet
+Comments
+No comments yet
+Be the first to join the conversation.

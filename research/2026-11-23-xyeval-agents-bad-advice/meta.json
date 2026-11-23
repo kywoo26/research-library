@@ -1,0 +1,9 @@
+{
+  "title": "XYEval, 사용자의 틀린 조언 한 줄이 agent 점수를 얼마나 깎는지 재는 Google DeepMind 의 benchmark 변환",
+  "date": "2026-11-23",
+  "seq": 48,
+  "summary": "Google DeepMind 의 XYEval 논문과 공개 데이터를 읽고, 틀린 조언 한 줄이 다섯 모델의 점수를 얼마나 깎는지, 왜 그런지, 이 수치를 어디까지 믿을 수 있는지 분석한다",
+  "category": "paper",
+  "format": "article",
+  "purpose": "report"
+}
