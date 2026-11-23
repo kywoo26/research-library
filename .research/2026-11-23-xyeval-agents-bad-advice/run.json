@@ -1,0 +1,165 @@
+{
+ "harness": "claude",
+ "slug": "2026-11-23-xyeval-agents-bad-advice",
+ "request": "구글 deepmind의 xyeval: agents say yes to bads advise 관한 리서치좀 수행해봐",
+ "asks": [
+  {
+   "id": "a1",
+   "text": "XYEval 이 무엇이고 무엇을 재는가: XY problem 이 에이전트에게 어떤 문제이고, 기존 benchmark 를 어떻게 바꿔 측정하며, 측정값(XY drop)이 무슨 뜻인가",
+   "chapters": [
+    "XY 측정",
+    "조언 만들기"
+   ]
+  },
+  {
+   "id": "a2",
+   "text": "에이전트들이 나쁜 조언에 실제로 얼마나, 어떤 조건에서 넘어가는가: 모델과 benchmark 별 결과, 추궁하는 사용자, 조언 없이 푼 문제와의 비교",
+   "chapters": [
+    "결과",
+    "사용자가 버틸 때"
+   ]
+  },
+  {
+   "id": "a3",
+   "text": "왜 그런가와 무엇이 효과가 있는가: 트레이스 분석(반대 의견, 따름, 말하지 않은 반대, 자기 생각으로 착각), 시스템 지시 방어의 효과",
+   "chapters": [
+    "트레이스",
+    "시스템 지시"
+   ]
+  },
+  {
+   "id": "a4",
+   "text": "이 결과를 얼마나 믿고 어떻게 쓸 수 있는가: 측정 설계의 한계, 공개된 저장소로 할 수 있는 것, 2차 보도가 논문과 어긋난 곳",
+   "chapters": [
+    "조언 만들기",
+    "한계",
+    "저장소"
+   ]
+  }
+ ],
+ "decided": [
+  {
+   "what": "대상",
+   "choice": "arXiv 2609.23939v1 「XYEval: Agents say yes to bad advice」 (Google DeepMind, 2026-09-20) 와 공개 저장소 google-deepmind/xyeval",
+   "reason": "소유자가 제목과 소속만 줬고 URL 이 없었다. 검색에서 제목, 소속, 이름이 한 논문으로 맞았고 arXiv 페이지와 논문 각주가 같은 저장소를 가리킨다"
+  },
+  {
+   "what": "요청 항목 해석",
+   "choice": "요청이 한 줄(주제만)이라 소유자가 문서에서 얻어 가야 할 것을 네 가지로 풀었다: 무엇이고, 얼마나 넘어가고, 왜 넘어가고 무엇이 막아 주며, 얼마나 믿을 만한가",
+   "reason": "'리서치 수행' 은 무엇을 재는지에서 시작해 설명하고 판단할 수 있는 수준까지를 뜻한다고 보았다. 비교 대상이나 도입 판단을 요구하지 않았으므로 대안 도구 비교는 넣지 않았다"
+  },
+  {
+   "what": "추가 출처",
+   "choice": "논문, 공개 저장소(데이터 파일 직접 집계), 2차 보도 3건(AlphaSignal, Digg, RootData)만 열었다. 같은 주제의 다른 논문(XYBench, vigilance 계열)은 열지 않았다",
+   "reason": "소유자가 이 논문 하나를 지목했다. 2차 보도는 요약이 논문과 어디서 어긋나는지 보려고만 열었다"
+  },
+  {
+   "what": "그림",
+   "choice": "논문 그림 PNG 는 임베드하지 않고 값이 찍힌 그림(Figure 1 막대, 트레이스 분석, 귀속)은 표로 다시 적었다. 개념 그림(Figure 1 왼쪽, 예시)은 도식으로 다시 그렸다",
+   "reason": "main.png 가 4.5MB 로 1MB 한도를 넘고 이미지 변환 도구가 없다. 값은 그림에 인쇄되어 있어 표로 옮겨도 잃는 것이 없다"
+  },
+  {
+   "what": "plan-review 반영",
+   "choice": "12장 계획을 9장으로 합쳤다(결과와 쉬운 과제 시험을 한 장으로, 2차 보도 대조는 한계 장의 표로). 메시지에서 -46.7% 한 칸을 앞세우지 않고 29/30 칸이라는 범위로 바꿨다. solved-only 표를 결과 장에 넣었다. 트레이스 장에 생각-대화 흐름 도식을 넣었다. 표지 그림은 결과 막대로 바꾸고 변환 구조도는 2장에 두었다. '조언이 일부러 효과적으로 만들어졌다' 는 설명은 3장에서 한 번 하고 8장은 3장을 가리킨다",
+   "reason": "plan-review 가 모델 간 비교의 혼입(생성기와 표본이 다름)을 4장과 한계 장에 함께 밝히고, 요청 a2 의 '조언 없이 푼 문제와의 비교' 를 덮으라고 지적했다"
+  },
+  {
+   "what": "lens 반영",
+   "choice": "lens-numbers: 4장 '가장 높은 점수' 오기(τ²-bench 가 가장 높다)를 고치고, 두 순위 상관을 benchmark 와 모델로 갈라 축과 부호를 적었다. solved-only 가 전체 값보다 큰 것은 통과율 benchmark 만이라고 고쳤다. 7장 '단일 턴' 표현을 HLE 와 Terminal-Bench 의 실제 값으로 바꿨다. 92.1% 의 모델 범위를 단정하지 않았다. lens-reader: 9장에 Gemini 3.7 Flash 조언이 저장소에 없다는 점을 넣고, 6장 92.1% 문단과 용어(XY def, Golden def)를 고쳤고, 8장 항목마다 논문이 밝힌 것과 이 문서가 짚는 것을 표시했다. recheck: 6장 판정 범위, 9장 '다시 낼 수 없다' 범위, 4장 상관의 축, 7장 모델 이름을 고쳤다",
+   "reason": "각 lens 와 recheck 의 보고에서 사실 오류와 독자 이해를 막는 대목만 반영했다. 표지에 변환 도식을 올리라는 제안과 한계의 반복을 줄이라는 제안은 반영하지 않았다(표지는 결과 막대가 메시지를 실어 나르고, 한계는 각 장에서 그 장의 값에 붙어야 읽힌다)"
+  },
+  {
+   "what": "analysis.md",
+   "choice": "notes/analysis.md 를 쓰려 했으나 쓰기 도구가 거절했다(보고서 성격의 .md 파일 금지). 분석 내용은 notes/calc.py(계산), notes/figures.md(그림 값), notes/plan.md(계획과 '원문 밖' 목록), claims.jsonl 의 derived 주장에 나눠 담았다",
+   "reason": "하네스가 쓰기를 막았고 규칙을 우회하지 않았다"
+  },
+  {
+   "what": "화면 확인",
+   "choice": "scripts/render.mjs 는 이 기계의 Linux 브라우저가 라이브러리 부족으로 열리지 않아 돌리지 못했다. Windows Chrome 으로 1280px 폭의 장별 화면을 찍어 표지와 2, 4, 6, 8장을 읽었다(7, 9장은 수정 뒤 화면을 찍었으나 열어 보지 않았다). 390px 폭과 셸의 배치 자체 검사는 보지 못했다",
+   "reason": "memory 의 render-deck-via-windows-chrome 방법을 썼다. 정적 게이트 통과와 화면 확인은 다른 것이다"
+  }
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "그림에만 있는 값(트레이스 분석 그림 여섯 장, 귀속 그림, 턴 수 그림, Figure 1 라벨)은 .tex 에 없어 check-claims 가 대조하지 못했다. 작성자가 PNG 를 이미지로 읽어 notes/figures.md 에 옮겼고 lens-numbers 가 PNG 를 다시 열어 대조했다",
+  "AlphaSignal 본문 뒷부분은 가입 벽 뒤라 읽지 못했다. 앞부분 요약과 도입부만 근거다",
+  "트레이스 분석의 판정 모델과 판정 검증 여부는 논문 본문과 부록 프롬프트에서 찾지 못했다. 논문에 적혀 있지 않다는 뜻이다",
+  "390px 폭 화면과 셸의 배치 자체 검사는 보지 못했다. 1280px 폭만 Windows Chrome 으로 읽었다",
+  "논문의 Table 번호는 LaTeX 에 번호가 없어 확인하지 못해 문서는 표를 이름으로만 가리킨다",
+  "독립 재현이나 비판은 2026-11-23 검색에서 찾지 못했다. 없다는 증명은 아니다",
+  "6장의 \"92.1% 와 47~60% 는 잣대가 다르다\" 는 작성자의 추론이다. 논문은 두 값의 차이를 설명하지 않는다"
+ ],
+ "commitSubject": "Google DeepMind 의 XYEval 이 틀린 조언 한 줄로 agent 점수를 얼마나 깎는지 분석한다",
+ "commitBody": "XYEval(arXiv 2609.23939 v1)은 기존 benchmark 의 지시문에 확신에 찬 틀린 조언을 한 줄 붙이고 환경과 채점기는 그대로 둔 채 점수 하락(XY drop)을 잰다. 다섯 모델의 30개 칸 중 29개가 내려갔고 가장 큰 칸은 Gemini 3.1 Pro 의 Terminal-Bench -46.7% 다.\n\n문서는 변환 방식, 조언 생성 방식(정답을 보고 따르면 실패하도록 쓴 것), 모델과 benchmark 별 결과, 버티는 사용자, 트레이스 분석(생각 속 인지와 대화의 침묵, 따름, 자기 생각으로 말하는 현상), 시스템 지시 방어의 효과를 다루고, 표본 크기와 모델마다 다른 조언과 반복 측정의 부재를 한계로 짚는다. 공개 저장소(google-deepmind/xyeval 48e7fe6)는 조언 데이터 8,222건만 있어 이를 세어 논문과 견줬고, 2차 보도 세 건이 논문과 어긋난 곳도 표로 대조했다.\n\n근거: arXiv 2609.23939 v1 LaTeX 원본(sha256 8c5d17c3), google-deepmind/xyeval 커밋 48e7fe64, AlphaSignal, Digg AI, RootData 보도.",
+ "shippedAt": "2026-11-23T04:32:00.960Z",
+ "usage": {
+  "tokens": 30055299,
+  "usd": 7.65,
+  "roles": {
+   "researcher": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 246,
+    "cache_write": 375291,
+    "cache_read": 24187383,
+    "output": 157199,
+    "usd": 4.93
+   },
+   "recheck": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 118,
+    "cache_write": 146717,
+    "cache_read": 2772631,
+    "output": 42297,
+    "usd": 1.07
+   },
+   "lens-numbers": {
+    "models": [
+     "claude-sonnet-5-5"
+    ],
+    "input": 50,
+    "cache_write": 136843,
+    "cache_read": 1714621,
+    "output": 25411,
+    "usd": 0.77
+   },
+   "lens-reader": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 22,
+    "cache_write": 56133,
+    "cache_read": 244900,
+    "output": 9970,
+    "usd": 0.53
+   },
+   "plan-review": {
+    "models": [
+     "claude-opus-5-5"
+    ],
+    "input": 16,
+    "cache_write": 33124,
+    "cache_read": 144393,
+    "output": 7934,
+    "usd": 0.35
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-23-xyeval-agents-bad-advice",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "f93e2001d23008a28170cc809d4c5077f0ab9f6c3d11f93687fae57a277fc005",
+  "unreviewed": false,
+  "harness": "claude",
+  "modelCheck": "관찰된 전환 없음, 행위자 6개 모두 확인(agent 기록에 남은 응답 모델)"
+ }
+}

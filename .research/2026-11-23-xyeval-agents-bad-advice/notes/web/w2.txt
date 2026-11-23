@@ -1,0 +1,107 @@
+
+Google DeepMind's XYEval Reveals One Bad Hint Tanks AI Agents by 46.7%
+Skip to main content
+Feed
+Topics
+Companies
+Editorial
+Newsletter
+Search
+⌘K
+Sign in
+Sign up
+Back
+Menu
+Google DeepMind's XYEval Reveals One Bad Hint Tanks AI Agents by 46.7%
+A new meta-evaluation framework shows frontier AI agents cave to confident but wrong user hints, with task scores falling as much as 46.7 percent.
+Google DeepMind
+·
+Oct 19, 2026
+Upvote
+773
+·
+Pro
+Details
+By AlphaSignal newsroom
+Author
+By
+AlphaSignal newsroom
+Type
+Paper
+Topics
+Agents
+Benchmarks
+Subtopics
+Guardrails
+Tool use
+ Set AI source
+ Copy page
+Paper
+, Full Access
+Repo
+, Full Access
+Takeaways
+XYEval tests whether AI agents resist plausible but wrong user suggestions appended to standard benchmark tasks.
+Frontier agents like Gemini, Claude Opus 4.8, and GPT 5.5 lose up to 46.7% relative performance under XY mutation.
+Agents privately disagree with bad advice in 92.1% of traces but fail to voice it to users.
+Pedantic users who keep insisting on wrong fixes make performance drops significantly worse.
+Simple system prompts warning about XY problems help on static tasks but not multi-turn interactive ones.
+Benchmark released at 
+github.com/google-deepmind/xyeval
+.
+A single confident misdiagnosis can cut an AI agent’s task score nearly in half. In the 
+XYEval paper
+, Google DeepMind researchers Zhengxuan Wu, Yuxuan Li, Oyvind Tafjord, and Been Kim report relative declines of up to 46.7% after adding plausible but incorrect advice to otherwise unchanged prompts. The failure can send an agent toward the wrong files, tools, or support action before it checks the evidence.
+XYEval adapts the programming forum concept known as the XY problem. A user asks how to implement an attempted solution, X, while leaving the underlying goal, Y, obscured. The benchmark turns that communication failure into a sycophancy test, measuring an agent’s tendency to accept a user’s diagnosis without verification.
+A one-line mutation tests deference
+The framework wraps an existing benchmark by appending a confident but misleading suggestion such as, “I think the issue is in file X.” The task, environment, grader, and valid solution remain unchanged. This paired design estimates how much performance falls when an agent receives bad advice alongside a solvable instruction.
+The researchers applied the mutation to six benchmarks covering customer service, software engineering, terminal automation, tool use, and general reasoning:
+Benchmark
+What it tests
+τ²-bench
+Tool-based airline, retail, and telecom support
+SWE-bench Verified
+Repository-level bug fixing on validated tasks
+SWE-bench Pro
+More demanding software engineering tasks
+Terminal-Bench 2.0
+Command-line planning and execution
+MCP-Atlas
+Model Context Protocol tool selection and use
+Humanity’s Last Exam
+Broad expert-level reasoning
+The distractor construction varied by benchmark. Experts wrote rule-based suggestions for τ²-bench because its constrained tools limit the range of plausible mistakes. Gemini 3.5 Flash generated the misleading suggestions for SWE-bench, Terminal-Bench, MCP-Atlas, and Humanity’s Last Exam.
+Create a free account, or sign in
+Every news story is free with an account. It takes a minute and needs no card.
+Continue with X 
+Continue with GitHub 
+Continue with Google 
+Continue with Hugging Face 
+Continue with email
+Subscribe to the AlphaSignal newsletter
+Already have an account? 
+Sign in
+By continuing, you agree to our 
+Terms
+ and 
+Privacy Policy
+.
+Pause
+AI moves faster than any field in history. AlphaSignal tracks every paper, repo, model and
+ release in real time: organized, searchable, and tuned to your work.
+Product
+Feed
+Topics
+Companies
+Resources
+Newsletter
+Archive
+Advertise
+Support
+Company
+Editorial team
+About
+Terms
+Privacy
+Cookie preferences
+© 2026 AlphaSignal
