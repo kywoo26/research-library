@@ -12,6 +12,7 @@ kywoo26 이 정리한 리서치 문서 모음입니다. 논문 분석, 주제 �
 
 | 날짜 | 문서 | 분류 |
 |---|---|---|
+| 2026-11-23 | [XYEval, 사용자의 틀린 조언 한 줄이 agent 점수를 얼마나 깎는지 재는 Google DeepMind 의 benchmark 변환](https://kywoo26.github.io/research-library/research/2026-11-23-xyeval-agents-bad-advice/) | 논문 분석 |
 | 2026-11-09 | [dreaming 으로 기억을 고치는 Claude 의 agent memory 설계](https://kywoo26.github.io/research-library/research/2026-11-09-agent-memory-dreaming/) | 메모 |
 | 2026-11-08 | [NVIDIA Auto Ontology 가 에이전트용 의미층을 만드는 방식과 enterprise 실증](https://kywoo26.github.io/research-library/research/2026-11-08-auto-ontology-enterprise-graph/) | 오픈소스 분석 |
 | 2026-11-04 | [Anthropic Claude Code 팀의 코드 리뷰 역할과 책임](https://kywoo26.github.io/research-library/research/2026-11-04-anthropic-code-review-roles/) | 메모 |
