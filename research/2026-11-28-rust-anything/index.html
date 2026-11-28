@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="ko" data-format="board">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rust-anything의 Rust 이식 검사와 보장 범위</title>
+<meta name="description" content="코드로 추적한 bridge·record·gate·점진 전환, 예외 비교의 빈틈과 agent 대비 실증의 한계">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rust-anything의 Rust 이식 검사와 보장 범위">
+<meta property="og:description" content="코드로 추적한 bridge·record·gate·점진 전환, 예외 비교의 빈틈과 agent 대비 실증의 한계">
+<meta property="og:url" content="https://kywoo26.github.io/research-library/research/2026-11-28-rust-anything/">
+<meta name="twitter:card" content="summary">
+<style>
+/* ═══ board 셸 ═══════════════════════════════════════════════
+   장은 질문 하나에 답하는 설명과 필요한 시각 자료를 담는다. 작성자는 상자가 어느 줄(lane)
+   어느 칸(col)에 있는지만 쓰고, 좌표와 화살표와 차트는 아래 스크립트가 계산한다.
+   html 의 data-format="board" 가 이 셸이라는 표시다. 게이트와 도구가 이것으로 옛 셸과 가른다. */
+
+/* ── tokens. tone 의 뜻은 모든 문서에서 같다 ── */
+:root {
+  color-scheme: light;
+  --paper:#f6f6f3; --card:#ffffff; --ink:#1f2328; --ink-2:#424a53; --muted:#6e7781; --rule:#d8dee4; --wire:#6e7781;
+  --s1:#0969da; --s2:#cf4a22; --dim:#afb8c1;
+  --n-bg:#ffffff; --n-bd:#c9d1d9; --n-ink:#1f2328;   /* 기본: 대상 하나 */
+  --k-bg:#eef4ff; --k-bd:#0969da; --k-ink:#0550ae;   /* t-key: 판에서 장이 주장하는 상자 하나 (판마다 하나까지) */
+  --g-bg:#effbf2; --g-bd:#1a7f37; --g-ink:#116329;   /* t-good: 좋아진다, 권한다 */
+  --w-bg:#fff8c5; --w-bd:#9a6700; --w-ink:#7d4e00;   /* t-warn: 조건, 주의 */
+  --b-bg:#ffebe9; --b-bd:#cf222e; --b-ink:#a40e26;   /* t-bad: 실패, 나빠진다 */
+  --p-bg:#fff0f6; --p-bd:#bf3989; --p-ink:#99286e;   /* t-person: 사람이 하는 일 */
+  --q-bg:#f6f8fa; --q-bd:#afb8c1; --q-ink:#424a53;   /* t-quiet: 배경, 재지 않은 것 */
+  --r-bg:#f8f5ff; --r-bd:#8250df; --r-ink:#6639ba;   /* react: 원문 밖의 반응 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper:#0d1117; --card:#161b22; --ink:#e6edf3; --ink-2:#b1bac4; --muted:#8b949e; --rule:#30363d; --wire:#8b949e;
+    --s1:#4493f8; --s2:#f0883e; --dim:#545d68;
+    --n-bg:#161b22; --n-bd:#3d444d; --n-ink:#e6edf3;
+    --k-bg:#0c2240; --k-bd:#4493f8; --k-ink:#79b8ff;
+    --g-bg:#0f2a19; --g-bd:#3fb950; --g-ink:#7ee787;
+    --w-bg:#2a2110; --w-bd:#d29922; --w-ink:#e3b341;
+    --b-bg:#3a1418; --b-bd:#f85149; --b-ink:#ff8e86;
+    --p-bg:#33152a; --p-bd:#db61a2; --p-ink:#f2a3cf;
+    --q-bg:#1b2029; --q-bd:#545d68; --q-ink:#b1bac4;
+    --r-bg:#1f1733; --r-bd:#a371f7; --r-ink:#d2a8ff;
+  }
+}
+
+/* ── page ── */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+/* 한국어는 어절 안에서 끊으면 조사가 앞말과 떨어진다 */
+h1,h2,p,li,.card,.lane-label,.axis-h,figcaption,td,th { word-break:keep-all; overflow-wrap:break-word; }
+.topbar { --top:46px; position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:8px; height:var(--top); padding:0 20px; font-size:13px; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:saturate(1.4) blur(8px); -webkit-backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--rule); }
+.topbar > a:first-child { color:var(--s1); text-decoration:none; font-weight:700; padding:5px 8px; margin-left:-8px; border-radius:7px; }
+.topbar > a:first-child:hover { background:color-mix(in srgb, var(--s1) 10%, transparent); }
+.topbar .now { flex:1 1 auto; min-width:0; display:flex; align-items:baseline; gap:8px; color:var(--ink-2); white-space:nowrap; overflow:hidden; }
+.topbar .now-n { font:600 11.5px var(--mono); color:var(--s1); }
+.topbar .now-l { font-weight:700; color:var(--ink); }
+.topbar .now-h { min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--muted); }
+.topbar .now-h::before { content:"· "; }
+.topbar .now-h:empty { display:none; }
+main { max-width:1200px; margin:0 auto; padding:0 28px 120px; }
+section.slide { padding:52px 0 36px; border-top:1px solid var(--rule); scroll-margin-top:45px; }
+section.slide > h1[tabindex], section.slide > h2[tabindex] { outline:none; }
+section.slide[data-role="cover"] { border-top:0; padding-top:36px; }
+.chno { font:600 12px var(--mono); color:var(--muted); margin:0 0 8px; letter-spacing:.02em; }
+h1 { font-size:clamp(28px,3.6vw,42px); line-height:1.18; letter-spacing:-.02em; margin:0 0 14px; max-width:22em; text-wrap:balance; }
+h2 { font-size:clamp(22px,2.5vw,29px); line-height:1.28; letter-spacing:-.015em; margin:0 0 10px; max-width:30em; text-wrap:balance; }
+h3 { font-size:15px; margin:0 0 6px; }
+.answer { font-size:clamp(16px,1.5vw,18px); line-height:1.65; max-width:46em; margin:0 0 10px; }
+p.src { font-size:13px; color:var(--muted); max-width:62em; margin:0 0 26px; }
+.lead { font-size:15.5px; color:var(--ink-2); max-width:60em; margin:0 0 20px; }
+.explanation { max-width:46em; margin:18px 0; font-size:16px; line-height:1.85; }
+.explanation p { margin:0 0 1em; }
+.explanation p:last-child { margin-bottom:0; }
+.so { font-size:15px; max-width:60em; margin:16px 0 0; padding-left:12px; border-left:3px solid var(--g-bd); }
+.block-title { font-size:14px; font-weight:700; margin:26px 0 8px; color:var(--ink); }
+ul.notes { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:4px; font-size:13px; color:var(--muted); max-width:70em; }
+ul.notes li::before { content:"· "; }
+ul.points { list-style:none; margin:0; padding:0; display:grid; gap:10px; max-width:64em; }
+ul.points li { background:var(--card); border:1px solid var(--rule); border-radius:9px; padding:10px 14px; font-size:14.5px; }
+ul.points li > b:first-child { display:block; margin-bottom:2px; }
+ul.sources { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; }
+ul.sources a { color:var(--s1); overflow-wrap:anywhere; }
+ul.sources .t { color:var(--ink-2); }
+details.orig { margin:18px 0 0; font-size:13.5px; color:var(--ink-2); }
+details.orig summary { cursor:pointer; color:var(--muted); font-size:13px; font-weight:600; }
+details.orig p { margin:8px 0; max-width:70em; }
+span.q { color:var(--ink-2); }
+a.xref, .lead a, .so a, ul.notes a, ul.points a { color:var(--s1); text-underline-offset:2px; }
+code { font:12.5px var(--mono); background:var(--q-bg); padding:1px 4px; border-radius:4px; }
+pre { font:12px/1.62 var(--mono); background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; overflow-x:auto; margin:0 0 14px; color:var(--ink-2); }
+pre b { color:var(--ink); } pre code { background:none; padding:0; }
+pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--b-ink); }
+.good { color:var(--g-ink); font-weight:700; } .bad { color:var(--b-ink); font-weight:700; }
+.plate { background:#fff; border:1px solid var(--rule); border-radius:10px; padding:10px; }
+.plate img { display:block; width:100%; height:auto; }
+.tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--rule); border-radius:10px; margin:0 0 14px; }
+table { border-collapse:collapse; font-size:13px; width:100%; }
+td,th { padding:7px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--rule); line-height:1.5; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr:last-child td { border-bottom:0; }
+:focus-visible { outline:2px solid var(--s1); outline-offset:2px; border-radius:3px; }
+
+/* ── board ── */
+.board { position:relative; display:grid; column-gap:40px; row-gap:20px; align-items:stretch;
+  background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:22px 24px; margin:0; }
+.board.dense { column-gap:18px; }
+.board > .edge { position:absolute; z-index:3; font-size:11.5px; line-height:1.3; color:var(--ink-2); background:var(--card);
+  padding:1px 5px; border-radius:4px; white-space:nowrap; }
+.board > .edge:empty { display:none; }
+svg.wires { position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+svg.wires path { stroke:var(--wire); stroke-width:1.6; fill:none; }
+svg.wires path.head { fill:var(--wire); stroke:none; }
+svg.wires path.tether { stroke:var(--r-bd); stroke-dasharray:3 3; stroke-width:1.4; }
+.lane-label { font-size:13px; font-weight:700; color:var(--ink-2); align-self:center; }
+.lane-rule { align-self:start; height:0; border-top:1px dashed var(--rule); margin-top:-10px; }
+.axis-h { font:700 12.5px var(--mono); color:var(--ink-2); text-align:center; padding:0 0 6px; border-bottom:2px solid var(--rule); align-self:end; }
+.board[data-axis-arrow] .axis-h { border-bottom-color:transparent; }
+.axis-arrow { height:0; border-top:2px solid var(--muted); align-self:end; position:relative; margin-bottom:-1px; }
+.axis-arrow::after { content:""; position:absolute; right:-2px; top:-6px; border:5px solid transparent; border-left:8px solid var(--muted); }
+.axis-cap { font-size:11.5px; line-height:1.35; color:var(--muted); align-self:end; padding-bottom:4px; }
+
+/* ── card ── */
+.card { position:relative; z-index:1; display:block; background:var(--n-bg); border:1px solid var(--n-bd); border-radius:9px;
+  padding:11px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); text-decoration:none; }
+.card > b { display:block; font-size:14.5px; line-height:1.4; color:var(--n-ink); margin:0 0 3px; }
+.card p { margin:0 0 2px; }
+.card .ev { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:6px; }
+.card .big { display:block; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--n-ink); margin-top:2px; }
+.card .big small { font-size:14px; font-weight:600; color:var(--ink-2); }
+.card ul { margin:2px 0 0; padding-left:16px; } .card li { margin:1px 0; }
+.card a { color:var(--s1); }
+.chip { display:inline-block; font:600 11.5px/1.5 var(--mono); padding:0 6px; border-radius:5px; border:1px solid var(--n-bd); color:var(--ink-2); margin:0 4px 4px 0; background:var(--card); }
+.card .colchip, .card .to { display:none; }
+.card.slim { padding:7px 12px; }
+.card.slim > b { font-size:15px; margin:0; }
+.card.slim .ev { margin-top:0; }
+.t-key { --n-bg:var(--k-bg); --n-bd:var(--k-bd); --n-ink:var(--k-ink); }
+.t-good { --n-bg:var(--g-bg); --n-bd:var(--g-bd); --n-ink:var(--g-ink); }
+.t-warn { --n-bg:var(--w-bg); --n-bd:var(--w-bd); --n-ink:var(--w-ink); }
+.t-bad { --n-bg:var(--b-bg); --n-bd:var(--b-bd); --n-ink:var(--b-ink); }
+.t-person { --n-bg:var(--p-bg); --n-bd:var(--p-bd); --n-ink:var(--p-ink); }
+.t-quiet { --n-bg:var(--q-bg); --n-bd:var(--q-bd); --n-ink:var(--q-ink); }
+a.card[href]:hover { outline:2px solid var(--n-bd); outline-offset:1px; }
+a.inert { cursor:default; }
+/* 원문 밖의 반응. 바꾸는 주장(data-on) 바로 아래에 붙고 혼자 서지 않는다 */
+.card.react { --n-bg:var(--r-bg); --n-bd:var(--r-bd); --n-ink:var(--r-ink); border-style:dashed; border-width:1.5px; font-size:13px; }
+.card.react .who { display:block; font:600 11.5px/1.5 var(--mono); color:var(--r-ink); margin:0 0 4px; }
+.card.react .who::before { content:"외부 반응 · "; }
+.card.react .check { margin-top:6px; color:var(--ink-2); }
+.card.react .check::before { content:"원문 대조: "; font-weight:700; color:var(--ink); }
+.verdict { display:inline-block; font:700 11px/1.5 var(--mono); padding:0 6px; border-radius:5px; margin-right:4px; }
+.verdict.holds { background:var(--g-bg); color:var(--g-ink); border:1px solid var(--g-bd); }
+.verdict.contra { background:var(--b-bg); color:var(--b-ink); border:1px solid var(--b-bd); }
+.verdict.open { background:var(--q-bg); color:var(--q-ink); border:1px solid var(--q-bd); }
+
+/* ── split, panel, ladder ── */
+.split { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:18px; align-items:start; }
+.split.even { grid-template-columns:1fr 1fr; }
+.panel { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:18px 20px; }
+.panel > .block-title:first-child { margin-top:0; }
+.panel > .ev { font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+.ladder { display:grid; gap:16px; }
+.ladder > .card:not(:first-child)::before { content:""; position:absolute; left:22px; top:-16px; height:15px; border-left:1.6px solid var(--wire); }
+.meter { display:block; height:6px; border-radius:3px; background:var(--rule); margin:6px 0 2px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--n-bd); }
+
+/* ── plot: 표가 데이터이고 그림은 셸이 그린다 ── */
+figure.plot { margin:0; }
+.fig-title { font-size:14.5px; font-weight:700; margin:0 0 2px; }
+.fig-sub { font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+.plot-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-2); margin:0 0 4px; }
+.plot-legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+.plot-canvas svg { display:block; }
+.plot-canvas .grid { stroke:var(--rule); stroke-width:1; }
+.plot-canvas .tick { fill:var(--muted); font:11px var(--mono); }
+.plot-canvas .ln { fill:none; stroke-width:2.2; stroke-linejoin:round; }
+.plot-canvas .dot { stroke:var(--card); stroke-width:2; }
+.plot-canvas .lbl { font:12px var(--sans); fill:var(--ink-2); paint-order:stroke; stroke:var(--card); stroke-width:3px; stroke-linejoin:round; }
+.plot-canvas .lbl.strong { font-weight:700; fill:var(--ink); }
+.plot-canvas .mk { font:700 11px var(--mono); fill:var(--ink); }
+.plot-canvas .ref { stroke:var(--muted); stroke-dasharray:4 3; stroke-width:1.4; }
+ol.plot-marks { margin:4px 0 0; padding-left:0; list-style:none; font-size:12px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 14px; }
+ol.plot-marks b { font-family:var(--mono); }
+.bars { display:grid; gap:9px; }
+.bar-row { display:grid; grid-template-columns:minmax(80px,140px) 1fr; gap:10px; align-items:center; }
+.bar-name { font-size:12.5px; color:var(--ink-2); text-align:right; }
+.bar-row.is-em .bar-name, .bar-row.is-em .bar-val { color:var(--ink); font-weight:700; }
+.bar-set { display:grid; gap:2px; }
+.bar-line { display:grid; grid-template-columns:1fr minmax(3.6em, max-content); gap:8px; align-items:center; }
+.bar-track { height:11px; background:repeating-linear-gradient(to right, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%); border-radius:2px; }
+.bar-fill { display:block; height:100%; border-radius:0 3px 3px 0; }
+.bar-val { font:12px var(--mono); color:var(--ink-2); text-align:right; }
+figure.plot figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+/* figure.diagram: 직접 그린 구조도(SVG). 휴대폰 폭에서 밀지 않고 읽히게 viewBox 폭을 440 안팎으로 그리고, 큰 화면에서는 680px 까지만 키운다. 색은 판과 같은 변수를 쓰므로 밝고 어두운 테마를 따라간다.
+   상자 .d-box(+ t-key 등 톤), 묶음 .d-group, 글 .d-label/.d-sub, 선 .d-line(.d-dash), 화살촉은 marker 로 */
+figure.diagram { margin:18px 0; }
+figure.diagram svg { display:block; width:100%; height:auto; max-width:680px; font-family:var(--sans); }
+figure.diagram figcaption { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
+.d-box { fill:var(--n-bg); stroke:var(--n-bd); stroke-width:1.2; }
+.d-group { fill:var(--q-bg); stroke:var(--q-bd); stroke-width:1; stroke-dasharray:4 3; }
+.d-label { fill:var(--n-ink, var(--ink)); font-size:15px; font-weight:600; }
+.d-sub { fill:var(--muted); font-size:13px; }
+.d-line { stroke:var(--wire); stroke-width:1.4; fill:none; }
+.d-dash { stroke-dasharray:5 4; }
+.d-fill-wire { fill:var(--wire); }
+details.vals { margin-top:6px; font-size:12.5px; }
+details.vals summary { cursor:pointer; color:var(--muted); }
+details.vals table { width:auto; font-size:12.5px; }
+details.vals td, details.vals th { padding:3px 10px 3px 0; }
+
+/* ── cover: 논증 흐름과 나머지 장의 짧은 목록 ── */
+.board .card[data-center] { align-self:center; }
+.toc { margin:18px 0 0; }
+.toc-h { font-size:13px; font-weight:700; color:var(--ink-2); margin:0 0 6px; }
+.toc ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+.toc li { display:grid; grid-template-columns:64px auto 1fr; gap:10px; align-items:baseline; font-size:13.5px; padding:5px 0; border-bottom:1px solid var(--rule); }
+.toc .g { font-size:12px; color:var(--muted); }
+.toc a { color:var(--ink); text-decoration:none; font-weight:600; white-space:nowrap; }
+.toc a[href]:hover { color:var(--s1); text-decoration:underline; }
+.toc .f { color:var(--muted); font-size:12.5px; }
+
+/* ── 목차: 셸이 장에서 만든다. 넓은 화면(≥1400px)은 왼쪽 rail, 그보다 좁으면 위 막대의 목차 단추가 여는 sheet ──
+   점이 이어진 선이 문서의 순서다. 채운 점은 표지 흐름 판이 가리키는 장, 빈 점은 표지 목록의 장이고 그 무리 이름이 머리말이 된다.
+   선은 지금 읽는 장까지 s1 로 찬다. */
+.tb-btn { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; height:30px; min-width:30px; padding:0 8px;
+  border:1px solid transparent; border-radius:7px; background:none; color:var(--ink-2); font:600 13px var(--sans); cursor:pointer; text-decoration:none; }
+.tb-btn:hover { background:color-mix(in srgb, var(--ink) 7%, transparent); color:var(--ink); }
+.tb-btn[aria-disabled="true"] { opacity:.35; pointer-events:none; }
+.tb-toc { border-color:var(--rule); background:var(--card); }
+.tb-toc::before { content:""; width:13px; height:10px; background:linear-gradient(currentColor 0 0) top/100% 2px no-repeat, linear-gradient(currentColor 0 0) center/70% 2px no-repeat, linear-gradient(currentColor 0 0) bottom/85% 2px no-repeat; background-position:left top, left center, left bottom; }
+.tb-steps { flex:none; display:flex; gap:2px; margin-left:auto; }
+.tb-step { padding:0; width:30px; }
+.tb-step::before { content:""; width:7px; height:7px; border:solid currentColor; border-width:2px 2px 0 0; transform:translateY(2px) rotate(-45deg); }
+.tb-step[rel="next"]::before { transform:translateY(-2px) rotate(135deg); }
+.tb-progress { position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--s1); transform-origin:left; transform:scaleX(0); pointer-events:none; }
+
+.toc-head { display:flex; align-items:baseline; gap:8px; padding:0 10px 10px; }
+.toc-title { font-size:12px; font-weight:800; letter-spacing:.06em; color:var(--ink); }
+.toc-count { font:600 11px var(--mono); color:var(--muted); }
+ol.toc-list, ol.toc-list ol { list-style:none; margin:0; padding:0; }
+ol.toc-list { position:relative; }
+ol.toc-list::before, .toc-fill { content:""; position:absolute; left:16px; top:16px; width:2px; margin-left:-1px; border-radius:1px; background:var(--rule); }
+ol.toc-list::before { bottom:16px; }
+.toc-fill { height:0; background:var(--s1); transition:height .25s ease; }
+.ti > a { position:relative; display:grid; grid-template-columns:22px minmax(0,1fr); column-gap:6px; padding:6px 10px 6px 32px; border-radius:8px;
+  color:var(--ink-2); text-decoration:none; font-size:13.5px; line-height:20px; }
+.ti > a::before { content:""; position:absolute; z-index:1; left:12px; top:12px; width:8px; height:8px; border-radius:50%; box-sizing:border-box;
+  background:var(--paper); border:1.5px solid var(--dim); transition:transform .2s ease, background-color .2s ease, border-color .2s ease; }
+.ti.is-flow > a::before { background:var(--ink-2); border-color:var(--ink-2); }
+.ti.is-past > a::before { border-color:var(--s1); }
+.ti.is-flow.is-past > a::before { background:var(--s1); }
+.ti > a:hover { background:color-mix(in srgb, var(--ink) 6%, transparent); color:var(--ink); }
+.ti-n { font:600 11px/20px var(--mono); color:var(--muted); font-variant-numeric:tabular-nums; }
+.ti-l { display:block; font-weight:600; word-break:keep-all; overflow-wrap:break-word; }
+.ti-h { font-size:12px; line-height:1.45; color:var(--muted); font-weight:400; margin:2px 0 1px; word-break:keep-all; overflow-wrap:break-word;
+  overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.rail .ti:not([data-cur]) .ti-h { display:none; }
+.ti[data-cur] > a { background:color-mix(in srgb, var(--s1) 11%, transparent); color:var(--ink); }
+.ti[data-cur] .ti-l { color:var(--k-ink); font-weight:700; }
+.ti[data-cur] .ti-n { color:var(--s1); }
+.ti[data-cur] > a::before { background:var(--card); border:2.5px solid var(--s1); transform:scale(1.35); box-shadow:0 0 0 3px color-mix(in srgb, var(--s1) 22%, transparent); }
+.tg-h { display:block; padding:12px 10px 3px 60px; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--muted); }
+.toc-key { display:flex; flex-wrap:wrap; gap:4px 14px; margin:14px 10px 0; padding-top:10px; border-top:1px solid var(--rule); font-size:11.5px; color:var(--muted); }
+.toc-key span::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:0; box-sizing:border-box; border:1.5px solid var(--dim); background:var(--paper); }
+.toc-key .k-flow::before { background:var(--ink-2); border-color:var(--ink-2); }
+
+.rail { display:none; }
+@media (min-width: 1400px) {
+  body { display:grid; grid-template-columns:272px minmax(0,1fr); }
+  .topbar { grid-column:1 / -1; }
+  .rail { display:block; grid-column:1; align-self:start; position:sticky; top:46px; height:calc(100vh - 46px); overflow-y:auto; overscroll-behavior:contain;
+    padding:22px 12px 40px 14px; border-right:1px solid var(--rule); scrollbar-width:thin; scrollbar-color:var(--rule) transparent; }
+  main { grid-column:2; width:100%; }
+  .tb-toc { display:none; }
+}
+
+dialog.toc-sheet { padding:0; margin:0; border:0; color:var(--ink); background:var(--paper); overflow:hidden;
+  position:fixed; inset:0 auto 0 0; width:min(400px, 92vw); max-width:none; height:100%; max-height:none; border-right:1px solid var(--rule);
+  box-shadow:0 10px 40px rgba(0,0,0,.22); }
+dialog.toc-sheet::backdrop { background:rgba(13,17,23,.42); backdrop-filter:blur(2px); }
+dialog.toc-sheet[open] { animation:sheet-in .2s ease-out; }
+@keyframes sheet-in { from { transform:translateX(-24px); opacity:0; } }
+.sheet-in { display:flex; flex-direction:column; height:100%; }
+.sheet-head { flex:none; display:flex; align-items:center; gap:8px; height:46px; padding:0 10px 0 24px; border-bottom:1px solid var(--rule); }
+.sheet-head .toc-title { font-size:13px; }
+.sheet-x { margin-left:auto; }
+.sheet-body { flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:14px 12px 28px; }
+.toc-sheet .ti-h { display:-webkit-box; -webkit-line-clamp:2; }
+html { scrollbar-gutter:stable; }   /* sheet 가 열려 스크롤을 잠가도 막대 자리가 남아 판이 다시 그려지지 않는다 */
+html:has(dialog.toc-sheet[open]) { overflow:hidden; }
+
+/* ── 좁은 화면: 판은 읽는 순서대로 한 줄이 되고 화살표는 글이 된다 ── */
+@media (max-width: 760px) {
+  .topbar { padding:0 10px 0 16px; gap:6px; }
+  .topbar .now-h { display:none; }
+  dialog.toc-sheet { inset:auto 0 0 0; width:100%; height:auto; max-height:86dvh; border-right:0; border-top:1px solid var(--rule); border-radius:16px 16px 0 0; }
+  dialog.toc-sheet[open] { animation-name:sheet-up; }
+  .sheet-in { height:auto; max-height:86dvh; }
+  .sheet-head { position:relative; height:52px; padding-top:6px; }
+  .sheet-head::before { content:""; position:absolute; left:50%; top:7px; width:36px; height:4px; margin-left:-18px; border-radius:2px; background:var(--rule); }
+  .ti > a { padding-top:9px; padding-bottom:9px; }
+  .ti > a::before { top:15px; }
+  main { padding:0 14px 80px; }
+  section.slide { padding:36px 0 26px; }
+  .board { display:flex; flex-direction:column; gap:8px; padding:14px; }
+  .board .lane-rule, .board .axis-h, .board .axis-arrow, .board .axis-cap, .board > .edge, .board > svg.wires { display:none; }
+  .board .lane-label { margin:10px 0 0; font-size:12.5px; color:var(--muted); }
+  .card .colchip { display:inline-block; }
+  .card .to { display:block; font-size:12.5px; color:var(--ink-2); margin-top:6px; }
+  .split, .split.even { grid-template-columns:1fr; }
+  .toc ul { grid-template-columns:1fr; grid-template-rows:none !important; grid-auto-flow:row; }
+  .toc li { grid-template-columns:1fr; gap:0; }
+  .toc .g:empty { display:none; }
+  .toc a { white-space:normal; }
+  .bar-row { grid-template-columns:1fr; gap:2px; } .bar-name { text-align:left; }
+}
+@keyframes sheet-up { from { transform:translateY(40px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { dialog.toc-sheet[open] { animation:none; } .toc-fill, .ti > a::before { transition:none; } }
+@media print { .topbar, .rail, dialog.toc-sheet { display:none !important; } body { display:block; } section.slide { break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="#p1">지도</a><span class="now"></span></div>
+<main>
+<section class="slide" data-role="cover" data-label="핵심"><h1>rust-anything의 Rust 이식 검사와 보장 범위</h1><p class="answer">rust-anything은 기존 프로그램의 동작을 기록하고 Rust 이식을 재검사하는 migration harness다. 코드 분석상 이점은 bridge·반복 검사·점진 전환을 재사용하는 데 있다. 다만 TS/JS는 서로 다른 예외도 일치로 세며, 일반 agent보다 이식 성공률이 높다는 A/B 결과는 아직 없다.</p><p class="src">Erkam Yaman이 관리하는 공개 저장소와 자체 실험 자료. v5.0.1, commit a1e9509b31bd. Aider 공식 문서와 Anthropic Engineering의 migration 사례를 비교 자료로 사용했다.</p><figure class="diagram"><svg viewBox="0 0 440 455" role="img" aria-label="원본 실행에서 저장한 기록과 agent가 작성한 Rust 후보가 비교기로 들어간다. 비교기는 언어별 정책과 예외 목록을 적용하고 실패를 agent에게 돌려준다. 통과한 후보는 별도의 성능 검사 뒤 전환된다.">
+<defs><marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-fill-wire"/></marker></defs>
+<rect class="d-box" x="20" y="12" width="185" height="65" rx="8"/><text class="d-label" x="112" y="39" text-anchor="middle">기존 프로그램</text><text class="d-sub" x="112" y="61" text-anchor="middle">실행해 답을 수집</text>
+<rect class="d-box" x="235" y="12" width="185" height="65" rx="8"/><text class="d-label" x="327" y="39" text-anchor="middle">coding agent</text><text class="d-sub" x="327" y="61" text-anchor="middle">Rust 함수를 작성</text>
+<path class="d-line" d="M112 77 V110" marker-end="url(#ca)"/><path class="d-line" d="M327 77 V110" marker-end="url(#ca)"/>
+<rect class="d-box" x="20" y="112" width="185" height="65" rx="8"/><text class="d-label" x="112" y="140" text-anchor="middle">기록된 입력과 답</text><text class="d-sub" x="112" y="162" text-anchor="middle">cases.jsonl</text>
+<rect class="d-box" x="235" y="112" width="185" height="65" rx="8"/><text class="d-label" x="327" y="140" text-anchor="middle">Rust 후보 + bridge</text><text class="d-sub" x="327" y="162" text-anchor="middle">실제 호출 경계로 실행</text>
+<path class="d-line" d="M112 177 V215 H180 V240" marker-end="url(#ca)"/><path class="d-line" d="M327 177 V215 H260 V240" marker-end="url(#ca)"/>
+<rect class="d-box t-key" x="90" y="242" width="260" height="84" rx="8"/><text class="d-label" x="220" y="269" text-anchor="middle">diff + gate</text><text class="d-sub" x="220" y="291" text-anchor="middle">기록과 비교하고 품질 검사</text><text class="d-sub" x="220" y="312" text-anchor="middle">언어별 정책 · 허용한 차이 적용</text>
+<path class="d-line" d="M350 282 H432 V44 H421" marker-end="url(#ca)"/><text class="d-sub" x="424" y="232" text-anchor="end">실패</text>
+<path class="d-line" d="M220 326 V365" marker-end="url(#ca)"/>
+<rect class="d-box" x="90" y="367" width="260" height="66" rx="8"/><text class="d-label" x="220" y="394" text-anchor="middle">bench → 전환</text><text class="d-sub" x="220" y="416" text-anchor="middle">go는 느린 후보를 켜지 않는다</text>
+</svg><figcaption>코드에서 추적한 판정 구조다. 기록에 들어간 입력과 비교기가 구별하는 차이가 검증 범위를 정한다.</figcaption></figure><ul class="sources"><li><a href="#p2">2 · 실행 흐름</a> 무엇을 자동으로 선택하고 언제 멈추는가</li><li><a href="#p3">3 · 언어 경계</a> 실제 parse 이식에서 도구와 agent의 몫</li><li><a href="#p4">4 · 검사 계약</a> 통과가 뜻하는 범위와 직접 확인한 반례</li><li><a href="#p5">5 · 전체 앱</a> 원본을 유지하며 앱 전체를 옮기는 방식</li><li><a href="#p6">6 · 프롬프팅 비교</a> 능숙한 agent 작업과 비교해 남는 이점</li><li><a href="#p7">7 · 실증</a> 성공 사례와 느려진 사례를 함께 읽기</li><li><a href="#p8">8 · 평가 설계</a> A/B가 아직 답하지 못한 질문</li><li><a href="#p9">9 · 도입 판단</a> 작게 도입할 조건과 추가로 필요한 검사</li><li><a href="#p10">10 · 출처</a> 고정 버전과 읽고 실행한 범위</li></ul></section>
+
+<section class="slide" data-role="body" data-label="실행 흐름"><h2>CLI가 이식 대상을 좁히고 실패 결과를 agent에게 돌려준다</h2><div class="explanation"><p>사용자가 느린 명령을 주면 <code>go</code>가 그 workload를 profile한다. 구현은 실행 시간 비중으로 정렬한 후보 중 인자를 받는 export를 고르며, bridge 가능 여부와 대기 시간을 확인한다. 그래서 사용자가 임의의 작은 함수부터 Rust로 바꾸는 시행착오를 줄일 수 있다. 다만 어떤 workload를 줄지는 사용자의 몫이다.</p><p>정적 분석인 <code>analyze</code>는 import 관계로 이식 순서를 만들고 위험 구문·크기·의존성·테스트 유무를 점수에 반영한다. readiness는 이식 성공 확률로 보정한 값이 없으므로 우선순위용 heuristic으로 읽어야 한다. 속도가 목적이면 실제 profile과 benchmark가 이 판단을 보완한다.</p></div><figure class="diagram"><svg viewBox="0 0 440 600" role="img" aria-label="go는 workload를 profile해 함수 하나를 고르고 bridge와 기록을 준비한 뒤 agent를 호출한다. build diff gate 실패는 남은 turn이 있을 때 agent로 돌아가며, 통과해도 bench에서 느리면 멈춘다. 지원되는 bridge에서만 enable로 전환한다."><defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-fill-wire"/></marker></defs>
+<rect class="d-box" x="65" y="10" width="280" height="65" rx="8"/><text class="d-label" x="205" y="38" text-anchor="middle">profile → 함수 선택</text><text class="d-sub" x="205" y="60" text-anchor="middle">실제 workload · bridge 가능한 export</text>
+<path class="d-line" d="M205 75 V108" marker-end="url(#fa)"/>
+<rect class="d-box" x="65" y="110" width="280" height="65" rx="8"/><text class="d-label" x="205" y="138" text-anchor="middle">bridge + record</text><text class="d-sub" x="205" y="160" text-anchor="middle">기존 crate와 유효한 기록은 유지</text>
+<path class="d-line" d="M205 175 V208" marker-end="url(#fa)"/>
+<rect class="d-box" x="65" y="210" width="280" height="65" rx="8"/><text class="d-label" x="205" y="238" text-anchor="middle">TASK → agent</text><text class="d-sub" x="205" y="260" text-anchor="middle">port.rs 작성 · 기본 최대 3회 호출</text>
+<path class="d-line" d="M205 275 V308" marker-end="url(#fa)"/>
+<rect class="d-box" x="65" y="310" width="280" height="65" rx="8"/><text class="d-label" x="205" y="338" text-anchor="middle">build → diff → gate</text><text class="d-sub" x="205" y="360" text-anchor="middle">실패 + turn 소진이면 종료</text>
+<path class="d-line" d="M345 343 H423 V242 H347" marker-end="url(#fa)"/><text class="d-sub" x="416" y="300" text-anchor="end">실패</text>
+<path class="d-line" d="M205 375 V412" marker-end="url(#fa)"/><text class="d-sub" x="224" y="400">통과</text>
+<rect class="d-box" x="65" y="414" width="280" height="65" rx="8"/><text class="d-label" x="205" y="442" text-anchor="middle">bench</text><text class="d-sub" x="205" y="464" text-anchor="middle">호출 비용 포함 · 느리면 Slower</text>
+<path class="d-line" d="M205 479 V515" marker-end="url(#fa)"/><text class="d-sub" x="224" y="505">느리지 않음</text>
+<rect class="d-box t-key" x="65" y="517" width="280" height="65" rx="8"/><text class="d-label" x="205" y="545" text-anchor="middle">지원 bridge면 enable</text><text class="d-sub" x="205" y="567" text-anchor="middle">그 외는 Passed로 끝내고 shadow 안내</text>
+</svg><figcaption>남은 turn이 있을 때 실패 진단을 다음 prompt에 넣는다. agent를 지정하지 않으면 작업 파일을 쓰고 사람이 이식할 때까지 멈춘다.</figcaption></figure><div class="explanation"><p>도구는 Rust crate, binding, 원본의 입출력 기록과 작업 지시를 준비한다. 실제 계산 로직은 agent 또는 사람이 구현한다. 기본 agent 호출 예산은 3회이고, build·diff·gate가 실패하면 진단을 다음 지시에 붙인다. 예산을 다 쓰면 실패 상태로 끝나므로 “끝날 때까지 무한히 고친다”는 실행 계약을 기대하면 안 된다.</p><p>다시 실행하면 profile을 다시 하고 이미 있는 crate와 유효한 기록을 재사용한다. 통과 뒤에도 benchmark가 원본보다 느리면 자동 전환을 멈춘다. 이 검사는 해당 기록과 측정 환경에서의 관찰이므로 실제 트래픽의 지연이나 처리량은 전환 전에 별도로 확인해야 한다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L84">src/go.rs:84</a><br><span class="q">/// The function to port: the first hot one (most time, so the outermost loop) that is exported
+/// by a portable unit, can cross the bridge, and takes arguments to record.
+pub fn pick(report: &amp;Report, function: Option&lt;&amp;str&gt;) -&gt; Result&lt;Pick&gt; {
+    let crosses = |h: &amp;&amp;Hot| {
+        h.unit.is_some() &amp;&amp; h.portable &amp;&amp; h.js_only.is_none() &amp;&amp; h.exported &amp;&amp; !h.params.is_empty()</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L225">src/go.rs:225</a><br><span class="q">         - Match the original exactly on every recorded case in `cases.jsonl`: values, errors and \
+           their messages, edge cases (empty input, Unicode, large numbers). Read the original \
+           first; port its behavior, not a cleaner idea of it.\n\</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L398">src/go.rs:398</a><br><span class="q">    let mut prompt = task.clone();
+    let rounds = if opts.agent.is_some() {
+        opts.rounds.unwrap_or(3)
+    } else {
+        0
+    };</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L449">src/go.rs:449</a><br><span class="q">        let (cases, matched, problems) = check(&amp;crate_dir, &amp;mut steps)?;
+        if problems.is_empty() {
+            break (cases, matched);
+        }
+        if round &gt;= rounds {
+            let stage = if matched &lt; cases {
+                Stage::Mismatch
+            } else {
+                Stage::GateFailed</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L478">src/go.rs:478</a><br><span class="q">    let rows = crate::harness::bench(&amp;crate::harness::BenchOptions {
+        crate_dir: &amp;crate_dir,
+        min_ms: 200,
+        resolve_from: None,
+        node_args: &amp;[],
+    })?;
+    let speedup = crate::harness::verdict(&amp;rows, manifest.language).speedup;</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/go.rs#L492">src/go.rs:492</a><br><span class="q">    if speedup &lt; 1.0 {
+        let next = slower_advice(&amp;pick, speedup);
+        let mut out = outcome(
+            Stage::Slower,
+            steps,
+            Some(cases),
+            Some(matched),
+            Vec::new(),
+            next,
+        );
+        out.speedup = Some(speedup);
+        return Ok(out);</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/analyze.rs#L733">src/analyze.rs:733</a><br><span class="q">    let size_penalty = unit.loc as f64 / 40.0;
+    let fan_in_penalty = (unit.fan_in as f64 * 1.5).min(15.0);
+    let dep_penalty = blocking_deps.len() as f64 * 12.0 + unknown_deps as f64 * 4.0;
+    let test_bonus = if unit.direct_tests &gt; 0 {
+        10.0
+    } else if package_tests &gt; 0 {
+        4.0
+    } else {
+        0.0</span></p></details></section>
+
+<section class="slide" data-role="body" data-label="언어 경계"><h2>parse 한 건을 따라가면 생성 코드와 이식 코드의 경계가 보인다</h2><div class="explanation"><p>저장소에 포함된 vercel/ms의 <code>parse</code>는 기간 문자열을 숫자로 바꾸는 실제 이식 예다. manifest는 원본의 <code>src/index.ts</code> export와 타입을 가리킨다. 기록 파일에는 정상 결과와 오류가 함께 남고, 생성된 wrapper가 호출을 Rust로 넘긴다. 아래 흐름은 포함된 artifact와 CLI 코드를 연결한 추적이며, native binary를 새로 빌드해 실행한 결과는 아니다.</p></div><pre style="white-space:pre-wrap;overflow-wrap:anywhere">원본 export     src/index.ts의 parse(str: string)
+       ↓ bridge가 타입·export를 읽음
+도구가 준비    rust-anything.json · cases.jsonl
+              src/lib.rs · index.cjs · port.rs의 빈 함수
+       ↓ 사람 또는 agent가 구현
+이식 코드      port::parse(String) → Result&lt;f64, String&gt;
+       ↓ 생성된 binding을 통해 호출
+호출자         index.cjs → parseWire → port::parse
+       ↓ diff / gate 결과를 TASK와 함께 돌려줌
+검사 뒤 전환   go의 bench 통과 → enable의 원본 재바인딩</pre><div class="explanation"><p>이식된 함수는 문자열 길이를 <code>encode_utf16().count()</code>로 센다. JS의 길이 검사가 UTF-16 code unit을 기준으로 하기 때문이다. Rust에서 문자열 byte 길이나 문자 개수를 쓰면 emoji에서 원본과 다른 입력을 받아들이게 된다. 어떤 Rust 표현이 원본 동작에 맞는지 판단해 구현하는 일은 agent에게 남는다.</p><p>bridge는 이 결정을 도울 공통 장치를 제공한다. TS/JS 기록 codec은 일반 JSON으로 사라지는 <code>undefined</code>, <code>NaN</code>, 음의 0과 잘못 짝지어진 UTF-16을 marker로 표현한다. 타입에 맞는 binary wire와 변환 helper도 생성한다. 그렇지만 모든 JS 값을 그대로 운반하는 것은 어렵다. generator, 함수 값, 일부 클래스 identity 같은 경계는 제외하며, Rust <code>String</code>을 받는 생성 wrapper는 lone surrogate를 거부한다.</p></div><div class="tablewrap"><table><thead><tr><th>담당</th><th>실제로 맡는 일</th><th>남는 판단</th></tr></thead><tbody><tr><td>도구</td><td>타입 추적, crate와 binding 생성, 사례 수집·재실행</td><td>도메인에 맞는 입력과 전체 사용 범위</td></tr><tr><td>agent / 사람</td><td>원본을 읽고 port.rs에 알고리즘·오류·언어 의미 구현</td><td>원본의 버그를 유지할지, 의도적 변경을 승인할지</td></tr><tr><td>호출자 통합</td><td>enable로 지원 언어의 함수를 재바인딩하거나 app wire로 연결</td><td>batch API 사용과 rollout 시점</td></tr></tbody></table></div><div class="explanation"><p>성능도 경계에서 달라진다. 작은 함수를 원소마다 호출하면 변환과 FFI 비용을 원소마다 낸다. batch는 데이터를 Rust에 한 번 넘겨 보관하고 loop를 그 안에서 돌리도록 생성된다. 따라서 빨라진 사례에는 병렬화나 인덱스 재사용도 포함될 수 있다. 같은 알고리즘을 다른 언어로 적은 효과와 구분해 측정해야 한다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/demo/real-world/vercel-ms-rs/src/port.rs#L34">demo/real-world/vercel-ms-rs/src/port.rs:34</a><br><span class="q">/// Port of `parse` (`src/index.ts:71`).
+pub fn parse(str: String) -&gt; Result&lt;f64, String&gt; {
+    let units = str.encode_utf16().count();
+    if units == 0 || units &gt; 100 {
+        return Err(format!(</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/demo/real-world/vercel-ms-rs/src/lib.rs#L50">demo/real-world/vercel-ms-rs/src/lib.rs:50</a><br><span class="q">#[napi(js_name = &quot;parse&quot;)]
+pub fn parse(str: String) -&gt; napi::Result&lt;f64&gt; {
+    run(move || {
+        let out = port::parse(str)?;</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/demo/real-world/vercel-ms-rs/index.cjs#L218">demo/real-world/vercel-ms-rs/index.cjs:218</a><br><span class="q">module.exports.parse = function parse (a0) {
+  if (illFormed(a0)) throw new TypeError(&#x27;argument 1 of parse has a lone surrogate, which a Rust String cannot hold&#x27;)
+  try {
+    if (arguments.length &lt;= 1 &amp;&amp; encode(a0) &amp;&amp; wireCall(call)) return decode()
+    return json(...arguments)</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness.rs#L2271">src/harness.rs:2271</a><br><span class="q">const enc = (v, stack = []) =&gt; {
+  if (v === undefined) return { $undefined: true }
+  if (typeof v === &#x27;number&#x27;) {
+    if (Number.isNaN(v)) return { $num: &#x27;NaN&#x27; }
+    if (!Number.isFinite(v)) return { $num: v &gt; 0 ? &#x27;Infinity&#x27; : &#x27;-Infinity&#x27; }
+    if (Object.is(v, -0)) return { $num: &#x27;-0&#x27; }
+    return v
+  }</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness.rs#L2280">src/harness.rs:2280</a><br><span class="q">  if (typeof v === &#x27;string&#x27; &amp;&amp; !v.isWellFormed()) return { $utf16: Array.from({ length: v.length }, (_, i) =&gt; v.charCodeAt(i)) }
+  if (typeof v === &#x27;bigint&#x27;) return { $bigint: String(v) }
+  if (typeof v === &#x27;function&#x27;) return { $function: v.name }</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/bridge.rs#L221">src/bridge.rs:221</a><br><span class="q">/// Why an export cannot cross a JS/Rust bridge unchanged, if it cannot.
+///
+/// Functions, iterators, RegExp objects and objects with function members are JS values a
+/// Rust function can neither take nor return; porting them would change the public API.
+pub fn js_only_reason(f: &amp;ExportedFn, local_types: &amp;[LocalType]) -&gt; Option&lt;String&gt; {</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/bridge.rs#L232">src/bridge.rs:232</a><br><span class="q">    if f.uses_instanceof {
+        return Some(&quot;checks `instanceof`: class identity does not survive the bridge&quot;.into());
+    }</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/codegen_tswire.rs#L695">src/codegen_tswire.rs:695</a><br><span class="q">        let checks: String = crate::codegen::string_params(f.port)
+            .iter()
+            .map(|i| {
+                format!(
+                    &quot;  if (illFormed(a{i})) throw new TypeError(&#x27;argument {} of {js} has a lone surrogate, which a Rust String cannot hold&#x27;)\n&quot;,
+                    i + 1
+                )</span></p></details></section>
+
+<section class="slide" data-role="body" data-label="검사 계약"><h2>gate 통과는 기록과 비교 정책에 맞았다는 뜻이다</h2><div class="explanation"><p>핵심 계약은 기록된 입력에 Rust 후보를 다시 실행해, 비교기가 관찰하는 결과가 허용 범위 안에 드는지 확인하는 것이다. 원본은 expected 값을 만들어 주므로 agent가 자기 구현에 맞춰 expected까지 작성하는 위험을 줄인다. 하지만 그 expected와 비교 규칙을 어떻게 정했는지에 따라 같은 “통과”의 의미가 달라진다.</p></div><div class="tablewrap"><table><thead><tr><th>검사</th><th>구현이 확인하는 것</th><th>해석할 때 필요한 조건</th></tr></thead><tbody><tr><td>build · fmt · clippy · test</td><td>빌드, 형식, 경고, Rust 테스트 명령 성공</td><td>테스트가 요구사항을 충분히 담는지는 별도 판단</td></tr><tr><td>API · behavior</td><td>기록을 재생하며 호출한 export의 누락과 diff 실패를 검사</td><td>공개 API 전체나 모든 입력에 대한 동등성으로 확대할 수 없음</td></tr><tr><td>recording</td><td>저장한 unit fingerprint 변경, 기록 앞부분 수정·삭제 감지</td><td>unit 밖 dependency 변경과 metadata 부재는 더 확인해야 함</td></tr><tr><td>error cases · coverage</td><td>감지한 오류 함수에 실패 사례가 있는지 검사; coverage 표시</td><td>함수 안의 오류 분기별 도달 검사가 아님; 낮은 coverage도 통과</td></tr><tr><td>unsafe · cheat guard · tests</td><td>SAFETY 주석, 의심스러운 literal, 테스트·assert 개수 패턴</td><td>안전성 증명이나 악의적 agent를 막는 신뢰 경계로 쓸 수 없음</td></tr></tbody></table></div><div class="explanation"><p>특히 오류의 동등성은 느슨하다. TS/JS는 함수와 클래스 호출 모두 양쪽에 오류가 있으면 메시지가 달라도 일치로 센다. 메시지가 <code>Rust panic:</code>으로 시작하면 실패시킨다. Python은 같은 오류 종류를 허용하고, Rust 쪽이 <code>TypeError</code>이면 원본의 다른 오류 종류도 허용한다. 사용자가 메시지나 예외 타입으로 분기한다면 별도의 엄격한 검사가 필요하다.</p><p>이를 확인하려고 고정 소스의 JS 비교 script와 Python 비교 함수 정의를 그대로 추출해 실행했다. JS 후보는 직접 만든 stand-in이고 Rust binding은 쓰지 않았다. 그러므로 아래 표는 실제 comparator 정책의 실행 확인이며, native bridge나 gate 전체의 재현 결과로 읽으면 안 된다.</p></div><div class="tablewrap"><table><thead><tr><th>경로</th><th>기록과 후보의 차이</th><th>실행 결과</th></tr></thead><tbody><tr><td>TS 함수</td><td>원본 오류 → 전혀 다른 TypeError 메시지</td><td>통과</td></tr><tr><td>TS 클래스</td><td>생성자 오류 메시지를 변경</td><td>통과</td></tr><tr><td>TS 함수</td><td>정상 반환값 1 → 2</td><td>실패</td></tr><tr><td>TS 함수</td><td>원본 오류 → Rust panic: 접두 오류</td><td>실패</td></tr><tr><td>Python</td><td>ValueError의 메시지만 변경</td><td>통과</td></tr><tr><td>Python</td><td>ValueError → TypeError</td><td>통과</td></tr><tr><td>Python</td><td>ValueError → RuntimeError</td><td>실패</td></tr></tbody></table></div><div class="explanation"><p>agent에게 주는 TASK는 오류 메시지까지 원본과 맞추라고 지시한다. 그러나 TS/JS comparator는 그 요구를 강제하지 않는다. 프롬프트에 적힌 요구와 실행 코드가 통과시킨 범위를 구분해야 하는 구체적인 예다.</p><p>사용자가 설정하는 허용 정책도 결과를 넓힌다. <code>known-diffs.jsonl</code>의 함수·입력·실제 결과가 같은 차이는 사유와 함께 통과에 포함된다. 저장된 float tolerance나 key-order 무시 설정도 후속 gate에 적용된다. 따라서 통과 건수만 볼 때는 의도적으로 허용한 차이와 비교 설정도 함께 열어야 한다.</p><p>“모든 오류 경로”도 구현에 맞춰 좁혀 읽어야 한다. 코드는 export 안에서 처음 발견한 throw/raise 같은 구문을 찾고, 그 함수 이름에 오류 기록이 하나라도 있는지 확인한다. coverage 항목은 결과를 표시하되 항상 통과로 추가한다. 별도 분기 coverage나 중요한 입력 조합을 채우지 않은 상태에서도 gate가 통과할 여지가 있다.</p><p>부정행위를 줄이는 검사 역시 유용한 heuristic이다. literal 검사는 기록 답의 단순 복사를 찾고 테스트 검사는 개수 감소를 찾는다. 그러나 assert의 의미가 약해졌는지나 계산 전체가 진짜 Rust로 옮겨졌는지까지 판정하지 않는다. 기록 metadata도 같은 작업 폴더에 있고, 없거나 읽지 못하면 일부 무결성 검사를 건너뛴다. 독립된 CI에서 원본·기록·비교 설정을 보호하고 재검사해야 더 강한 운영 조건이 된다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness.rs#L2548">src/harness.rs:2548</a><br><span class="q">  const expected = &#x27;error&#x27; in c ? { error: c.error } : { ok: c.ok }
+  // Both sides throwing counts as agreement: error messages are not part of the contract.
+  const panicked = &#x27;error&#x27; in actual &amp;&amp; actual.error.startsWith(&#x27;Rust panic:&#x27;)</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness.rs#L2513">src/harness.rs:2513</a><br><span class="q">const stepsMatch = (want, got) =&gt; want.length === got.length &amp;&amp; want.every((w, i) =&gt;
+  (&#x27;error&#x27; in w &amp;&amp; &#x27;error&#x27; in got[i] &amp;&amp; !got[i].error.startsWith(&#x27;Rust panic:&#x27;)) || (&#x27;ok&#x27; in w &amp;&amp; &#x27;ok&#x27; in got[i] &amp;&amp; same(w.ok, got[i].ok, keyOrder === &#x27;sort&#x27;)))</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness_py.rs#L527">src/harness_py.rs:527</a><br><span class="q">    if &quot;error&quot; in expected or &quot;error&quot; in actual:
+        if not (&quot;error&quot; in expected and &quot;error&quot; in actual):
+            return False
+        return error_type(actual[&quot;error&quot;]) in (error_type(expected[&quot;error&quot;]), &quot;TypeError&quot;)</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/error_paths.rs#L223">src/error_paths.rs:223</a><br><span class="q">    let raised = raises(manifest.language, &amp;manifest.root, &amp;exports);
+    let cases = std::fs::read_to_string(crate_dir.join(crate::harness::CASES)).unwrap_or_default();
+    let failed = recorded_errors(&amp;cases);
+    let unreached: Vec&lt;String&gt; = raised
+        .iter()
+        .filter(|r| !failed.contains(&amp;r.export))
+        .map(|r| format!(&quot;{} fails at {}&quot;, r.export, r.site))</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/gate.rs#L895">src/gate.rs:895</a><br><span class="q">    if let Some(line) = crate::recording::saved_coverage(crate_dir)
+        .and_then(|c| crate::recording::coverage_line(&amp;c))
+    {
+        checks.push(Check {
+            fix: None,
+            name: &quot;coverage&quot;,
+            passed: true,
+            detail: line,
+        });</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/recording.rs#L442">src/recording.rs:442</a><br><span class="q">/// Counts the mismatches a known-diffs entry explains as passed (in `accepted`), and records the
+/// entries no mismatch matched (in `stale_known`). A mismatch is explained only when the port
+/// gives exactly the entry&#x27;s `actual`: a different wrong result still fails.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/recording.rs#L450">src/recording.rs:450</a><br><span class="q">    outcome.mismatches.retain(|m| {
+        let hit = entries.iter().position(|e| {
+            e[&quot;fn&quot;] == m[&quot;fn&quot;] &amp;&amp; e[&quot;args&quot;] == m[&quot;args&quot;] &amp;&amp; e[&quot;actual&quot;] == m[&quot;actual&quot;]
+        });</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/tolerance.rs#L19">src/tolerance.rs:19</a><br><span class="q">pub(crate) fn near(e: f64, a: f64, tolerance: f64) -&gt; bool {
+    (e - a).abs() &lt;= tolerance * e.abs().max(a.abs()).max(1.0)
+}</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/harness.rs#L1067">src/harness.rs:1067</a><br><span class="q">/// Whether objects compare regardless of key order: the flag for this run, or the choice
+/// `record --ignore-key-order` saved with the crate, which `gate`, `enable`, `report` and `go` read
+/// because they have no flag of their own.
+fn ignores_key_order(opts: &amp;DiffOptions) -&gt; bool {
+    opts.ignore_key_order || Manifest::load(opts.crate_dir).is_ok_and(|m| m.ignore_key_order)
+}</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/recording.rs#L23">src/recording.rs:23</a><br><span class="q">pub fn fingerprint(m: &amp;Manifest) -&gt; Option&lt;(String, usize)&gt; {
+    let unit = m.root.join(&amp;m.unit);
+    let mut files: Vec&lt;std::path::PathBuf&gt; = if unit.is_file() {
+        vec![unit.clone()]
+    } else if unit.is_dir() {
+        crate::walk::filtered(&amp;unit, |e| {
+            !matches!(
+                e.file_name().to_str(),
+                Some(&quot;node_modules&quot; | &quot;target&quot; | &quot;.git&quot; | &quot;__pycache__&quot;)</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/recording.rs#L317">src/recording.rs:317</a><br><span class="q">pub fn cases_tampered(crate_dir: &amp;Path) -&gt; Option&lt;String&gt; {
+    let saved: Value =
+        serde_json::from_str(&amp;std::fs::read_to_string(crate_dir.join(RECORDED_FROM)).ok()?).ok()?;
+    let n = usize::try_from(saved[&quot;cases&quot;].as_u64()?).ok()?;
+    let hash = saved[&quot;cases_hash&quot;].as_str()?;</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/gate.rs#L552">src/gate.rs:552</a><br><span class="q">/// Recorded values written into the port as literals although the original never spells them
+/// out: a port that answers the recorded cases from a table passes `diff` without porting
+/// anything. Fails on `LITERALS_FAIL` or more, or on any read of the recording itself; fewer
+/// pass with their names. A literal on a line with `// recorded-literal: &lt;reason&gt;` is left out.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/gate.rs#L682">src/gate.rs:682</a><br><span class="q">pub fn test_counts(crate_dir: &amp;Path) -&gt; TestCounts {
+    let patterns = [
+        r&quot;#\[\s*(?:\w+::)*test\s*\]&quot;,
+        r&quot;\b(?:debug_)?assert(?:_\w+)?!&quot;,
+        r&quot;#\[\s*ignore\b&quot;,
+        r&quot;#\[\s*should_panic\b&quot;,
+    ]
+    .map(|p| regex::Regex::new(p).ok());</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/gate.rs#L1234">src/gate.rs:1234</a><br><span class="q">                let has_safety = lines[..i]
+                    .iter()
+                    .rev()
+                    .take_while(|l| l.trim_start().starts_with(&quot;//&quot;))
+                    .any(|l| l.contains(&quot;SAFETY:&quot;));
+                if has_safety {
+                    explained += 1;
+                } else {
+                    unexplained.push(format!(&quot;{}:{}&quot;, path.display(), i + 1));</span></p></details></section>
+
+<section class="slide" data-role="body" data-label="전체 앱"><h2>앱 전체 이식은 외부 동작을 기록하고 원본 의존을 줄여 간다</h2><div class="explanation"><p>함수 단위 bridge로 앱 전체의 호환성을 판단하기 어려우므로, 별도의 app 경로가 바깥에서 프로그램을 실행한다. CLI는 출력·종료 상태·파일 변화 등을 기록하고 HTTP 서버는 요청과 응답을 기록한다. Rust front door를 앞에 두고 이식한 unit을 연결하면, 아직 Rust가 처리하지 못하는 작업은 원본으로 보낼 수 있다.</p></div><figure class="diagram"><svg viewBox="0 0 440 390" role="img" aria-label="앱 요청이 Rust front door로 들어오고 구현된 handler는 Rust unit이 처리한다. 아직 연결되지 않거나 처리하지 못하는 요청은 원본으로 fallback한다. 두 경로 모두 응답을 내므로 replay 일치와 원본 의존도는 별도로 측정해야 한다."><defs><marker id="wa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-fill-wire"/></marker></defs>
+<rect class="d-box" x="110" y="10" width="220" height="55" rx="8"/><text class="d-label" x="220" y="43" text-anchor="middle">CLI / HTTP 요청</text><path class="d-line" d="M220 65 V99" marker-end="url(#wa)"/>
+<rect class="d-box t-key" x="90" y="101" width="260" height="58" rx="8"/><text class="d-label" x="220" y="136" text-anchor="middle">Rust front door</text>
+<path class="d-line" d="M160 159 V194 H110 V224" marker-end="url(#wa)"/><path class="d-line" d="M280 159 V194 H330 V224" marker-end="url(#wa)"/>
+<text class="d-sub" x="95" y="188" text-anchor="middle">handler가 처리</text><text class="d-sub" x="344" y="188" text-anchor="middle">처리 못함</text>
+<rect class="d-box" x="15" y="226" width="190" height="63" rx="8"/><text class="d-label" x="110" y="253" text-anchor="middle">이식한 Rust unit</text><text class="d-sub" x="110" y="276" text-anchor="middle">wire로 연결</text>
+<rect class="d-box" x="235" y="226" width="190" height="63" rx="8"/><text class="d-label" x="330" y="253" text-anchor="middle">기존 프로그램</text><text class="d-sub" x="330" y="276" text-anchor="middle">fallback으로 실행</text>
+<path class="d-line" d="M110 289 V321 H190 V340" marker-end="url(#wa)"/><path class="d-line" d="M330 289 V321 H250 V340" marker-end="url(#wa)"/>
+<rect class="d-box" x="110" y="342" width="220" height="42" rx="8"/><text class="d-label" x="220" y="369" text-anchor="middle">응답 + fallback 집계</text>
+</svg><figcaption>응답이 맞아도 원본이 대부분 처리했을 수 있다. lift는 기록 사례에 fallback이 남는지 따로 확인한다.</figcaption></figure><div class="explanation"><p>unit의 gate가 통과하는 것과 앱 요청이 원하는 결과를 내는 것은 서로 다른 검사다. app replay는 외부 기록을 비교하고, fallback 집계는 그중 얼마가 원본에 의존하는지 보여 준다. lift는 기록 사례에 fallback이 남아 있으면 거부한다. 이후 복사본에서 binding과 fallback을 제거하고 build·replay를 통과시킨 뒤 결과를 반영하도록 짜여 있다.</p><p>이 방식은 부분 이식을 배포하고 되돌리는 작업을 구체화한다. 다만 fallback이 0이라는 수치는 실행한 사례 집합을 기준으로 한다. 아직 주지 않은 요청이나 동시 실행에서 처리할 경로까지 전부 옮겼다는 의미는 추가 검증이 필요하다.</p><p>원본을 반복 실행해 달라지는 값을 정규화하는 기능은 timestamp 같은 잡음을 줄이지만, 지워진 차이는 그만큼 비교에서 빠진다. side effect 수집도 설정한 email·webhook·DB 같은 경계에서 수행한다. shadow에 실제 결제나 메일을 두 번 실행시킬 수 있는 시스템이라면 해당 효과를 분리해 한 번만 발생시키는 경로부터 검증해야 한다. 원본의 비결정적 결과 자체를 정답으로 삼을 때는 단순 masking보다 어떤 사건을 재생할지 설계하는 일이 더 중요해진다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/lift.rs#L1">src/lift.rs:1</a><br><span class="q">//! `app lift`: once the front door answers every recorded case in Rust, remove the fallback, the
+//! kill switches and the units&#x27; bindings, and prove the pure binary on the recorded cases.
+//!
+//! The lift is made on a copy of `rust/` and only copied back when every check passes, so a lift
+//! that fails leaves the repository as it was.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/lift.rs#L758">src/lift.rs:758</a><br><span class="q">            match &amp;replay.fallback {
+                None =&gt; blockers.push(
+                    &quot;the front door does not report its fallbacks (src/original.rs changed?)&quot;
+                        .to_string(),
+                ),
+                Some(f) if f.cases &gt; 0 =&gt; {
+                    let mut names = f.names.iter().take(10).cloned().collect::&lt;Vec&lt;_&gt;&gt;();</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/lift.rs#L949">src/lift.rs:949</a><br><span class="q">                &quot;replay&quot;,
+                if replay.passed == replay.total {
+                    Mark::Pass
+                } else {
+                    Mark::Fail
+                },
+                format!(
+                    &quot;{}/{} cases pass against the lifted binary, fallback rate 0 (no fallback path left)&quot;,
+                    replay.passed, replay.total</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/app.rs#L1837">src/app.rs:1837</a><br><span class="q">    let (stdout, out_noise) = settle_stream(&amp;one.stdout, &amp;two.stdout);
+    let (stderr, err_noise) = settle_stream(&amp;one.stderr, &amp;two.stderr);
+    let (effects, fx_noise) = match (&amp;one.effects, &amp;two.effects) {
+        (Some(a), Some(b)) =&gt; {
+            let (bytes, noise, _) = settle_text(norm, a, b);
+            (Some(bytes), noise)
+        }
+        _ =&gt; (None, None),</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/app.rs#L1825">src/app.rs:1825</a><br><span class="q">fn settle(norm: &amp;Normalizers, case: &amp;Case, one: &amp;Run, two: &amp;Run) -&gt; Recorded {
+    let binary = [&amp;one.stdout, &amp;one.stderr, &amp;two.stdout, &amp;two.stderr]
+        .iter()
+        .any(|bytes| std::str::from_utf8(bytes).is_err());
+    let settle_stream = |a: &amp;[u8], b: &amp;[u8]| {
+        if binary {
+            (a.to_vec(), (a != b).then_some(NoiseKind::Values))
+        } else {
+        </span></p></details></section>
+
+<section class="slide" data-role="body" data-label="프롬프팅 비교"><h2>추가 가치는 검사와 연결 작업을 프로젝트마다 다시 만들지 않는 데 있다</h2><div class="explanation"><p>“이 코드를 Rust로 바꾸고 테스트하라”는 요청만 주면 agent가 이식 경계와 expected 값, 테스트와 완료 조건을 함께 정하게 된다. rust-anything은 원본 runtime에서 사례를 수집하고 같은 CLI로 다시 판정하므로, agent가 세션마다 검증 절차를 새로 만드는 부담을 줄일 수 있다. 이는 코드 구조에서 얻는 판단이며 성공률 향상을 측정한 결론은 아니다.</p></div><div class="tablewrap"><table style="table-layout:fixed"><thead><tr><th style="width:22%">방법</th><th style="width:38%">정답과 binding 준비</th><th style="width:40%">반복 검사와 전환</th></tr></thead><tbody>
+<tr><td>일반 agent에 단문 요청</td><td>agent가 기존 테스트와 expected를 선택하고 binding·변환을 구현한다.</td><td>검사와 전환 절차를 지시에 따라 준비한다. 보장은 선택한 검사에 달린다.</td></tr>
+<tr><td>agent + 직접 만든 harness</td><td>팀이 원본 기반 expected와 경계·특수값 변환을 관리한다.</td><td>CI/test 실패를 agent에게 전달하고 routing·shadow·rollback을 설계한다. 확보한 독립성과 coverage만큼 확인한다.</td></tr>
+<tr><td>rust-anything</td><td>원본 기록과 지원 bridge·codec·trap을 제공한다.</td><td>go가 실패 진단을 반환하고 전환 명령을 제공한다. 기록·comparator·허용 정책 범위만 확인한다.</td></tr>
+</tbody></table></div><div class="explanation"><p>능숙한 agent 작업에도 자동 검사 loop는 이미 있다. 예를 들어 <a href="https://aider.chat/docs/usage/lint-test.html">Aider 공식 문서</a>는 수정 후 lint와 지정한 test 명령을 실행하고 실패를 고치게 하는 기능을 설명한다. 그러므로 “도구가 있으면 검사한다”만으로 차별성을 설명하기는 부족하다. 여기서 재사용할 자산은 여러 언어의 bridge, 원본 기반 characterization, mismatch 진단과 전환 장치의 조합이다.</p><p>팀이 이미 독립된 differential test와 운영 shadow를 갖췄다면, 같은 원리의 검증을 기존 agent로 수행할 수 있다. 그 팀은 rust-anything의 경계를 적용하는 비용과 재사용 이익을 비교하면 된다. 반대로 테스트가 빈약하고 원본을 실행할 수 있는 라이브러리라면 기록부터 시작하는 기본 경로가 도움이 될 가능성이 크다.</p><p>원본을 oracle로 쓰는 원리는 다른 migration에서도 적용됐다. <a href="https://www.anthropic.com/research/migrating-api-to-rust">Anthropic Engineering의 Messages API 사례</a>는 기존 시스템과 비교하고 production shadow를 통해 차이를 찾으며 사람의 리뷰를 거쳤다. 이 사례는 검증 전략의 외부 근거다. rust-anything을 사용했다는 증거나 이 도구가 같은 운영 체계를 제공한다는 근거로 옮겨 읽을 수는 없다.</p></div></section>
+
+<section class="slide" data-role="body" data-label="실증"><h2>공개 이식 사례는 가능성을 보여 주지만 성능은 호출 방식에 따라 갈린다</h2><div class="explanation"><p>프로젝트는 vercel/ms, Fuse.js, json-server 등을 이식한 코드·기록·benchmark script를 저장소에 포함한다. README 주장만 있는 것보다 확인할 자료가 많다. 그러나 아래 값은 maintainer의 자체 보고이고, 이 조사에서 native 이식을 새로 빌드하거나 같은 성능을 재현하지 않았다. 서로 다른 버전에서 수행된 사례도 현재 snapshot의 문서가 모아 보고한 값으로 읽는다.</p></div><div class="tablewrap"><table><thead><tr><th>사례</th><th>보고된 결과</th><th>실제로 뒷받침하는 범위</th></tr></thead><tbody><tr><td>vercel/ms</td><td>975/975 사례 일치, gate 통과</td><td>그 기록과 당시 비교 정책에 맞는 기간 문자열 utility 이식</td></tr><tr><td>Fuse.js</td><td>3,414/3,414 사례 일치; string-list 검색</td><td>object keys, 확장 검색, custom sort 등은 원본으로 넘김</td></tr><tr><td>json-server</td><td>app replay 514/514; lift 뒤 Rust binary</td><td>기록한 HTTP 시나리오와 별도 CLI 수작업 이식</td></tr><tr><td>go의 TS fixture</td><td>사례는 일치했지만 per-call이 7.6배 느려 전환 중지</td><td>동작 일치와 성능 향상이 서로 다른 판정임을 보여 줌</td></tr></tbody></table></div><div class="explanation"><p>속도 수치는 비교 조건을 붙여 읽어야 한다. Fuse의 큰 향상에는 여러 core와 Rust 안에 유지한 데이터가 들어간다. ms의 batch parse도 문자열 전달 시간을 빼면 더 크게 보인다. 형식 변환은 같은 도구를 써도 느려진다.</p></div><div class="tablewrap"><table><thead><tr><th>측정 조건</th><th>원본</th><th>Rust</th><th>보고 배율</th></tr></thead><tbody><tr><td>Fuse, 문자열 50,000개 검색; Apple M4 10 cores, Node 24</td><td>91.2 ms</td><td>2.8 ms</td><td>32배</td></tr><tr><td>같은 크기 Fuse 검색, Rust 한 core</td><td>92.0 ms</td><td>17.5 ms</td><td>5.3배</td></tr><tr><td>ms, 기록 전체를 개별 호출; bridge 비용 포함</td><td>기준</td><td>원본보다 느림</td><td>0.56배</td></tr><tr><td>ms parse, batch 100,000개; JS 한 thread / Rust 전체 cores</td><td>11.8 ms</td><td>계산 0.65 ms</td><td>전달 제외 18배 / 전달 포함 3.4배</td></tr><tr><td>ms format, batch 100,000개; 전달 포함</td><td>2.1 ms</td><td>2.5 ms</td><td>0.8배</td></tr></tbody></table></div><div class="explanation"><p>이는 Rust로 옮긴 결과를 측정한 자료다. 동일 agent가 도구 없이 구현한 Rust 후보와 비교한 결과가 없으므로, 배율을 도구의 성능 개선 효과로 귀속시킬 수 없다. 공정한 비교에서는 같은 core 수·batch·인덱스·입력 분포와 전송 비용을 맞춰야 한다.</p><p>json-server 사례에는 더 근본적인 경계가 있다. 원본은 연속 쓰기와 file watcher가 겹치면 쓰기를 잃을 수 있었고, 저자는 요청 사이에 간격을 둔 기록을 만들었다. Rust는 그 손실을 피하도록 바꿨다고 설명한다. 따라서 모든 원본 동작을 보존했다는 해석보다, 재생하는 조건을 정하고 일부 차이를 의도적으로 선택한 이식으로 읽어야 한다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L40">docs/real-world.md:40</a><br><span class="q">| `bench`, per call | 0.56x over the recorded cases (0.39x at first): `parse` on a normal string takes 79 ns, level with JS, but edge cases and thrown errors still cost more through the bridge |</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L41">docs/real-world.md:41</a><br><span class="q">| batch, `parse` x100,000 | JS 11.8 ms on one thread, Rust 0.65 ms on all cores: **18x**; 3.4x counting the one-time handover of the strings (2.1x before strings crossed joined) |</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L42">docs/real-world.md:42</a><br><span class="q">| batch, `format` x100,000 | JS 2.1 ms on one thread, Rust 2.5 ms on all cores with the handover: **0.8x** (0.2x at first); `format(x, { long: true })` 1.2x |</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L105">docs/real-world.md:105</a><br><span class="q">| ---: | ---: | ---: | ---: |
+| 1,000 strings | 1.9 ms | 0.1 ms | 18x |
+| 10,000 strings | 19.1 ms | 0.7 ms | 27 to 30x |
+| 50,000 strings | 91.2 ms | 2.8 ms | **32x** |
+| 50,000 strings, one core | 92.0 ms | 17.5 ms | 5.3x |
+
+What the port had to get right:
+</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L125">docs/real-world.md:125</a><br><span class="q">What it does not cover: object lists with `keys`, extended and token search, logical queries,
+`includeMatches`, a custom `sortFn` or `getFn`. The drop-in hands those to Fuse unchanged. The
+speedup needs the list to stay in Rust between searches; building it costs about as much as
+Fuse&#x27;s own index (3.4 ms against 2.8 ms for 50,000 strings).</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L144">docs/real-world.md:144</a><br><span class="q">| `wire` | reads first: 514/514 at 22.6% fallback, Node answering the writes and Rust reloading the file Node wrote; then every route: 514/514 at 0% |
+| `lift` | a pure Rust binary (5.3 MB), 514/514; `bin.ts`&#x27;s command line ported by hand (help, version, the file checks, the startup banner) |</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md#L172">docs/real-world.md:172</a><br><span class="q">show. `app record --pace 50` waits between requests, and the cases are recorded that way. The port
+reloads only when someone else changed the file, so it does not lose that write: a deliberate
+difference.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/STATUS.md#L47">docs/STATUS.md:47</a><br><span class="q">| `go` | Verified (fixtures) | Run with `--agent claude` (Claude Code 2.1.308) on macOS arm64, 2026-11-22. Python `tests/fixtures/go-fuzzy`: picks `dedupe` over `levenshtein`, 207 cases, ported in one turn, 207/207, gate passes, switched on. TS `tests/fixtures/go-search-ts`: picks `score`, called per item by `main`, with `--batch score:text`, 1,233 cases (1,000 captured from th</span></p></details></section>
+
+<section class="slide" data-role="body" data-label="평가 설계"><h2>agent 대비 향상 폭은 아직 측정 결과를 기다려야 한다</h2><div class="explanation"><p>고정 버전의 평가 문서는 “No results are published yet”라고 명시한다. STATUS도 현재 prompt로 agent를 실행한 적이 없다고 적는다. 그래서 이 도구를 쓸 때 성공률·수정 횟수·비용이 얼마나 좋아지는지에는 공개된 답이 없다. 앞의 실제 이식과 작은 comparator 실행은 이 질문을 대신하지 못한다.</p><p>준비된 평가는 같은 task·도구·시작 폴더에서 plugin 유무를 비교한다. TS·Python·Go의 작은 text utility 모듈이 대상이고, 변경하지 말아야 할 호출자를 남겨 둔다. held-out 호출은 각각 40·45·36개다. 채점기는 caller 파일이 그대로인지, 출력과 오류가 맞는지, 각 호출이 Rust library에 들어갔는지를 따로 본다. 엄격한 exact와 오류 발생만 맞는 outcome도 구분한다.</p></div><div class="tablewrap"><table><thead><tr><th>확인 자료</th><th>확인한 것</th><th>아직 답하지 못하는 것</th></tr></thead><tbody><tr><td>maintainer 이식 artifact</td><td>실제 코드와 기록이 존재하며 이식 경로를 설명</td><td>동일 모델의 무도구 대비 성공률·개발비</td></tr><tr><td>이번 comparator 실행</td><td>오류 차이를 허용하는 실제 판정 정책</td><td>전체 CLI·native bridge 동작</td></tr><tr><td>이번 Python no-op 음성 대조</td><td>원본 그대로도 45/45 출력 일치; Rust probe는 false</td><td>정상 Rust 후보의 품질이나 두 agent arm의 차이</td></tr><tr><td>준비된 A/B suite</td><td>caller·held-out·Rust 진입을 분리한 채점 설계</td><td>현재 prompt의 실행 결과와 반복 간 변동</td></tr></tbody></table></div><div class="explanation"><p>no-op 음성 대조는 이 구분이 필요한 이유를 보여 준다. 저장소의 scorer를 복사한 Python 원본에 실행하니 caller 유지와 45/45 출력 비교는 통과했지만 Rust 실행 판정은 실패했다. 원본을 그대로 둔 채 “일치했다”고 보고하는 실수를 채점기가 걸러낸 것이다. agent를 돌린 실험은 아니다.</p><p>Rust probe도 작업량을 증명하지는 않는다. 각 호출이 Rust library에 들어갔는지를 세므로, 사소한 Rust 함수를 부른 뒤 대부분의 일을 원본 언어에서 수행하는 후보가 통과할 가능성을 평가 문서가 인정한다. 공개된 작은 utility 과제의 점수만으로 전체 앱이나 stateful service를 일반화하는 데에도 추가 검증이 필요하다.</p><p>도입 효과를 판단하려면 같은 모델·예산으로 무도구 요청, 팀의 기존 differential harness, rust-anything 경로를 비교하는 편이 낫다. 독립 held-out에서 값·예외·side effect를 확인하고 사람의 수정 시간, 비용, 실제 workload 성능을 함께 기록하면, 절약된 준비 작업과 향상된 correctness를 나누어 판단할 수 있다. 이는 이 조사에서 제안하는 비교 설계다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/evals.md#L6">docs/evals.md:6</a><br><span class="q">**No results are published yet.** Numbers go here only after a full run (every case, both arms,
+at least 3 runs each) on stated hardware, with the run count, the model, the Claude Code version
+and the rust-anything version next to them. Nothing on this page is an estimate.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/evals.md#L18">docs/evals.md:18</a><br><span class="q">| `ts-textkit` | `textkit.ts` | `cli.ts`, run with `node cli.ts` | `slugify`, `truncate`, `formatBytes`, `parseDuration` | 40 |
+| `py-textkit` | `textkit.py` | `cli.py`, run with `python3 cli.py` | `title_case`, `format_number`, `parse_kv`, `wrap` | 45 |
+| `go-textkit` | package `textkit` | `cmd/textkit/main.go`, run with `go run ./cmd/textkit` | `Humanize`, `Abbrev`, `ParseRange`, `Perc</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/evals.md#L77">docs/evals.md:77</a><br><span class="q">
+`score.py` reports, per case and arm: runs, runs with the callers unchanged, runs in Rust,
+**exact** (the result or the error message is identical) and **outcome** (exact, or both sides
+returned an error with a different message), each as matched calls over all held-out calls, and</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/evals/score.py#L199">evals/score.py:199</a><br><span class="q">def runs_in_rust(case, report):
+    if &quot;error&quot; in report:
+        return False
+    rust_loaded = any(n.get(&quot;rust&quot;) for n in report.get(&quot;natives&quot;, []))
+    fns = report.get(&quot;functions&quot;, {})
+    return rust_loaded and bool(fns) and all(r[&quot;native&quot;] == r[&quot;calls&quot;] for r in fns.values())</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/evals/score.py#L248">evals/score.py:248</a><br><span class="q">                ok_exact = got[&quot;status&quot;] == &quot;ok&quot; and same(want[&quot;value&quot;], got[&quot;value&quot;], typed)
+                ok_outcome = ok_exact or (
+                    got[&quot;status&quot;] == &quot;ok&quot; and kind(want[&quot;value&quot;]) == &quot;error&quot; and kind(got[&quot;value&quot;]) == &quot;error&quot;
+                )
+                exact += ok_exact
+                outcome += ok_outcome</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/STATUS.md#L67">docs/STATUS.md:67</a><br><span class="q">| Evals (`evals/`) | Tested | cases load with `claude plugin eval --max-cost-usd 0`; `score.py` checked on hand-made workspaces (rust-anything&#x27;s flow and hand-written bindings pass the runs-in-Rust probe, untouched originals fail it); no agent has run the current prompts |</span></p></details></section>
+
+<section class="slide" data-role="body" data-label="도입 판단"><h2>원본을 재실행할 수 있는 작은 경계부터 도입할 만하다</h2><div class="explanation"><p>코드 분석에 근거한 판단은 조건부 채택이다. 원본을 재실행할 수 있고 입력·출력이 비교 가능한 utility나 계산 경계에서, bridge와 characterization을 빠르게 준비하는 데 유용하다. 이미 완성된 검증 체계가 없는 팀일수록 재사용할 부분이 많다. 성능 목적이면 실제 profile에서 시간이 쓰이는 경계를 고르고, 전송 비용까지 포함해 비교해야 한다.</p></div><div class="tablewrap"><table><thead><tr><th>상황</th><th>권하는 접근</th></tr></thead><tbody><tr><td>TS/JS·Python의 독립 계산 함수</td><td>원본 테스트 호출과 실제 입력을 기록하고 strict held-out을 추가한 pilot</td></tr><tr><td>아주 작은 함수의 반복 호출</td><td>caller의 loop를 함께 옮기거나 batch를 검토하고 동일한 최적화를 원본에도 적용</td></tr><tr><td>동시성·외부 거래·비결정성이 큰 service</td><td>side effect 격리와 독립 운영 shadow를 먼저 설계</td></tr><tr><td>C++·Swift 등 unit adapter 밖 언어</td><td>실행 가능한 앱의 외부 record/replay와 unit bridge 지원을 구분</td></tr><tr><td>이미 강한 differential CI가 있는 팀</td><td>기존 harness 대비 bridge·전환 장치의 도입·유지 비용을 비교</td></tr></tbody></table></div><div class="explanation"><p>지원 여부도 command별로 봐야 한다. TS/JS·Python·Go·Java·Ruby는 profile 경로가 있지만 나머지 언어에는 대체 profiler를 안내하는 분기가 있다. 자동 in-place 전환은 TS/JS·Python·PowerShell에 한정된다. C++처럼 unit adapter가 없는 언어도 프로그램 바깥의 app record/replay 대상으로는 삼을 수 있다. 언어 이름 하나가 전체 자동화를 뜻하지 않는다.</p><p>setup은 agent 설정에 MCP server와 skill을 추가한다. Codex에서는 설정 파일과 skill 폴더가 대상이다. bridge는 프로젝트 안에 Rust crate와 기록을 만들고, enable은 원본 파일에 표시된 재바인딩 block을 삽입한다. disable은 그 block을 제거하며 runtime switch로 원본을 선택할 수도 있다. 설치 설정 제거와 프로젝트 이식 artifact 정리는 별개 작업으로 잡는 편이 안전하다.</p></div><ul class="points"><li><b>pilot의 기준을 원본과 함께 고정한다</b>실제 입력, 오류 메시지·타입, key 순서, 허용 오차와 의도한 차이를 검토하고 기록을 보호한다.</li><li><b>agent가 고치기 어려운 별도 판정기를 둔다</b>새 입력과 중요한 오류 분기를 독립 CI에서 검사하고, Rust가 실제 계산을 맡는지 리뷰한다.</li><li><b>실제 배포 조건에서 성능과 복귀를 확인한다</b>같은 자원과 호출 패턴으로 측정하고 shadow와 원본 복귀 경로를 확인한 뒤 전환한다.</li></ul><div class="explanation"><p>이 조건을 갖추면 rust-anything은 agent가 매번 수작업으로 준비하던 migration 절차를 시작하는 도구가 된다. 전체 동작 보장과 agent 대비 생산성 향상은 그 위에 쌓는 입력 coverage, 독립 검사와 실제 비교 실험으로 판단해야 한다.</p></div><details class="orig"><summary>구현과 원문 위치</summary><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/setup.rs#L3">src/setup.rs:3</a><br><span class="q">//! For each agent it finds (or is told about), it adds the MCP server (`rust-anything mcp`) to
+//! the agent&#x27;s own configuration and, where the agent reads skills, installs the workflow skill.
+//! Existing settings are kept: only the `rust-anything` entries are added or replaced, and a file
+//! that does not parse is left alone with an error. `--remove` takes the entries out again.</span></p><p><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/src/enable.rs#L343">src/enable.rs:343</a><br><span class="q">pub fn is_supported(manifest: &amp;Manifest) -&gt; bool {
+    matches!(
+        (manifest.language, manifest.kind),
+        (Lang::Python, Kind::Pyo3)
+            | (Lang::Ts, Kind::Napi | Kind::Wasm)
+            | (Lang::Powershell, Kind::Ffi)
+    )</span></p></details></section>
+
+<section class="slide" data-role="sources" data-label="출처"><h2>출처와 확인한 범위</h2><div class="explanation"><p>주 자료는 Erkam Yaman의 <a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/README.md">rust-anything v5.0.1</a>, commit <code>a1e9509b<wbr>31bd89e0<wbr>cbf039e8<wbr>6a39ca33<wbr>8d2c67fe</code>다. README·CLAUDE·명령 설명과 STATUS·실제 이식·평가 문서를 읽고, go·profile·analyze에서 bridge·record·diff·gate·enable까지 이어지는 구현을 추적했다. 오류 검사·recording 무결성·codec·Python comparator, app replay·lift의 핵심 분기도 확인했다. vercel/ms는 manifest·기록·wrapper·Rust port를 연결해 읽었다.</p><p>언어별 codegen과 adapter 전체, 모든 통합 테스트와 demo port 전체를 열지는 않았다. 따라서 언어 전반의 동작을 독립 재현했다고 해석할 수 없다. 이력이 없는 고정 snapshot을 읽었으므로 기여자 수·release 주기 같은 유지보수 통계도 결론에 사용하지 않았다.</p><p>직접 실행한 범위는 추출한 JS/Python comparator와 Python scorer의 no-op 음성 대조다. Rust toolchain을 사용할 수 있는 설정이 없어 새로 설치하지 않았고, CLI build·native bridge·gate 전체 및 agent A/B는 실행하지 않았다. 실증 표의 이식·성능 수치는 maintainer의 자체 보고다.</p></div><ul class="sources"><li><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/how-it-works.md">How it works</a> · 명령별 동작과 제한.</li><li><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/real-world.md">Real-world runs</a> · 성능·이식 사례와 제외 범위.</li><li><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/evals.md">Evals</a> · 무도구 baseline과 held-out 평가 설계.</li><li><a href="https://github.com/erkamyaman/rust-anything/blob/a1e9509b31bd89e0cbf039e86a39ca338d2c67fe/docs/STATUS.md">Status</a> · 실제 실행과 fixture 테스트, 미검증 경로의 구분.</li><li><a href="https://aider.chat/docs/usage/lint-test.html">Aider의 Linting and testing</a> · 일반 agent에서도 가능한 자동 검사 loop.</li><li><a href="https://www.anthropic.com/research/migrating-api-to-rust">Anthropic Engineering의 Migrating our Messages API to Rust</a> · 기존 시스템을 oracle로 사용한 외부 사례. 도구의 채택 증거와 구분했다.</li></ul></section>
+</main>
+<script>
+/* board 셸 스크립트
+   board : data-cols/data-lanes 와 상자의 data-col/data-lane → CSS grid. .edge → 꺾은선 화살표
+   plot  : table.plot-data → 그 자리 너비로 그린 SVG(선) 또는 막대. 표는 데이터로 남는다
+   좁은 화면(≤760px): 판은 읽는 순서대로 한 줄, 화살표는 상자 안의 글줄
+   목차  : 장에서 만든 rail(≥1400px)과 sheet(그보다 좁을 때 위 막대의 목차 단추), 위 막대의 지금 장·이전/다음·읽은 만큼
+   스스로 검사: 상자를 지나는 화살표, 겹친 글, 넘친 글, 없는 칸 → window.__layout.warnings
+   render.mjs 는 window.__layout.done 이 true 가 된 뒤 warnings 를 읽는다 */
+(function () {
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var list = function (s) { return (s || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean); };
+  var narrow = function () { return window.matchMedia('(max-width: 760px)').matches; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var warnings = [];
+  window.__layout = { warnings: warnings, done: false };
+  var warn = function (where, msg) { var w = where + ': ' + msg; if (warnings.indexOf(w) < 0) warnings.push(w); };
+  var titleOf = function (el) { return ((el.querySelector(':scope > b') || el).textContent || '').replace(/\s+/g, ' ').trim(); };
+  // 그림의 값: [약|~] [+|-] [$] 숫자(쉼표 가능) [k|M|B] [단위]. 단위 목록은 check-doc.mjs 의 plot-data 와 같다
+  var NUM = /^([+-]?)\$?(\d+(?:\.\d+)?)([kMB]?)(%p|%|pt|ms|s|초|분|시간|일|건|개|번|회|명|배|x|×|원|달러)?$/;
+  var num = function (t) {
+    var m = NUM.exec(String(t).replace(/약|~|,|\s/g, ''));
+    if (!m) return NaN;
+    return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]) * ({ k: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1);
+  };
+
+  /* ── 장 번호, 목차 링크, 위 막대 ── */
+  var secs = $$('section.slide');
+  secs.forEach(function (s, k) {
+    if (!s.id) s.id = 'p' + (k + 1);
+    if (s.getAttribute('data-role') === 'cover') return;
+    var c = document.createElement('p'); c.className = 'chno'; c.setAttribute('aria-hidden', 'true');
+    c.textContent = String(k + 1).padStart(2, '0') + ' · ' + (s.getAttribute('data-label') || '');
+    s.insertBefore(c, s.firstChild);
+  });
+  $$('a[href^="#p"]').forEach(function (a) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) { a.removeAttribute('href'); a.classList.add('inert'); return; }
+    // 표지 흐름 판의 상자는 장 번호 칩을 셸이 링크에서 만든다. 장을 합치거나 옮겨도 칩이 낡지 않는다
+    if (a.classList.contains('card') && a.closest('section[data-role="cover"]')) {
+      var c = document.createElement('span'); c.className = 'chip'; c.textContent = (secs.indexOf(t) + 1) + '장';
+      a.insertBefore(c, a.firstChild);
+    }
+  });
+  var nav = buildNav();
+
+  /* ── 목차: rail 과 sheet 는 같은 목록이다. 장 번호, data-label, h2 를 장에서 읽는다 ──
+     무리: 표지 흐름 판의 상자가 가리키는 장은 흐름(채운 점), 표지 목록(.toc)의 장은 그 줄의 span.g 가 무리 이름이고
+     빈 span.g 는 앞 줄의 무리를 잇는다. 지금 장은 읽는 선(위 막대 아래 30%)을 지난 마지막 장이다.
+     장으로 옮겨 가는 길은 모두 #pN 링크라 주소와 뒤로 가기가 브라우저의 것 그대로다 */
+  function buildNav() {
+    var bar = document.querySelector('.topbar');
+    if (!bar || !secs.length) return null;
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var clean = function (t) { return (t || '').replace(/\s+/g, ' ').trim(); };
+    var info = secs.map(function (s, k) {
+      var h = s.querySelector('h1,h2');
+      return { s: s, h: h, n: String(k + 1).padStart(2, '0'), label: clean(s.getAttribute('data-label')) || clean(h && h.textContent) || ('장 ' + (k + 1)), claim: clean(h && h.textContent), flow: false, group: '' };
+    });
+    var byId = function (href) { var t = document.getElementById((href || '').slice(1)); return t ? secs.indexOf(t) : -1; };
+    var cover = secs[0].getAttribute('data-role') === 'cover' ? secs[0] : null;
+    if (cover) {
+      $$('.board a[href^="#p"]', cover).forEach(function (a) { var i = byId(a.getAttribute('href')); if (i > 0) info[i].flow = true; });
+      var last = '';
+      $$('.toc li', cover).forEach(function (li) {
+        var a = li.querySelector('a[href^="#p"]'), g = li.querySelector('.g'), i = a ? byId(a.getAttribute('href')) : -1;
+        if (g && clean(g.textContent)) last = clean(g.textContent);
+        if (i > 0 && !info[i].flow) info[i].group = last;
+      });
+    }
+    var hasFlow = info.some(function (x) { return x.flow; }), hasRest = info.some(function (x, k) { return k > 0 && !x.flow; });
+    function list(withKey) {
+      var ol = el('ol', 'toc-list'), fill = el('i', 'toc-fill'), items = [], sub = null, cur = null;
+      fill.setAttribute('aria-hidden', 'true'); ol.appendChild(fill);
+      info.forEach(function (x, k) {
+        var li = el('li', 'ti' + (x.flow || k === 0 ? ' is-flow' : '')), a = el('a');
+        a.href = '#' + x.s.id; if (x.claim && x.claim !== x.label) a.title = x.claim;
+        a.appendChild(el('span', 'ti-n', x.n));
+        var t = el('span', 'ti-t'); t.appendChild(el('span', 'ti-l', x.label));
+        if (x.claim && x.claim !== x.label) t.appendChild(el('span', 'ti-h', x.claim));
+        a.appendChild(t); li.appendChild(a); items.push(li);
+        if (x.group && !x.flow) {
+          if (cur !== x.group) { var g = el('li', 'tg'); g.appendChild(el('span', 'tg-h', x.group)); sub = el('ol'); g.appendChild(sub); ol.appendChild(g); cur = x.group; }
+          sub.appendChild(li);
+        } else { cur = null; ol.appendChild(li); }
+      });
+      var box = document.createDocumentFragment();
+      var head = el('div', 'toc-head'); head.appendChild(el('span', 'toc-title', '목차')); head.appendChild(el('span', 'toc-count', secs.length + '장'));
+      if (withKey) box.appendChild(head);
+      box.appendChild(ol);
+      if (hasFlow && hasRest) { var key = el('p', 'toc-key'); key.setAttribute('aria-hidden', 'true'); key.appendChild(el('span', 'k-flow', '표지 흐름의 장')); key.appendChild(el('span', '', '더 보는 장')); box.appendChild(key); }
+      return { box: box, ol: ol, fill: fill, items: items };
+    }
+
+    // 넓은 화면의 rail
+    var railNav = el('nav', 'rail'); railNav.setAttribute('aria-label', '목차');
+    var R = list(true); railNav.appendChild(R.box);
+    bar.parentNode.insertBefore(railNav, bar.nextSibling);
+
+    // 좁은 화면의 sheet. 모달 dialog 라 초점이 안에 갇히고 Esc 가 닫는다
+    var dlg = el('dialog', 'toc-sheet'); dlg.id = 'toc-sheet'; dlg.setAttribute('aria-label', '목차');
+    var inner = el('div', 'sheet-in'), sh = el('div', 'sheet-head'), x = el('button', 'tb-btn sheet-x', '닫기');
+    x.type = 'button';
+    sh.appendChild(el('span', 'toc-title', '목차')); sh.appendChild(el('span', 'toc-count', secs.length + '장')); sh.appendChild(x);
+    var body = el('div', 'sheet-body'), sheetNav = el('nav'); sheetNav.setAttribute('aria-label', '목차');
+    var S = list(false); sheetNav.appendChild(S.box); body.appendChild(sheetNav);
+    inner.appendChild(sh); inner.appendChild(body); dlg.appendChild(inner); document.body.appendChild(dlg);
+
+    // 위 막대: 지도 · 목차 단추 · 지금 장 · 이전/다음 · 읽은 만큼의 선
+    var now = bar.querySelector('.now') || bar.appendChild(el('span', 'now'));
+    now.textContent = '';
+    var nowN = now.appendChild(el('span', 'now-n')), nowL = now.appendChild(el('span', 'now-l')), nowH = now.appendChild(el('span', 'now-h'));
+    var btn = el('button', 'tb-btn tb-toc', '목차'); btn.type = 'button';
+    btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-controls', 'toc-sheet'); btn.setAttribute('aria-expanded', 'false');
+    bar.insertBefore(btn, now);
+    var steps = el('span', 'tb-steps'), prev = el('a', 'tb-btn tb-step'), next = el('a', 'tb-btn tb-step');
+    prev.rel = 'prev'; next.rel = 'next'; steps.appendChild(prev); steps.appendChild(next); bar.appendChild(steps);
+    var prog = el('i', 'tb-progress'); prog.setAttribute('aria-hidden', 'true'); bar.appendChild(prog);
+
+    var wide = window.matchMedia('(min-width: 1400px)');
+    var cur = -1, pin = -1;
+    var setStep = function (a, k, word) {
+      if (k < 0 || k >= info.length) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.setAttribute('aria-label', word + ' 장 없음'); a.removeAttribute('title'); return; }
+      a.href = '#' + info[k].s.id; a.removeAttribute('aria-disabled');
+      var t = word + ' 장: ' + info[k].n + ' · ' + info[k].label; a.setAttribute('aria-label', t); a.title = t;
+    };
+    var fillTo = function (L) {
+      var li = L.items[cur]; if (!li || !li.offsetParent) return;
+      var a = li.firstChild, top = parseFloat(getComputedStyle(a, '::before').top) || 12;
+      L.fill.style.height = Math.max(0, a.getBoundingClientRect().top - L.ol.getBoundingClientRect().top + top + 4 - 16) + 'px';
+    };
+    var keepVisible = function () {
+      var li = R.items[cur]; if (!li || !wide.matches) return;
+      var r = li.getBoundingClientRect(), box = railNav.getBoundingClientRect();
+      if (r.top < box.top + 48) railNav.scrollTop += r.top - box.top - 48;
+      else if (r.bottom > box.bottom - 48) railNav.scrollTop += r.bottom - box.bottom + 48;
+    };
+    function setCurrent(k) {
+      if (k === cur) return;
+      cur = k;
+      [R, S].forEach(function (L) {
+        L.items.forEach(function (li, i) {
+          var a = li.firstChild;
+          if (i === k) { li.setAttribute('data-cur', ''); a.setAttribute('aria-current', 'location'); } else { li.removeAttribute('data-cur'); a.removeAttribute('aria-current'); }
+          li.classList.toggle('is-past', i < k);
+        });
+        fillTo(L);
+      });
+      var x2 = info[k];
+      nowN.textContent = x2.n; nowL.textContent = x2.label; nowH.textContent = x2.claim !== x2.label ? x2.claim : '';
+      setStep(prev, k - 1, '이전'); setStep(next, k + 1, '다음');
+      keepVisible();
+    }
+    var topOf = function () { return bar.getBoundingClientRect().bottom; };
+    function pick() {
+      var de = document.documentElement, vh = window.innerHeight;
+      var p = de.scrollHeight - vh > 0 ? Math.min(1, Math.max(0, window.scrollY / (de.scrollHeight - vh))) : 1;
+      prog.style.transform = 'scaleX(' + p + ')';
+      if (pin >= 0) {
+        var r = secs[pin].getBoundingClientRect();
+        if (r.top < vh && r.bottom > topOf() + 8) { setCurrent(pin); return; }
+        pin = -1;
+      }
+      // 읽는 선은 위 막대 아래 30% 다. 마지막 장이 그 선까지 올라오지 못하는 문서는 끝에 가까울수록 선을 내려,
+      // 맨 끝에서 마지막 장이 되고 그 앞의 짧은 장들도 차례로 지금 장이 된다
+      var r = Math.max(0, de.scrollHeight - vh - window.scrollY), base = topOf() + Math.min(vh * 0.3, 260);
+      var line = Math.max(base, secs[secs.length - 1].getBoundingClientRect().top - 2 * r + 1), k = 0;
+      for (var i = 0; i < secs.length; i++) { if (secs[i].getBoundingClientRect().top <= line) k = i; else break; }
+      setCurrent(k);
+    }
+    var raf = 0;
+    var schedule = function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; pick(); }); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', function () { cur = -1; schedule(); if (wide.matches && dlg.open) dlg.close(); });
+    // 손으로 굴리면 링크로 고른 장의 고정을 푼다
+    var touched = false, unpin = function () { pin = -1; touched = true; };
+    window.addEventListener('wheel', unpin, { passive: true });
+    window.addEventListener('touchstart', unpin, { passive: true });
+    window.addEventListener('keydown', function (e) { if (/^(Arrow(Up|Down)|Page(Up|Down)|Home|End| )$/.test(e.key) && !dlg.open) unpin(); });
+    var fromHash = function () { touched = true; var i = byId(location.hash); if (i >= 0) { pin = i; setCurrent(i); } schedule(); };
+    window.addEventListener('hashchange', fromHash);
+
+    // sheet 열고 닫기. 닫으면 초점은 단추로 돌아온다(장을 고른 경우에는 그 장의 제목으로 간다)
+    var open = function () {
+      if (dlg.open) return;
+      dlg.showModal(); btn.setAttribute('aria-expanded', 'true');
+      cur = -1; pick();
+      var li = S.items[cur];
+      if (li) { li.firstChild.focus(); var r = li.getBoundingClientRect(), b = body.getBoundingClientRect(); body.scrollTop += r.top - b.top - b.height / 3; }
+    };
+    btn.addEventListener('click', open);
+    x.addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('close', function () { btn.setAttribute('aria-expanded', 'false'); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    S.ol.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return;
+      e.preventDefault();
+      var i = byId(a.getAttribute('href'));
+      dlg.close();
+      if (i < 0) return;
+      if (location.hash === a.getAttribute('href')) { pin = i; secs[i].scrollIntoView({ block: 'start' }); setCurrent(i); }
+      else location.hash = a.getAttribute('href');
+      if (info[i].h) { info[i].h.setAttribute('tabindex', '-1'); info[i].h.focus({ preventScroll: true }); }
+    });
+
+    var start = byId(location.hash);
+    if (start >= 0) setCurrent(start); else pick();
+    return {
+      // 판과 그림이 다 그려진 뒤: 주소의 장으로 다시 맞추고(그 사이 위 장들의 높이가 바뀐다) 채움 선을 다시 잰다
+      settle: function () {
+        var how = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+        if (start >= 0 && !touched && how !== 'reload' && how !== 'back_forward') { secs[start].scrollIntoView({ block: 'start', behavior: 'instant' }); pin = start; }
+        cur = -1; pick();
+      }
+    };
+  }
+
+  /* ── board: 칸 배치 ── */
+  function idx(spec, names) {
+    var one = function (v) { var n = names.indexOf(v); if (n >= 0) return n; var k = parseInt(v, 10); return isNaN(k) || String(k) !== v ? -1 : k - 1; };
+    if (!spec) return [0, 0];
+    if (spec === 'all') return [0, names.length - 1];
+    var ab = spec.split('..'), i = one(ab[0].trim()), j = ab[1] ? one(ab[1].trim()) : i;
+    if (i >= names.length || j >= names.length || j < i) return [-1, -1];
+    return [i, j];
+  }
+  function buildBoard(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    var cols = list(board.dataset.cols), lanes = list(board.dataset.lanes);
+    var ncol = Math.max(cols.length, 1), nl = Math.max(lanes.length, 1);
+    var colNames = cols.length ? cols : ['1'], laneNames = lanes.length ? lanes : ['1'];
+    // 칸과 줄의 이름은 화면에 보인다. 숫자만 쓴 이름(1|2|3)은 이름 없는 칸·줄이라 보이지 않는다.
+    var named = function (ns) { return ns.length > 0 && !ns.every(function (c) { return /^\d+$/.test(c); }); };
+    var laneLabels = named(lanes);
+    var axis = named(cols);
+    // 좁은 화면의 읽는 순서: 이름 있는 줄이 있으면 줄마다, 없으면 칸마다. data-read 가 정하면 그것을 따른다
+    var byCols = board.dataset.read ? board.dataset.read === 'cols' : !laneLabels;
+    var widths = (board.dataset.widths || '').split(/\s+/).filter(Boolean);
+    var cards = $$(':scope > .card', board);
+    cards.filter(function (c) { return c.classList.contains('react'); }).forEach(function (r) {
+      var t = document.getElementById(r.dataset.on);
+      if (!t || t.parentElement !== board) { warn(name, 'reaction points at missing card "' + r.dataset.on + '"'); return; }
+      if (!r.dataset.col) r.dataset.col = t.dataset.col || '1';
+      if (!r.dataset.lane) r.dataset.lane = t.dataset.lane || '1';
+    });
+    var occ = {}, laneRows = []; for (var q = 0; q < nl; q++) laneRows.push(1);
+    var pl = cards.map(function (c) {
+      var cc = idx(c.dataset.col, colNames), ll = idx(c.dataset.lane, laneNames);
+      if (cc[0] < 0 || ll[0] < 0) { warn(name, 'unknown lane/col on "' + titleOf(c).slice(0, 24) + '"'); cc = [0, 0]; ll = [0, 0]; }
+      return { c: c, c0: cc[0], c1: cc[1], l0: ll[0], l1: ll[1], s: 0 };
+    });
+    pl.forEach(function (p) {
+      if (p.l0 !== p.l1) return;
+      var s = 0;
+      for (;; s++) { var free = true; for (var k = p.c0; k <= p.c1; k++) if (occ[p.l0 + ':' + k + ':' + s]) free = false; if (free) break; }
+      for (var k2 = p.c0; k2 <= p.c1; k2++) occ[p.l0 + ':' + k2 + ':' + s] = 1;
+      p.s = s; laneRows[p.l0] = Math.max(laneRows[p.l0], s + 1);
+    });
+    var head = axis ? 1 : 0, lc = laneLabels ? 1 : 0, start = [], r = 1 + head;
+    for (var i = 0; i < nl; i++) { start[i] = r; r += laneRows[i]; }
+    board.style.gridTemplateColumns = (laneLabels ? 'minmax(72px, 104px) ' : '') +
+      colNames.map(function (_, i2) { return 'minmax(0, ' + (widths[i2] || 1) + 'fr)'; }).join(' ');
+    pl.forEach(function (p) {
+      p.c.style.gridColumn = (p.c0 + 1 + lc) + ' / ' + (p.c1 + 2 + lc);
+      p.c.style.gridRow = p.l0 === p.l1 ? String(start[p.l0] + p.s) : start[p.l0] + ' / ' + (start[p.l1] + laneRows[p.l1]);
+      p.order = byCols ? p.c0 * 1000 + p.l0 * 100 + p.s : p.l0 * 1000 + p.s * 100 + p.c0;
+    });
+    pl.forEach(function (p) {
+      if (p.c.classList.contains('react')) { var tp = pl.filter(function (x) { return x.c.id === p.c.dataset.on; })[0]; if (tp) p.order = tp.order + 0.5; }
+      p.c.style.order = String(Math.round(p.order * 2));
+      if (axis && cols.length) {
+        var chip = document.createElement('span'); chip.className = 'chip colchip'; chip.setAttribute('aria-hidden', 'true');
+        chip.textContent = p.c0 === p.c1 ? cols[p.c0] : (p.c0 === 0 && p.c1 === ncol - 1) ? '모든 칸' : cols[p.c0] + '–' + cols[p.c1];
+        p.c.insertBefore(chip, p.c.firstChild);
+      }
+    });
+    var add = function (cls, col, row, text, order) {
+      var d = document.createElement('div'); d.className = cls; d.setAttribute('aria-hidden', 'true');
+      if (text != null) d.textContent = text; d.style.gridColumn = col; d.style.gridRow = row;
+      if (order != null) d.style.order = String(order);
+      board.insertBefore(d, board.firstChild); return d;
+    };
+    if (axis) cols.forEach(function (t, i3) { add('axis-h', String(i3 + 1 + lc), '1', t); });
+    if (axis && board.dataset.axisArrow) {
+      add('axis-arrow', (1 + lc) + ' / ' + (ncol + 1 + lc), '1');
+      add('axis-cap', laneLabels ? '1' : String(ncol + lc), laneLabels ? '1' : '2', board.dataset.axisArrow);
+    }
+    lanes.forEach(function (t, i4) {
+      if (laneLabels) {
+        var l = add('lane-label', '1', start[i4] + ' / ' + (start[i4] + laneRows[i4]), t, byCols ? -1 : i4 * 2000 - 1);
+        l.removeAttribute('aria-hidden');
+        if (i4 > 0) add('lane-rule', '1 / -1', String(start[i4]));
+      }
+    });
+    var order = pl.slice().sort(function (a, b) { return a.order - b.order; }).map(function (p) { return p.c; });
+    board._edges = [];
+    $$(':scope > .edge', board).forEach(function (e) {
+      var s = document.getElementById(e.dataset.from), t = document.getElementById(e.dataset.to);
+      if (!s || !t || s.parentElement !== board || t.parentElement !== board) { warn(name, 'edge ' + e.dataset.from + '→' + e.dataset.to + ' has no card'); return; }
+      board._edges.push(e);
+      var label = e.textContent.trim(), back = order.indexOf(t) < order.indexOf(s);
+      if (label || back) { var d = document.createElement('p'); d.className = 'to'; d.textContent = (back ? '↺ ' : '→ ') + (label ? label + ': ' : '') + titleOf(t); s.appendChild(d); }
+    });
+  }
+
+  /* ── board: 화살표. 상자의 실제 위치에서 계산한다 ── */
+  function wire(board, bi) {
+    var old = board.querySelector(':scope > svg.wires'); if (old) old.remove();
+    board.style.paddingBottom = '';
+    var reacts = $$(':scope > .card.react[data-on]', board);
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    if (board.scrollWidth > board.clientWidth + 2) warn(name, 'board is wider than the page');
+    if (narrow() || (!(board._edges || []).length && !reacts.length)) return;
+    var B = board.getBoundingClientRect();
+    var rect = function (el) { var q = el.getBoundingClientRect(); return { l: q.left - B.left, t: q.top - B.top, r: q.right - B.left, b: q.bottom - B.top, el: el }; };
+    var cards = $$(':scope > .card', board).map(rect);
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'wires');
+    svg.setAttribute('width', B.width); svg.setAttribute('height', B.height + 60); svg.setAttribute('role', 'img');
+    var said = [], needBottom = 0, segs = [], labels = [];
+    var cx = function (q) { return (q.l + q.r) / 2; }, cy = function (q) { return (q.t + q.b) / 2; };
+    board._edges.forEach(function (e) {
+      var S = document.getElementById(e.dataset.from), T = document.getElementById(e.dataset.to);
+      var s = rect(S), t = rect(T), pts, lo, hi;
+      if (t.l >= s.r - 2) {
+        lo = Math.max(s.t, t.t); hi = Math.min(s.b, t.b);
+        if (hi - lo >= 24) { var sm = (s.b - s.t) < (t.b - t.t) ? s : t; var y = Math.min(Math.max(cy(sm), lo + 12), hi - 12); pts = [[s.r, y], [t.l, y]]; }
+        else { var mx = (s.r + t.l) / 2; pts = [[s.r, cy(s)], [mx, cy(s)], [mx, cy(t)], [t.l, cy(t)]]; }
+      } else if (t.r <= s.l + 2) {
+        var yb = Math.max(s.b, t.b) + 26; needBottom = Math.max(needBottom, yb + 26);
+        pts = [[cx(s), s.b], [cx(s), yb], [cx(t), yb], [cx(t), t.b]];
+      } else if (t.t >= s.b - 2) {
+        lo = Math.max(s.l, t.l); hi = Math.min(s.r, t.r);
+        if (hi - lo >= 24) pts = [[(lo + hi) / 2, s.b], [(lo + hi) / 2, t.t]];
+        else { var my = (s.b + t.t) / 2; pts = [[cx(s), s.b], [cx(s), my], [cx(t), my], [cx(t), t.t]]; }
+      } else {
+        var x = (Math.max(s.l, t.l) + Math.min(s.r, t.r)) / 2; pts = [[x, s.t], [x, t.b]];
+      }
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M' + pts.map(function (q) { return q.join(' '); }).join(' L')); svg.appendChild(p);
+      var a = pts[pts.length - 2], b = pts[pts.length - 1], dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+      var h = document.createElementNS(NS, 'path'); h.setAttribute('class', 'head');
+      h.setAttribute('d', dx ? 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] - 4.5) + ' L' + (b[0] - 8 * dx) + ' ' + (b[1] + 4.5) + ' Z'
+                             : 'M' + b[0] + ' ' + b[1] + ' L' + (b[0] - 4.5) + ' ' + (b[1] - 8 * dy) + ' L' + (b[0] + 4.5) + ' ' + (b[1] - 8 * dy) + ' Z');
+      svg.appendChild(h);
+      for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], s: S, t: T });
+      var label = e.textContent.trim();
+      said.push(titleOf(S) + ' → ' + titleOf(T) + (label ? ' (' + label + ')' : ''));
+      if (label) {
+        var best = 0, bl = -1;
+        for (var k = 0; k < pts.length - 1; k++) { var L = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); if (L > bl) { bl = L; best = k; } }
+        var p0 = pts[best], p1 = pts[best + 1], mxl = (p0[0] + p1[0]) / 2, myl = (p0[1] + p1[1]) / 2;
+        e.style.left = '0px'; e.style.top = '0px';
+        var w = e.offsetWidth, hh = e.offsetHeight;
+        e.style.left = (p0[1] === p1[1] ? mxl - w / 2 : mxl + 6) + 'px'; e.style.top = (myl - hh / 2) + 'px';
+        labels.push(e);
+      }
+    });
+    reacts.forEach(function (r) {
+      var T = document.getElementById(r.dataset.on); if (!T) return;
+      var a = rect(r), t = rect(T), x = Math.max(a.l, t.l) + 18;
+      var p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'tether');
+      p.setAttribute('d', a.t >= t.b ? 'M' + x + ' ' + t.b + ' L' + x + ' ' + a.t : 'M' + a.l + ' ' + cy(a) + ' L' + t.r + ' ' + cy(t));
+      svg.appendChild(p);
+      said.push(titleOf(T) + ' 에 붙은 외부 반응');
+    });
+    svg.setAttribute('aria-label', '연결: ' + said.join('; '));
+    board.insertBefore(svg, board.firstChild);
+    if (needBottom > B.height) board.style.paddingBottom = (24 + needBottom - B.height) + 'px';
+    var hit = function (sg, c) { var l = Math.min(sg.a[0], sg.b[0]), r2 = Math.max(sg.a[0], sg.b[0]), t2 = Math.min(sg.a[1], sg.b[1]), b2 = Math.max(sg.a[1], sg.b[1]); return r2 > c.l + 3 && l < c.r - 3 && b2 > c.t + 3 && t2 < c.b - 3; };
+    segs.forEach(function (sg) { cards.forEach(function (c) { if (c.el !== sg.s && c.el !== sg.t && hit(sg, c)) warn(name, 'wire ' + sg.s.id + '→' + sg.t.id + ' crosses "' + titleOf(c.el).slice(0, 20) + '"'); }); });
+    var lr = labels.map(rect);
+    lr.forEach(function (L, i) {
+      cards.forEach(function (c) { if (L.r > c.l && L.l < c.r && L.b > c.t && L.t < c.b) warn(name, 'label "' + L.el.textContent.trim() + '" overlaps a card'); });
+      for (var j = i + 1; j < lr.length; j++) { var M = lr[j]; if (L.r > M.l && L.l < M.r && L.b > M.t && L.t < M.b) warn(name, 'two labels overlap'); }
+    });
+  }
+  function overflowCheck(board, bi) {
+    var name = board.getAttribute('aria-label') || ('board ' + (bi + 1));
+    $$(':scope > .card', board).forEach(function (c) { if (c.scrollWidth > c.clientWidth + 2) warn(name, 'text spills out of "' + titleOf(c).slice(0, 20) + '"'); });
+  }
+
+  /* ── plot ── */
+  function buildPlot(fig, fi) {
+    var table = fig.querySelector('table.plot-data'); if (!table) return;
+    var lg = document.createElement('div'); lg.className = 'plot-legend';
+    var cv = document.createElement('div'); cv.className = 'plot-canvas';
+    var mk = document.createElement('ol'); mk.className = 'plot-marks';
+    table.parentNode.insertBefore(lg, table); table.parentNode.insertBefore(cv, table); table.parentNode.insertBefore(mk, table);
+    var det = document.createElement('details'); det.className = 'vals'; det.innerHTML = '<summary>값 표 보기</summary>';
+    table.parentNode.insertBefore(det, table); det.appendChild(table);
+    fig._t = table; fig._cv = cv; fig._lg = lg; fig._mk = mk; fig._name = 'plot ' + (fi + 1) + ' "' + ((fig.querySelector('.fig-title') || {}).textContent || '').trim().slice(0, 24) + '"';
+  }
+  function colorFor(emph, s) { var i = emph.indexOf(s); return i === 0 ? 'var(--s1)' : i === 1 ? 'var(--s2)' : 'var(--dim)'; }
+  function drawBars(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg;
+    var ci = +table.dataset.cat || 0, ys = (table.dataset.y || '').split(/\s+/).filter(Boolean).map(Number);
+    var heads = Array.prototype.slice.call(table.tHead.rows[0].cells).map(function (c) { return c.textContent.trim(); });
+    var colors = ys.length === 1 ? ['var(--s1)'] : ys.map(function (_, i) { return i === ys.length - 1 ? 'var(--s1)' : i === ys.length - 2 ? 'var(--dim)' : 'var(--s2)'; });
+    lg.innerHTML = ys.length > 1 ? ys.map(function (y, i) { return '<span><i style="background:' + colors[i] + '"></i>' + heads[y] + '</span>'; }).join('') : '';
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var emph = list(table.dataset.emph);
+    var bad = rows.filter(function (tr) { return ys.some(function (y) { return !isFinite(num(tr.cells[y].textContent)); }); });
+    if (bad.length) warn(fig._name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (tr) { return bad.indexOf(tr) < 0; });
+    var max = +table.dataset.max || Math.max.apply(null, rows.map(function (tr) { return Math.max.apply(null, ys.map(function (y) { return num(tr.cells[y].textContent); })); }));
+    var html = '<div class="bars">';
+    rows.forEach(function (tr) {
+      var em = emph.indexOf(tr.cells[ci].textContent.trim()) >= 0;
+      html += '<div class="bar-row' + (em ? ' is-em' : '') + '"><span class="bar-name">' + tr.cells[ci].innerHTML + '</span><span class="bar-set">';
+      ys.forEach(function (y, i) {
+        var v = num(tr.cells[y].textContent);
+        // 값 열이 하나일 때 강조한 행만 색을 쓰고 나머지는 회색이다. 지는 행도 지우지 않는다
+        var col = ys.length === 1 && emph.length && !em ? 'var(--dim)' : colors[i];
+        html += '<span class="bar-line"><span class="bar-track"><span class="bar-fill" style="width:' + Math.max(0, Math.min(100, v / max * 100)) + '%;background:' + col + '"></span></span><span class="bar-val">' + tr.cells[y].textContent.trim() + '</span></span>';
+      });
+      html += '</span></div>';
+    });
+    cv.innerHTML = html + '</div>';
+    cv.setAttribute('role', 'img');
+    cv.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + rows.map(function (tr) { return tr.cells[ci].textContent.trim() + ': ' + ys.map(function (y) { return heads[y] + ' ' + tr.cells[y].textContent.trim(); }).join(', '); }).join('. '));
+  }
+  function drawLine(fig) {
+    var table = fig._t, cv = fig._cv, lg = fig._lg, mkl = fig._mk, name = fig._name;
+    var si = +table.dataset.series, xi = +table.dataset.x, yi = +table.dataset.y, xlog = table.hasAttribute('data-xlog');
+    var emph = list(table.dataset.emph);
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows).map(function (tr) {
+      return { tr: tr, s: tr.cells[si].textContent.trim(), x: num(tr.cells[xi].textContent), y: num(tr.cells[yi].textContent), label: tr.dataset.label, id: tr.id };
+    });
+    var bad = rows.filter(function (r) { return !isFinite(r.x) || !isFinite(r.y); });
+    if (bad.length) warn(name, bad.length + ' rows are not numbers and were left out');
+    rows = rows.filter(function (r) { return isFinite(r.x) && isFinite(r.y) && (!xlog || r.x > 0); });
+    if (rows.length < 2) { cv.innerHTML = ''; lg.innerHTML = ''; mkl.innerHTML = ''; warn(name, 'fewer than two rows to draw'); return; }
+    var series = rows.map(function (r) { return r.s; }).filter(function (s, i, a) { return a.indexOf(s) === i; });
+    var others = series.filter(function (s) { return emph.indexOf(s) < 0; });
+    lg.innerHTML = emph.map(function (s) { return '<span><i style="background:' + colorFor(emph, s) + '"></i>' + s + '</span>'; }).join('') +
+      (others.length ? '<span><i style="background:var(--dim)"></i>' + others.join(', ') + '</span>' : '');
+    var W = Math.max(cv.clientWidth, 260), small = W < 520, H = small ? 340 : 360;
+    var m = { l: 40, r: 12, t: 14, b: 30 };
+    var f = xlog ? Math.log10 : function (v) { return v; };
+    var xv = rows.map(function (r) { return r.x; }), yv = rows.map(function (r) { return r.y; });
+    var x0 = f(Math.min.apply(null, xv) / (xlog ? 1.15 : 1)), x1 = f(Math.max.apply(null, xv) * (xlog ? 1.12 : 1));
+    if (!xlog) { var pad = (x1 - x0) * 0.06 || 1; x0 -= pad; x1 += pad; }
+    var step = +table.dataset.ystep || 10;
+    var y0 = table.dataset.ymin != null ? +table.dataset.ymin : Math.floor((Math.min.apply(null, yv) - step / 5) / step) * step;
+    var y1 = table.dataset.ymax != null ? +table.dataset.ymax : Math.ceil((Math.max.apply(null, yv) + step / 5) / step) * step;
+    var X = function (v) { return m.l + (f(v) - x0) / (x1 - x0) * (W - m.l - m.r); };
+    var Y = function (v) { return m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b); };
+    var yUnit = /%/.test(rows[0] ? rows[0].tr.cells[yi].textContent : '') ? '%' : '';
+    cv.innerHTML = ''; mkl.innerHTML = '';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    cv.appendChild(svg);
+    var el = function (tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    var placed = [];
+    for (var v = y0; v <= y1 + 1e-9; v += step) {
+      el('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) });
+      var tk = el('text', { class: 'tick', x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end' }, v + yUnit);
+      var bb = tk.getBBox(); placed.push({ x: bb.x, y: bb.y, width: bb.width + 4, height: bb.height });
+    }
+    var cand = xlog ? [1, 2, 5, 10, 20, 50, 100, 200, 300, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 3e5, 5e5, 1e6, 2e6, 5e6] : [];
+    if (!xlog) { var xs = (x1 - x0) / 5; var mag = Math.pow(10, Math.floor(Math.log10(xs))); var st = [1, 2, 5, 10].map(function (k) { return k * mag; }).filter(function (k) { return k >= xs; })[0] || xs; for (var c = Math.ceil(x0 / st) * st; c <= x1; c += st) cand.push(c); }
+    var xPre = /^\s*(약\s*|~\s*)?\$/.test(rows[0].tr.cells[xi].textContent) ? '$' : '';
+    var kfmt = function (n) { return xPre + (n >= 1e6 ? n / 1e6 + 'M' : n >= 1e3 ? n / 1e3 + 'k' : String(+n.toFixed(3))); };
+    cand.forEach(function (c) { if (f(c) >= x0 && f(c) <= x1) el('text', { class: 'tick', x: X(c), y: H - 8, 'text-anchor': 'middle' }, kfmt(c)); });
+    var segs = [], pts = [];
+    var drawOrder = others.concat(emph.slice().reverse()).filter(function (s) { return series.indexOf(s) >= 0; });
+    drawOrder.forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; });
+      el('polyline', { class: 'ln', stroke: colorFor(emph, s), points: rs.map(function (r) { return X(r.x) + ',' + Y(r.y); }).join(' ') });
+      rs.forEach(function (r, i) { pts.push([X(r.x), Y(r.y)]); if (i) segs.push([[X(rs[i - 1].x), Y(rs[i - 1].y)], [X(r.x), Y(r.y)]]); });
+      rs.forEach(function (r) { el('circle', { class: 'dot', cx: X(r.x), cy: Y(r.y), r: emph.indexOf(s) >= 0 ? 5 : 4, fill: colorFor(emph, s) }); });
+    });
+    var refIds = (table.dataset.ref || '').split(/\s+/).filter(Boolean);
+    var ra = rows.filter(function (r) { return r.id === refIds[0]; })[0], rb = rows.filter(function (r) { return r.id === refIds[1]; })[0];
+    // 기준선은 점선이고 글에 테두리가 있어 글이 지나가도 읽힌다. 글 자리를 고를 때 장애물로 세지 않는다
+    if (ra && rb) el('line', { class: 'ref', x1: X(ra.x) + 6, y1: Y(ra.y), x2: X(rb.x) - 6, y2: Y(rb.y) });
+    var score = function (b, withMarks) {
+      var n = 0;
+      if (b.x < 0 || b.x + b.width > W || b.y < 0 || b.y + b.height > H - m.b + 4) n += 5;
+      placed.forEach(function (q) { if (b.x < q.x + q.width && b.x + b.width > q.x && b.y < q.y + q.height && b.y + b.height > q.y) n += 3; });
+      pts.forEach(function (p) { if (p[0] > b.x - 5 && p[0] < b.x + b.width + 5 && p[1] > b.y - 5 && p[1] < b.y + b.height + 5) n += 2; });
+      if (!withMarks) segs.forEach(function (sg) { for (var k = 0; k <= 10; k++) { var sx = sg[0][0] + (sg[1][0] - sg[0][0]) * k / 10, sy = sg[0][1] + (sg[1][1] - sg[0][1]) * k / 10; if (sx > b.x && sx < b.x + b.width && sy > b.y && sy < b.y + b.height) { n += 1; break; } } });
+      return n;
+    };
+    var fit = function (t, x, y, offs, loose) {
+      var best = null;
+      for (var i = 0; i < offs.length; i++) {
+        var o = offs[i]; t.setAttribute('x', x + o[0]); t.setAttribute('y', y + o[1]); t.setAttribute('text-anchor', o[2]);
+        var b = t.getBBox(), box = { x: b.x - 2, y: b.y - 1, width: b.width + 4, height: b.height + 2 }, sc = score(box, loose);
+        if (!best || sc < best.sc) best = { sc: sc, o: o, box: box };
+        if (sc === 0) break;
+      }
+      t.setAttribute('x', x + best.o[0]); t.setAttribute('y', y + best.o[1]); t.setAttribute('text-anchor', best.o[2]);
+      return best;
+    };
+    var OFF = [[9, 4, 'start'], [0, -11, 'middle'], [-9, 4, 'end'], [0, 19, 'middle'], [7, -9, 'start'], [-7, -9, 'end'], [7, 17, 'start'], [-7, 17, 'end'],
+      [14, -14, 'start'], [-14, -14, 'end'], [14, 24, 'start'], [-14, 24, 'end'], [0, -22, 'middle'], [0, 30, 'middle']];
+    var MK = [[6, -6, 'start'], [-6, -6, 'end'], [6, 14, 'start'], [-6, 14, 'end'], [9, 4, 'start'], [-9, 4, 'end'], [0, -10, 'middle'], [0, 18, 'middle']];
+    var marks = 0;
+    // 글을 둘 자리가 없으면 점 옆에 번호만 두고 글은 그림 아래 목록으로 보낸다. 선택 글은 범례가 대신한다.
+    var place = function (x, y, text, cls, fill, offs, optional) {
+      var t = el('text', { class: cls, fill: fill || '' }, text), best = fit(t, x, y, offs, false);
+      if (best.sc === 0) { placed.push(best.box); return; }
+      t.remove(); if (optional) return;
+      var n = String(++marks), k = el('text', { class: 'mk' }, n), bm = fit(k, x, y, MK, true);
+      placed.push(bm.box);
+      if (bm.sc >= 3) warn(name, 'marker for "' + text + '" overlaps');
+      var li = document.createElement('li'); li.innerHTML = '<b>' + n + '</b> '; li.appendChild(document.createTextNode(text)); mkl.appendChild(li);
+    };
+    rows.filter(function (r) { return r.label; }).forEach(function (r) { place(X(r.x), Y(r.y), r.label, emph.indexOf(r.s) === 0 ? 'lbl strong' : 'lbl', '', OFF, false); });
+    if (ra && rb && table.dataset.refLabel) place((X(ra.x) + X(rb.x)) / 2, (Y(ra.y) + Y(rb.y)) / 2, table.dataset.refLabel, 'lbl', 'var(--muted)', [[0, 16, 'middle'], [0, -8, 'middle'], [0, 30, 'middle']], true);
+    series.filter(function (s) { return !rows.some(function (r) { return r.s === s && r.label; }); }).forEach(function (s) {
+      var rs = rows.filter(function (r) { return r.s === s; }), r = rs[rs.length - 1]; place(X(r.x), Y(r.y), s, 'lbl', 'var(--muted)', OFF, true);
+    });
+    svg.setAttribute('aria-label', ((fig.querySelector('.fig-title') || {}).textContent || '') + '. ' + series.map(function (s) {
+      return s + ': ' + rows.filter(function (r) { return r.s === s; }).map(function (r) { return r.tr.cells[xi].textContent.trim() + ', ' + r.tr.cells[yi].textContent.trim(); }).join('; ');
+    }).join('. '));
+  }
+  function drawPlot(fig) {
+    if (!fig._t) return;
+    if (fig._t.dataset.kind === 'bars') drawBars(fig); else drawLine(fig);
+  }
+
+  /* ── ladder: 막대 길이는 상자에 적힌 숫자에서 잰다. 같은 수를 두 번 쓰지 않는다 ── */
+  $$('.ladder[data-meter]').forEach(function (lad) {
+    var bigs = $$(':scope > .card .big', lad), vals = bigs.map(function (b) { return Math.abs(num(b.textContent.replace(/[+p]/g, ''))); });
+    var mx = Math.max.apply(null, vals);
+    bigs.forEach(function (b, i) { var m = document.createElement('span'); m.className = 'meter'; m.setAttribute('aria-hidden', 'true'); m.innerHTML = '<i style="width:' + (mx ? vals[i] / mx * 100 : 0) + '%"></i>'; b.parentNode.insertBefore(m, b.nextSibling); });
+  });
+
+  // 표지 목록은 두 칸에 위에서 아래로 채운다
+  $$('.toc ul').forEach(function (u) { u.style.gridTemplateRows = 'repeat(' + Math.ceil(u.children.length / 2) + ', auto)'; });
+  var boards = $$('.board'); boards.forEach(buildBoard);
+  var buildWarn = warnings.slice();
+  var plots = $$('figure.plot'); plots.forEach(buildPlot);
+  var layout = function () {
+    warnings.length = 0; buildWarn.forEach(function (w) { warnings.push(w); });
+    plots.forEach(drawPlot); boards.forEach(wire); boards.forEach(overflowCheck);
+  };
+  var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(layout, 120); });
+  layout();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { layout(); if (nav) nav.settle(); window.__layout.done = true; });
+})();
+</script>
+</body>
+</html>
