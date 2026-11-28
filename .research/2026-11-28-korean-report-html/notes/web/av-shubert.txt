@@ -1,0 +1,419 @@
+The Comprehensibility of Simplified English in Procedures - Serena K. Shubert, Jan H. Spyridakis, Heather K. Holmback, Mary B. Coney, 1995 (https://journals.sagepub.com/doi/10.2190/WG69-D74B-4DLL-2WBK)
+citeturn21view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://journals.sagepub.com/doi/10.2190/WG69-D74B-4DLL-2WBK","lineno":null}); Total lines: 416
+L0: 【0†iframe†analytics.sagepub.com】
+L1: 
+L2: 【1†Skip to main content】
+L3: 
+L4: 【2†Open Drawer Menu Menu】
+L5: 
+L6: #### Add email alerts
+L7: 
+L8: You are adding the following journal to your email alerts
+L9: 
+L10: [Input][Input]
+L11:  | New content
+L12: --- | ---
+L13: Journal of Technical Writing and Communication  | [Input]
+L14: [Button: Create email alert]
+L15: 
+L16: Restricted access
+L17: 
+L18: Research article
+L19: 
+L20: First published October 1995
+L21: 
+L22: 【3†Re-use permissions†s100.copyright.com】
+L23: # The Comprehensibility of Simplified English in Procedures
+L24: 
+L25: 【4†Serena K. Shubert】, 【5†Jan H. Spyridakis】, […], 【6†Heather K. Holmback】, and 【7†Mary B. Coney】+1-1【8†View all authors and affiliations】
+L26: 
+L27: 【9†Volume 25, Issue 4】
+L28: 
+L29: 【10†https://doi.org/10.2190/WG69-D74B-4DLL-2WBK†doi.org】
+L30: ## Abstract
+L31: Anecdotal evidence suggests that using a restricted language called Simplified English (SE) to write procedural documents is the best method to accommodate specific audiences. Providing empirical data to prove or disprove this hypothesis is the point of the experiment reported here.
+L32: This study examined the effect of document type (SE versus non-SE), passage (Procedure A versus Procedure B), and native language (native versus non-native English speakers) on the comprehensibility, identification of content location, and task completion time of procedure documents for airplane maintenance. This research suggests that using SE significantly improves the comprehensibility of more complex documents.
+L33: Further, readers of more complex SE documents can more easily locate and identify information within the document. For the documents tested in this experiment, the SE and non-SE documents took essentially the same amount of time for subjects to read and complete the test.
+L34: Finally, while the difference between native and non-native English speakers could not be tested statistically because of extremely different cell sizes, the comprehensibility and content location scores for the native and non-native speakers appear to be quite different, with the non-native speakers benefiting from SE more than the native speakers.
+L35: ## Get full access to this article
+L36: 
+L37: View all access and purchase options for this article.
+L38: 
+L39: 【11†Get Access】
+L40: ## References
+L41: 
+L42: 1. Thomas M., Jaffe G., Kincaid J. P., and Stees Y., Learning to Use Simplified English: A Preliminary Study, Technical Communication, 39:1, pp. 69–73, 1992.
+L43: 
+L44: 【12†Google Scholar†scholar.google.com】
+L45: 
+L46: 2. Gingras B., Simplified English in Maintenance Manuals, Technical Communication, 34:1, pp. 24–28, 1987.
+L47: 
+L48: 【13†Google Scholar†scholar.google.com】
+L49: 
+L50: 3. Ogden C. K., Basic English, A General Introduction with Rules and Grammar, Paul Treber & Co., Ltd., London, 1932.
+L51: 【14†Google Scholar†scholar.google.com】
+L52: 
+L53: 4. Hinson D. E., Simplified English—Is It Really Simple? WE 33–36, 1988.
+L54: 
+L55: 【15†Google Scholar†scholar.google.com】
+L56: 
+L57: 5. Kirkman J., How to Communicate Computerese, Data Systems, pp. 14–15, July 1978.
+L58: 
+L59: 【16†Google Scholar†scholar.google.com】
+L60: 6. Hoard J. E., Wojcik R., and Holzhauser K., An Automated Grammar and Style Checker for Writers of Simplified English, in Computers and Writing, State of the Art, Holt P. O. and Williams N. (eds.), Intellect, Oxford, England, pp. 278–296, 1992.
+L61: 
+L62: 【17†Crossref†doi.org】
+L63: 
+L64: 【18†Google Scholar†scholar.google.com】
+L65: 
+L66: 7. Adriaens G. and Schreurs D., From Cogram to Alcogram: Toward a Controlled English Grammar Checker, Proceedings of COLING—92, 1992.
+L67: 
+L68: 【19†Google Scholar†scholar.google.com】
+L69: 8. AECMA Simplified English Standard, PSC-85–16598, Change 5, 1988.
+L70: 
+L71: 【20†Google Scholar†scholar.google.com】
+L72: 
+L73: 9. Spyridakis J. H. and Wenger M. J., Writing for Human Performance: Relating Reading Research to Document Design, Technical Communication, 39:2, pp. 202–214, 1992.
+L74: 
+L75: 【21†Google Scholar†scholar.google.com】
+L76: 
+L77: 10. Wogalter M. S., Godfrey S. S., Fontenelle G. A., Desualniers D. R., Rothstein P. R., and Laughery K. R., Effectiveness of Warnings, Human Factors, 29:5, pp. 599–612, 1987.
+L78: 
+L79: 【22†Crossref】
+L80: 【23†Web of Science†gateway.webofknowledge.com】
+L81: 
+L82: 【24†Google Scholar†scholar.google.com】
+L83: 
+L84: 11. Guthrie J. T., Bennett S., and Weber S., Processing Procedural Documents: A Cognitive Model for Following Written Directions, Educational Psychology Review, 3:3, pp. 249–265, 1991.
+L85: 
+L86: 【25†Crossref†doi.org】
+L87: 
+L88: 【26†Web of Science†gateway.webofknowledge.com】
+L89: 
+L90: 【27†Google Scholar†scholar.google.com】
+L91: 12. Dixon P., Faries J., and Babrys G., The Role of Explicit Action Statements in Understanding and Using Written Directions, Journal of Memory and Language, 27, pp. 649–667, 1988.
+L92: 
+L93: 【28†Crossref†doi.org】
+L94: 
+L95: 【29†Web of Science†gateway.webofknowledge.com】
+L96: 
+L97: 【30†Google Scholar†scholar.google.com】
+L98: ## Other Articles on Communication by these Authors
+L99: 
+L100: Hawkins Susan, Coney Mary B., and Bystrom Karl-Erik, Incidental Writing in the Engineering Classroom, ASEE Journal of Engineering Education, 85:1, pp. 1–7, January 1996.
+L101: 
+L102: 【31†Google Scholar†scholar.google.com】
+L103: 
+L104: Thompson L. Hunter and Coney Mary B., Putting Reader Roles to the Test, IEEE Transactions on Professional Communication, 38:2, pp. 100–109, June 1995.
+L105: 
+L106: 【32†Crossref†doi.org】
+L107: 
+L108: 【33†Google Scholar†scholar.google.com】
+L109: Coney Mary B., Contemporary Views of Audience: A Rhetorical Perspective, in Technical Communication, Lay Mary M., Wahlstrom Billie J., Doheny-Farina Stephen, Duin Ann Hill, Little Sherry Burgus, Rude Carolyn D., Selfe Cynthia L., and Selzer Jack (eds.), Irwin, Chicago, 1995. (Reprinted from Special Issue on Rhetoric, Technical Writing Teacher, pp. 319–336, Fall 1987. Voted Best Article for year 1987 in TWT.)
+L110: 
+L111: 【34†Google Scholar†scholar.google.com】
+L112: Coney Mary B., Creating a Sense of Audience, in Strategies for Technical Communication, Morgan Meg, McNair John, and Bosley Deborah (eds.), Society for Technical Communication, Arlington, Virginia, 1994. (Reprinted from Technical Communication, 29, p. 36, 1982.)
+L113: 
+L114: 【35†Google Scholar†scholar.google.com】
+L115: 
+L116: Coney Mary B., Technical Readers and Their Rhetorical Roles, IEEE Transactions on Professional Communication, 22:2, pp. 1–6, June 1992.
+L117: 
+L118: 【36†Google Scholar†scholar.google.com】
+L119: Coney Mary B., Terministic Screens: A Burkean Reading of the Experimental Article, Journal of Technical Writing and Communication, 22:2, pp. 149–158, 1992.
+L120: 
+L121: 【37†Crossref】
+L122: 
+L123: 【38†Web of Science†gateway.webofknowledge.com】
+L124: 
+L125: 【39†Google Scholar†scholar.google.com】
+L126: 
+L127: Shubert S., Spyridakis J., Holmback H., and Coney M., The Translatability of Simplified English in Maintenance Procedure Documents, IPCC 95 Proceedings, pp. 174–176, 1995.
+L128: 
+L129: 【40†Google Scholar†scholar.google.com】
+L130: Shubert S., Spyridakis J., Coney M., and Holmback H., Comprehensibility of Simplified English, Working Smart, STC Region 7 Conference Proceedings, pp. 73–75, 1994.
+L131: 
+L132: 【41†Google Scholar†scholar.google.com】
+L133: 
+L134: Wenger M. J. and Spyridakis J. H., Reduced Text Structure at Two Text Levels: Impacts on the Performance of Technical Readers, Technical Writing and Communication, 23:4, pp. 333–352, 1993.
+L135: 
+L136: 【42†Crossref】
+L137: 
+L138: 【43†Web of Science†gateway.webofknowledge.com】
+L139: 
+L140: 【44†Google Scholar†scholar.google.com】
+L141: Spyridakis J. H. and Wenger M. J., Writing for Human Performance: Relating Reading Research to Document Design, Technical Communication, 39:2, pp. 202–215, 1992.
+L142: 
+L143: 【45†Google Scholar†scholar.google.com】
+L144: 
+L145: Spyridakis J. H., Conducting Research in Technical Communication: The Application of True Experimental Designs, Technical Communication, 39:4, pp. 607–624, 1992.
+L146: 
+L147: 【46†Google Scholar†scholar.google.com】
+L148: Spyridakis J. H. and Wenger M. J., An Empirical Method of Assessing Prior Knowledge and Topic Familiarity in Reading Comprehension Research, British Educational Research Journal, 17:4, pp. 353–360, 1991.
+L149: 
+L150: 【47†Crossref†doi.org】
+L151: 
+L152: 【48†Google Scholar†scholar.google.com】
+L153: ## Cite
+L154: 
+L155: ### Cite
+L156: 
+L157: [Input] [Input]
+L158: 
+L159: #### Cite
+L160: 
+L161: [Button: Copy Citation]
+L162: 
+L163: OR
+L164: 
+L165: #### Download to reference manager
+L166: 
+L167: If you have citation software installed, you can download citation data to the citation manager of your choice
+L168: 
+L169: [Input] [Input] [Input]
+L170: 
+L171: Select your citation manager software: [Select]
+L172: 
+L173: [Input] Direct import
+L174: 
+L175: [Input]
+L176: 
+L177: ## Share options
+L178: 
+L179: ### Share
+L180: 
+L181: #### Share this publication
+L182: 
+L183: ##### Share with email
+L184: 
+L185: 【49†Email Link】
+L186: 
+L187: ##### Share on social media
+L188: #### Share access to this article
+L189: 
+L190: Sharing links are not relevant where the article is open access and not available if you do not have a subscription.
+L191: 
+L192: For more information view the 【50†Sage Journals article sharing page.】
+L193: 
+L194: ## Information, rights and permissions
+L195: 
+L196: ### Information
+L197: 
+L198: #### Published In
+L199: 
+L200: 【9†View】
+L201: 
+L202: 【51†Journal of Technical Writing and Communication】
+L203: 
+L204: 【9†Volume 25, Issue 4】
+L205: 
+L206: Pages: 347 - 369
+L207: 
+L208: Article first published: October 1995
+L209: 
+L210: Issue published: October 1995
+L211: #### Rights and permissions
+L212: 
+L213: © 1995 SAGE Publications.
+L214: 
+L215: Request permissions for this article.
+L216: 
+L217: 【3†Request Permissions†s100.copyright.com】
+L218: 
+L219: ### Authors
+L220: #### Affiliations
+L221: 
+L222: Serena K. Shubert
+L223: 
+L224: University of Washington, Seattle
+L225: 
+L226: 【52†View all publications by this author】
+L227: 
+L228: Jan H. Spyridakis
+L229: 
+L230: University of Washington, Seattle
+L231: 
+L232: 【53†View all publications by this author】
+L233: 
+L234: Heather K. Holmback
+L235: 
+L236: Boeing Information & Support Services
+L237: 
+L238: 【54†View all publications by this author】
+L239: 
+L240: Mary B. Coney
+L241: 
+L242: University of Washington, Seattle
+L243: 
+L244: 【55†View all publications by this author】
+L245: #### Notes
+L246: 
+L247: Direct reprint requests to: Serena K. Shubert or Jan H. Spyridakis, Department of Technical Communication, University of Washington, 14 Loew Hall, Box 352195, Seattle, WA 98195-2195
+L248: 
+L249: ## Metrics and citations
+L250: 
+L251: ### Metrics
+L252: 
+L253: #### Journals metrics
+L254: 
+L255: This article was published in Journal of Technical Writing and Communication.
+L256: 
+L257: 【56†View All Journal Metrics】
+L258: 
+L259: * * *
+L260: #### Publication usage^{*}
+L261: 
+L262: Total views and downloads: 58
+L263: 
+L264: ^{*}Usage tracking began in December 2016 or upon migration to Sage Journals, whichever is later. Prior usage data was not transferred.
+L265: 
+L266: * * *
+L267: #### Publications citing this one
+L268: 
+L269: Receive email alerts when this publication is cited
+L270: 
+L271: 【57†Sign up to citation alerts】
+L272: 
+L273: Web of Science: 0
+L274: 
+L275: Crossref: 23
+L276: 
+L277:   1. Dependency distance and directionality in aviation maintenance English
+L278: 
+L279: 【58†Go to citation†doi.org】【58†Crossref†doi.org】【59†Google Scholar】
+L280: 
+L281:   2. Communicating safety: a corpus study of WARNING, CAUTION, and NOTE instructions in aviation maintenance manuals
+L282: 
+L283: 【60†Go to citation†doi.org】【60†Crossref†doi.org】【61†Google Scholar】
+L284:   3. Does simpler mean easier? What practitioners expected of Simplified Technical English, and what second-language readers’ eyes showed
+L285: 
+L286: 【62†Go to citation†doi.org】【62†Crossref†doi.org】【63†Google Scholar】
+L287: 
+L288:   4. Towards an ergonomic linguistics: Application to the design of controlled natural languages
+L289: 
+L290: 【64†Go to citation†doi.org】【64†Crossref†doi.org】【65†Google Scholar】
+L291:   5. To what extent does text simplification improve human comprehension? : cognitive evaluations for the optimization of the Airbus cockpit controlled language for future aircraft
+L292: 
+L293: 【66†Go to citation†doi.org】【66†Crossref†doi.org】【67†Google Scholar】
+L294: 
+L295:   6. Contribution de la linguistique de corpus à la constitution de langues contrôlées pour la rédaction technique : l'exemple des exigences de projets spatiaux
+L296: 
+L297: 【68†Go to citation†doi.org】【68†Crossref†doi.org】【69†Google Scholar】
+L298:   7. 2017 IEEE 25th International Requirements Engineering Conference (RE)
+L299: 
+L300: 【70†Go to citation†doi.org】【70†Crossref†doi.org】【71†Google Scholar】
+L301: 
+L302:   8. Controlling Language in Industry
+L303: 
+L304: 【72†Go to citation†doi.org】【72†Crossref†doi.org】【73†Google Scholar】
+L305: 
+L306:   9. Controlling Language in Industry
+L307: 
+L308: 【74†Go to citation†doi.org】【74†Crossref†doi.org】【75†Google Scholar】
+L309:   10. Towards the creation of a CNL adapted to requirements writing by combining writing recommendations and spontaneous regularities: example in a space project
+L310: 
+L311: 【76†Go to citation†doi.org】【76†Crossref†doi.org】【77†Google Scholar】
+L312: 
+L313:   11. View More
+L314: ## Figures and tables
+L315: 
+L316: ### Figures & Media
+L317: 
+L318: ### Tables
+L319: 
+L320: ## View Options
+L321: #### Access options
+L322: 
+L323: If you have access to journal content via a personal subscription, university, library, employer or society, select from the options below:
+L324: 
+L325: 【78†Image: user icon】Sage Journals profile
+L326: 
+L327: I am signed in as:
+L328: 
+L329: 【79†Image】
+L330: 
+L331: 【80†View my profile】[Input][Button: Sign out]
+L332: 
+L333: I can access personal subscriptions, purchases, paired institutional access and free tools such as favourite journals, email alerts and saved searches.
+L334: 
+L335: [Input]
+L336: Login failed. Please check you entered the correct user name and password.
+L337: ### Sign in
+L338: 
+L339: Access personal subscriptions, purchases, paired institutional or society access and free tools such as email alerts and saved searches.
+L340: 
+L341: [Input] [Input] [Input]
+L342: 
+L343: Required fields
+L344: 
+L345: The email address and/or password entered does not match our records, please check and try again.
+L346: 
+L347: Email: [Input: Enter email address]
+L348: 
+L349: Password:
+L350: 
+L351: [Input: Enter password]
+L352: 
+L353: [Input] Remember me
+L354: 
+L355: 【81†Forgotten your password?】
+L356: 
+L357: Sign in
+L358: 
+L359: OR
+L360: 
+L361: 【82†Create profile】
+L362: 
+L363: Institution
+L364: 
+L365: [Input]
+L366: Click the button below for the full-text content
+L367: 
+L368: 请点击以下获取该全文
+L369: 
+L370: 【83†Click here to view / 点击获取全文†sage.cnpereading.com】
+L371: 
+L372: Society Chinese Institutions / 中国用户
+L373: 
+L374: * * *
+L375: 
+L376: Alternatively, view purchase options below:
+L377: 
+L378: 【84†Image: cart icon】Purchase access
+L379: 
+L380: Purchase 24 hour online access to view and download content.
+L381: 
+L382: [Input] Article - £29.00
+L383: 
+L384: [Input] Issue - £168.87
+L385: 
+L386: [Button: Add To Cart ]
+L387: 
+L388: 【85†Subscribe to this journal†www.sagepub.com】
+L389: 
+L390: 【86†Image: read with deepdyve】Read with DeepDyve
+L391: 
+L392: [Input] [Input]
+L393: Access journal content via a DeepDyve subscription or find out more about this option.
+L394: 
+L395: 【87†Start 2 week free trial】
+L396: 
+L397: 【88†Need help?†journalssolutions.sagepub.com】
+L398: ### View options
+L399: 
+L400: #### PDF/EPUB (Portable Document Format / Electronic Publication)
+L401: 
+L402: 【89†View PDF/EPUB】
+L403: 
+L404: 【90†Download PDF】
+L405: 
+L406: You currently have no access to this content. Visit the 【91†access options】 page to authenticate.
+L407: ## Also from Sage
+L408:   * 【92†CQ Library Elevating debate opens in new tab†library.cqpress.com】
+L409:   * 【93†Sage Data Uncovering insight opens in new tab†www.data-planet.com】
+L410:   * 【94†Sage Business Cases Shaping futures opens in new tab†sk.sagepub.com】
+L411:   * 【95†Sage Campus Unleashing potential opens in new tab†classroom.sagepub.com】
+L412:   * 【96†Sage Knowledge Multimedia learning resources opens in new tab†sk.sagepub.com】
+L413:   * 【97†Sage Research Methods Supercharging research opens in new tab†methods.sagepub.com】
+L414:   * 【98†Sage Video Streaming knowledge opens in new tab†sk.sagepub.com】
+L415:   * 【99†Technology from Sage Library digital services opens in new tab†www.technologyfromsage.com】
+

@@ -1,0 +1,295 @@
+ (https://aclanthology.org/Y08-1040.pdf)
+citeturn15view0 [wordlim: 200] Crawled: 2 weeks ago; Content type: application/pdf; Number of pages: 6; Source: open({"ref_id":"https://aclanthology.org/Y08-1040.pdf","lineno":null}); Total lines: 292
+L0@P0: Controlled Korean for Korean-English MT
+L1@P0: Munpyo Hong a
+L2@P0: , Chang-Hyun Kimb
+L3@P0: a
+L4@P0:  Department of German Lang. & Lit.
+L5@P0: Sungkyunkwan University
+L6@P0: 53 Myeongnyun-dong
+L7@P0: Seoul, Korea
+L8@P0: skkhmp@skku.edu
+L9@P0: b
+L10@P0:  Natural Language Processing Team
+L11@P0: ETRI
+L12@P0: Gajeong-dong 16
+L13@P0: Taejeon, Korea
+L14@P0: chkim@etri.re.kr
+L15@P0: Abstract. This paper addresses the issues in designing the so-called ‘Controlled Korean’
+L16@P0: for a Korean-English MT system. Controlled Language is a sublanguage of a natural
+L17@P0: language which is supposed to improve the readability and the translatability of a text.
+L18@P0: Much effort has been made to design a controlled language for major international
+L19@P0: languages such as English, German, Spanish and etc. However, little effort has been made
+L20@P0: yet to design a Controlled Korean in the context of machine translation. In this paper we
+L21@P0: introduce the concept of the Controlled Korean we have developed for a Korean-English
+L22@P0: MT system and compare the Controlled Korean with the Controlled English and Controlled
+L23@P0: German from the perspective of the translatability. The result of our experiments shows
+L24@P0: that in designing a Controlled Language, not only the linguistic characteristics of the
+L25@P0: language but also the characteristics of an MT-System must be taken into account.
+L26@P0: Keywords: Controlled Language, Controlled Korean, Machine Translation, Translatability,
+L27@P0: Negative Translatability Indicators
+L28@P0: 1. Introduction
+L29@P0: Controlled Language is a sublanguage of a natural language designed to improve the readability
+L30@P0: and the translatability of a text. Originally, the concept of a controlled language was introduced
+L31@P0: in the field of technical documentations to prevent the misunderstanding of texts. 1
+L32@P0:  In the last
+L33@P0: couple of years the necessity of a controlled language has increased significantly, especially in
+L34@P0: the technical documentation domain, as the number of pages to be translated has increased
+L35@P0: enormously.
+L36@P0: The increase of the volume of the documents to be translated made it necessary to employ a
+L37@P0: full automatic translation system like an MT or a machine-aided translation system like
+L38@P0: translation memory. In Korea, however, MT systems have not been widely welcomed by the
+L39@P0: experts in the localization business, because the quality of the translations failed to match their
+L40@P0: expectations.
+L41@P0: The recent researches on the controlled languages show that the use of a controlled language
+L42@P0: can generally lead to the improvement of machine translation quality, thus reducing the cost of
+L43@P0: 
+L44@P0: 1
+L45@P0:  cf. Esselink(2000), Göpferich(1995)
+L46@P0: 391
+L47@P0-1: 22nd Pacific Asia Conference on Language, Information and Computation, pages 391–396post-editing. The general assumption behind the idea of the controlled language is that the cost
+L48@P1: of the use of a controlled language that can be paraphrased as ‘pre-editing’ is lower than that of
+L49@P1: ‘post-editing’ in using an MT system for localization.
+L50@P1: Previous works on the controlled language in the context of MT have mainly focused on the
+L51@P1: impact of the controlled language on MT. Aikawa et al. (2007), for example, addressed the
+L52@P1: impact of the controlled English for MSR-MT. Lehrndorfer (1996), Lehrndorfer&Schachtl
+L53@P1: (1998) dealt with the controlled German for German-English MT.
+L54@P1: In this paper, we will introduce the concept of the ‘Controlled Korean’ for Korean-English
+L55@P1: MT. We will not only show the impact of the Controlled Korean on Korean-English MT, but
+L56@P1: also share our experience in designing the Controlled Korean.
+L57@P1: 2. Controlled Korean
+L58@P1: 2.1.Background
+L59@P1: Since early 2000, MT has been paid much attention in Korea because of the fast growth of the
+L60@P1: Internet. However, most of the efforts to bring out the off-the-shelf products into the market
+L61@P1: have failed mainly due to the difficulty in Korean syntactic parsing and the failure in the domain
+L62@P1: adaptation.2
+L63@P1:  One of the few Korean-English MT systems actively used not only in Korea but
+L64@P1: also in foreign countries is the Korean-English Patent MT system developed at ETRI.3
+L65@P1:  The
+L66@P1: performance of the patent MT system is good enough for foreign patent examiners to retrieve
+L67@P1: the patent documents of their interest in English.
+L68@P1: The quality of the Korean-English patent MT is good enough for cross-language information
+L69@P1: retrieval, however not good enough, if it is to be used for other purposes like academic paper
+L70@P1: authoring. If an MT system is to be used for academic paper writing in English, the quality of
+L71@P1: the translation must be far superior to that of the patent MT system, the purpose of which is not
+L72@P1: to produce a perfect translation, but to produce a translation just enough for the understanding.
+L73@P1: However, we are very well aware of the difficulties and obstacles in improving the performance
+L74@P1: of an MT system in a short period of time. One way to improve the translation quality is to
+L75@P1: employ a controlled language for MT. Kim et al. (2007) showed that even some simple writing
+L76@P1: rules can improve the translation quality for around 10 %.
+L77@P1: 2.2.Designing Controlled Korean
+L78@P1: To design a controlled language for MT, the purpose of the application must be properly
+L79@P1: understood. Most of the controlled languages introduced so far have without exceptions limited
+L80@P1: lexicons and writing rules. This is possible and useful, when the controlled language and the
+L81@P1: MT system are used by a homogeneous group of users like employees in a company. However,
+L82@P1: in the academic paper authoring setting, the scenario should be somewhat different, i.e., the
+L83@P1: users have all the different interests of their own. Thus, it is almost impossible to enforce them
+L84@P1: to use only the allowed lexicon and not to use any words they like. We therefore gave up
+L85@P1: introducing the restricted Korean lexicon and rather focussed on the writing rules which impact
+L86@P1: on the translation quality most.
+L87@P1: The philosophy in designing the Controlled Korean was to give the authors as much freedom
+L88@P1: as possible. The authors write an English academic paper that will be automatically checked
+L89@P1: against Controlled Korean writing rules by a Controlled Korean Checker.4
+L90@P1:  Thus we investigated
+L91@P1: on the translation errors that might be occurred by stylistic errors that are hard for an MT system
+L92@P1: to treat properly.
+L93@P1: To do this, we manually checked 40,000 Korean-English machine translation pairs. We scored
+L94@P1: all the translations from 0(poor) to 4(very good). The translations above 3 points(good) were
+L95@P1: 
+L96@P1: 2
+L97@P1:  Korean-Japanese MT, however, is widely used in both countries
+L98@P1: 3
+L99@P1:  Hong et al. (2005)
+L100@P1: 4
+L101@P1:  cf. Kim et al. (2007) about the Controlled Korean Checker module of IMT system
+L102@P1-2: 392excluded. We assumed that the syntactic analysis and the transfer of those sentences succeeded
+L103@P2: without fatal errors. Then we focused on the translations that were scored below 3. Many of
+L104@P2: them failed in the morphological or syntactic analysis for some reasons. We were interested in
+L105@P2: those cases where, though the morphological and the syntactic analysis succeeded, but the
+L106@P2: translation was poor. In such cases generally the so-called ’Konglish (English in Korean style)’
+L107@P2: was produced. We assumed that the reason why such ’Konglish’ was produced was that the
+L108@P2: source Korean sentence was poor.
+L109@P2: We found out 8 most frequent writing errors that Korean authors commit and that have the
+L110@P2: most significant effects on the performance of an MT system.5
+L111@P2: 
+L112@P2: Table 1: Most frequent writing errors that effect on MT
+L113@P2: Error Types Description
+L114@P2: Subject-Predicate mismatch Semantic mismatches between the subject and the
+L115@P2: predicates in a sentence
+L116@P2: Topic Markers in the Sentence Initial
+L117@P2: Position
+L118@P2: Sentence initial NPs with topic markers are
+L119@P2: underspecified w.r.t. their case
+L120@P2: Ambiguous expressions Use of specific ambiguous words such
+L121@P2: as ’ulo’, ’hata’, ’tayhata’ and etc. 6
+L122@P2: Spoken language expressions Use of spoken language type expressions
+L123@P2: Double subject/object construction Though these constructions are legitimate, they are
+L124@P2: difficult to analyze correctly
+L125@P2: Punctuation If a sentence is long, the correct punctuation helps the
+L126@P2: anlaysis
+L127@P2: Minor grammatical errors
+L128@P2: Though the grammatical errors are not supposed to be
+L129@P2: treated by a controlled language checker, some
+L130@P2: grammatical errors are so frequent and not conceived
+L131@P2: by the authors that they have to be checked before the
+L132@P2: syntactic analysis
+L133@P2: Light-verb expressions Frequent use of unknown light-verb contructions that
+L134@P2: can be substituted by a single verb
+L135@P2: Another important issue in designing a controlled language is the learnability of the controlled
+L136@P2: language. Lehrndorfer(1996), for example, criticized the AECMA Simplified English for its
+L137@P2: poor learnability. Especially, in the academic paper authoring setting, it will be very difficult to
+L138@P2: train the users with the Controlled Korean. Therefore, the application of the above rules must be
+L139@P2: automated with a Controlled Korean Checker. However, the formalization of above rules is not
+L140@P2: always simple. For example, the semantic mismatch of the subject and the predicates in a
+L141@P2: sentence is very difficult to detect automatically. It would not be possible without deep semantic
+L142@P2: processing. However, the deep semantic processing technique is currently not available.
+L143@P2: Therefore we collected lexical clues with which we can detect the semantic mismatches on the
+L144@P2: surface level. Currently about 6,000 manually constructed lexical rules and metarules are
+L145@P2: employed in the Controlled Korean Checker.
+L146@P2: 
+L147@P2: 5
+L148@P2:  Strictly speaking, some of these ‘errors’ are not a grammatical error, but we stick to the term ‘error’ for
+L149@P2: the simplicity of the expression
+L150@P2: 6
+L151@P2:  ‘ulo’ corresponds roughly to English ‘as’ and ‘with’
+L152@P2-3: 3933. Experiment
+L153@P3: 3.1.The impact of Controlled Korean on MT
+L154@P3: O’Brien(2005) introduced the concept of the ‘negative translatability indicators’. The negative
+L155@P3: translatability indicators are the specific linguistic constructions or phenomena that negatively
+L156@P3: effect on the quality of MT. We performed an experiment to find out the negative translatability
+L157@P3: indicators in Korean-English MT. We collected 50 sentences for each error type in the table 1.
+L158@P3: Each sentence was rewritten only as the Controlled Korean Checker suggests, i.e., even if the
+L159@P3: sentence contained the error of the given type, if it is not detected by our Controlled Korean
+L160@P3: Checker, the sentence was not corrected. Table 2 shows the result of our experiment.
+L161@P3: Table 2: Negative Translatability Indicators in Korean-English MT
+L162@P3: Error Types Improvements
+L163@P3: Ambiguous expressions +25%
+L164@P3: Subject-Predicate mismatch +21%
+L165@P3: Double subject/object construction +20%
+L166@P3: Topic Markers in the Sentence
+L167@P3: Initial Position +12.5%
+L168@P3: Punctuation +12.5%
+L169@P3: Spoken language expressions +7.5%
+L170@P3: Minor grammatical errors +4.2%
+L171@P3: Light-verb expressions +4.2%
+L172@P3: It turned out that the ’ambiguous expressions’, ’subject-predicate mismatch’, and ’double
+L173@P3: subject/object construction’ error types are the most important negative translatability indicators.
+L174@P3: Most of these error types were related to resolving ambiguities in the analysis. As mentioned, in
+L175@P3: order to detect the subject-predicate semantic mismatch, many rules on the lexical level must be
+L176@P3: written. In other words, the more lexical rules we have, the better is the the performance of the
+L177@P3: Controlled Korean Checker, hence Korean-English MT system expected to be.
+L178@P3: The overall performance of the Korean-English MT system supported by the Controlled
+L179@P3: Korean Checker was improved for 4.25%. As Kim et al.(2007) showed, if we can provide the
+L180@P3: checker with more rules, we can improve the performance of the MT system for more than 10%.
+L181@P3: 3.2.Controlled English/German
+L182@P3: We were interested not only in finding out what are the negative translatability indicators in
+L183@P3: Korean, but also in learning if the MT paradigm plays a role in designing a controlled language.
+L184@P3: For this purpose, we conducted another experiment. In this experiment, we analyzed Controlled
+L185@P3: English by Aikawa et al.(2007) and Controlled German proposed by Lehrndorfer(1996).
+L186@P3: Aikawa et al.(2007) introduced the MS Controlled English designed for the MSR-MT System
+L187@P3: which is a statistics-based MT system. They showed that Controlled English not only improves
+L188@P3: the performance of a rule-based MT system but also a statistics-based MT system. The
+L189@P3: following table shows the negative translatability indicators for 4 language pairs.
+L190@P3: Table 3: Negative Translatability Indicators in Aikawa et a.(2007)
+L191@P3: Eng.=>Ara. Eng.=>Chin. Eng.=>Fr. Eng.=>Du.
+L192@P3: 1 Formal Style Formal Style
+L193@P3: Short
+L194@P3: Ambiguous
+L195@P3: Sentences
+L196@P3: Formal Style
+L197@P3: 2 Hyphens Attachment Formal Style Capitalization
+L198@P3-4: 3943
+L199@P4: Short
+L200@P4: Ambiguous
+L201@P4: Sentences
+L202@P4: -ing clauses Spelling Spelling
+L203@P4: 4 Capitalization Spelling Adjective/Verb
+L204@P4: Ambiguity
+L205@P4: Short
+L206@P4: Ambiguous
+L207@P4: Sentences
+L208@P4: 5 Spelling Long Sentences Capitalization Long Sentences
+L209@P4: Contrary to our expectation, in 3 out of 4 language pairs, the ‘Formal Style’7
+L210@P4:  was the most
+L211@P4: influential negative translatability indicator. In case of Controlled Korean, most of the indicators
+L212@P4: were related to resolving the ambiguities in the source language.
+L213@P4: In the experiment with the Controlled German, we employed a rule-based German-English
+L214@P4: MT system. We were interested in learning what can be the negative translatability indicators in
+L215@P4: German-English rule-based MT. In the preparation stage, we collected 250 sentences from
+L216@P4: German technical documents in the IT domain. On the next step, we re-wrote the sentence
+L217@P4: according to the guidelines proposed by Lehrndorfer(1996). Among 250 sentences 64 sentences
+L218@P4: were re-written. By applying the Controlled German, we could improve the translation accuracy
+L219@P4: of the whole sentences for 2.41%. If we consider only those sentences that were re-written with
+L220@P4: Controlled German, the translation accuracy rose for 9.28%. The following table shows the
+L221@P4: negative translatability indicators in rule-based German-English MT.
+L222@P4: Table 4: Negative Translatability Indicators German-English rule-based MT
+L223@P4: Controlled German Writing Rules
+L224@P4: 1 Don’t use relative sentences
+L225@P4: 2 Don’t use long sentences
+L226@P4: 3 Follow the coordination construction rules
+L227@P4: 4 Put the subject in the sentence initial position
+L228@P4: 5 Don’t omit connectives
+L229@P4: In the experiment with Controlled German, the rules resolving the ambiguities are the most
+L230@P4: important negative translatability indicators. Though more comprehensive experiments should
+L231@P4: follow to back up our conclusion, we assume that in designing a controlled language for MT,
+L232@P4: the paradigm of the MT should be well taken into account.
+L233@P4: 4. Conclusion
+L234@P4: In this paper we proposed ‘Controlled Korean’ for Korean-English MT. We also shared our
+L235@P4: experience in designing a controlled language. We didn’t introduce the controlled lexicon as
+L236@P4: done in many other researches, but we focused on the writing rules. As the learnability is a very
+L237@P4: important factor for the acceptability by the users, we tried to formalize the Controlled Korean
+L238@P4: rules as much as possible. As a result, we could improve the translation accuracy of the KoreanEnglish MT system backed up by a Controlled Korean Checker for 4.25%.
+L239@P4: Another important issue in designing a controlled language for MT is whether the MT
+L240@P4: paradigm should be considered. Our experiment and the comparison of our result with Aikawa
+L241@P4: et al.(2007) showed that the MT paradigm could play a very important role in designing a
+L242@P4: controlled language for MT. Our experiment with Controlled German for rule-based MT
+L243@P4: showed different results from that of Aikawa et al.(2007). For a rule-based MT, ambiguitiesresolving rules seem to play important roles, whereas for a statistics-based MT, rather the rules
+L244@P4: 
+L245@P4: 7
+L246@P4:  ‘Formal Style’ relates to the use of spoken language expressions or slangs.
+L247@P4-5: 395that normalize the source expressions so that the decoding can be performed more easily seem
+L248@P5: to play more important roles.
+L249@P5: References
+L250@P5: AECMA (1995): AECMA Simplified English, A Guideline for the Preparation of Aircraft
+L251@P5: Maintenance Documentation in the International Aerospace Maintenance Language, Issue
+L252@P5: I
+L253@P5: Aikawa et al. (2007): “ Impact of Controlled Language on Translation Quality and Post-editing
+L254@P5: in a Statistical Machine Translation System” , Proceedings of MT-Summit XI, 1-8
+L255@P5: Esselink, B. (2000): A Practical Guide to Localization, John Benjamins Publishing Company,
+L256@P5: Amsterdam/Philadelphia
+L257@P5: Göpferich, S. (1995): Textsorten in Naturwissenschaft und Technik. Pragmatische Typologie -
+L258@P5: Kontrastierung -Translation. Tüubingen: Narr.
+L259@P5: Hong, M., Kim, Y., Kim, C., Yang, S., Seo, Y., Ryu, C. & S. Park (2005): Customizing a
+L260@P5: Korean-English MT System for Patent Translation, Proceedings of MT-Summit X, 181-
+L261@P5: 187
+L262@P5: Kim, Y., Hong, M. & S. Park (2007): CL-Guided Korean-English MT System for Scientific
+L263@P5: Papers, Lecture Notes in Computer Science, vol.4394, 409-419, Springer Verlag
+L264@P5: Lehrndorfer, A. (1996): Kontrolliertes Deutsch: linguistische und sprachpsychologische
+L265@P5: Leitlinien für eine (maschinell) kontrollierte Sprache in der technischen Dokumentation.
+L266@P5: Tüubingen: Narr.
+L267@P5: Lehrndorfer, A. / R. Mangold (1997): "How to Save Money in Translation Cost", TC-Forum
+L268@P5: 97-2, URL: http://www.techwriter.de/tc-forum/pdf/editions/ tcf972s.pdf
+L269@P5: Lehrndorfer, A. / S. Schachtl (1998): Controlled Siemens Documentary German and TopTrans,
+L270@P5: TC-Forum 98-3, URL: http://www.tc-forum.org/topictr/tr9contr.htm
+L271@P5: Ley, M. (2005): Kontrollierte Textstrukturen. Ein (linguistisches) Informationsmodell für die
+L272@P5: Technische Kommunikation. Dissertation, Justus-Liebig-Universitäat Gießsen.
+L273@P5: Mitamura, T. / Nyberg, E. H. (1995): “ Controlled English for Knowledge-Based MT:
+L274@P5: Experience with the KANT System” , Proceedings of TMI-95.
+L275@P5: Mitamura, T. (1999): “ Controlled Language for Multilingual Machine Translation” .
+L276@P5: Proceedings of MT-Summit 1999
+L277@P5: Möller, M. (2003): Grammatical Metaphor, Controlled Language and Machine Translation,
+L278@P5: Proceedings of EAMT/CLAW 2003
+L279@P5: Nübel, R. (2004): "Evaluation and Adaptation of a Specialised Language Checking Tool for
+L280@P5: Nonspecialised Machine Translation and Non-expert MT Users for Multi-lingual
+L281@P5: Telecooperation", Proceedings of LREC 2004
+L282@P5: O'Brien, S (2005): Methodologies for Measuring the Correlations between Post-Editing Effort
+L283@P5: and Machine Translatability, Machine Translation, vol.19, no.1, 37-58
+L284@P5: O'Brien, S (2006): Pauses as Indicators of Cognitive Effort in Post-editing Machine Translation
+L285@P5: Output, Across Languages and Cultures vol.7, no.1, 1-21
+L286@P5: O'Brien, S. & J. Roturier (2007): How Portable are Controlled Language Rules? A Comparison
+L287@P5: of Two Empirical MT Studies, Proceedings of MT Summit XI, 345-352
+L288@P5: Reuther, U. (2003), "Two in one - can it work? Readability and translatability by means of
+L289@P5: controlled language". Proceedings of the 4th International Workshop on Controlled
+L290@P5: Language Applications, Dublin, Ireland.
+L291@P5: 396
+

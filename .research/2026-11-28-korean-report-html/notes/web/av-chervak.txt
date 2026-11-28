@@ -1,0 +1,321 @@
+Simplified English for Aircraft Workcards - Steven Chervak, Colin G. Drury, James P. Ouellette, 1996 (https://journals.sagepub.com/doi/10.1177/154193129604000502)
+citeturn22view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://journals.sagepub.com/doi/10.1177/154193129604000502","lineno":null}); Total lines: 318
+L0: 【0†iframe†analytics.sagepub.com】
+L1: 
+L2: 【1†Skip to main content】
+L3: 
+L4: 【2†Open Drawer Menu Menu】
+L5: 
+L6: #### Add email alerts
+L7: 
+L8: You are adding the following journal to your email alerts
+L9: 
+L10: [Input][Input]
+L11:  | New content
+L12: --- | ---
+L13: Proceedings of the Human Factors and Ergonomics Society Annual Meeting  | [Input]
+L14: [Button: Create email alert]
+L15: 
+L16: Restricted access
+L17: 
+L18: Research article
+L19: 
+L20: First published October 1996
+L21: 
+L22: 【3†Re-use permissions†s100.copyright.com】
+L23: # Simplified English for Aircraft Workcards
+L24: 
+L25: 【4†Steven Chervak】, 【5†Colin G. Drury】, and 【6†James P. Ouellette】【7†View all authors and affiliations】
+L26: 
+L27: 【8†Volume 40, Issue 5】
+L28: 
+L29: 【9†https://doi.org/10.1177/154193129604000502†doi.org】
+L30: ## Abstract
+L31: For technical communications in international civil aviation maintenance, most manufacturers have adopted a restricted language: Simplified English (SE). This uses a standard vocabulary and syntax rules with the aim of improving understanding, particularly for people with restricted abilities in English. This paper describes the first test of the efficacy of Simplified English for comprehension of documentation used at the worksite by Aircraft Maintenance Technicians (AMTs).
+L32: Sixteen workcards, representing two levels of difficulty (Easy and Difficult), two levels of language (SE and Non-SE) and two levels of document layout (standard and revised) were tested on 175 practicing AMTs in a between subject design using a comprehension test. Comprehension was significantly improved with Simplified English, particularly for the Difficult workcards and for non-native English speakers. No effects of layout were found.
+L33: ## Get full access to this article
+L34: 
+L35: View all access and purchase options for this article.
+L36: 
+L37: 【10†Get Access】
+L38: ## References
+L39: 
+L40: Bohr E. (1978). Application of instructional design principles to nuclear power plant operating procedures manuals. In Easterby R., Zwaga H. (Eds), Information Design, New York: John Wiley & Sons Ltd, 517–577
+L41: 
+L42: 【11†Google Scholar†scholar.google.com】
+L43: 
+L44: Carver R. P. (1987). Technical Manual for the Accuracy Level Test. REVTAC Publications, Inc
+L45: 
+L46: 【12†Google Scholar†scholar.google.com】
+L47: 
+L48: Ogden C. K. (1932). Basic English, A General Introduction with Rules and Grammar. London: Paul Treber & Co., Ltd
+L49: 【13†Google Scholar†scholar.google.com】
+L50: 
+L51: Patel S., Drury C. G., Lofgren J. (1994). Design of workcards for aircraft inspection. Applied Ergonomics 1994, 25(5), 283–293
+L52: 
+L53: 【14†Crossref†doi.org】
+L54: 
+L55: 【15†PubMed†pubmed.ncbi.nlm.nih.gov】
+L56: 
+L57: 【16†Web of Science†gateway.webofknowledge.com】
+L58: 
+L59: 【17†Google Scholar†scholar.google.com】
+L60: 
+L61: Shubert S. K., Spyridakis J. H., Holmback H. K., Coney M. B. (1995). The comprehensibility of Simplified English in Procedures. Journal of Technical Communications, in press
+L62: 【18†Google Scholar†scholar.google.com】
+L63: ## Cite
+L64: 
+L65: ### Cite
+L66: 
+L67: [Input] [Input]
+L68: 
+L69: #### Cite
+L70: 
+L71: [Button: Copy Citation]
+L72: 
+L73: OR
+L74: 
+L75: #### Download to reference manager
+L76: 
+L77: If you have citation software installed, you can download citation data to the citation manager of your choice
+L78: 
+L79: [Input] [Input] [Input]
+L80: 
+L81: Select your citation manager software: [Select]
+L82: 
+L83: [Input] Direct import
+L84: 
+L85: [Input]
+L86: 
+L87: ## Share options
+L88: 
+L89: ### Share
+L90: 
+L91: #### Share this publication
+L92: 
+L93: ##### Share with email
+L94: 
+L95: 【19†Email Link】
+L96: 
+L97: ##### Share on social media
+L98: #### Share access to this article
+L99: 
+L100: Sharing links are not relevant where the article is open access and not available if you do not have a subscription.
+L101: 
+L102: For more information view the 【20†Sage Journals article sharing page.】
+L103: 
+L104: ## Information, rights and permissions
+L105: 
+L106: ### Information
+L107: 
+L108: #### Published In
+L109: 
+L110: 【8†View】
+L111: 
+L112: 【21†Proceedings of the Human Factors and Ergonomics Society Annual Meeting】
+L113: 
+L114: 【8†Volume 40, Issue 5】
+L115: 
+L116: Pages: 303 - 307
+L117: 
+L118: Article first published: October 1996
+L119: 
+L120: Issue published: October 1996
+L121: #### Rights and permissions
+L122: 
+L123: © 1996 Human Factors and Ergonomics Society.
+L124: 
+L125: Request permissions for this article.
+L126: 
+L127: 【3†Request Permissions†s100.copyright.com】
+L128: 
+L129: ### Authors
+L130: #### Affiliations
+L131: 
+L132: Steven Chervak
+L133: 
+L134: State University of New York at Buffalo Department of Industrial Engineering Buffalo, NY 14260
+L135: 
+L136: 【22†View all publications by this author】
+L137: 
+L138: Colin G. Drury
+L139: 
+L140: State University of New York at Buffalo Department of Industrial Engineering Buffalo, NY 14260
+L141: 
+L142: 【23†View all publications by this author】
+L143: 
+L144: James P. Ouellette
+L145: 
+L146: State University of New York at Buffalo Department of Industrial Engineering Buffalo, NY 14260
+L147: 
+L148: 【24†View all publications by this author】
+L149: ## Metrics and citations
+L150: 
+L151: ### Metrics
+L152: 
+L153: #### Journals metrics
+L154: 
+L155: This article was published in Proceedings of the Human Factors and Ergonomics Society Annual Meeting.
+L156: 
+L157: 【25†View All Journal Metrics】
+L158: 
+L159: * * *
+L160: 
+L161: #### Publication usage^{*}
+L162: 
+L163: Total views and downloads: 40
+L164: 
+L165: ^{*}Usage tracking began in December 2016 or upon migration to Sage Journals, whichever is later. Prior usage data was not transferred.
+L166: 
+L167: * * *
+L168: #### Publications citing this one
+L169: 
+L170: Receive email alerts when this publication is cited
+L171: 
+L172: 【26†Sign up to citation alerts】
+L173: 
+L174: Web of Science: 0
+L175: 
+L176: Crossref: 14
+L177: 
+L178:   1. Communicating safety: a corpus study of WARNING, CAUTION, and NOTE instructions in aviation maintenance manuals
+L179: 
+L180: 【27†Go to citation†doi.org】【27†Crossref†doi.org】【28†Google Scholar】
+L181: 
+L182:   2. Does simpler mean easier? What practitioners expected of Simplified Technical English, and what second-language readers’ eyes showed
+L183: 【29†Go to citation†doi.org】【29†Crossref†doi.org】【30†Google Scholar】
+L184: 
+L185:   3. HANDBOOK OF HUMAN FACTORS AND ERGONOMICS
+L186: 
+L187: 【31†Go to citation†doi.org】【31†Crossref†doi.org】【32†Google Scholar】
+L188: 
+L189:   4. The Unexplored Link between Communication and Trust in Aviation Maintenance Practice
+L190: 
+L191: 【33†Go to citation†doi.org】【33†Crossref†doi.org】【34†Google Scholar】
+L192:   5. To what extent does text simplification improve human comprehension? : cognitive evaluations for the optimization of the Airbus cockpit controlled language for future aircraft
+L193: 
+L194: 【35†Go to citation†doi.org】【35†Crossref†doi.org】【36†Google Scholar】
+L195: 
+L196:   6. Contribution de la linguistique de corpus à la constitution de langues contrôlées pour la rédaction technique : l'exemple des exigences de projets spatiaux
+L197: 
+L198: 【37†Go to citation†doi.org】【37†Crossref†doi.org】【38†Google Scholar】
+L199:   7. 2017 IEEE 25th International Requirements Engineering Conference (RE)
+L200: 
+L201: 【39†Go to citation†doi.org】【39†Crossref†doi.org】【40†Google Scholar】
+L202: 
+L203:   8. Controlled Natural Language
+L204: 
+L205: 【41†Go to citation†doi.org】【41†Crossref†doi.org】【42†Google Scholar】
+L206: 
+L207:   9. Controlled Natural Language
+L208: 
+L209: 【43†Go to citation†doi.org】【43†Crossref†doi.org】【44†Google Scholar】
+L210: 
+L211:   10. Language Error in Aviation Maintenance: Data from Asia
+L212: 
+L213: 【45†Go to citation】【46†Crossref†doi.org】【47†Google Scholar】
+L214: 
+L215:   11. View More
+L216: ## Figures and tables
+L217: 
+L218: ### Figures & Media
+L219: 
+L220: ### Tables
+L221: 
+L222: ## View Options
+L223: #### Access options
+L224: 
+L225: If you have access to journal content via a personal subscription, university, library, employer or society, select from the options below:
+L226: 
+L227: 【48†Image: user icon】Sage Journals profile
+L228: 
+L229: I am signed in as:
+L230: 
+L231: 【49†Image】
+L232: 
+L233: 【50†View my profile】[Input][Button: Sign out]
+L234: 
+L235: I can access personal subscriptions, purchases, paired institutional access and free tools such as favourite journals, email alerts and saved searches.
+L236: 
+L237: [Input]
+L238: Login failed. Please check you entered the correct user name and password.
+L239: ### Sign in
+L240: 
+L241: Access personal subscriptions, purchases, paired institutional or society access and free tools such as email alerts and saved searches.
+L242: 
+L243: [Input] [Input] [Input]
+L244: 
+L245: Required fields
+L246: 
+L247: The email address and/or password entered does not match our records, please check and try again.
+L248: 
+L249: Email: [Input: Enter email address]
+L250: 
+L251: Password:
+L252: 
+L253: [Input: Enter password]
+L254: 
+L255: [Input] Remember me
+L256: 
+L257: 【51†Forgotten your password?】
+L258: 
+L259: Sign in
+L260: 
+L261: OR
+L262: 
+L263: 【52†Create profile】
+L264: 
+L265: Institution
+L266: 
+L267: [Input]
+L268: Click the button below for the full-text content
+L269: 
+L270: 请点击以下获取该全文
+L271: 
+L272: 【53†Click here to view / 点击获取全文†sage.cnpereading.com】
+L273: 
+L274: Society Chinese Institutions / 中国用户
+L275: 
+L276: * * *
+L277: 
+L278: Alternatively, view purchase options below:
+L279: 
+L280: 【54†Image: cart icon】Purchase access
+L281: 
+L282: Purchase 24 hour online access to view and download content.
+L283: 
+L284: [Input] Article - $37.50
+L285: 
+L286: [Input] Issue - $509.33
+L287: 
+L288: [Button: Add To Cart ]
+L289: 
+L290: 【55†Subscribe to this journal†www.sagepub.com】
+L291: 
+L292: 【56†Image: read with deepdyve】Read with DeepDyve
+L293: 
+L294: [Input] [Input]
+L295: Access journal content via a DeepDyve subscription or find out more about this option.
+L296: 
+L297: 【57†Start 2 week free trial】
+L298: 
+L299: 【58†Need help?†journalssolutions.sagepub.com】
+L300: ### View options
+L301: 
+L302: #### PDF/EPUB (Portable Document Format / Electronic Publication)
+L303: 
+L304: 【59†View PDF/EPUB】
+L305: 
+L306: 【60†Download PDF】
+L307: 
+L308: You currently have no access to this content. Visit the 【61†access options】 page to authenticate.
+L309: ## Also from Sage
+L310:   * 【62†CQ Library Elevating debate opens in new tab†library.cqpress.com】
+L311:   * 【63†Sage Data Uncovering insight opens in new tab†www.data-planet.com】
+L312:   * 【64†Sage Business Cases Shaping futures opens in new tab†sk.sagepub.com】
+L313:   * 【65†Sage Campus Unleashing potential opens in new tab†classroom.sagepub.com】
+L314:   * 【66†Sage Knowledge Multimedia learning resources opens in new tab†sk.sagepub.com】
+L315:   * 【67†Sage Research Methods Supercharging research opens in new tab†methods.sagepub.com】
+L316:   * 【68†Sage Video Streaming knowledge opens in new tab†sk.sagepub.com】
+L317:   * 【69†Technology from Sage Library digital services opens in new tab†www.technologyfromsage.com】
+

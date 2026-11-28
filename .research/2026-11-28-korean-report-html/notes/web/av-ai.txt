@@ -1,0 +1,49 @@
+STE Downloads
+Home
+About STE
+STE and FAIR
+STEMG
+STEMG structureSTE Support TeamsTerms of reference
+Training
+Why training is necessaryAccredited STE trainers
+Tools
+Downloads
+Issue 9Change FormSTE and AI - White Paper
+FAQ
+Downloads
+Request a free official copy of ASD-STE100
+and contribute to its improvement
+Request a copy of
+ASD-STE100
+(Issue 9, January 2025)
+Request a free official copy of the current issue of the ASD-STE100 standard.
+Fill in the request form Notice about usage rights
+Submit a Change Form
+You can submit your proposal in two ways:
+You can download the official Change Form template and then send it as an attachment to the STEMG email address. You can also attach images and supporting files.
+As an alternative, you can complete the web form (only text).
+Note: File uploads are not supported in the web form.
+The STEMG reviews all Change Forms and incorporates agreed updates into the next issue of ASD-STE100.
+Download the Change Form template Fill in the Change Form online
+Notice regarding the use of ASD-STE100
+Simplified Technical English Standard
+With reference to requests from individuals, companies, and organizations to use the content of ASD-STE100, including for building dedicated tools, some of them AI-based, please note the following
+🔹 The STEMG and ASD do not issue individual permissions or authorizations. Nothing in this notice, nor any silence, delay, or lack of reply, constitutes a license, permission, consent, authorization, or waiver of any right.
+🔹 We do not endorse, certify, validate, or recommend any third-party tool, product or service based on or using the standard, including AI-based ones. No such tool may be presented as approved by, affiliated with, or developed in cooperation with the STEMG or ASD.
+🔹 ASD-STE100 Simplified Technical English is a registered trademark of ASD. No right to use the trademark, the logo or the names of the STEMG, its Support Teams, and ASD is granted, and they may not be used in any way that suggests endorsement, certification, or affiliation.
+🔹 Anyone who chooses to use the content does so on their own initiative and at their sole risk and responsibility, including for compliance with applicable laws and regulations.
+🔹 Neither the STEMG nor ASD, nor their members, contributors or representatives, is responsible or liable for any use of the standard by third parties, for the accuracy or reliability of any tool or output derived from it (including AI-generated content), or for any resulting direct or indirect damage.
+🔹 All rights are reserved.
+For these reasons, requests for permission will not receive an individual reply. The Copyright Statement of the current edition remains the only reference.
+The present notice is provided for general information only. It is not a legal document, it does not amend or supplement the Copyright Statement, and it does not constitute legal advice.
+White Paper: Simplified Technical English and Artificial Intelligence
+Artificial Intelligence is rapidly changing how technical content is created, translated, and managed. For the ASD-STE100 community, this brings both opportunities and risks.
+AI-generated text can appear clear, authoritative, and consistent with STE, even when it does not correctly apply the rules and vocabulary of the standard. Plausibility must not be confused with verified compliance.
+The new STEMG White Paper examines the responsible use of AI in STE environments, including human oversight, accountability, confidentiality, quality assurance, and the need to keep ASD-STE100 as the primary reference.
+AI can support technical authors, but it cannot replace professional expertise and informed review.
+Download the White Paper
+© Copyright 2026 STEMG - All Rights Reserved
+Privacy
+Contact
+Linkedin
+Facebook

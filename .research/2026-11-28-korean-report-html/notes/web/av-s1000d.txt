@@ -1,0 +1,62 @@
+About S1000D | S1000D
+Home
+About S1000D
+Benefits
+Getting Started
+Organizational Structure
+Downloads
+Data Dictionaries
+External Links
+Contact Us
+About S1000D
+Overview
+S1000D is an international specification for the production of technical publications. Although the title emphasizes its use for technical publications, application of the specification to non-technical publications is also possible and can be very beneficial to businesses requiring processes and controls.
+This specification was initially developed by the Aerospace, Security and Defence Industries Association of Europe (ASD).  Currently, S1000D is jointly produced by the following organizations, their members, and customers:
+ASD
+Aerospace Industries Association of America (AIA)
+ATA e-Business Program
+These organizations form the S1000D Council and the S1000D Steering Committee.   These groups are dedicated to establishing mutually agreed standards for the documentation methods used by the participating parties.
+With Issue 2, the scope of S1000D was extended to include land and sea specific applications. The specification continues to evolve and now supports:
+any type of equipment (including both military and civil products)
+publication
+construction
+policy procedures
+legal documentation
+organizational documentation
+and more…
+History
+The concept of this specification was originated in the early 1980s as an aerospace standard within the Aerospace, Security and Defence Industries Association of Europe (ASD) formerly known as AECMA. At that time, most civil airline projects were being documented in accordance with specification ATA 100 with military projects following various national specifications.
+With the development of Integrated Logistics Support (ILS) and information technology the AECMA Customer and Product Support Committee (CPSC) established a Documentation Working Group (DWG).
+This group consisted of European industry representatives tasked to report on current documentation practices and to recommend a unified method of documentation for air vehicle projects. The DWG recognized that the only internationally accepted specification in the aerospace field was ATA 100.
+It was therefore decided to attempt to harmonize civil and military documentation using ATA 100 as a source document. The DWG invited the nations to provide military representatives who would participate in its activities and established a subsidiary, which was designated the Augmented Documentation Working Group (ADWG).
+The ADWG was superseded by the Technical Publications Specification Maintenance Group (TPSMG), which in turn was superseded recently by the S1000D Steering Committee (SC) which now has the full responsibility of maintaining the specification. The SC includes members from military and industry from various countries.
+Structure
+To ease reading of the specification it has been split into multiple chapters covering aspects such as creation, management and publishing, the full lifecycle of technical publications creation.
+Principal Concepts
+The following sections deal with the principal concepts within the specification. These concepts underpin a publications program using S1000D, and enable a move from a book paradigm to an information one.
+Data Module
+A data module is defined as a stand alone information unit and contains descriptive, procedural or operational data for a platform, system or a component.
+It is produced in such a form that it can be stored and retrieved from a Common Source Data Base by using the data module code as the identifier.
+It is produced in SGML (up to S1000D Issue 3.0) or XML according to specific DTDs or Schemas, all of which are provided with the specification (Note: Click Here to download S1000D DTDs and Schemas).
+Data Module Structure
+Each data module comprises two parts, identification and status section and a contents section.
+The Identification and Status section provides information for:
+Managing the data module within the CSDB.
+Managing data module applicability.
+Managing the quality assurance process.
+Controlling the retrieval processes.
+The contents section provides the user with the actual information required to conduct the task or describe the system. S1000D has defined various information types, e.g.:
+Crew
+Description
+Procedural
+Fault
+Illustrated Parts Data
+Schedules
+Wiring
+Process Module
+Business Rules Exchange
+Common Source Data Base (CSDB)
+Common Source Data Base (CSDB)
+This is the “store” for the containment and management of data modules, S1000D however does not define its functionality or otherwise. It just states that there is a requirement to hold and manage the data modules produced within a program(s).
+Terms of Use | Privacy Policy | Mailing List | Contact Us
+© 2026 ASD, AIA, A4A. All rights reserved. S1000D® is a registered trademark of ASD

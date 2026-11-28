@@ -1,0 +1,434 @@
+Concise, SCANNABLE, and Objective: How to Write for the Web - NN/G
+Skip to content
+Introducing NN/G Membership | Access all self-paced courses for $249 per year | Join by Jan. 26, 2027 |
+Explore NN/G Membership
+Nielsen Norman Group
+Nielsen Norman Group
+UX Training & Courses
+Live Online
+All Live Online Courses
+Upcoming Live Online Training
+Train Your Team
+Group-Discount Pricing
+Private Team Training
+UX Certification
+Self-Paced
+All Self-Paced Courses
+NN/G Membership
+New
+Deciding Between Formats?
+Find the training option that fits your learning style.
+Which Format Is Right For Me?
+Articles & Resources
+Articles & Videos
+Reports & Books
+The NN/G UX Podcast
+Consulting
+All Consulting Services
+Customized Research
+Expert Review
+Intensive Applied Workshops
+Keynote Speaking
+User Testing
+UX Maturity Assessment
+About Us
+About NNGroup
+People
+Clients
+News & Careers
+FAQs
+Contact Us
+Search
+Profile
+26
+Concise, SCANNABLE, and Objective: How to Write for the Web
+John Morkes, Jakob Nielsen
+John Morkes and
+Jakob Nielsen
+January 1, 1997
+1997-01-01
+Share
+Email article
+Share on LinkedIn
+Share on Twitter
+Summary:
+Studies of how users read on the Web found that they do not actually read: instead, they scan the text. A study of five different writing styles found that a sample Web site scored 58% higher in measured usability when it was written concisely, 47% higher when the text was scannable, and 27% higher when it was written in an objective style instead of the promotional style used in the control condition and many current Web pages. Combining these three changes into a single site that was concise, scannable, and objective at the same time resulted in 124% higher measured usability.
+Unfortunately, this paper is written in a print writing style and is somewhat too academic in style. We know this is bad, but the paper was written as the traditional way of reporting on a research study. We have a  short summary that is more suited for online reading.
+In This Article:
+Introduction
+Overview of Studies
+Study 1: Directed Tasks
+Study 2: Exploratory Study of Reading
+Study 3: Measurement Study
+Future Research
+Conclusions
+References
+Introduction
+"Really good writing - you don't see much of that on the Web," said one of our test participants. And our general impression is that most Web users would agree. Our studies suggest that current Web writing often does not support users in achieving their main goal: to find useful information as quickly as possible.
+We have been running Web usability studies since 1994 [Nielsen 1994b, Nielsen and Sano 1994, Nielsen 1995]. Our studies have been similar to most other Web usability work (e.g., [Shum 1996, Spool et al. 1997]) and have mainly looked at site architecture, navigation, search, page design, layout, graphic elements and style, and icons. Even so, we have collected many user comments about the content during this long series of studies. Indeed, we have come to realize that content is king in the user's mind: When asked for feedback on a Web page, users will comment on the quality and relevance of the content to a much greater extent than they will comment on navigational issues or the page elements that we consider to be "user interface" (as opposed to simple information). Similarly, when a page comes up, users focus their attention on the center of the window where they read the body text before they bother looking over headerbars or other navigational elements.
+We have derived three main content-oriented conclusions from our four years' of Web usability studies [Nielsen 1997a]:
+users do not read on the Web; instead they scan the pages, trying to pick out a few sentences or even parts of sentences to get the information they want
+users do not like long, scrolling pages: they prefer the text to be short and to the point
+users detest anything that seems like marketing fluff or overly hyped language ("marketese") and prefer factual information.
+This latter point is well illustrated by the following quote from a customer survey we ran on the Sun website:
+"One piece of advice, folks: Let's try not to be so gratuitous and self-inflating. Beginning answers to common sense questions such as "Will Sun support my older Solaris platform?" with answers such as "Sun is exceptionally committed to..." and "Solaris is a leading operating system in today's business world..." doesn't give me, as an engineer, a lot of confidence in your ability. I want to hear fact, not platitudes and self-serving ideology. Hell, why not just paint your home page red under the moving banner of, "Computers of the world, Unite under the glorious Sun motherland!"
+Even though we have gained some understanding of Web content from studies that mainly concerned higher-level Web design issues, we felt that we needed to know more about Web writing in order to advise our content creators. We therefore designed a series of studies that specifically looked at how users read Web pages.
+Overview of Studies
+We conducted three studies in which a total of 81 users read Web pages. The first two studies were exploratory and qualitative and were aimed at generating insight into how users read and what they like and dislike. The third study was a measurement study aimed at quantifying the potential benefits from some of the most promising writing styles identified in the first two studies. All three studies were conducted during the summer of 1997 in the SunSoft usability laboratories in Menlo Park, CA.
+Study 1: Directed Tasks
+A major goal in the first study was to compare the reading behavior of technical and non-technical users. Even though we had conducted some earlier studies with non-technical participants, most of our studies had used highly technical users. Also, given the nature of our site, almost all of the data collected from site surveys was provided by technical users.
+In Study 1, we tested a total of 11 users: 6 end-users and 5 technical users. The main difference between technical and non-technical users seemed to play out in participants' familiarity and expertise with search tools and hypertext. The technical users were better informed about how to perform searches than the end-users were. Technical users also seemed more aware of and more interested in following hypertext links. At least one end-user said he is sometimes hesitant to use hypertext for fear of getting lost.
+Apart from those differences, there appeared to be no major differences in how technical and non-technical users approached reading on the Web. Both groups desired scannable text, short text, summaries, etc.
+Tasks
+The tasks were classic directed tasks similar to those used in most of our previous Web usability studies. Users were typically taken to the home page of a specific website and then asked to find specific information on the site. This approach was taken to avoid the well-known problems when users have to find things by searching the entire Web [Pollock and Hockley 1997]. Here is a sample task:
+You are planning a trip to Las Vegas and want to know about a local restaurant run by chef Charlie Trotter. You heard it was located in the MGM Grand hotel and casino, but you want more information about the restaurant. You begin by looking at the website for Restaurants & Institutions magazine at: http://www.rimag.com
+Hint: Look for stories on casino foodservice
+Try to find out:
+-what the article said about the restaurant
+-where most food is served at the riverboat casino
+Unfortunately, the Web is currently so hard to use that users wasted enormous amounts of time trying to find the specific page that contained the answer to the question. Even when on the intended page, users often could not find the answer because they didn't see the relevant line. As a result, much of Study 1 ended up repeating navigation issues that we knew from previous studies and we got fewer results than desired relating to actual reading of content.
+Findings
+Users Want to Search
+Upon visiting each site, nearly all of the participants wanted to start with a keyword search. "A good search engine is key for a good website," one participant said. If a search engine was not available, a few of the participants said, they would try using the browser's "Find" command.
+Sometimes participants had to be asked to try to find the information without using a search tool, because searching was not a main focus of this study.
+Waiting is Unpleasant
+Users think waiting for downloads and search results is boring and a waste of time. More than half the participants mentioned this specifically. "I like to get into a website and then get out. I don't like to lull around," one participant said. Someone else complained about slow downloading of graphics: "I like to see one good picture. I don't like to see tons of pictures. Pictures aren't worth waiting for."
+Study 1 employed a novel measure of participants' boredom. Participants were instructed to pick up a marble from a container on the table and drop it into another container whenever they felt bored or felt like doing something else. Together, the 11 participants moved 12 marbles: 8 marbles while waiting for a page to download, 2 while waiting for search results to appear, and 2 when unable to find the requested information. (Participants did not always remember to use the marbles when they were bored). After Study 1, we abandoned the marble technique for measuring boredom. Instead, we relied on spoken comments in Study 2 and a traditional subjective satisfaction questionnaire in Study 3.
+Conventional Guidelines for Good Writing are Good
+Conventional guidelines include carefully organizing the information, using words and categories that make sense to the audience, using topic sentences, limiting each paragraph to one main idea, and providing the right amount of information.
+"You can't just throw information up there and clutter up cyberspace. Anybody who makes a website should make the effort to organize the information," one participant said.
+When looking for a particular recipe in Restaurant & Institution magazine's website, some of the participants were frustrated that the recipes were categorized by the dates they appeared in the magazine. "This doesn't help me find it," one person said, adding that the categories would make sense to the user if they were types of food (desserts, for example) rather than months.
+Several participants, while scanning text, would read only the first sentence of each paragraph. This suggests that topic sentences are important, as is the "one idea per paragraph" rule. One person who was trying to scan a long paragraph said, "It's not very easy to find that information. They should break that paragraph into two pieces-one for each topic."
+Clarity and quantity-providing the right amount of information-are very important. Two participants who looked at a white paper were confused by a hypertext link at the bottom of Chapter 1. It said only "Next." The participants wondered aloud whether that meant "Next Chapter," "Next Page," or something else.
+Additional Findings
+We also found that scanning is the norm, that text should be short (or at least broken up), that users like summaries and the inverted pyramid writing style, that hypertext structure can be helpful, that graphical elements are liked if they complement the text, and that users suggest there is a role for playfulness and humor in work-related websites. All of these findings were replicated in Study 2 and are discussed in the following section.
+Study 2: Exploratory Study of Reading
+Because of the difficulties with navigation in Study 1, we decided to take users directly to the pages we wanted them to read in Study 2. Also, the tasks were designed to encourage reading larger amounts of text rather than simply picking out a single fact from the page.
+Participants
+We tested 19 participants (8 women and 11 men), ranging in age from 21 to 59. All had at least five months of experience using the Web. Participants came from a variety of occupations, mainly non-technical.
+Participants said they use the Web for technical support, product information, research for school reports and work, employment opportunities, sales leads, investment information, travel information, weather reports, shopping, coupons, real estate information, games, humor, movie reviews, email, news, sports scores, horoscopes, soap opera updates, medical information, and historical information.
+Tasks
+Participants began by discussing why they use the Web. They then demonstrated a favorite website. Finally, they visited three sites that we had preselected and performed assigned tasks that required reading and answering questions about the sites. Participants were instructed to "think out loud" throughout the study.
+The three preselected sites were rotated between participants from a set of 18 sites with a variety of content and writing styles, including news, essays, humor, a how-to article, technical articles, a press release, a diary, a biography, a movie review, and political commentary. The assigned tasks encouraged participants to read the text, rather than search for specific facts. For most of the sites, the task instructions read as follows:
+"Please go to the following site, which is bookmarked: [site URL]. Take several moments to read it. Feel free to look at anything you want to. In your opinion, what are the three most important points the author is trying to make? After you find the answers, we will ask you some questions."
+We observed each participant's behavior and asked several questions about the sites. Standard questions for each site included
+"What would you say is the primary purpose of the site?"
+"How would you describe the site's style of writing?"
+"How do you like the way it is written?"
+"How could the writing in this website be improved?"
+"How easy to use is the website? Why?"
+"How much do you like this site? Why?"
+"Do you have any advice for the writer or designer of this website?"
+"Think back to the site you saw just before this one. Of the two sites, which did you like better? Why?"
+Findings
+Simple and Informal Writing are Preferred
+This point was made by 10 participants, many of whom complained about writing that was hard to understand. Commenting on a movie review in one site, another person said, "This review needs a complete rewrite to put it into more down-to-earth language, so that just anybody could read it and understand."
+Some participants mentioned they like informal, or conversational, writing better than formal writing. "I prefer informal writing, because I like to read fast. I don't like reading every word, and with formal writing, you have to read every word, and it slows you down," one person said.
+Credibility is an Important Issue on the Web
+Exactly who the publisher of a particular site is-and who the sources of information in the site are-may be unclear to users. Therefore, the sources' motivations, qualifications, and trustworthiness are unclear. All of this causes users to wonder about the credibility of websites.
+Credibility was mentioned by 7 participants as an important concern. When looking at a news story on the Web, one person said, "One thing I always look for is who it is coming from. Is it a reputable source? Can the source be trusted? Knowing is very important. I don't want to be fed with false facts." When asked how believable the information in an essay on the Web seemed, another person answered, "That's a question I ask myself about every Web site."
+The quality of a site's content influences users' evaluations of credibility, as one person pointed out: "A magazine that is well done sets a certain tone and impression that are carried through the content. For example,  National Geographic  has a quality feel, a certain image. A website conveys an image, too. If it's tastefully done, it can add a lot of credibility to the site."
+Outbound Links Can Increase Credibility
+Users rely on hypertext links to help assess credibility of the information contained in websites. This point was made by 4 participants. "Links are good information. They help you judge whether what the author is saying is true," one said. While reading an essay, one person commented, "This site is very believable. The author presents several points of view, and he has links for each point of view." Another person made a similar statement about a different essay: "Because the writer is referencing other links, it's probably relatively accurate information."
+Humor Should be Used with Caution
+In this study, 10 participants discussed their preferences for humor in various media, and some evaluated humor in certain websites. Overall, participants said they like a wide variety of humor types, such as aggressive, cynical, irreverent, nonsense, physical, and word-play humor. "I like websites when they're not all that dry. I like to laugh. I get bored while waiting. I would like something clever and crafty (to read)," one person said in Study 1.
+A website containing puns (word-play humor) was described as "stupid" and "not funny" by 2 out of the 3 participants who visited it. A site that contained cynical humor was enjoyed by all 3 participants who saw it, though only one of them had said earlier that he liked this type of humor.
+Given people's different preferences for humor, it is important for a Web writer to know the audience, before including humor in a site. Of course, using humor successfully may be difficult, because a site's users may be diverse in many ways (e.g., culture, education, and age). Puns are particularly dangerous for any site that expects a large number of international users.
+Users Want to Get Their Information Quickly
+This was mentioned by 11 participants. Users like well-organized sites that make important information easy to find. "Web users are under emotional and time constraints. The most important thing is to give them the information fast," one participant advised. "I prefer something highly organized to get quickly from here to there. I want to do it quickly," one person said about a site.
+Users also want fast-loading graphics and fast response times for hypertext links, and they want to choose whether to download large (slow) graphics. "A slow connection time or response time will push me away," one user said.
+Text Should be Scannable
+Scanning can save users time. During the study, 15 participants always approached unfamiliar Web text by trying to scan it before reading it. Only 3 participants started reading text word by word, from the top of the page to the bottom, without scanning. Elements that enhance scanning include headings, large type, bold text, highlighted text, bulleted lists, graphics, captions, topic sentences, and tables of contents.
+One user from Study 1 who scanned an article but failed to find what he was looking for said, "If this happened to me at work, where I get 70 emails and 50 voicemails a day, then that would be the end of it. If it doesn't come right out at me, I'm going to give up on it." "Give me bulleted items," another user said. While looking at a news site, one person said, "This is easy to read because it uses bold to highlight certain points." An essay containing long blocks of text prompted this response: "The whole way it looked made it kind of boring. It's intimidating. People want to read things that are broken up. It gets the points across better."
+Text Should be Concise
+Consistent with users' desire to get information quickly is their preference (expressed by 11 people) for short text. One person said, "Websites are too wordy. It's hard to read a lot of text on the screen." While looking at a news story, another person said, "I like that short style. I don't have time for gobbledygook. I like getting the information fast."
+Many participants want a Web page to fit on one screen. One person said the following about a news story: "It was too long. I think it's better to have condensed information that's no bigger than one screen."
+Participants want a website to make its points quickly. While reading a movie review, one person said, "There's a lot of text in here. They should get more to the point. Did they like it or didn't they?"
+Users Like Summaries and the Inverted Pyramid Style
+According to 8 participants, Web writing that presents news, summaries, and conclusions up front is useful and saves time. A participant who was reading a page of article summaries said, "I like the ability to read a summary and then go to the article if I'm interested."
+A news story written in the inverted pyramid style (in which news and conclusions are presented first, followed by details and background information), prompted this response: "I was able to find the main point quickly, from the first line. I like that." While reading a different news story, someone else said, "It got my attention right away. This is a good site. Boom. It gets to the point."
+Hypertext is Well-Liked
+"The incredible thing that's available on the Web is the ability to go deeper for more information," one participant said. In the study, 15 participants said they like hypertext. "Links are a good thing. If you just want to read the page you're on, fine, you're not losing anything. But if you want to follow the links, you can. That's the great thing about the Web," one person said. When asked how useful hypertext links are, another said, "I might be searching for one document, but I might find 15 other related things that pique my interest. It's very useful. I really enjoy that."
+However, hypertext is not universally liked: 2 participants said hypertext can be distracting if a site contains "too many" links.
+Graphics and Text Should Complement One Another
+Words and pictures can be a powerful combination, but they must work together, 5 participants said. "I don't ever want to see a picture without a caption beneath it," one participant said.
+Graphics that add nothing to the text are a distraction and waste of time, some people said. "A graphic is good when it relates to the content, but many are just trying to be flashy," one person said.
+Study 3: Measurement Study
+In this empirical study, 51 Web users tested 5 variations of a Web site. Each version had a distinct writing style, though all contained essentially the same information. The control version was written in a promotional style (i.e., "marketese"); one version was written to encourage scanning; one was concise; one had an "objective," or non-promotional, writing style; and one combined concise, scannable, and objective language into a single site.
+Hypotheses
+Based on our qualitative findings in Studies 1 and 2, we made seven hypotheses to test in the measurement study.
+Hypothesis 1: Users of the scannable and concise versions of the website will spend significantly less time performing tasks than will users of the control version.
+Hypothesis 2: Scannable and concise users will make significantly fewer errors on tasks than will control users.
+Hypothesis 3: Scannable and concise users will remember site content significantly better than will control users.
+Hypothesis 4: Scannable and concise users will take significantly less time to recall the website's structure than will control users. However, all groups (control, scannable, concise, and objective) will perform the same on sitemap accuracy, since the site's structure is simple.
+Hypothesis 5: Objective, scannable, and concise users will report significantly higher subjective satisfaction with the site than will control users.
+Hypothesis 6: Combining objective, scannable, and concise writing styles into a single site will result in significantly better measures on task time (6A), error rates (6B), memorability (6C), site structure (6D), and subjective satisfaction (6E).
+Hypothesis 7: When measures from the first six hypotheses are combined into an overall usability score for each version of the site, the scannable, concise, objective, and combined versions will have higher usability scores than the control version will.
+Method
+Participants
+The participants were 51 experienced Web users recruited by Sun (average amount of Web experience was 2 years). Participants ranged in age from 22-69 (average age was 41). In an attempt to focus on "normal users," we excluded the following professions from the study: webmasters, Web designers, graphic designers, user interface professionals, writers, editors, computer scientists, and computer programmers.
+We checked for effects of age and Web experience on the dependent variables mentioned in the first five hypotheses, but we found only negligible differences-none significant. Had the sites in our study been more difficult to navigate or had our tasks necessitated use of search engines or other Web infrastructure, we would have expected significant effects of both age and Web experience.
+Design
+The experiment employed a 5-condition (promotional [control], scannable, concise, objective, or combined) between-subjects design. Conditions were balanced for gender and employment status.
+Experimental Materials
+The experiment used five versions of a website created for this study. Called  "Travel Nebraska,"  the site contained information about Nebraska. We used a travel site because 1) in our earlier qualitative studies, many Web users said travel is one of their interests, and 2) travel content lent itself to the different writing styles we wanted to study. We chose Nebraska to minimize the effect of prior knowledge on our measures (in recruiting participants, we screened out people who had ever lived in, or even near, Nebraska).
+The  study materials are available online, if you want to review them in detail or reuse them for your own research.
+Each version of the  Travel Nebraska  site consisted of seven pages, and all versions used the same hypertext structure. So that participants would focus on text and not be distracted, we used modest hypertext (with no links outside the site) and included only three photos and one illustration. There was no animation. Topics included in the site were Nebraska's history, geography, population, tourist attractions, and economy. The Appendix to this paper shows parts of a sample page from each condition.
+The  control version of the site had a promotional style of writing (i.e., "marketese,"), which contained exaggeration, subjective claims, and boasting, rather than just simple facts. This style is characteristic of many pages on the Web today.
+The  concise version had a promotional writing style, but its text was much shorter. Certain less-important information was cut, bringing the word count for each page to about half that of the corresponding page in the control version. Some of the writing in this version was in the inverted pyramid style. However, all information users needed to perform the required tasks was presented in the same order in all versions of the site.
+The  scannable version also contained marketese, but it was written to encourage scanning, or skimming, of the text for information of interest. This version used bulleted lists, boldface text to highlight keywords, photo captions, shorter sections of text, and more headings.
+The  objective version was stripped of marketese. It presented information without exaggeration, subjective claims, or boasting.
+The  combined version had shorter word count, was marked up for scannability, and was stripped of marketese.
+Procedure
+Upon arrival at the usability lab, the participant signed a videotape consent form, then was told he or she would visit a website, perform tasks, and answer several questions.
+After making sure the participant knew how to use the browser, the experimenter explained that he would observe from the room next door to the lab through the one-way mirror. Throughout the study, the participant received both printed instructions from a paper packet and verbal instructions from the experimenter.
+The participant began at the site's homepage. The first two tasks were to search for specific facts (located on separate pages in the site), without using a search tool or the "Find" command. The participant then answered  Part 1 of a brief questionnaire. Next was a judgment task (suggested by Spool et al. [1997]) in which the participant first had to find relevant information, then make a judgment about it. This task was followed by  Part 2 of the questionnaire.
+Next, the participant was instructed to spend 10 minutes learning as much as possible from the pages in the website, in preparation for a short exam. Finally, the participant was asked to draw on paper the structure of the website, to the best of his or her recollection.
+After completing the study, each participant was told details about the study and received a gift.
+Measures
+Task time  was the number of seconds it took users to find answers for the two search tasks and one judgment task.
+The two search tasks were to answer: "On what date did Nebraska become a state?" and "Which Nebraska city is the 7th largest, in terms of population?" The questions for the judgment task were: "In your opinion, which tourist attraction would be the best one to visit? Why do you think so?"
+Task errors  was a percentage score based on the number of incorrect answers users gave in the two search tasks.
+Memory  comprised two measures from the exam: recognition and recall. Recognition memory was a percentage score based on the number of correct answers minus the number of incorrect answers to 5 multiple-choice questions. As an example, one of the questions read: "Which is Nebraska's largest ethnic group? a) English b) Swedes c) Germans d) Irish."
+Recall memory was a percentage score based on the number of tourist attractions correctly recalled minus the number incorrectly recalled. The question was: "Do you remember any names of tourist attractions mentioned in the website? Please use the space below to list all the ones you remember."
+Time to recall site structure  was the number of seconds it took users to draw a sitemap.
+A related measure,  sitemap accuracy, was a percentage score based on the number of pages (maximum 7) and connections between pages (maximum 9) correctly identified, minus the number of pages and connections incorrectly identified.
+Subjective satisfaction  was determined from participants' answers to a paper-and-pencil questionnaire. Some questions asked about specific aspects of working with the site, and other questions asked for an assessment of how well certain adjectives described the site (anchored by "Describes the site very poorly" to "Describes the site very well"). All questions used 10-point Likert scales.
+The subjective satisfaction index was the mean score of the following four indices:
+Quality  of the site comprised four items: accurate, helpful, useful, and the question "How satisfied are you with the site's quality of language?"
+Ease of use  of the site comprised five items: easy to use, and the questions "How easy is it to work with the text in this website?", "How easy is it to find specific information in this website?", "Compared to what you expected, how quickly did the tasks go?", and "How hard was it to concentrate on searching for information (because of distractions)?" (this item was reverse-coded).
+Likability  of the site comprised six items: entertaining, interesting, likable, engaging, fun to use, and boring (reverse-coded).
+User affect  comprised three items (all reverse-coded): "How tired do you feel right now?", "How confused did you feel while working in this site?", and "How frustrated did you feel while working in this site?"
+For each index, the items were averaged so that the possible range was from 1 to 10.
+Results
+Main measurements are presented in Table 1.
+Table 1.  Mean scores for five major measures. (Standard deviations appear in parentheses.) Time measures are in seconds, Task Errors and Memory are percentage scores, and Subjective Satisfaction is on a scale from 1 to 10.
++ p < .10 * p < .05 ** p < .01 *** p < .001 (test for significant difference from control condition)
+Condition
+Task Time
+Task Errors
+Memory
+Sitemap Time
+Subjective Satisfaction
+Promotional (control)
+359
+0.82
+0.41
+185
+5.7
+(194)
+(0.60)
+(0.14)
+(43)
+(1.5)
+Concise
+209*
+0.40+
+0.65**
+130***
+7.1*
+(88)
+(0.70)
+(0.21)
+(41)
+(1.9)
+Scannable
+229*
+0.30*
+0.55*
+198
+7.4*
+(86)
+(0.48)
+(0.19)
+(93)
+(1.8)
+Objective
+280
+0.50
+0.47
+159
+6.9*
+(163)
+(0.53)
+(0.13)
+(69)
+(1.7)
+Combined
+149**
+0.10**
+0.67***
+130**
+7.0*
+(57)
+(0.32)
+(0.10)
+(25)
+(1.6)
+Hypothesis 1 was confirmed. Users of the scannable version performed tasks significantly faster than users of the control version did, t(19) = 1.95, p < .05, one-tailed. The same was true for users of the concise version, t(19) = 2.24, p < .05, one-tailed.
+Hypothesis 2 was supported. Scannable users made significantly fewer task errors than control users, t(19) = 2.16, p < .05, one-tailed. Concise users also made fewer task errors, but the difference approached significance, t(19) = 1.47, p < .10, one-tailed.
+Hypothesis 3 was confirmed. Scannable users had significantly better memory of site content than did control users, t(16) = -1.73, p < .05, one-tailed. Concise users did, as well, t(17) = -2.77, p < .01, one-tailed.
+Hypothesis 4 was partially confirmed. As predicted, concise users took significantly less time to recall the site's structure than control users did, t(19) = 2.98, p < .001, one-tailed. However, there was no significant difference in the amount of time scannable users and control users took to remember the structure, t(19) = -0.40, p > .69.
+As expected, there were no significant differences between the sitemap accuracy scores of the control users and: scannable users (t(19) = -0.16, p > .88), concise users (t(19) = -0.24, p > .82), or objective users (t(19) = -0.09, p > .93).
+We did not predict (nor did we find) significant differences between objective users' and control users' measures for task time, task errors, memory, or sitemap time. However, compared to control users, objective users tended to perform the tasks faster, make fewer task errors, remember site content better, and recall the site structure faster. The differences are not significant, but they all point in the same direction (i.e., they suggest that the objective version is "better" than the control).
+Hypothesis 5 was confirmed. Scannable users reported significantly higher subjective satisfaction with the site than control users did, t(19) = -2.41, p < .05, one-tailed . The same was true for concise users (t(19) = -1.85, p < .05, one-tailed) and objective users (t(19) = -1.76, p < .05, one-tailed).
+Hypothesis 6 was confirmed. Users of the combined version performed tasks significantly faster than users of the control version did, t(19) = 3.30, p < .01, one-tailed. They also made fewer errors (t(19) = 3.36, p < .01, one-tailed), remembered more (t(17) = -4.56, p < .001, one-tailed), drew the sitemap faster (t(18) = 3.42, p < .01, one-tailed), and had higher subjective satisfaction (t(19) = -1.90, p < .05, one-tailed).
+Hypothesis 7 was confirmed. Overall usability scores for all versions of the site show that, compared to the control version, the scannable version is 47% better, the concise version 58% better, the objective version 27% better, and the combined version was 124% better. Table 2 contains these data, as well as each condition's normalized mean score for each major measure. Nineteen out of 20 mean scores were higher than the corresponding scores for the control version, meaning that the other four versions were "better" than the control for nearly all of these measures.
+Normalized Scores and Overall Usability Scores
+To determine how much better or worse in percentage terms each site version was relative to the control, we normalized all participant groups' mean scores for the 5 major measures. For each measure, the control condition's mean score was set to equal 100, and the other conditions' mean scores were transformed (by division) relative to the control (see Table 2). Scores above 100 are "better" than the control, and those below 100 are "worse."
+Next, we calculated an Overall Usability score for each version of the site, by taking the geometric mean of the normalized scores for the 5 measures (the geometric, rather than arithmetic, mean was used because we compared ratios). Again, the control version's score was 100.
+Table 2.  Normalized mean scores for five major measures and Overall Usability. Scores above 100 (the control score) are "better." For example, the scannable version is 57% better than the control for Task Time.
+Version
+Task Time
+Task Errors
+Memory
+Sitemap Time
+Subjective Satisfaction
+Overall Usability
+Promotional (control)
+100
+100
+100
+100
+100
+100
+Concise
+172
+205
+142
+124
+156
+158
+Scannable
+157
+273
+94
+130
+133
+147
+Objective
+128
+164
+116
+121
+112
+127
+Combined
+242
+818
+162
+142
+122
+224
+Future Research
+Much work remains to fully understand the best way of writing for the Web. In our Study 3, we treated the three variations (concise, scannable, and objective) as dichotomies, whereas to a writer, they are continuous dimensions. A simple follow-on study would vary each of our dimensions in a number of steps to assess the shape of the usability curve. For example, conciseness could be tested with word counts varying in 10% increments from 10% to 90% of the control condition. Similarly, scannability could be tested with fewer or more headings, with no bulleted lists, and with more or less use of highlighted words, background coloring, pullquotes, and other typographic tricks. We welcome any such additional studies, and to facilitate them we have made our original test pages and the complete set of test questions available for download at this URL:
+http://nngroup.com/articles/downloadable-files-to-replicate-web-reading-study/
+It will also be necessary to study a range of tasks and types of websites, including larger and more complex hypertext structures than the one used in our study.
+We identified many issues in Study 2 that were not tested in Study 3. Some of the more important ones are:
+interplay between humor and personality on the one side and objectivity on the other
+ways of integrating informational graphics with the text
+best use of within-page and across-page overviews and summaries
+how to structure text into multiple pages, using hypertext to relegate less important information to secondary pages
+how to promote an impression of credibility.
+Finally, future studies should address the connection between Web writing and the main Web usability issues of navigation and task performance. Concise text implies shorter pages which will download faster and alleviate the Web's most serious usability problem, slow response times, thus helping users remember their navigational state.
+Conclusions
+Our study suggests that scannable, concise, and objective writing styles each make a positive difference in Web users' performance and subjective satisfaction. Promotional writing, which is the style most commonly found on the Web today, had much lower scores on virtually all usability measures.
+The good results for the objective language condition may be because it might be easier to process objectively written text than promotional text. Web users wonder about credibility, and questioning the credibility of promotional statements may distract users from processing the meaning.
+Since there is no inherent conflict between concise, scannable, and objective texts, we recommend that Web authors employ all three principles in their writing. Indeed, in our case study the combined effect of employing all three improvements was much larger than any of the individual improvements taken alone: our combined version recorded a 124% improvement in measured usability, whereas the three individual improvements "only" scored from 27% to 58%.
+In one of our other projects [Morkes and Nielsen, 1998], we rewrote actual pages from Sun's website according to our guidelines. In addition to making them concise, scannable, and objective, we also split them into more pages, using hypertext links to move less important material from top-level pages to secondary pages, thus making the primary pages even shorter. The  rewritten pages scored 159% higher than the originals in a set of usability metrics much like the ones used in the present study.
+We thus have data from two studies where measured usability improved by 124% and 159%, respectively, when rewriting the text according to our guidelines. More research is obviously needed to get additional data about when one can expect what magnitude of usability improvements, but our current data does suggest that it will often be possible to more than double usability by rewriting web pages according to our guidelines. The ability to double usability should come as no big surprise since it is about what is found in traditional usability engineering of software: applying established usability methods [Nielsen, 1994a] to a software product that was developed without any usability input typically doubles the usability of the redesigned product.
+References
+Morkes, J., and Nielsen, J. (1998).  Applying Writing Guidelines to Web Pages.
+Nielsen, J. (1994a).  Usability Engineering (paperback edition). Cambridge, MA: AP Professional.
+Nielsen, J. (1994b).  Report from a 1994 Web usability study.
+Nielsen, J. (1995).  Interface design for Sun's WWW site.
+Nielsen, J. (1997).  Be succinct! (Writing for the Web).
+Nielsen, J., and Sano, D. (1994). SunWeb:  User interface design for Sun Microsystem's internal Web.
+Pollock, A., and Hockley, A. (1997).  What's wrong with Internet searching. http://www.dlib.org/dlib/march97/bt/03pollock.html
+Shum, S. B. (1996).  The missing link: Hypermedia usability research & the Web.
+Spool, J. M., Scanlon, T., Schroeder, W., Snyder, C., & DeAngelo, T. (1997).  Web Site Usability: A Designer's Guide. Morgan Kaufmann Publishers
+Related Courses
+UX Writing: Foundations and AI-Assisted Techniques
+Write clear, effective UX copy and learn how to use AI tools responsibly and strategically
+Artificial Intelligence
+Writing for the Web
+Related Topics
+Writing for the Web
+Writing for the Web
+Learn More:
+We Still Need Long-Form Copy
+Taylor Dykes
+·
+7 min
+The 3 Sizes of UX Copy
+Taylor Dykes
+·
+5 min
+Demystifying Clickbait: You’ll NEVER Believe What I Learned
+Taylor Dykes
+·
+7 min
+Related Articles:
+How People Read Online: New and Old Findings
+Kate Moran
+·
+9 min
+How to Present Scientific Findings Online
+Kate Moran
+·
+7 min
+Reading Content on Mobile Devices
+Kate Moran
+·
+8 min
+5 Formatting Techniques for Long-Form Content
+Huei-Hsin Wang and  Megan Chan
+·
+8 min
+Dealing with Technical or Professional Jargon
+Kate Moran
+·
+9 min
+Cringeworthy Words to Cut from Online Copy
+Hoa Loranger
+·
+2 min
+Never miss an update
+Get weekly UX articles, videos, upcoming courses, and job openings straight to your inbox with our newsletter.
+Email
+Subscribe
+Courses
+Live Online Training Events
+Self-Paced Courses
+Consulting
+Intensive Applied Workshops
+Customized Research
+Expert Review
+Keynote Speaking
+User Testing
+UX Maturity Assessment
+Help
+Terms & Conditions
+Privacy Policy
+Copyright & Reprint Policy
+Return Policy
+Live Course Tech Support
+FAQs
+Company
+About NNGroup
+People
+News & Careers
+Contact Us
+Copyright © 1998-2026  Nielsen Norman Group, All Rights Reserved.
+Cookie Preferences
+Cookie Declaration
+Follow Us
+Youtube
+LinkedIn
+Instagram
+Threads
+Bluesky
+X
+Facebook
+Spotify
+Back to Top
