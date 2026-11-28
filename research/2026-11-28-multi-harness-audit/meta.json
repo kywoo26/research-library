@@ -1,0 +1,9 @@
+{
+  "title": "Claude Code와 Codex 연구 harness의 호환성과 개선 순서",
+  "date": "2026-11-28",
+  "seq": 49,
+  "summary": "공통 스킬·native 어댑터·모델 위임을 공식 문서와 대형 OSS에 대조하고 보호 창 결함과 저비용 검증 순서를 제시한다.",
+  "category": "topic",
+  "format": "article",
+  "purpose": "report"
+}
