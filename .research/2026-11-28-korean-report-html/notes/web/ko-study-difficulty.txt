@@ -1,0 +1,391 @@
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+본문 바로가기
+KOAJKorea
+Open Access Journals
+KOAJ 소개
+학술지
+논문
+통계
+한국어
+English
+toggle menu
+KCI 등재
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+A Study on the Development of a Formula for Measuring Difficulty of Korean Reading Texts
+외국어로서의 한국어교육
+약어 :
+-
+2020
+vol.56,
+pp.321 - 352
+DOI : 10.21716/TKFL.56.12
+발행기관 :
+연세대학교 언어연구교육원 한국어학당
+연구분야 :
+한국어와문학
+Copyright ©
+연세대학교 언어연구교육원 한국어학당
+이보미
+1
+1연세대학교 언어정보연구원
+인용한 논문 수 : 17
+481 회 열람
+현재 페이지 인쇄
+PDF 다운로드
+인용보기
+공유
+Facebook
+Twitter
+초록
+본 연구는 기존 연구들에서 제안한 어휘 난이도, 문법 난이도, 문장 길이 난이도 등 개별적인 척도를 하나의 난이도 공식으로 만들어 제안하는 것에 목적이 있다. 이를 위해 4종의 한국어 통합 교재 내의 읽기 텍스트를 전사하여 무작위로 160개의 텍스트 샘플을 추출하고 세 가지 난이도 점수를 분석하였다. 그리고 텍스트 등급과 세 가지 난이도 점수 사이의 상관관계를 분석한 후 다중회귀분석을 통해 읽기 텍스트 난이도 공식을 도출하여 텍스트 난이도 측정 방법을 제안하고 그 방법이 타당한지 전문가 평정 결과와 비교해 보았다. 그 결과 세 가지 변인 모두 텍스트 등급과 상관관계가 높았으며, 그중 문법 난이도 점수가 텍스트 등급과 상관관계가 가장 높았다. 다중회귀분석 결과 문법 난이도와 어휘 난이도 점수를 포함한 모형이 텍스트 등급을 가장 잘 설명해 주어, 해당 모형을 바탕으로 텍스트 난이도 측정 공식을 제안하였다. 마지막으로 도출된 공식이 텍스트의 난이도를 잘 평가하고 있는지 보기 위해 공식으로 계산된 난이도와 전문가 집단이 평가한 난이도를 비교 분석한 결과 다수의 텍스트가 전문가 집단이 평가한 결과와 일치함을 볼 수 있었다.
+This paper aims to suggest an integrated text readability formula using individual measurements, such as vocabulary difficulty, grammar difficulty, sentence length difficulty, and so on, which have been proposed in previous studies. For this purpose, 160 text samples were randomly extracted from four Korean textbooks, and then three difficulty scores were calculated. The correlations between these three difficulty scores and the text grade were analyzed. Also, the formula for measuring text difficulty was derived from multiple regression analysis. Then, this study suggested an integrated method of measuring text difficulty and compared the results with the results of experts’ evaluation to see if the suggested method is feasible. The results of the study imply that all three variables were highly correlated with text grade, and among them, the grammatical difficulty score had the highest correlation with the grade. As a result of the multiple regression analysis, the model including the grammar difficulty and the vocabulary difficulty score best explained the text grade. Therefore, based on this model, a formula for measuring the text difficulty was suggested. Finally, to see if the derived formula evaluates the text grades well, the result calculated by the formula and the result evaluated by the expert group were compared. It was found that there was a high agreement between the results.
+키워드
+난이도, 이독성, 한국어 읽기 텍스트, 읽기 교육, 이독성 공식
+difficulty, readability, Korean reading text, reading education, readability formula
+참고문헌(39)
+1.
+[학술지]
+고승연
+/ 2015
+/ 한국어교육에서 이독성 연구의 현황과 과제, 한국어문화교육9
+/ 한국어문화교육
+/ 9
+: 1 ~
+2.
+[학위논문]
+구민지
+/ 2013
+/ 한국어 읽기 교육을 위한 텍스트 난이도 측정법 연구
+3.
+[학술지]
+김슬아
+/ 2016
+/ 중학교 3학년 영어 교과서 읽기 지문에 제시된 어휘와 문장의 난이도 분석
+/ 언어학 연구
+(41)
+: 95 ~ 41
+4.
+[학술지]
+김의수
+/ 2010
+/ 국어교육 교재와 한국어교육 교재 간의 접점 연구 ― 문장의 통사론적 난이도를 중심으로
+/ 문법 교육
+/ 12
+: 139 ~
+5.
+[학술지]
+김의수
+/ 2009
+/ TOPIK 읽기 영역 지문의 난이도와 균질성에 관한 통사론적 접근
+/ 한국언어문학
+(71)
+: 189 ~ 71
+6.
+[학술지]
+김의수
+/ 2009
+/ 한국어 교재를 구성하는 텍스트의 통사론적 난이도와 균질성 연구 -『한국어』(서울대)의 본문, 듣기, 읽기를 중심으로-
+/ 어문론총
+(51)
+: 1 ~ 51
+7.
+[학위논문]
+김장식
+/ 2011
+/ 한국어능력시험 읽기 영역 텍스트의 이독성 분석 연구
+8.
+[학위논문]
+김현아
+/ 2017
+/ 이독성 공식을 이용한 한국어 교재 텍스트 분석 연구
+9.
+[학술대회]
+김해인
+/ 2016
+/ 텍스트 난도 연구의 동향과 과제
+/ 고려대학교 한국어문교육연구소 학술발표논문집
+10.
+[학위논문]
+모엽청
+/ 2018
+/ 한국어능력시험(TOPIKⅡ)읽기 영역 텍스트 난이도 분석
+11.
+[학위논문]
+백재파
+/ 2011
+/ 한국어교육을 위한 읽기 텍스트의 이독성 공식 연구
+12.
+[학술지]
+박정진
+/ 2018
+/ 이독성을 활용한 한국어 읽기 자료의 수준 설정 가능성 탐색
+/ 현대사회와 다문화
+/ 8
+(2)
+: 1 ~ 2
+13.
+[학술지]
+서혁
+/ 2011
+/ 읽기(독서) 교육 체계화를 위한 텍스트 복잡도(Text Complexity) 상세화 연구 (1) －텍스트 복잡도 연구의 비판적 고찰을 중심으로-
+/ 국어교육학연구
+(42)
+: 433 ~ 42
+14.
+[학술지]
+서혁
+/ 2014
+/ 국어 교과서 텍스트의 유형과 복잡도
+/ 국어교육학연구
+/ 49
+(1)
+: 445 ~ 1
+15.
+[단행본]
+송지준
+/ 2011
+/ 논문 작성에 필요한 SPSS/AMOS 통계분석방법
+/ 21세기사
+16.
+[학위논문]
+심재홍
+/ 1991
+/ 글의 역동성에 영향을 미치는 요인과 역동성 측정의 모형화에관한 연구
+17.
+[학술지]
+안경화
+/ 1999
+/ 한국어 어휘의 학습 난이도 측정 방법에 대하여
+/ 언어학
+(25)
+: 167 ~ 25
+18.
+[학위논문]
+오혜진
+/ 2012
+/ 열린 읽기 활동을 위한 한국어 읽기 자료의 이독성 연구
+19.
+[학술지]
+윤영선
+/ 1975
+/ 韓國語의 構造的 變因들의 分析과 國民學校ㆍ中學校 敎科書를 中心으로한 文章難易度公式의 開發
+/ 硏究論文集
+20.
+[학위논문]
+윤창욱
+/ 2006
+/ 비문학 지문 이독성 공식 개발에 관한 연구
+21.
+[학위논문]
+李善姬
+/ 1985
+/ 文章 可讀性 測定 公式과 이를 통해 본 現代 國語 매스컴 文章의 可讀性 測定 調査
+22.
+[학위논문]
+이지혜
+/ 2009
+/ Dale-Chall의 이독성 공식을 이용한 한국어 읽기 텍스트 분석 연구
+23.
+[학위논문]
+이혜진
+/ 2007
+/ 문장의 단어 수와 구조를 통한 글 형식 난도 연구
+24.
+[학위논문]
+장미경
+/ 2012
+/ 한국어 읽기 교육을 위한 텍스트 난이도 평가 방안 연구
+25.
+[학위논문]
+정은주
+/ 2010
+/ 한국어능력시험(TOPIK) 읽기 영역 지문의 통사론적 난이도 연구
+26.
+[학위논문]
+정한네
+/ 2010
+/ 한국어 교재의 통사론적 난이도 연구 : 서울대 『한국어』와 『연세한국어』를 대상으로
+27.
+[학위논문]
+정혜윤
+/ 2017
+/ Rasch 다국면 측정 모형을 활용한 한국어 읽기 텍스트의 이독성측정 방안 연구
+28.
+[학위논문]
+조용구
+/ 2016
+/ 독자에게 적합한 글을 선정하기 위한 이독성 공식의 개발
+29.
+[학위논문]
+智瑾
+/ 2014
+/ 중국인 학습자를 위한 한국어 교재의 읽기 텍스트 선정 방안 연구 : 문장 구조 이독성 및 주제를 중심으로
+30.
+[학술지]
+진정
+/ 2017
+/ 한･중 중급 한국어 교재의텍스트 복잡도 비교 분석 연구: 텍스트 내적 요인을 중심으로
+/ 독서연구
+(45)
+: 101 ~ 45
+31.
+[학술지]
+최인숙
+/ 2005
+/ 텍스트의 언어적 난이도 측정 공식 비교 연구 - 초중고 교과서를 중심으로 -
+/ 정보관리학회지
+/ 22
+(4)
+: 173 ~ 4
+32.
+[학술지]
+최정순
+/ 1999
+/ 학습이론과 이독성에 바탕한 읽기수업 연구
+/ 외국어로서의 한국어교육
+/ 23
+(1)
+: 49 ~ 1
+33.
+[학위논문]
+황혜란
+/ 2016
+/ 한국문학교육용 텍스트의 이독성 연구 : 교과서 수록 단편 소설을 중심으로
+34.
+[학술지]
+Flesch, R.
+/ 1948
+/ A new readability yardstick
+/ Journal of applied psychology
+/ 32
+(3)
+: 221
+35.
+[단행본]
+Klare, G. R.
+/ 1984
+/ Readability
+/ Longman
+36.
+[학술지]
+Schulz, R. A.
+/ 1981
+/ Literate and readability : Bridging the gap in foreign language reading
+/ The Modern Language Reading
+/ 65
+: 43 ~
+37.
+[학술지]
+Stanovichi, K. E.
+/ 1985
+/ Matthew Effects in Reading : Some consequences of individual differences in the acquisition of literacy
+/ Reading Research Quarterly
+/ 21
+(4)
+: 360 ~ 4
+38.
+[단행본]
+Thorndike, E. L.
+/ 1921
+/ The teacher’s word book
+/ Kessinger Publishing
+39.
+[단행본]
+Read, J.
+/ 2000
+/ Assessing Vocabulary
+/ Cambridge University Press
+학술지 저작권 정책
+CCL 정보가 제공되지 않았습니다.
+TOP
+초록
+키워드
+참고문헌
+toggle menu
+타입을 선택하세요
+BibTex
+RIS
+APA
+Harvard
+MLA
+Vancouver
+Chicago
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+@article{ART002560113},
+author={
+이보미
+},
+title={
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+},
+journal={
+외국어로서의 한국어교육
+},
+issn={1598-8201},
+year={2020},
+pages={321 - 352},
+doi={10.21716/TKFL.56.12},
+url={http://dx.doi.org/10.21716/TKFL.56.12}
+TY - JOUR
+AU - 이보미
+TI - 한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+T2 - 외국어로서의 한국어교육
+PY - 2020
+VL - 56
+PB - 연세대학교 언어연구교육원 한국어학당
+SP - 321 - 352
+SN - 1598-8201
+AB - 본 연구는 기존 연구들에서 제안한 어휘 난이도, 문법 난이도, 문장 길이 난이도 등 개별적인 척도를 하나의 난이도 공식으로 만들어 제안하는 것에 목적이 있다. 이를 위해 4종의 한국어 통합 교재 내의 읽기 텍스트를 전사하여 무작위로 160개의 텍스트 샘플을 추출하고 세 가지 난이도 점수를 분석하였다. 그리고 텍스트 등급과 세 가지 난이도 점수 사이의 상관관계를 분석한 후 다중회귀분석을 통해 읽기 텍스트 난이도 공식을 도출하여 텍스트 난이도 측정 방법을 제안하고 그 방법이 타당한지 전문가 평정 결과와 비교해 보았다. 그 결과 세 가지 변인 모두 텍스트 등급과 상관관계가 높았으며, 그중 문법 난이도 점수가 텍스트 등급과 상관관계가 가장 높았다. 다중회귀분석 결과 문법 난이도와 어휘 난이도 점수를 포함한 모형이 텍스트 등급을 가장 잘 설명해 주어, 해당 모형을 바탕으로 텍스트 난이도 측정 공식을 제안하였다. 마지막으로 도출된 공식이 텍스트의 난이도를 잘 평가하고 있는지 보기 위해 공식으로 계산된 난이도와 전문가 집단이 평가한 난이도를 비교 분석한 결과 다수의 텍스트가 전문가 집단이 평가한 결과와 일치함을 볼 수 있었다.
+KW - 난이도, 이독성, 한국어 읽기 텍스트, 읽기 교육, 이독성 공식
+DO - 10.21716/TKFL.56.12
+UR - http://dx.doi.org/10.21716/TKFL.56.12
+ER -
+이보미
+(2020).
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구.
+외국어로서의 한국어교육,
+56,
+321 - 352.
+이보미
+. 2020,
+“한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구”,
+vol.56,
+pp. 321 - 352.
+Available from: doi:10.21716/TKFL.56.12
+이보미.
+“한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구“
+외국어로서의 한국어교육
+56
+pp. 321 - 352.
+(2020): 321.
+이보미
+.
+한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구
+외국어로서의 한국어교육
+[Internet].
+2020;
+56,
+:
+321 - 352.
+Available from: doi:10.21716/TKFL.56.12
+이보미
+. “한국어 읽기 텍스트의 난이도 측정 공식 개발에 관한 연구“
+외국어로서의 한국어교육
+56
+(2020): 321 - 352. doi: :10.21716/TKFL.56.12
+텍스트 파일로 저장
+피인용 논문
+(우)305-754 대전광역시 유성구 가정로 201 한국연구재단
+TEL: 042-869-6674, 1544-6118
+E-mail: kciadmin@nrf.re.kr
+COPYRIGHT BY 2024 NRF. ALL RIGHTS RESERVED.
+About KOAJ
+KOAJ 안내
+KCI DOI 사업 개요
+KCI DOI 가입신청 안내
+DOAJ 가입 신청서 작성 안내
+Journals
+Articles
+Statistics
+기관·학술지 통계
+Data 구축 통계

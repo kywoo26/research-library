@@ -1,0 +1,183 @@
+{
+ "request": "아직도 쓰여지는 리서치를 보면, 한국어로 서술되는 리포트가 너무 읽기 장황하고 어색하고, 휴먼리더블 하지않아.\n\n보통 잘쓰여졌다고 얘기하는 (한국어 진영에서의) 글, 보고서, 분석결과리포트 등 이 어떤 형태를 띄고있는지 잘 조사해오고\n\n우리가 부족한 부분이나 시도해왔지만 무의미한 부분, 걷어낼 부분이 뭔디 알아내야하고\n\n어떤 문체나 스타일, 문장구성들을 갖춰야 정말 봤을때 이 목적에 와닿는 글을 서술해주는가를 심층분석해야함.\n\n특히 karpathy의 에이전트 글을 읽을때 얘기하는 팁에 대해 자세히 알아오고 항공정비 문서라는게 영어에는 좋을 수 있지만 한글에서도 유의미한지 , 어떻게 적합하게 변형을 가하고, 실제 이를 실증하거나 도입해서 제공하는 생태계는 없는지 알아볼 필요도 있음. \n\n그리고 도식화나 다이어그램 등을 통한 문서로 먼저드러내라고 얘기하던데, 우리가 레거시로 쓰는 도식, 테이블 만이 아니라 진짜 chart.js 응을 비롯한 모던한 디자인한 html과 결합하여 디자인/가시성 측면을 높힐수 있는 어떤 리포트 형태도 선호될수 있도록해야해. 그렇다고 억지스러운 욱여넣음은 아니고, 흐름, 상태, 관계, 구분, 등등 이런 요소 등을 표현하는 단계에서 쓸 수 있는 적절한 도식과 상호작용(chart js 등을 응용) 할 수 있게하여 갖춰나가면 좋음. 그리고 20 30k 이상의 이런 프론트엔드 디자인을 잘 만들게하는 스킬이나 지침, lib요소등도 알아봐. 당연하지만 ppt같은건 아니고 단일 html로 git pages로 게시될수 있는 그런것들. github시스템상 단일 페이지는 아니여도 웹으로 잘 드러날수있으면 되긴해.\n\n필요한건 fanout해서 조사해",
+ "asks": [
+  {
+   "id": "a1",
+   "text": "잘 읽히는 한국어 글·보고서·기술 분석의 실제 형태와 문장 원리를 조사한다.",
+   "chapters": [
+    "한국어 사례",
+    "한국어 문장",
+    "적용과 검증"
+   ]
+  },
+  {
+   "id": "a2",
+   "text": "현재 저장소의 지침과 문서에서 부족한 점, 효과가 불명확한 시도, 걷어낼 규칙을 근거와 함께 판별한다.",
+   "chapters": [
+    "현재 진단",
+    "한국어 문장",
+    "적용과 검증"
+   ]
+  },
+  {
+   "id": "a3",
+   "text": "Karpathy의 agent 글 관련 조언을 원문에서 확인하고, 항공정비 문서 규칙의 한국어 전용 가능성과 실증·도입 생태계를 평가한다.",
+   "chapters": [
+    "Karpathy",
+    "정비 문서의 전용",
+    "한국어 도입 도구"
+   ]
+  },
+  {
+   "id": "a4",
+   "text": "흐름·상태·관계·구분을 적절히 보여주는 현대 HTML 리포트와 상호작용을 제안하고 GitHub Pages에서 쓸 디자인 skill·지침·라이브러리를 비교한다.",
+   "chapters": [
+    "HTML 표현",
+    "라이브러리와 배포",
+    "디자인 skill",
+    "적용과 검증"
+   ]
+  }
+ ],
+ "decided": [
+  "이번 작업은 조사와 적용안·실제 HTML 예시를 만드는 범위로 잡는다. 기존 skill·게이트 개편은 별도 변경으로 남긴다.",
+  "사용자 요청에 따라 한국어 글쓰기, Karpathy·항공정비 문서, 웹 리포트 생태계를 helper 셋에게 나눠 조사한다. 저자는 고정한 원문을 다시 읽고 결론을 낸다.",
+  "20 30k의 단위는 정해져 있지 않다. 인기도와 지침 분량을 구분해서 확인하고 길이나 stars를 품질의 증거로 쓰지 않는다.",
+  "공통 셸은 유지하되 사용자 요청의 모던 HTML 시연을 위해 본문 국소 스타일·native form과 단일 script의 제한적 확장을 허용한다. CDN 없이 접근 가능한 기본 설명을 남긴다.",
+  "첫 계획 검토의 대표 사례 부족·억지 차트 지적을 수용했다. OpenCodeReview의 후보 유지 문단을 진단·문장 수정·상태 표현·독자 과제로 이어 쓰고, NN/G 사용성 개선율 차트는 뺀다. 정량 차트는 우아한 Redis의 실제 데이터 조건 변경 예로 한정한다.",
+  "독자 lens의 a1 부족 지적을 수용했다. Redis·한국은행의 연속 문장을 본문에서 짧게 인용하고 목적·대상·근거의 연결을 해부했다. 대신 11장의 중복 규칙 표를 덜었다.",
+  "문장 비교는 같은 핵심 정보를 가진 두 버전을 동시에 보이도록 고쳤다. 비교를 위해 라디오를 전환해야 하는 비용을 없앴다.",
+  "수치 lens의 검사 범위 지적을 수용했다. 평서체만 허용한다고 넓혀 쓴 부분을 합쇼체를 차단하는 검사로 좁혔다.",
+  "분기 그림의 핵심 결론을 본문 크기로 옮겼다. 그림을 상태 전이도 대신 분기 흐름도로 부른다.",
+  "재검토에서 남은 표지 목차의 상태도 명칭은 의미·이해를 바꾸지 않는 wording 항목으로 기록하고 추가 편집 없이 내보낸다."
+ ],
+ "needs_owner": [],
+ "unverified": [
+  "한국어 독자의 실제 이해도·재독·적용 오류 비교 실험은 실행하지 않았다. 제안한 편집안·화면이 더 좋다는 인과효과는 미확인이다.",
+  "영어 STE 연구 셋은 출판사·학위 저장소 초록까지만 읽었다. Karpathy 게시물은 미러 경유이며 X 직접 열람은 막혔다.",
+  "STE-KO·SimpleKorean과 비교한 저작 도구는 설치·성능 재현하지 않았다. 공개 문서·규칙·평가 범위다."
+ ],
+ "unfixed": [
+  {
+   "item": "표지 목차에는 상태도, 장8 캡션에는 분기 흐름도라고 적혀 있다. 재검토자는 명칭 차이만 남은 비차단 항목으로 판정했다.",
+   "meaning": false,
+   "impact": "wording"
+  }
+ ],
+ "rendered": "저자가 최종 1280·390px 밝은/어두운 렌더를 직접 열었다. 독자 수정 뒤 연속 문장 사례·동시 문장 비교·분기 흐름도 핵심 결론과 차트·모바일 표를 다시 확인했다. 레이아웃 경고·가로 넘침·스크롤 표가 없다.",
+ "tests": [
+  {
+   "command": "node scripts/check-doc.mjs research/2026-11-28-korean-report-html",
+   "result": "pass"
+  },
+  {
+   "command": "node scripts/check-prose.mjs research/2026-11-28-korean-report-html",
+   "result": "pass"
+  },
+  {
+   "command": "node scripts/render.mjs research/2026-11-28-korean-report-html --dark",
+   "result": "1280·390px 밝음/어두움, layout warnings 없음, document overflow 없음"
+  },
+  {
+   "command": "node .research/2026-11-28-korean-report-html/notes/check-interactions.mjs",
+   "result": "pass: Chart.js 4.6.2, List 데이터 49,240/25,077/31,884, 두 문장 편집안 동시 노출, 분기 선택, radio ArrowRight, JS 차단 표·전체 해석, 네트워크 차단에서 외부 요청 없음"
+  }
+ ],
+ "reviewReports": [
+  "notes/plan-review.md",
+  "notes/lens-reader.md",
+  "notes/lens-numbers.md",
+  "notes/recheck-1.md"
+ ],
+ "commitSubject": "한국어 리서치 문체와 HTML 리포트 개선 방향을 조사했다",
+ "commitBody": "한국어 리서치가 장황하고 어색하다는 요청에 맞춰 국내 실제 설명문과 현행 저장소의 문체·화면 제약을 비교했다. 실제 연속 문장을 해부하고, 유지할 원칙·줄일 제약·교체 지시문과 독자 시험안을 정리했다.\n\n국립국어원 공공언어 지침, 한국어 어순 시선추적 연구, 우아한형제들·토스·한국은행 자료, Karpathy의 2026-10-02 글, 영어 STE 실증과 한국어 도입 도구를 근거로 삼았다. 디자인 skill은 고정 commit으로 읽고 stars와 메인 파일 bytes를 구분했다. 한국어 독자의 이해도 개선을 측정한 실험으로 소개하지 않았다.\n\n단일 HTML에 분기 흐름 선택과 Chart.js 4.6.2의 실제 데이터 비교를 넣었다. 출처의 수치와 표를 보존하고, JS를 끄거나 외부 네트워크를 막아도 정적 설명을 읽게 했다. 저자가 1280·390px 밝은/어두운 렌더를 직접 확인했고 키보드 선택·표 대안을 브라우저에서 검사했다. 두 독립 lens의 지적을 수정한 뒤 새 recheck에서 차단 결함이 없다는 판정을 받았다.",
+ "checks": {
+  "check-doc": "pass",
+  "check-prose": "pass",
+  "check-claims": "pass, 주장 73개·근거 90개·출처 51개",
+  "render": "1280/390 light/dark, warnings 0, overflow false, scrollers 0",
+  "interaction": "pass, 네트워크 차단·JS 차단·키보드·표·차트 값·분기·문장 동시 비교",
+  "recheck": "새 차단 결함 없음, 이전 reader/numbers finding 해결"
+ },
+ "shippedAt": "2026-11-28T04:31:38.492Z",
+ "usage": {
+  "tokens": 26962491,
+  "usd": 6.35,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 253273,
+    "cache_write": 0,
+    "cache_read": 17122944,
+    "output": 71654,
+    "usd": 3.69
+   },
+   "default": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 306273,
+    "cache_write": 0,
+    "cache_read": 6183552,
+    "output": 35134,
+    "usd": 1.58
+   },
+   "plan-review": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 73964,
+    "cache_write": 0,
+    "cache_read": 154624,
+    "output": 2867,
+    "usd": 0.19
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 51281,
+    "cache_write": 0,
+    "cache_read": 301824,
+    "output": 3182,
+    "usd": 0.16
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 142048,
+    "cache_write": 0,
+    "cache_read": 1913088,
+    "output": 7233,
+    "usd": 0.55
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 65031,
+    "cache_write": 0,
+    "cache_read": 272640,
+    "output": 1879,
+    "usd": 0.18
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-28-korean-report-html",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "37d482109c7c5f27ab1cc371ab18048f246aaba42d1d0d409cda9befb704c7ce",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/6, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}

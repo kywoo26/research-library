@@ -1,0 +1,172 @@
+I made my coding agents talk like an aircraft maintenance manual - ddewhurstSkip to contentddewhurst
+articlestagsaboutcontact
+⌘Ctrl K
+loading the search index…
+articlestagsaboutcontact
+all articles
+I made my coding agents talk like an aircraft maintenance manual
+Daniel Dewhurst·20 Oct 2026·14 min read
+Two weeks of agent replies in Simplified Technical English: shorter replies, list labels I can answer with, and the rules that still slip.
+aiclaude-codedeveloper-toolswriting
+on this page
+A standard written for mechanics
+The rules I use
+Labels, so I can answer “do O2”
+Five versions in fifteen minutes
+What changed in the replies
+Where it does not hold
+A Stop hook that reads the reply
+What to copy
+On 2 October, Andrej Karpathy posted a tip that collected about 56,000 likes:
+Ask your LLM to explain something in ASD-STE100… I often find a lot more readable.
+Matt Pocock had tried a version in his global CLAUDE.md in August, “Always talk in ASD-STE100 Simplified Technical English”, and wrote the next day that it “didn’t really work”. I added it to mine anyway on 6 October, along with a scheme for labelling lists so I can answer “do O2” instead of quoting a paragraph back at the agent.
+That gives me two weeks of replies on each side of the change, from the same model on the same machine. This post is what changed in them, what didn’t, and the Stop hook I built to check the rest.
+A standard written for mechanics
+ASD-STE100 started as a request from European airlines in 1979. They wanted aircraft maintenance documentation that a mechanic with basic English could follow, and according to the STE site, 80% of those airlines were not from English-speaking countries. AECMA set up a working group in 1983 and published the first guide in 1986. It became a formal standard with Issue 9 in January 2025, and the PDF is free if you fill in a short form.
+The rules that matter for this post are the countable ones. Procedural sentences have at most 20 words, descriptive ones at most 25. Use the active voice. Use simple tenses only, which rules out “is running” and “has been checking”. Put one instruction in each sentence. Each word has one meaning and one part of speech, so “check” is a noun and never a verb. The FAQ explains the ban on most “-ing” words: they “can have different functions in a sentence”, and that causes ambiguity.
+The comprehension evidence is real but mixed. A 1995 study on airplane maintenance procedures found Simplified English made complex documents significantly easier to understand, with the same completion time. A 1996 study of 175 maintenance technicians found the biggest gains on the hardest workcards and for non-native speakers. But when Drury and Ma tested 254 staff in Chinese-speaking countries in 2005, the only intervention that made a significant difference was a Chinese translation of the document, which gave about a 10% speed advantage.
+None of that research was about software engineers reading chat replies from a model. The appeal is narrower. STE is a rule set that already exists, has a name the model knows, and has limits you can count.
+The rules I use
+My global instructions are one source file that a build script renders into ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md and ~/.agents/AGENTS.md. The writing section is short:
+markdownwrapcopycopied!
+## How to write
+- Write short, simple replies. Write only the necessary text.
+- Give the answer or the result first. Do not repeat my question or your earlier text.
+- Write in Simplified Technical English (ASD-STE100). Follow these STE rules:
+- Use a maximum of 20 words in a sentence that gives an instruction. Use a maximum of 25 words in other sentences.
+- Use the active voice.
+- Use only simple tenses. Do not use the -ing form of a verb.
+- Put one instruction in each sentence.
+- Use each word with one meaning and one part of speech only.
+- Write full sentences, also in short replies. For example, write "I pushed the fix.", not "Pushed."
+- Use STE for prose only. Prose is all text that is not code, commands, paths or quotes.
+- Do not change code, commands, paths or quotes to obey STE.
+“Use STE for prose only” is there so the model doesn’t rewrite an error message or a file path to fit the word list. Without it, the rule set has no idea that git rebase --continue is not a sentence.
+“Write full sentences” guards against the obvious side effect of asking for brevity: replies like “Pushed.” or “Fixed.” with no subject. STE forbids leaving words out to make a sentence shorter, and the rule gives the example to copy. “I pushed the fix.” says who did what, which matters when three review agents report on the same pull request.
+The rules are also scoped. They apply to chat replies to me and to plans and questions the agent shows me in a tool. They do not apply to files, commits, pull requests, comments, or anything another person or agent reads. STE is a good format for a status update and a bad one for a blog post.
+Labels, so I can answer “do O2”
+The other half of the change has nothing to do with STE. Every list in a reply gets a label made of a letter and a number:
+LetterType of list
+FFindings
+OOptions
+QQuestions
+SNext steps
+LAny other list
+Sub-items get the parent’s label plus a letter, such as O1a. If a table shows findings, options, questions or next steps, it gets a label column. Numbering restarts at 1 in each reply, and when I use a label the agent looks for the latest item that has it.
+Next steps are only things I have to do. If the agent could do it, it is not a next step. A decision is written as a question, not a step, and questions come before next steps so the reply ends with the actions in the order I take them.
+I’m not the only one doing this. Joe Cotellese added a rule in October for numbered items with lettered children, “so I can reference items by number in questions”. Smart-contract audit reports have done the same thing for years with IDs like [H-01]. There’s also an open issue asking for stable numbers on /code-review findings, so you can tell it which ones to fix by number.
+Five versions in fifteen minutes
+The first version of these rules went into git at 20:10. The fifth went in at 20:25. In between, an agent reviewed the file twice, and each review became a commit.
+Some of the changes were cuts. The first draft had an R label for risks, which lasted one minute. The first review added “If a short reply and STE do not agree, obey STE”, which is a rule about two of my own rules disagreeing, and the second review took it out again.
+The more interesting change was numbering. From the first version, a label could not be used twice in one conversation, and version three spelled it out: the next option after O2 is O3. That would break as soon as Claude Code compacts the context. The agent would no longer see O1 to O7, so it either restarts at O1 or guesses. Version four added a rule to continue from the highest label it could see, which is a patch on a patch. Version five dropped the idea: numbers restart in each reply, and a label means the most recent item with that label. That is what a person would assume anyway.
+The scope rules grew the most. Version one had no scope beyond its heading, “In your responses”, so on paper it covered commit messages and pull request descriptions too. The final version names what is out of scope (files, commits, pull requests, issues, comments, messages and code) and says that when another agent starts you, you answer in the format it asks for.
+The agent-to-agent part does not fully work. The research agents I ran for this post were asked for structured findings with source URLs. They wrote them in STE, with F and L labels, because they read the same global file.
+What changed in the replies
+Claude Code keeps every session as a JSONL file, so I compared the final reply of each turn in interactive Opus 5.5 sessions for the two weeks either side of the change: 936 replies from 22 September to 6 October, and 1,446 from 6 October to 19 October. Code blocks and tables are stripped before counting, and each piece of inline code counts as one word.
+BeforeAfter
+Median reply length72.5 words21 words
+Mean reply length126 words60 words
+Median sentence12 words10 words
+90th-percentile sentence21 words18 words
+Sentences over 25 words3.9%1.1%
+Words of six letters or more ending in “-ing”, per 100 words2.791.10
+Replies with a list where the list has labels0 of 505190 of 266 (71%)
+The reply length is the biggest change, and I can’t give STE all the credit. “Write only the necessary text” and “give the answer first” were added at the same time, and the projects shifted too. In the second fortnight I ran a lot of long PR loops where the agent reports one round at a time.
+The sentence numbers are harder to explain away. The model’s sentences were already short before the change. A median of 12 words is not the wall of text people complain about. What moved was the tail: sentences over the 25-word limit fell by about 70%.
+The “-ing” count is crude. It counts “string” and “warning” along with “is running”. But it fell by 60%.
+Where it does not hold
+The rules hold best where a reply has a clear shape. Option lists and questions get labels almost every time. In the unlabelled replies I read, the failures cluster in status reports, when the agent describes work in flight.
+That is where the 29% of unlabelled lists come from. A reply that says it opened a pull request and then lists what changed, each item under a bold heading, contains a list, and the rule says it gets labels. The agent treats it as a report and leaves them off.
+The same context produces most of the “-ing” slips. I ran my checker (below) over every reply from the second fortnight. The most common flagged word was “running”, 193 times. Most of those are progressive tenses, in sentences like “the security review is still running”. “Waiting” came second with 74. STE allows only simple tenses, so the compliant form is “the security review continues”, and the model reaches for “is still running” whenever something is in progress.
+That matches what I wrote about CLAUDE.md being context, not configuration. The model follows the rules most of the time, not all of the time, and the slips I found sit where its habit is strongest: reporting work that hasn’t finished.
+Two other risks don’t show up in a word count.
+The first is lost facts. Lucian Ghinda ran a small test asking Claude and Codex to explain code under three conditions. For Claude, a loose “Simple Technical English” lost 8.5% of the facts against the control, and the full “ASD-STE100” lost 46.8%. Codex lost about 40% either way. He calls it “not a rigorous study”, but that is a large gap. It fits Karpathy’s own advice to soften it, sometimes asking for “80% of the way to ASD-STE100”, because “the spec is quite stringent”.
+The second is that the output only resembles STE. Real STE checks each word against an approved dictionary of about 900 words, and the model has not read it. Kruno Golubić, a technical writer, calls the result “STE-flavored English, not STE”. The STE maintenance group, introducing its white paper on AI, says the same thing more formally: “Plausibility must not be confused with verified compliance.”
+For chat replies I don’t need certified STE. I need short sentences that say who did what. But part of the gap between “looks compliant” and “is compliant” can be counted, and anything you can count, a hook can check.
+A Stop hook that reads the reply
+Claude Code’s Stop hook receives the final reply of the turn as last_assistant_message. A script can lint it and exit 2, which blocks the turn from ending and sends the script’s stderr back to the model as the reason. The model then writes the reply again.
+This one checks three things: sentences over 25 words, “-ing” words that are not on a short allowlist, and a reply whose lists carry no labels at all. It strips code blocks, tables and block quotes first, and swaps inline code and URLs for a placeholder, because the rules only cover prose.
+pythonwrapcopycopied!
+#!/usr/bin/env python3
+"""Stop hook: check the final reply against a few STE and label rules."""
+import json
+import re
+import sys
+MAX_WORDS = 25
+ING_OK = {"thing", "something", "nothing", "anything", "everything",
+"string", "during", "morning", "evening", "ceiling", "bring", "king"}
+LABEL = re.compile(r"^\s*(?:[-*]|\d+\.)\s+\**[FOQSL]\d+[a-z]?\b")
+ITEM = re.compile(r"^\s*(?:[-*]|\d+\.)\s+\S")
+event = json.load(sys.stdin)
+if event.get("stop_hook_active"):
+sys.exit(0)  # one rewrite per turn is enough
+reply = event.get("last_assistant_message") or ""
+# STE applies to prose only: drop code, inline code, tables, URLs and quotes.
+prose = re.sub(r"```.*?```", " ", reply, flags=re.S)
+prose = re.sub(r"`[^`]*`", "X", prose)
+prose = re.sub(r"https?://\S+", "URL", prose)
+prose = re.sub(r"^\s*(\||>).*$", " ", prose, flags=re.M)
+problems = []
+for sentence in re.split(r"(?<=[.!?])\s+|\n+", prose):
+words = sentence.split()
+if len(words) > MAX_WORDS:
+problems.append(f"{len(words)} words: \"{' '.join(words[:8])} ...\"")
+for w in re.findall(r"[A-Za-z]+ing\b", sentence):
+if w.lower() not in ING_OK:
+problems.append(f"-ing form: \"{w}\"")
+items = [ln for ln in prose.splitlines() if ITEM.match(ln)]
+if items and not any(LABEL.match(ln) for ln in items):
+problems.append("a list has no labels (F1, O1, Q1, S1 or L1)")
+if problems:
+print("Rewrite the reply in STE. Problems:\n- " + "\n- ".join(problems[:10]),
+file=sys.stderr)
+sys.exit(2)
+Save it as .claude/hooks/ste-reply-check.py, make it executable, and register it in .claude/settings.local.json so it only runs for you. Put it in the shared .claude/settings.json only if your whole team wants every turn checked:
+jsonwrapcopycopied!
+{
+"hooks": {
+"Stop": [
+{
+"hooks": [
+{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ste-reply-check.py" }
+]
+}
+]
+}
+}
+To test it I ran claude -p with an appended system prompt that told the model to ignore any style rules and write four long bullets about git rebase. The first reply came back as four sentences of 40 to 45 words, full of “replaying”, “creating” and “rebasing”. The hook blocked it and listed the first ten of fourteen problems. The second reply was four labelled items, L1 to L4, in short sentences:
+copycopied!
+- L3. If a commit conflicts with the new base, Git stops. Resolve the conflict and stage the files. Then run `git rebase --continue`. To cancel the rebase, run `git rebase --abort`.
+The stop_hook_active check matters. The second time the hook fires in a turn, that flag is true, and the script lets the reply through without checking it. Without the check, a reply the model cannot fix would loop until Claude Code’s limit of eight blocks in a row. I ran the checker by hand on the rewrite afterwards and it passed. A second run, with the settings file exactly as published above, went the same way.
+There are two costs. The first reply still reaches the screen, so you read the bad version and then the good one. And every block is another model call.
+The bigger problem is the block rate. Run over my 1,446 replies from the second fortnight, this script would have blocked 527 of them, or 36%. Over the fortnight before the rules, it would have blocked 94%. Most of the post-change blocks are the “-ing” check, and some of those are false positives: STE allows “-ing” words that are technical nouns, and “warning”, “finding” and “timing” are on my list of flagged words. So I have not put it in my global settings. Before I do, the “-ing” check needs a list of the nouns I use, and the threshold for a block probably needs to be more than one slip.
+What to copy
+Use concrete limits, not just the name. Pocock’s one line didn’t change much for him. My block is eleven lines with word counts, banned forms and an example, and the numbers above moved. Length isn’t the point, though. Luis Gomez compared a one-sentence STE skill with a full one of about 4,800 tokens. On Opus 4.8 the one-liner cut STE violations from 2.58 to 0.28 per 100 words, against 0.19 for the full skill, at about 58% lower average cost. On Sonnet 5 it fell further behind.
+Consider the loose version. Ghinda’s Claude numbers suggest the full name of the standard costs facts. My own block still names ASD-STE100 and then spells out the rules, and I haven’t measured what that costs. Ghinda settled on a plainer rule: short sentences, one idea per sentence, and the domain words that already exist in the code.
+Exclude code, commands, paths and quotes explicitly. Exclude anything another person reads, too. Nobody wants a pull request description written for a mechanic.
+Add labels if you answer the agent’s options often. “q1 yes, q2 yes, q3 no” is a complete answer, and it is the whole of the message I sent to approve the outline of this post.
+And if one rule has to hold every time, don’t write it louder in the file. Check it in a hook.
+← newerMy coding agents live on a headless VM, and my phone is the remote
+older →Migrating to Claude Opus 5.5: a cheat sheet for the API and Claude Code
+related
+Hallmark vs Impeccable vs Taste Skill: five blind judges, then twelve real builds7 Nov 2026
+I put every coding agent session into ClickHouse5 Nov 2026
+Story Skills: a continuity compiler for AI-written fiction19 Sept 2026
+written by
+Daniel Dewhurst
+Lead AI Solutions Engineer in Cheshire, UK. Builds with AI, Laravel, and TypeScript.
+githublinkedinrss
+on this page
+A standard written for mechanics
+The rules I use
+Labels, so I can answer “do O2”
+Five versions in fifteen minutes
+What changed in the replies
+Where it does not hold
+A Stop hook that reads the reply
+What to copy
+loading…
+ddewhurst
+Notes on AI systems, developer tools, and the craft of building software.
+articlestagsrsstrendingmodelsgithublinkedin
+© 2026 Daniel Dewhurst · built with astro · deployed on cloudflare

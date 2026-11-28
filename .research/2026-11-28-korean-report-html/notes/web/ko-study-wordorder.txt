@@ -1,0 +1,419 @@
+문서의 가독성 제고를 위한 어순 제약
+본문 바로가기
+KOAJKorea
+Open Access Journals
+KOAJ 소개
+학술지
+논문
+통계
+한국어
+English
+toggle menu
+KCI 등재
+문서의 가독성 제고를 위한 어순 제약
+Zur Kontrolle der relativen Wortstellung von Arguments und Adjunkts
+독어학
+약어 :
+-
+2010
+no.21,
+pp.1 - 21
+DOI : 10.24814/kgds.2010..21.1
+발행기관 :
+한국독어학회
+연구분야 :
+독일어와문학
+Copyright ©
+한국독어학회
+권민재
+1
+,
+최명원
+2
+,
+홍진주
+3
+,
+홍우평
+4
+1한국외대
+2성균관대학교
+3경인여자대학
+4건국대학교
+인용한 논문 수 : 6
+135 회 열람
+현재 페이지 인쇄
+PDF 다운로드
+인용보기
+공유
+Facebook
+Twitter
+초록
+본 논문에서는 한국어의 무표적 기본어순에서 논항과 부가어의 상대적 위치가 어떠한지를 확인한 언어실험의 내용과 결과를 소개하고, 실험 결과를 바탕으로 기술문서의 가독성 제고에 필요한 어순 제약을 도출하고자 한다. 언어실험에서는 한국어 화자가 논항 Argument과 부가어 Adjunkt를 포함하는 문장을 산출할 때 두 가지 문장성분의 배열 순서로 선호하는 어순이 있는지를 확인하고, 이를 바탕으로 기본어순에서의 논항과 부가어의 상대적 위치를 가늠해 보고자 하였다.
+In dieser Arbeit wird diskutiert, wie man bei der Erstellung einer kontrollierten Sprache für technische Dokumente eine Schreibregel bezüglich der Wortstellung konzipieren kann. Das Ziel liegt darin, eine psycholinguistische Grundlage für solch eine syntaktische Kontrolle zu schaffen. Die koreanische Sprache ist bekannt als eine Sprache, die so wie das Deutsch eine relativ freie Wortstellung hat. Zur Kontrolle ihrer Wortstellung wird in dieser Arbeit vorgeschlagen, die Wortstellung, die bei der Produktion die niedrigste Verarbeitungslast in Anspruch nimmt, als eine unmarkierte Wortstellung einzustellen.
+Um diese unmarkierte Wortstellung zu entdecken, ist ein psycholinguistisches Experiment, d.h. Satzproduktionstest (SPT), durchgeführt worden. Das Ziel dieses Experiments besteht darin, bei dem positionalen Prozeß die von Muttersprachlern bevorzugte Wortstellung zu verfolgen. Dabei wurden exemplarisch 3 Gruppen von Testsätzen beobachtet, wo es um die relative Aufeinanderfolge eines Arguments und eines Adjunkts geht.
+Das Ergebnis besagt uns, das Element, das vom Verb als ein Notwendiges subkategorisiert wird, steht näher zum Verb als das Nicht-Notwendiges. Der obligatorische Adjunkt, der einen gleichen Status wie ein Argument besitzt, wird danach positioniert, in welcher Folge sie in dem Kognitionssystem aktiviert sind. Aufgrund dieser experimentellen Untersuchung kann man schließlich eine Schreibregel formulieren, danach das als obligatorisch subkategorisierte Element näher zum Verb gestellt werden soll. Wie und warum diese grundlegende Wortstellung jeodoch bei der Textproduktion geändert wird, soll in weiteren Untersuchungen diskutiert werden.
+키워드
+통제언어, 쓰기규칙, 논항-부가어-어순, 문장산출실험, 무표적 어순
+Kontrollierte Sprache, Schreibregel, Argument-Adjunkt-Wortstellung,Satzproduktionstest, Unmarkierte Wortstellung
+참고문헌(33)
+1.
+[학술지]
+권민재
+/ 2008
+/ 기술 커뮤니케이션과 통제언어 - 통제언어의 개발 사례 및 특성을 중심으로 -
+/ 독어학
+(17)
+: 45 ~ 17
+2.
+[기타]
+김문오
+/ 2003
+/ 제품 설명서의 문장 실태 연구 2
+/ 국립국어연구원
+3.
+[단행본]
+김온양
+/ 2005
+/ 테크니컬 라이팅. 매뉴얼 쉽게 만들기
+/ 예동이
+4.
+[단행본]
+남기심
+/ 1997
+/ 표준 국어문법론
+/ 탑출판사
+5.
+[단행본]
+류수린
+/ 2008
+/ 기술문서작성 원칙과 실제
+/ 두양사
+6.
+[학술지]
+송경안
+/ 1993
+/ 독일어 영어 한국어 어순의 비교연구
+/ 독일언어문학
+/ 1
+: 258 ~
+7.
+[학술지]
+송경안
+/ 2001
+/ 독일어의 어순에 관한 몇 가지 관찰 - 부사와 목적어의어순 및 동사위치에 따른 어순변화
+/ 독어학
+/ 3
+: 75 ~
+8.
+[단행본]
+신형기
+/ 2006
+/ 모든 사람을 위한 과학 글쓰기. 정확하게 명쾌하게 간결하게
+/ 사이언스북스
+9.
+[학술지]
+이숙현
+/ 2004
+/ 한국어, 영어, 불어, 독일어의 어순 비교- 부사어들 및 부사어와 목적어의 순서를 중심으로-
+/ 한국프랑스학논집
+/ 46
+: 19 ~
+10.
+[학술지]
+임미자
+/ 1996
+/ 독일어와 한국어의 어순 비교
+/ 독일언어문학
+/ 5
+: 90 ~
+11.
+[학술지]
+전정례
+/ 1995
+/ 국어의 어순과 통사적 제약
+/ 한말연구
+/ 1
+: 155 ~
+12.
+[학술지]
+지광신
+/ 1994
+/ 독일어와 한국어의 어순비교 - 유형학적 고찰
+/ 독일문학
+/ 54
+: 451 ~
+13.
+[학술지]
+최지영
+/ 2009
+/ 기술문서 3항술어구문의 어순 - 통제언어의 관점에서
+/ 독일문학
+/ 50
+(3)
+: 320 ~ 3
+14.
+[학술지]
+홍우평
+/ 2009
+/ 문서 가독성의 제고를 위한 언어학적 제약*  - 테마-레마 원리를 중심으로 -
+/ 독어학
+(19)
+: 1 ~ 19
+15.
+[보고서]
+AECMA Simplified English
+/ A Guide for the preparation of aircraft maintenancedocumentation in the international aerospace maintenance language
+16.
+[학술지]
+Arnold, J
+/ 2000
+/ Heaviness vs. newness:The effects of structural complexity and discourse status on constituentordering
+/ Language
+/ 76
+: 28 ~
+17.
+[기타]
+Behaghel, O
+/ 1932
+/ Deutsche Syntax
+18.
+[학술지]
+Bock, K./
+/ 1985
+/ Conceptual accessibility and syntactic structure insentence formulation
+/ Cognition
+/ 21
+: 47 ~
+19.
+[학술지]
+Bock, J. K
+/ 1986
+/ Syntactic Persistence in Language Production
+/ CognitivePsychology
+/ 18
+: 355 ~
+20.
+[단행본]
+ck, K
+/ 1994
+/ Language Production. Grammatical Encoding in A handbook of psycholinguistics
+/ MIT Press,Cambridge
+: 945 ~
+21.
+[단행본]
+Garrett,M.F
+/ 1980
+/ Levels of processing in sentence production in Language Production
+/ Academic Press
+: 177 ~
+22.
+[기타]
+Göpferich, S
+/ 2006
+/ Textproduktion im Zeitalter der Globalisierung
+/ Entwicklungeiner Didaktik des Wissenstransfers
+23.
+[학술지]
+Kempen, G.
+/ 1989
+/ An incremental procedural grammar forsentence formulation
+/ Cognitive Science
+/ 11
+(2)
+: 201 ~ 2
+24.
+[기타]
+Lenerz, J
+/ 1984
+/ Syntaktischer Wandel und Grammatiktheorie
+/ Tübingen
+25.
+[단행본]
+Levelt, W. J. M
+/ 1989
+/ Speaking: From intention to articulation
+/ MIT Press
+26.
+[학술지]
+Pickering, M.J
+/ 1998
+/ The representation of verbs: Evidence fromsyntactic priming in written production
+/ Journal of Memory and Language
+/ 38
+: 633 ~
+27.
+[학술지]
+Stallings, L. M
+/ 1998
+/ production: Phrase length and verb disposition inheavy-NP shift
+/ Journal of Memory and Language
+/ 39
+: 392 ~
+28.
+[기타]
+Tanaka, M
+/ 2003
+/ Conceptual accessibility and wordorder in Japanese. In Proceeding of the postgraduate conference at theUniversity of Edinburgh
+/ Edinburgh
+29.
+[기타]
+Tanaka, M
+/ The production of head-initial and head-final languages
+30.
+[기타]
+Teufel, S
+/ 1996
+/ Conceptual Accessibility andSubjecthood in German Sentence Production
+/ Poster at AMLAP conference inTorino
+31.
+[학술지]
+van Nice, K.Y
+/ 2003
+/ Task sensitivity of animacy effects: evidencefrom German picture descriptions
+/ Linguistics
+/ 41
+: 825 ~
+32.
+[기타]
+Vennemann, Th
+/ 1974
+/ Zur Theorie der Wortstellungsveränderung: von SXV zuSVX über TVX in Zur Theorie der Sprachveränderung,mit Beiträgen von Hoenigswald, Kiparsky, Labov, Lenneberg, Meillet, Stern,Vennemann, KronbergTs
+/ Scriptor
+: 265 ~
+33.
+[학술지]
+Yamashita, H
+/ 2001
+/ Long before short” preference in the productionof a head-final language
+/ Cognition
+/ 81
+: 45 ~
+학술지 저작권 정책
+* 저작자 및 출처를 표시하면 저작물을 비영리적으로 사용할 수 있고 변경 및 2차 저작물을 만들 수 있습니다.
+TOP
+초록
+키워드
+참고문헌
+toggle menu
+타입을 선택하세요
+BibTex
+RIS
+APA
+Harvard
+MLA
+Vancouver
+Chicago
+문서의 가독성 제고를 위한 어순 제약
+@article{ART001457470},
+author={
+권민재
+and
+최명원
+and
+홍진주
+and
+홍우평
+},
+title={
+문서의 가독성 제고를 위한 어순 제약
+},
+journal={
+독어학
+},
+issn={1229-6333},
+year={2010},
+pages={1 - 21},
+doi={10.24814/kgds.2010..21.1},
+url={http://dx.doi.org/10.24814/kgds.2010..21.1}
+TY - JOUR
+AU - 권민재
+AU - 최명원
+AU - 홍진주
+AU - 홍우평
+TI - 문서의 가독성 제고를 위한 어순 제약
+T2 - 독어학
+PY - 2010
+IS - 21
+PB -  한국독어학회
+SP - 1 - 21
+SN - 1229-6333
+AB - 본 논문에서는 한국어의 무표적 기본어순에서 논항과 부가어의 상대적 위치가 어떠한지를 확인한 언어실험의 내용과 결과를 소개하고, 실험 결과를 바탕으로 기술문서의 가독성 제고에 필요한 어순 제약을 도출하고자 한다. 언어실험에서는 한국어 화자가 논항 Argument과 부가어 Adjunkt를 포함하는 문장을 산출할 때 두 가지 문장성분의 배열 순서로 선호하는 어순이 있는지를 확인하고, 이를 바탕으로 기본어순에서의 논항과 부가어의 상대적 위치를 가늠해 보고자 하였다.
+KW - 통제언어, 쓰기규칙, 논항-부가어-어순, 문장산출실험, 무표적 어순
+DO - 10.24814/kgds.2010..21.1
+UR - http://dx.doi.org/10.24814/kgds.2010..21.1
+ER -
+권민재
+,
+최명원
+,
+홍진주
+and
+홍우평
+(2010).
+문서의 가독성 제고를 위한 어순 제약.
+독어학,
+21,
+1 - 21.
+권민재
+,
+최명원
+,
+홍진주
+and
+홍우평
+. 2010,
+“문서의 가독성 제고를 위한 어순 제약”,
+no.21,
+pp. 1 - 21.
+Available from: doi:10.24814/kgds.2010..21.1
+권민재
+외.
+“문서의 가독성 제고를 위한 어순 제약“
+독어학
+21
+pp. 1 - 21.
+(2010): 1.
+권민재
+,
+최명원
+,
+홍진주
+,
+홍우평
+.
+문서의 가독성 제고를 위한 어순 제약
+독어학
+[Internet].
+2010;
+21,
+:
+1 - 21.
+Available from: doi:10.24814/kgds.2010..21.1
+권민재
+,
+최명원
+,
+홍진주
+and
+홍우평
+. “문서의 가독성 제고를 위한 어순 제약“
+독어학
+no.21
+(2010): 1 - 21. doi: :10.24814/kgds.2010..21.1
+텍스트 파일로 저장
+피인용 논문
+(우)305-754 대전광역시 유성구 가정로 201 한국연구재단
+TEL: 042-869-6674, 1544-6118
+E-mail: kciadmin@nrf.re.kr
+COPYRIGHT BY 2024 NRF. ALL RIGHTS RESERVED.
+About KOAJ
+KOAJ 안내
+KCI DOI 사업 개요
+KCI DOI 가입신청 안내
+DOAJ 가입 신청서 작성 안내
+Journals
+Articles
+Statistics
+기관·학술지 통계
+Data 구축 통계
