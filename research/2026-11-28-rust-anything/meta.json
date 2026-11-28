@@ -1,0 +1,13 @@
+{
+  "title": "rust-anything의 Rust 이식 검사와 보장 범위",
+  "date": "2026-11-28",
+  "seq": 49,
+  "summary": "코드로 추적한 bridge·record·gate·점진 전환, 예외 비교의 빈틈과 agent 대비 실증의 한계",
+  "category": "oss",
+  "format": "article",
+  "purpose": "report",
+  "source": {
+    "url": "https://github.com/erkamyaman/rust-anything",
+    "version": "a1e9509b31bd89e0cbf039e86a39ca338d2c67fe"
+  }
+}

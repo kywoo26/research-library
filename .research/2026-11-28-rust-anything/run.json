@@ -1,0 +1,162 @@
+{
+ "request": "https://github.com/erkamyaman/rust-anything\n\n에 대해 조사. 코드에 대해 깊게 분석하고 이게 왜 rust 체계전환에 유용하다고 얘기하는지, 그냥 프롬프팅가 에이전트에게 맡겼을때 대비 뭐가 더 나아지고 뭘 보장해주는지 실즈은 있는지 등을 포함하여 깊게조사해. research chain을 통해 pr까지 꿑까지 잘 완수해봐",
+ "asks": [
+  {
+   "id": "a1",
+   "text": "rust-anything이 Rust 전환에 유용하다고 주장하는 이유와 실제 코드 작동 방식",
+   "chapters": [
+    "핵심",
+    "실행 흐름",
+    "언어 경계",
+    "검사 계약",
+    "전체 앱"
+   ]
+  },
+  {
+   "id": "a2",
+   "text": "일반 프롬프팅으로 agent에게 맡기는 방법 대비 개선과 보장 범위",
+   "chapters": [
+    "핵심",
+    "검사 계약",
+    "프롬프팅 비교",
+    "평가 설계"
+   ]
+  },
+  {
+   "id": "a3",
+   "text": "실증·평가 근거와 한계, 실제 채택 판단",
+   "chapters": [
+    "핵심",
+    "실증",
+    "평가 설계",
+    "도입 판단"
+   ]
+  }
+ ],
+ "decided": [
+  {
+   "what": "조사 범위",
+   "choice": "v5.0.1 현재 snapshot의 실행·비교·gate 경로, 실제 결과와 A/B 설계",
+   "why": "소유자가 요청한 깊은 코드 분석과 보장/실증 비교에 집중한다."
+  },
+  {
+   "what": "독립 검토 수정",
+   "choice": "API 검사 범위를 기록에서 호출한 export로 좁혔다.",
+   "why": "numbers lens가 전체 manifest API 검사로 읽힐 수 있는 과장을 찾았다."
+  },
+  {
+   "what": "모바일 비교표",
+   "choice": "방법을 열 대신 행으로 배치한 표로 재구성했다.",
+   "why": "reader lens가 390px에서 핵심 도구 열이 가려진다고 지적했다."
+  }
+ ],
+ "experiments": [
+  {
+   "command": "python3 .research/2026-11-28-rust-anything/notes/probe.py",
+   "result": "TS original comparator 2 pass (different errors), 2 fail (wrong value, Rust panic); Python error checks true,true,false. JS stand-ins; no native Rust gate."
+  },
+  {
+   "command": "TMPDIR=$PWD/.research/2026-11-28-rust-anything/notes/run/tmp python3 .research/2026-11-28-rust-anything/notes/run/evals/score.py --case py-textkit --workspace .research/2026-11-28-rust-anything/notes/run/evals/py-textkit/original --out .research/2026-11-28-rust-anything/notes/run/score-original.json",
+   "result": "45/45 exact and outcome; callers unchanged; Rust probe false; gate none. Negative control only."
+  }
+ ],
+ "unverified": [
+  "CLI build·native bridge·gate 전체, 실제 프로젝트 benchmark를 재현하지 않았다.",
+  "동일 모델의 도구 유무 A/B와 production 운영 안정성을 측정하지 않았다.",
+  "전체 언어 adapter·codegen·통합 테스트를 전수 열람하거나 실행하지 않았다.",
+  "Software Heritage 사본 가용성을 확인하지 못했다."
+ ],
+ "unfixed": [],
+ "needs_owner": [],
+ "rendered": "headless Chrome으로 1280px·390px, light/dark를 렌더링했다. 저자가 도식과 수정 표의 실제 화면을 열어 확인했고 recheck도 수정 장을 확인했다. 가로 넘침·layout 경고 없음.",
+ "commitSubject": "rust-anything의 코드와 Rust 이식 보장 범위를 분석했다",
+ "commitBody": "rust-anything의 bridge·record·diff·gate·go·점진 전환 구현을 추적하고 일반 agent 프롬프팅 대비 재사용 가치와 검증 한계를 분석했다.\n\nerkamyaman/rust-anything v5.0.1, commit a1e9509b31bd89e0cbf039e86a39ca338d2c67fe의 코드·실제 이식·평가 자료와 Aider 및 Anthropic의 공식 문서를 근거로 삼았다.\n\n추출한 TS/JS·Python comparator와 Python scorer 음성 대조를 실행했다. native bridge·전체 gate·agent A/B는 실행하지 않았으며 성능은 maintainer 자체 보고로 구분했다.",
+ "verification": {
+  "plan": "새 plan-review가 수정 계획 진행 가능 판정",
+  "lenses": "reader blocking 없음; numbers API 검사 범위 과장1건 수정",
+  "recheck": "장4·6·10 수정과 모바일 비교표를 새 문맥에서 재검토; blocker 없음",
+  "machine": "check-doc, check-prose, check-claims 통과; 주장57개, 근거참조86개, 출처3개",
+  "coverage": "asks a1,a2,a3 모두 본문 장으로 대응"
+ },
+ "shippedAt": "2026-11-28T03:51:12.374Z",
+ "usage": {
+  "tokens": 16565247,
+  "usd": 3.32,
+  "roles": {
+   "researcher": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 211620,
+    "cache_write": 0,
+    "cache_read": 11601408,
+    "output": 41336,
+    "usd": 2
+   },
+   "default": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 94016,
+    "cache_write": 0,
+    "cache_read": 2492800,
+    "output": 10375,
+    "usd": 0.54
+   },
+   "plan-review": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 52460,
+    "cache_write": 0,
+    "cache_read": 295552,
+    "output": 2279,
+    "usd": 0.16
+   },
+   "lens-numbers": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 100861,
+    "cache_write": 0,
+    "cache_read": 1152256,
+    "output": 6664,
+    "usd": 0.38
+   },
+   "lens-reader": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 53303,
+    "cache_write": 0,
+    "cache_read": 272640,
+    "output": 2594,
+    "usd": 0.16
+   },
+   "recheck": {
+    "models": [
+     "gpt-6.1-sol"
+    ],
+    "input": 26987,
+    "cache_write": 0,
+    "cache_read": 146688,
+    "output": 1408,
+    "usd": 0.08
+   }
+  }
+ },
+ "ship": {
+  "branch": "doc/2026-11-28-rust-anything",
+  "draft": false,
+  "draftReasons": [],
+  "gates": {
+   "check-doc": true,
+   "check-prose": true,
+   "check-claims": true
+  },
+  "docSha": "3c6c2b9669eda83517fece9a2cc2dddff1c6ecb28b1932ea45691bbb1753ea40",
+  "unreviewed": false,
+  "harness": "codex",
+  "modelCheck": "확인 못 함: 실제 모델을 본 행위자 0/6, lens 일부 없음(Codex 로그의 서버 모델 보고). 보조 관찰이라 빈 것이 전환이 없었다는 뜻은 아니다"
+ }
+}
